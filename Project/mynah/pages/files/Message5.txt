@@ -1,0 +1,4 @@
+8. Lorem Ipsum Generator
+又是一個標準的隨機假文產生器，不同之處在於能產生超過 10 種語言（包含摩斯密碼）。你也可以下載產生的文字，或複製產生的 HTML 程式碼。
+
+範例（拉丁文字）：Lorem ipsum dolor sit amet, eos suscipit philosophia in, te tractatos intellegat eam. Mandamus medium, et vis sumo vivendo t ad, adhuc mundi sea ne, legere assentior ius ex. Usu ei denique lobortis.

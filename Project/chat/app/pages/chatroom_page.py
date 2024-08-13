@@ -1,0 +1,705 @@
+from datetime import datetime
+from time import sleep
+from airtest.core.api import text, touch
+from common.app.common import Common
+from configs.app.setting import Setting
+from Project.chat.app.pages.base_page import Base
+from Project.chat.app.pages.xpath.xpath_base import Xpath_Base
+from Project.chat.app.pages.point_page import PointPageLocator
+from Project.chat.app.pages.main_page import MainPageLocator
+import logging
+import common.utils.globalvar as gl
+
+
+class ChatRoomPageLocator:
+    base = Xpath_Base()
+    env = gl.get_value('ENV')
+    brand = gl.get_value('BRAND')
+    app_package = Setting().get_package_name(brand, env)
+
+    @staticmethod
+    def env(env):
+        env = ChatRoomPageLocator.base.check_device(
+            Android=ChatRoomPageLocator.base.data_collation(type_kind='textMatches', type_name=f'{env}.*'),
+            iOS=ChatRoomPageLocator.base.data_collation(type_kind='nameMatches', type_name=f'{env}.*')
+        )
+
+        return env
+
+    search_input = base.check_device(
+        Android=base.data_collation(type_kind='text', type_name='搜索'),
+        iOS=base.data_collation(type_kind='name', type_name='搜索'),
+    )
+
+    search_btn = base.check_device(
+        Android=base.data_collation(type_kind='text', type_name=str(app_package) + ':id/btn_search'),
+        iOS=base.data_collation(type_kind='name', type_name='搜索'),
+    )
+
+    message_input = base.check_device(
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/et_input'),
+        iOS=base.data_collation(type_kind='name', type_name='Aa'),
+    )
+
+    message_input_block = base.check_device(
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tvInputBlock'),
+        iOS=base.data_collation(type_kind='name', type_name='搜索'),
+    )
+
+    message_input_empty = base.check_device(
+        Android=base.data_collation(type_kind='text', type_name='Aa'),
+        iOS=base.data_collation(type_kind='name', type_name='Aa'),
+    )
+
+    send_message_btn = base.check_device(
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/iv_send'),
+        iOS=base.data_collation(type_kind='name', type_name='buttonSendFill'),
+    )
+
+    retry_send_message_btn = base.check_device(
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/btn_resend'),
+        iOS=base.data_collation(type_kind='name', type_name=':id/btn_resend'),
+    )
+
+    add_function_btn = base.check_device(
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/btn_add_function'),
+        iOS=base.data_collation(type_kind='name', type_name='搜索'),
+    )
+
+    last_message_room = base.check_device(
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tv_content', num=-1),
+        iOS=base.data_collation(type_kind='nameMatches', type_name='.*测试.*', num=-1),
+    )
+
+    messages_room = base.check_device(
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tv_content'),
+        iOS=base.data_collation(type_kind='name', type_name='新增好友'),
+    )
+
+    menu_copy = base.check_device(
+        Android=base.data_collation(type_kind='text', type_name='复制'),
+        iOS=base.data_collation(type_kind='name', type_name='复制'),
+    )
+
+    menu_reply = base.check_device(
+        Android=base.data_collation(type_kind='text', type_name='回覆'),
+        iOS=base.data_collation(type_kind='name', type_name='回覆'),
+    )
+
+    menu_pin = base.check_device(
+        Android=base.data_collation(type_kind='text', type_name='设为公告'),
+        iOS=base.data_collation(type_kind='name', type_name='设为公告'),
+    )
+
+    menu_delete = base.check_device(
+        Android=base.data_collation(type_kind='text', type_name='删除'),
+        iOS=base.data_collation(type_kind='name', type_name='删除'),
+    )
+
+    popup_message = base.check_device(
+        Android=base.data_collation(type_kind='name', type_name='android:id/message'),
+        iOS=base.data_collation(type_kind='nameMatches', type_name='公告已满5则.*'),
+    )
+
+    popup_btn = base.check_device(
+        Android=base.data_collation(type_kind='name', type_name='android:id/button1'),
+        iOS=base.data_collation(type_kind='type', type_name='ScrollView', num=1),
+    )
+
+    menu_revoke = base.check_device(
+        Android=base.data_collation(type_kind='text', type_name='撤回'),
+        iOS=base.data_collation(type_kind='name', type_name='撤回'),
+    )
+
+    menu_paste = base.check_device(
+        Android=base.data_collation(type_kind='text', type_name='粘贴'),
+        iOS=base.data_collation(type_kind='name', type_name='粘贴'),
+    )
+
+    paste_popup = base.check_device(
+        Android=base.data_collation(type_kind='name', type_name='com.android.systemui:id/dismiss_image'),
+        iOS=base.data_collation(type_kind='name', type_name='name'),
+    )
+
+    back_btn = base.check_device(
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/btn_back'),
+        iOS=base.data_collation(type_kind='type', type_name='Button',num=0),
+    )
+
+    next_btn = base.check_device(
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/btn_next'),
+        iOS=base.data_collation(type_kind='name', type_name='搜索'),
+    )
+
+    reply_name = base.check_device(
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tv_reply_sender_name'),
+        iOS=base.data_collation(type_kind='nameMatches', type_name='回.*', num=-1),
+    )
+
+    reply_message = base.check_device(
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tv_reply_sender_message'),
+        iOS=base.data_collation(type_kind='nameMatches', type_name='.*测试.*', num=-1),
+    )
+
+    reply_title_message = base.check_device(
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/quoted_content',
+                                    action='child()[1]'),
+        iOS=base.data_collation(type_kind='name', type_name='搜索'),
+    )
+
+    cancel_btn = base.check_device(
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/btn_cancel'),
+        iOS=base.data_collation(type_kind='name', type_name='搜索'),
+    )
+
+    url_check_point = base.check_device(
+        Android=base.data_collation(type_kind='name', type_name=f'com.android.chrome:id/coordinator'),
+        iOS=base.data_collation(type_kind='name', type_name='搜索'),
+    )
+
+    author_name = base.check_device(
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tv_author_name'),
+        iOS=base.data_collation(type_kind='name', type_name='搜索'),
+    )
+
+    event_message = base.check_device(
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tv_event_name', num=-1),
+        iOS=base.data_collation(type_kind='nameMatches', type_name='.*一则.*', num=-1),
+    )
+
+    pin_open_btn = base.check_device(
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/btn_expand'),
+        iOS=base.data_collation(type_kind='name', type_name='iconArrowsChevronDown'),
+    )
+
+    pin_close_btn = base.check_device(
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/btn_collapse'),
+        iOS=base.data_collation(type_kind='name', type_name='iconArrowsChevronUp'),
+    )
+
+    pin_not_show_btn = base.check_device(
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/btn_do_not_show_again', num=0),
+        iOS=base.data_collation(type_kind='name', type_name='不再显示'),
+    )
+
+    pin_messages = base.check_device(
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tv_sender_message'),
+        iOS=base.data_collation(type_kind='type', type_name='Image'),
+    )
+
+    pin_name = base.check_device(
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tv_sender_name', num=0),
+        iOS=base.data_collation(type_kind='name', type_name='搜索'),
+    )
+
+    pin_popup = base.check_device(
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/cl_announcement_container'),
+        iOS=base.data_collation(type_kind='name', type_name='搜索'),
+    )
+
+
+    emoji_thumbs = base.check_device(
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/iv_thumbs_up'),
+        iOS=base.data_collation(type_kind='name', type_name='搜索')
+    )
+
+    emoji_grinning = base.check_device(
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/iv_grinning_squinting_face'),
+        iOS=base.data_collation(type_kind='name', type_name='搜索')
+    )
+
+    emoji_heart = base.check_device(
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/iv_red_heart'),
+        iOS=base.data_collation(type_kind='name', type_name='搜索')
+    )
+
+    emoji_crying = base.check_device(
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/iv_crying_face'),
+        iOS=base.data_collation(type_kind='name', type_name='Image', num=-2)
+    )
+
+    emoji_astonished = base.check_device(
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/iv_astonished_face'),
+        iOS=base.data_collation(type_kind='name', type_name='搜索')
+    )
+
+    emoji_multiple = base.check_device(
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/iv_emoji_1', num=-1),
+        iOS=base.data_collation(type_kind='name', type_name='搜索')
+    )
+
+    emoji_count = base.check_device(
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/iv_count', num=-1),
+        iOS=base.data_collation(type_kind='name', type_name='搜索')
+    )
+
+    emoji_btn = base.check_device(
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/cl_root'),
+        iOS=base.data_collation(type_kind='name', type_name='iconIconSmile', num=-1)
+    )
+
+    image_photo = base.check_device(
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/iv_photo'),
+        iOS=base.data_collation(type_kind='name', type_name='搜索')
+    )
+
+    image_camera = base.check_device(
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/iv_camera'),
+        iOS=base.data_collation(type_kind='name', type_name='搜索')
+    )
+
+    options_btn = base.check_device(
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/btn_options'),
+        iOS=base.data_collation(type_kind='name', type_name='搜索')
+    )
+
+    options_title = base.check_device(
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tv_title'),
+        iOS=base.data_collation(type_kind='type', type_name='StaticText', num=1)
+    )
+
+    options_back = base.check_device(
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/iv_start_icon'),
+        iOS=base.data_collation(type_kind='name', type_name='搜索')
+    )
+
+    options_delete_and_leave = base.check_device(
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tv_delete_and_leave'),
+        iOS=base.data_collation(type_kind='text', type_name='刪除並退出')
+    )
+
+    options_leave_group_confirm_btn = base.check_device(
+        Android=base.data_collation(type_kind='text', type_name='退出群组'),
+        iOS=base.data_collation(type_kind='text', type_name='退出群组')
+    )
+
+
+    red_envelope_system_message = base.check_device(
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tv_event_name', num=-1),
+        iOS=base.data_collation(type_kind='name', type_name='xxx')
+    )
+
+    red_envelope_message = base.check_device(
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/cl_root', num=-1),
+        iOS=base.data_collation(type_kind='name', type_name='xxx')
+    )
+
+    red_envelope_open_btn = base.check_device(
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/iv_open'),
+        iOS=base.data_collation(type_kind='name', type_name='xxx')
+    )
+
+    red_envelope_amount = base.check_device(
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tv_title'),
+        iOS=base.data_collation(type_kind='name', type_name='xxx')
+    )
+
+    red_envelope_close_btn = base.check_device(
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/iv_close'),
+        iOS=base.data_collation(type_kind='name', type_name='xxx')
+    )
+
+    @staticmethod
+    def message_locator(message, num=-1):
+        message_path = ChatRoomPageLocator.base.check_device(
+            Android=ChatRoomPageLocator.base.data_collation(type_kind='text', type_name=message, num=num),
+            iOS=ChatRoomPageLocator.base.data_collation(type_kind='name', type_name=message, num=num),
+        )
+
+        return message_path
+
+    @staticmethod
+    def message_emoji_locator(message):
+        message_path = ChatRoomPageLocator.base.check_device(
+            Android=ChatRoomPageLocator.base.data_collation(type_kind='text', type_name=message,
+                                                            action='parent().sibling()[0]', num=-1),
+            iOS=ChatRoomPageLocator.base.data_collation(type_kind='name', type_name=message, num=-1),
+        )
+
+        return message_path
+
+    @staticmethod
+    def message_emoji_multiple_locator(message):
+        message_path = ChatRoomPageLocator.base.check_device(
+            Android=ChatRoomPageLocator.base.data_collation(type_kind='text', type_name=message,
+                                                            action='parent().sibling()[1].child()'),
+            iOS=ChatRoomPageLocator.base.data_collation(type_kind='name', type_name='搜索')
+        )
+
+        return message_path
+
+    @staticmethod
+    def pin_messages_locator(app_package, num):
+        pin_text = ChatRoomPageLocator.base.check_device(
+            Android=ChatRoomPageLocator.base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tv_sender_message', num=num),
+            iOS=ChatRoomPageLocator.base.data_collation(type_kind='', type_name='搜索'),
+        )
+
+        return pin_text
+
+
+class ChatRoomPage(Base):
+    phone_platform = gl.get_value('PHONE_PLATFORM')
+
+    def into_setting(self):
+        if self.common.poco_exists(ChatRoomPageLocator.options_btn):
+            self.common.poco_click(ChatRoomPageLocator.options_btn)
+            title = self.common.poco_get_text(ChatRoomPageLocator.options_title)
+            assert title[2:] == '详情', f'進入設定頁面有誤'
+
+    def send_message(self, message):
+        if self.common.poco_exists(ChatRoomPageLocator.message_input_empty):
+            if not self.poco(name='下一个键盘').exists():
+                self.common.poco_click(ChatRoomPageLocator.message_input)
+            self.common.poco_send_text(ChatRoomPageLocator.message_input, message)
+            self.common.poco_click(ChatRoomPageLocator.send_message_btn)
+            # self.wait_loading_finish()
+            if self.common.poco_exists(ChatRoomPageLocator.retry_send_message_btn):
+                self.common.poco_click(ChatRoomPageLocator.retry_send_message_btn)
+            if self.phone_platform.lower() == 'android':
+                last_room_msg = self.common.poco_get_text(ChatRoomPageLocator.last_message_room)
+                assert last_room_msg == message, f'發送聊天訊息有誤, 預期: {message}, 實際:{last_room_msg}'
+
+                # ========================== for ios =======================================
+                # if message.__contains__('http'):
+                #     last_room_msg = self.poco(type='Table').child(type='Cell')[-1].child()[-2].attr('name')
+                # else:
+                #     last_room_msg = self.poco(type='Table').child(type='Cell')[-1].child().child().attr('name')
+                #
+                # assert last_room_msg == message, f'發送聊天訊息有誤, 預期: {message}, 實際:{last_room_msg}'
+
+    def send_text_message(self):
+        if self.common.poco_exists(ChatRoomPageLocator.send_message_btn):
+            if self.phone_platform.lower() == 'ios':
+                self.poco(type='Other')[-1].click()
+            else:
+                self.common.poco_click(ChatRoomPageLocator.message_input)
+            self.common.poco_send_text(ChatRoomPageLocator.message_input, 'clear_text')
+            self.common.poco_click(ChatRoomPageLocator.send_message_btn)
+        else:
+            self.common.poco_click(ChatRoomPageLocator.message_input)
+        messages = '測試TeSt12345!@#$%测试'
+        num = 0
+        for _ in range(0, 6):
+            text = str(messages) + '#' + str(num)
+            self.send_message(text)
+            # self.common.sleep(0.5)
+            if self.common.poco_exists(ChatRoomPageLocator.retry_send_message_btn):
+                self.common.sleep(1)
+                self.common.poco_click(ChatRoomPageLocator.retry_send_message_btn)
+                self.common.sleep(1)
+
+            num = num + 1
+        if self.phone_platform.lower() == 'android':
+            self.go_back()
+        else:
+            touch((200, 500))
+
+    def send_url_message(self):
+        messages = ['https://google.com.tw', 'https://gu-chat.com']
+
+        if self.common.poco_exists(ChatRoomPageLocator.send_message_btn):
+            if self.phone_platform.lower() == 'ios':
+                self.poco(type='Other')[-1].click()
+            else:
+                self.common.poco_click(ChatRoomPageLocator.message_input)
+            self.common.poco_send_text(ChatRoomPageLocator.message_input, 'clear_text')
+            self.common.poco_click(ChatRoomPageLocator.send_message_btn)
+        else:
+            self.common.poco_click(ChatRoomPageLocator.message_input)
+
+        for message in messages:
+            self.send_message(message)
+            self.check_url_message(message)
+
+    def check_url_message(self, message):
+        if self.phone_platform.lower() == 'android':
+            if self.common.poco_exists(ChatRoomPageLocator.message_locator(message)):
+                self.common.poco_click(ChatRoomPageLocator.message_locator(message))
+                self.common.sleep(3)
+                assert self.common.poco_exists(ChatRoomPageLocator.url_check_point), f'超連結沒有出現'
+                self.go_back()
+        # else:
+        #     context_url = self.poco(type='TextView')[-2].attr('name')
+        #     assert context_url.__contains__('https://'), f'超連結沒有出現'
+
+    def draft_message(self, message):
+
+        if self.common.poco_exists(ChatRoomPageLocator.message_input_empty):
+            self.common.poco_click(ChatRoomPageLocator.message_input)
+            self.common.poco_send_text(ChatRoomPageLocator.message_input, message)
+
+    def copy_message(self, message):
+        self.common.poco_long_click(ChatRoomPageLocator.message_locator(message))
+        self.common.poco_click(ChatRoomPageLocator.menu_copy)
+        if self.common.poco_exists(ChatRoomPageLocator.paste_popup):
+            self.common.poco_click(ChatRoomPageLocator.paste_popup)
+
+        for _ in range(0, 3):
+            if self.common.poco_exists(ChatRoomPageLocator.menu_paste):
+                self.common.poco_click(ChatRoomPageLocator.menu_paste)
+                break
+            else:
+                self.common.sleep(0.5)
+                # if self.common.poco_exists(ChatRoomPageLocator.send_message_btn):
+                #     if self.phone_platform.lower() == 'ios':
+                #         self.poco(type='Other')[-1].click()
+                #         self.common.poco_send_text(ChatRoomPageLocator.message_input, 'clear_text')
+                #         self.common.poco_click(ChatRoomPageLocator.send_message_btn)
+                self.common.poco_long_click(ChatRoomPageLocator.message_input)
+
+        self.common.poco_click(ChatRoomPageLocator.send_message_btn)
+
+    def reply_message(self, message):
+        self.common.poco_click(ChatRoomPageLocator.message_locator(message))
+        self.common.poco_long_click(ChatRoomPageLocator.message_locator(message))
+        self.common.poco_click(ChatRoomPageLocator.menu_reply)
+
+        if self.phone_platform.lower() == 'ios':
+            title = self.common.poco_get_text(ChatRoomPageLocator.reply_name)
+            reply_message = self.common.poco_get_text(ChatRoomPageLocator.reply_message)
+            assert title.__contains__(f'回覆')  # 確認訊息回覆時標題為"回覆{原訊息發話成員}}"
+            assert message == reply_message, f'回覆訊息預覽有誤'  # 確認原訊息
+
+            if self.common.poco_exists(ChatRoomPageLocator.message_input_empty):
+                self.common.poco_click(ChatRoomPageLocator.message_input)
+                self.common.poco_send_text(ChatRoomPageLocator.message_input, '回覆訊息测试Test')
+                self.common.poco_click(ChatRoomPageLocator.send_message_btn)
+
+                touch((300, 600))
+
+                # a1 = self.poco(type='Cell')[-1].child(nameMatches='gu.*')[0].attr('value')
+                # b1 = self.poco(type='Cell')[-1].child(type='StaticText')[0].attr('name')
+                original_msg_user = self.poco(nameMatches='gu.*')[-1].attr('value')
+                replied_msg = self.common.poco_get_text(ChatRoomPageLocator.last_message_room)
+                assert original_msg_user == title[2:], f'訊息回覆對象有錯, result:{original_msg_user}, expect: {title[2:]}'  # 確認聊天室內訊息回覆框原文發話成員
+                assert replied_msg == '回覆訊息测试Test', f'回覆訊息內容有誤, result:{replied_msg}, expect: 回覆訊息测试Test'
+                # assert self.poco(type='TextView')[-2].attr('value') == '回覆訊息測試Test', f'回覆訊息內容有誤'  # 確認回覆文字
+
+        else:  # android part
+            title = self.common.poco_get_text(ChatRoomPageLocator.reply_name)
+            reply_message = self.common.poco_get_text(ChatRoomPageLocator.reply_message)
+            assert title.__contains__('回复'), f'訊息回覆標題有誤'
+            assert message == reply_message, f'回覆訊息預覽有誤'
+
+            if self.common.poco_exists(ChatRoomPageLocator.message_input_empty):
+                self.common.poco_send_text(ChatRoomPageLocator.message_input, '回覆訊息测试Test')
+                self.common.poco_click(ChatRoomPageLocator.send_message_btn)
+
+                assert title.__contains__(
+                    self.common.poco_get_text(ChatRoomPageLocator.author_name)), f'訊息回覆標題有誤'
+                assert self.common.poco_get_text(
+                    ChatRoomPageLocator.last_message_room) == '回覆訊息测试Test', f'回覆訊息內容有誤'
+
+    def check_reply_title(self, message):
+        assert self.common.poco_exists(ChatRoomPageLocator.message_locator(message)), f'回覆原訊息遺失 顯示有誤'
+
+    def delete_message(self, message, last_message='', num=-1):
+        self.common.poco_click(ChatRoomPageLocator.message_locator(message, num))
+        self.common.poco_long_click(ChatRoomPageLocator.message_locator(message, num))
+        self.common.poco_click(ChatRoomPageLocator.menu_delete)
+        self.common.poco_click(ChatRoomPageLocator.popup_btn)
+        self.wait_loading_finish()
+        assert self.common.poco_wait_disappearance(ChatRoomPageLocator.message_locator(message)) is False, f'刪除訊息失敗'
+
+        if last_message == '':
+            pass
+        else:
+            assert self.common.poco_get_text(ChatRoomPageLocator.last_message_room) == last_message, f'實際:{self.common.poco_get_text(ChatRoomPageLocator.last_message_room)}, 預期:{last_message}'
+
+    def get_last_message(self):
+        # ========== for ios method ==========
+        # last_message_method_1 = self.poco(type='TextView')[-3].attr('name')
+        return self.common.poco_get_text(ChatRoomPageLocator.last_message_room)
+
+    def revoke_message(self, message, num=-1):
+        self.common.poco_long_click(ChatRoomPageLocator.message_locator(message, num))
+        self.common.poco_click(ChatRoomPageLocator.menu_revoke)
+        self.common.poco_click(ChatRoomPageLocator.popup_btn)
+
+        if self.phone_platform.lower() == 'ios' and self.common.poco_exists(ChatRoomPageLocator.event_message):
+            pin_event_message = self.common.poco_get_text(ChatRoomPageLocator.event_message)
+        else:
+            pin_event_message = self.common.poco_get_text(ChatRoomPageLocator.event_message)
+
+        if pin_event_message.__contains__('设定了一则公告'):
+            if self.common.poco_exists(ChatRoomPageLocator.pin_open_btn):
+                self.common.poco_click(ChatRoomPageLocator.pin_open_btn)
+                self.wait_loading_finish()
+                pin_list = self.get_pin_message()
+                assert message not in pin_list, f'訊息撤回後，公告沒有消失'
+            else:
+                pass
+        else:
+            assert self.common.poco_get_text(ChatRoomPageLocator.event_message) == '你已撤收一则讯息', f'系統訊息有誤'
+
+    def pin_message(self, message):
+        self.common.poco_click(ChatRoomPageLocator.message_locator(message))
+        self.common.sleep(1)
+        self.common.poco_long_click(ChatRoomPageLocator.message_locator(message))
+        self.common.sleep(3)
+        self.common.poco_click(ChatRoomPageLocator.menu_pin)
+
+        if self.common.poco_exists(ChatRoomPageLocator.popup_message):
+            assert self.common.poco_get_text(ChatRoomPageLocator.popup_message) == '公告已满5则，无法新增，请取消欲替换的公告', f'彈窗訊息有誤'
+            self.common.poco_click(ChatRoomPageLocator.popup_btn)
+            return False
+        else:
+            self.wait_loading_finish()
+            assert self.common.poco_get_text(ChatRoomPageLocator.event_message).__contains__('设定了一则公告'), f'系統訊息有誤'
+            return True
+
+    def pin_full_messages(self):
+        message = '測試TeSt12345!@#$%测试#'
+        pin_sort = [2, 4, 5, 1, 0, 3]
+
+        times = 1
+        expected_list = []
+        for number in pin_sort:
+            text = message + str(number)
+            if times < 6:
+                assert self.pin_message(text) is True
+                expected_list.append(text)
+            else:
+                assert self.pin_message(text) is False
+                break
+
+            times = times + 1
+
+        self.common.poco_click(ChatRoomPageLocator.pin_open_btn)
+        reality_list = self.get_pin_message()
+        reality_list.reverse()
+        assert reality_list == expected_list, f'公告排序有誤'
+
+    def delete_all_pin(self):
+        while self.common.poco_exists(ChatRoomPageLocator.pin_messages):
+
+            if self.phone_platform.lower() == 'ios':
+                if self.common.poco_exists(ChatRoomPageLocator.pin_open_btn):
+                    self.common.poco_click(ChatRoomPageLocator.pin_open_btn)
+                # self.wait_loading_finish()
+                if self.common.poco_exists(ChatRoomPageLocator.pin_not_show_btn):
+                    self.common.poco_click(ChatRoomPageLocator.pin_not_show_btn)
+                else:
+                    break
+
+            else:
+                if self.common.poco_exists(ChatRoomPageLocator.pin_open_btn):
+                    self.common.poco_click(ChatRoomPageLocator.pin_open_btn)
+
+                self.wait_loading_finish()
+
+                if self.common.poco_exists(ChatRoomPageLocator.pin_not_show_btn):
+                    before_message = self.common.poco_get_text(ChatRoomPageLocator.pin_messages)
+                    self.common.poco_click(ChatRoomPageLocator.pin_not_show_btn)
+
+                    if self.common.poco_exists(ChatRoomPageLocator.pin_close_btn):
+                        after_message = self.common.poco_get_text(ChatRoomPageLocator.pin_messages)
+                        assert before_message != after_message, f'公告取消失敗'
+                    else:
+                        break
+                else:
+                    print('角色權限不足')
+                    break
+
+    def check_pin_message(self, message):
+        if self.common.poco_exists(ChatRoomPageLocator.pin_open_btn):
+            self.common.poco_click(ChatRoomPageLocator.pin_open_btn)
+
+        if self.phone_platform.lower() == 'android':
+            assert message == self.common.poco_get_text(ChatRoomPageLocator.pin_messages)
+        else:
+            assert self.common.poco_exists(ChatRoomPageLocator.pin_messages)
+            assert self.poco(nameMatches='.*测试.*').attr('value') == message
+            assert self.common.poco_exists(ChatRoomPageLocator.pin_not_show_btn)
+
+        self.common.poco_click(ChatRoomPageLocator.pin_close_btn)
+
+    def get_pin_message(self):
+        if self.phone_platform.lower() == 'android':
+            messages = []
+            for pin_num in range(0, 5, 1):
+                if self.common.poco_exists(ChatRoomPageLocator.pin_messages_locator(ChatRoomPageLocator.app_package, pin_num)):
+                    message = self.common.poco_get_text(ChatRoomPageLocator.pin_messages_locator(ChatRoomPageLocator.app_package, pin_num))
+                    messages.append(message)
+                else:
+                    break
+            return messages
+        else:
+            messages = []
+            if self.poco(type='Other').child(nameMatches='測試.*').exists():
+                total_pin_nums = len(self.poco(type='Other').child(nameMatches='測試.*'))
+                for pin_num in range(0, total_pin_nums, 1):
+                    message = self.poco(type='Other').child(nameMatches='測試.*')[pin_num].attr('name')
+                    messages.append(message)
+                return messages
+
+    def share_message(self, text):
+        for _ in range(0, 10):
+            if self.common.poco_exists(ChatRoomPageLocator.menu_paste):
+                self.common.poco_click(ChatRoomPageLocator.menu_paste)
+                break
+            else:
+                self.common.sleep(0.5)
+                if self.phone_platform.lower() == 'ios':
+                    if not self.common.poco_exists(ChatRoomPageLocator.message_input_empty):  # 當輸入框非空白>送出字串清除
+                        self.poco(type='Other')[-1].click()
+                        self.common.poco_send_text(ChatRoomPageLocator.message_input, 'clear_text')
+                        self.common.poco_click(ChatRoomPageLocator.send_message_btn)
+                        self.common.sleep(0.5)
+                        self.common.poco_click(ChatRoomPageLocator.last_message_room)
+                        self.common.sleep(3)
+                    else:
+                        self.common.poco_long_click(ChatRoomPageLocator.message_input)
+
+                else:
+                    self.common.poco_long_click(ChatRoomPageLocator.message_input)
+
+        self.common.poco_click(ChatRoomPageLocator.send_message_btn)
+        if self.phone_platform.lower() == 'ios':
+            share_text = self.poco(type='TextView')[-4].attr('name')
+            share_url= self.poco(type='TextView')[-2].attr('name')
+            assert text.__contains__(share_text)
+            assert share_url.__contains__('https://')
+        else:
+            share_text = self.common.poco_get_text(ChatRoomPageLocator.last_message_room)
+            assert text == share_text, f'分享文案有誤'
+
+    def check_share_url(self, url):
+        if self.common.poco_wait_exists(ChatRoomPageLocator.message_locator(url)):
+            self.common.poco_click(ChatRoomPageLocator.message_locator(url))
+            self.common.sleep(3)
+
+            assert self.common.poco_exists(ChatRoomPageLocator.url_check_point)
+            self.go_back()
+
+    def add_emoji(self, message):
+        if self.common.poco_exists(ChatRoomPageLocator.message_emoji_locator(message)):
+            self.common.poco_click(ChatRoomPageLocator.message_emoji_locator(message))
+            self.common.poco_wait_appearance(ChatRoomPageLocator.emoji_btn)
+            if self.phone_platform.lower() == 'ios':
+                original_pos = self.poco(type='Cell')[-1].attr('pos')
+                self.common.poco_click(ChatRoomPageLocator.emoji_btn)
+                self.common.poco_click(ChatRoomPageLocator.emoji_crying)
+                after_pos = self.poco(type='Cell')[-1].attr('pos')
+                assert original_pos is not after_pos
+            else:
+                self.common.poco_click(ChatRoomPageLocator.emoji_crying)
+
+    def check_emoji(self, message):
+        if self.common.poco_exists(ChatRoomPageLocator.message_emoji_multiple_locator(message)):
+            assert self.common.poco_exists(ChatRoomPageLocator.emoji_multiple) is True, f'表情符號未顯示'
+            assert self.common.poco_get_text(ChatRoomPageLocator.emoji_count) == 1
+
+    def app_grab_red_envelope(self, user_name):
+        self.common.poco_click(ChatRoomPageLocator.red_envelope_message)
+        self.common.poco_click(ChatRoomPageLocator.red_envelope_open_btn)
+        grab_time = datetime.now().strftime("%Y-%m-%d %H:%M")
+        grab_amount = self.common.poco_get_text(ChatRoomPageLocator.red_envelope_amount)
+        if grab_amount.endswith('.0'):
+            grab_amount = grab_amount[:-2]
+        self.common.poco_click(ChatRoomPageLocator.red_envelope_close_btn)
+        a = self.common.poco_get_text(ChatRoomPageLocator.red_envelope_system_message)
+        assert self.common.poco_get_text(ChatRoomPageLocator.red_envelope_system_message) == f'{user_name} 领取了红包 {grab_amount}', f'系統紅包訊息錯誤, 實際:{a}, 預期:{user_name} 领取了红包 {grab_amount}'
+        self.common.poco_click(ChatRoomPageLocator.back_btn)
+        return grab_amount, grab_time

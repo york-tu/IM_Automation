@@ -1,0 +1,31 @@
+
+*.xml
+
+*.iml
+
+*.json
+
+*.pyc
+
+*.log
+
+*.yml
+
+*.pyd
+
+**/.DS_Store
+
+*.js
+
+*.css
+
+*.html
+
+*.jpg
+
+# *.png
+
+*Test-Reports/
+
+# 忽略webdriver自動下載folder
+driver/driver/.wdm

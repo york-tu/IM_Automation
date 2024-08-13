@@ -1,0 +1,104 @@
+import os
+import sys
+DIR_NAME = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(DIR_NAME)
+
+class WebPages:
+    def __init__(self, driver, wait_sec, base_url, skip_test_method):
+        self.pages_parameter = driver, wait_sec, base_url, skip_test_method
+
+    def commomPage(self):
+        from common.web.common import Common
+        return Common(*self.pages_parameter)
+    
+    def basePage(self):
+        from Project.sbk.web.pages.webs.web_basepage import BasePage
+        return BasePage(*self.pages_parameter)
+    
+    def mainPage(self):
+        from Project.sbk.web.pages.webs.web_mainpage import MainPage
+        return MainPage(*self.pages_parameter)
+
+    def loginPage(self):
+        from Project.sbk.web.pages.webs.web_loginpage import LoginPage
+        return LoginPage(*self.pages_parameter)
+
+    def notificationPage(self):
+        from Project.sbk.web.pages.webs.web_notificationpage import NotificationPage
+        return NotificationPage(*self.pages_parameter)
+
+    def securityPage(self):
+        from Project.sbk.web.pages.webs.web_securitypage import SecurityPage
+        return SecurityPage(*self.pages_parameter)
+
+    def blackPage(self):
+        from Project.sbk.web.pages.webs.web_blackpage import BlackPage
+        return BlackPage(*self.pages_parameter)
+
+    def sharePage(self):
+        from Project.sbk.web.pages.webs.web_sharepage import SharePage
+        return SharePage(*self.pages_parameter)
+
+    def aboutPage(self):
+        from Project.sbk.web.pages.webs.web_aboutpage import AboutPage
+        return AboutPage(*self.pages_parameter)
+
+    def friendPage(self):
+        from Project.sbk.web.pages.webs.web_friendpage import FriendPage
+        return FriendPage(*self.pages_parameter)
+
+    # def sbkroomPage(self):
+    #     from Project.sbk.web.pages.webs.web_sbkroompage import sbkRoomPage
+    #     return sbkRoomPage(*self.pages_parameter)
+
+    # def sbklistPage(self):
+    #     from Project.sbk.web.pages.webs.web_sbklistpage import sbkListPage
+    #     return sbkListPage(*self.pages_parameter)
+
+class AdminPages:
+    def __init__(self, driver, wait_sec, base_url, skip_test_method):
+        self.pages_parameter = driver, wait_sec, base_url, skip_test_method
+    
+    def commomPage(self):
+        from common.web.common import Common
+        return Common(*self.pages_parameter)
+    
+    def basePage(self):
+        from Project.sbk.web.pages.admin.admin_basepage import BasePage
+        return BasePage(*self.pages_parameter)
+    
+    def loginPage(self):
+        from Project.sbk.web.pages.admin.admin_loginpage import LoginPage
+        return LoginPage(*self.pages_parameter)
+    
+    def mainPage(self):
+        from Project.sbk.web.pages.admin.admin_mainpage import MainPage
+        return MainPage(*self.pages_parameter)
+
+    def groupsPage(self):
+        from Project.sbk.web.pages.admin.admin_groupspage import GroupsPage
+        return GroupsPage(*self.pages_parameter)
+
+    def loggingPage(self):
+        from Project.sbk.web.pages.admin.admin_mainpage import LoggingPage
+        return LoggingPage(*self.pages_parameter)
+
+    def memberPage(self):
+        from Project.sbk.web.pages.admin.admin_memberpage import MemberPage
+        return MemberPage(*self.pages_parameter)
+
+    def recodePage(self):
+        from Project.sbk.web.pages.admin.admin_recodepage import RecodePage
+        return RecodePage(*self.pages_parameter)
+
+    def redenvelopePage(self):
+        from Project.sbk.web.pages.admin.admin_redenvelopepage import RedEnvelopePage
+        return RedEnvelopePage(*self.pages_parameter)
+
+    def settingPage(self):
+        from Project.sbk.web.pages.admin.admin_settingpage import SettingPage
+        return SettingPage(*self.pages_parameter)
+
+    def systemPage(self):
+        from Project.sbk.web.pages.admin.admin_systempage import SystemPage
+        return SystemPage(*self.pages_parameter)
