@@ -26,8 +26,8 @@ class IntegralPageLocator:
     exchange_btn = (By.XPATH, '//p[text()="兑换"]')
     
     #兌換頁(選擇順付或平台)
-    exchange_wellpay = (By.XPATH, '//ul[@class="ui-tableviewcell-list"]//p[text()="顺付积分兑换"]')
-    exchange_platform = (By.XPATH, '//ul[@class="ui-tableviewcell-list"]//p[text()="平台积分兑换"]')
+    exchange_wellpay = (By.XPATH, '//ul[@class="ui-tableviewcell-list"]//p[text()="顺付 积分兑换"]')
+    exchange_platform = (By.XPATH, '//ul[@class="ui-tableviewcell-list"]//p[text()="平台 积分兑换"]')
     exchange_wellpay_state = (By.XPATH, '//li[@class = "ui-tableviewcell -click"][1]//p[@class = "ui-tableviewcell__num"]')
     exchange_platform_state = (By.XPATH, '//li[@class = "ui-tableviewcell -click"][2]//p[@class = "ui-tableviewcell__num"]')
     
@@ -35,13 +35,13 @@ class IntegralPageLocator:
     wallet_name = (By.XPATH, '//p[text() = "钱包名称"]')
     wallet_address_text = (By.XPATH, '//p[text() = "钱包地址"]')
     wallet_address = (By.XPATH, '//input[@placeholder="请输入钱包地址"]')
-    exchange_address = (By.XPATH, '//input[@placeholder="请输入兑换地址或扫码"]')
+    exchange_address = (By.XPATH, '//input[@placeholder="请输入兑换地址"]')
     exchange_next_btn = (By.XPATH, "//*[text() = '下一步']")
     exchange_confirm_btn = (By.XPATH, "//*[text() = '兑换']")
     first_exchange_note_confirm_btn = (By.XPATH, "//*[text() = '确定']")
     submit_confirm_btn = (By.XPATH, '//p[text() = "确定"]')
 
-    brand_exchange_text = (By.XPATH, "//p[text()='平台积分兑换']/..//p[@class='ui-tableviewcell__num']")
+    brand_exchange_text = (By.XPATH, "//p[text()='平台 积分兑换']/..//p[@class='ui-tableviewcell__num']")
     back_btn = (By.XPATH, '//div[@class="header-back"]')
 
     #順付兌換
@@ -74,7 +74,7 @@ class IntegralPage(BasePage):
         exchange_integral = self.get_text(IntegralPageLocator.exchange_integral)
         after_remove_sign_amount = re.sub(r'[+-]', '', exchange_integral)  # 移除數字前+-號
         assert after_remove_sign_amount == f"{operate_amount}", f'積分有誤'
-        assert self.get_text(IntegralPageLocator.exchange_source) == operate_type, f'媒介有誤'
+        assert self.get_text(IntegralPageLocator.exchange_source) == operate_type, f'媒介有誤, 預期: {operate_type}, 實際: {self.get_text(IntegralPageLocator.exchange_source)}'
         assert self.get_text(IntegralPageLocator.exchange_state) == '成功', f'存入/提出狀態有誤'
         if operate_time is not None:
             assert self.get_text(IntegralPageLocator.exchange_time) == operate_time, f'存入/提出日期有誤'
@@ -96,9 +96,9 @@ class IntegralPage(BasePage):
         self.wait_loading_finish()
         self.click(IntegralPageLocator.confirm_btn)
         self.wait_loading_finish()
-        assert self.get_text(IntegralPageLocator.header_title) == '顺付积分兑换', f'綁定後跳轉失敗'
+        assert self.get_text(IntegralPageLocator.header_title) == '顺付 积分兑换', f'綁定後跳轉失敗'
 
-    #順付積分兌換 核對資料
+    # 順付積分兌換 核對資料(前端web)
     def wellpay_exchange(self, security_code, exchange_amount):
         self.sleep(1)
         # self.click(IntegralPageLocator.exchange_wellpay)
@@ -117,7 +117,7 @@ class IntegralPage(BasePage):
         self.click(IntegralPageLocator.integral_page)
         self.wait_login_finish()
         after_point = str(float(before_point) - exchange_amount)
-        assert self.get_text(IntegralPageLocator.exchange_integral) == '-1', f'積分有誤'
+        assert self.get_text(IntegralPageLocator.exchange_integral) == '-1', f'積分有誤, 預期{-1},實際{self.get_text(IntegralPageLocator.exchange_integral)}'
         assert self.get_text(IntegralPageLocator.exchange_source) == '顺付出金', f'媒介有誤'
         assert self.get_text(IntegralPageLocator.exchange_state) == '成功', f'轉換狀態有誤'
         assert self.get_text(IntegralPageLocator.exchange_time) == time, f'日期有誤'
@@ -139,10 +139,10 @@ class IntegralPage(BasePage):
         self.wait_loading_finish()
         self.click(IntegralPageLocator.integral_page)
         self.wait_login_finish()
-        assert self.get_text(IntegralPageLocator.exchange_integral) == '+1', f'積分有誤'
+        assert self.get_text(IntegralPageLocator.exchange_integral) == f'+{exchange_amount}', '積分有誤'
         assert self.get_text(IntegralPageLocator.exchange_source) == '顺付返还', f'媒介有誤'
         assert self.get_text(IntegralPageLocator.exchange_state) == '成功', f'轉換狀態有誤'
-        assert self.get_text(IntegralPageLocator.exchange_time) == time, f'日期有誤'
+        assert self.get_text(IntegralPageLocator.exchange_time) == time, f'日期有誤, 預期{time},實際{self.get_text(IntegralPageLocator.exchange_time)}'
         assert self.get_text(IntegralPageLocator.integral_amount) == before_point, f'總積分有誤'
 
     def bind_brand_and_exchange(self, exchange_address, security_code):

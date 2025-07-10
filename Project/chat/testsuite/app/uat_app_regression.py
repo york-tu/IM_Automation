@@ -27,19 +27,17 @@ connect_type = 'local'  # 手機連線模式 remote or local
 # ======================== [Android] ========================================
 phone_name = 'HUAWEI_26'
 phone_platform = 'Android'
-app_version = '2.0.0-rc.9'
+app_version = '2.11.0-rc.4'
 # =================================================================================================
 specific_os_version = []  # 指定OS版本, ['10','11','8']
 push = True  # 將結果推倒jira, 預設請給予 True
 
-app_regression_list = [
-
+# =========== 私聊相關功能測試 ===========
+one_on_one_chat_regression_list = [
     # AppTestCase("test_login"),
     # AppTestCase("test_version_check"),
-    # AppTestCase("test_into_gallery"),
-    # AppTestCase("test_into_tread"),
     # AppTestCase("test_into_member"),
-    AppTestCase("test_into_friend"),
+    # AppTestCase("test_into_friend"),
     # AppTestCase("test_change_nickname_and_instructions"),
     # AppTestCase("test_notify_switch"),
     # AppTestCase("test_detail_switch"),
@@ -49,6 +47,7 @@ app_regression_list = [
     # AppTestCase("test_change_password"),
     # AppTestCase("test_account_info"),
     # AppTestCase("test_add_friend"),
+
     # AppTestCase("test_add_myself"),
     # AppTestCase("test_friend_remark"),
     # AppTestCase("test_block_friend"),
@@ -67,50 +66,102 @@ app_regression_list = [
     # AppTestCase("test_message_pin_delete"),
     # AppTestCase("test_message_pin_revoke"),
     # AppTestCase("test_message_emoji"),
+    # AppTestCase('test_send_voice_message'),
+    # AppTestCase('test_voice_message_reply'),
+    # AppTestCase('test_voice_message_delete'),
+    # AppTestCase('test_voice_message_revoke'),
+    AppTestCase('test_send_file_message'),
+    # AppTestCase('test_file_message_reply'),
+    # AppTestCase('test_file_message_delete'),
+    # AppTestCase('test_file_message_revoke'),
+
+    AppTestCase('test_send_file_message_group'),
+    AppTestCase("test_free_up_space"),
     # AppTestCase("test_delete_friend"),
-
-    # ============================= group function ================================
-    # ContextTestCase("test_group_remove_admin"),  # 移除gubot03管理員權限
-    # ContextTestCase("test_group_change_group_rules"),
-    # ContextTestCase("test_group_add_admin_and_change_admin_rules"),  # 將 gubot03 加為管理員並更改管裡員權限
-    # ContextTestCase("test_group_add_and_remove_member"),  # 加 gubot06 好友 > 加入群組 > 退出群組 > 刪除 gubot06
-    # ContextTestCase("test_group_add_and_remove_block_member"),  # gubot05 加入黑名單 > 移出黑名單
-    # AppTestCase("test_join_group_by_share_code"),
-    # AppTestCase("test_send_message_group"),
-    # AppTestCase("test_message_copy_group"),
-    # AppTestCase("test_message_reply_group"),
-    # AppTestCase("test_message_delete_group"),
-    # AppTestCase("test_message_revoke_group"),
-    # AppTestCase("test_message_pin_group"),
-    # AppTestCase("test_message_pin_reply_group"),
-    # AppTestCase("test_message_pin_delete_group"),
-    # AppTestCase("test_message_pin_revoke_group"),
     # AppTestCase("test_logout"),
-    # ContextTestCase("test_user_contact_whitelist_be_fe_linkage"),
-    # ContextTestCase("test_search_contact_by_phone_be_fe_linkage"),
-
-    # ============================= 搶紅包 ===========================================
-    # ContextTestCase("test_app_grab_red_envelope"),
-    # ContextTestCase("test_app_grab_luck_red_envelope"),
-
-    # ============================= social function =================================
-    # AppTestCase("test_media_photo_post"),
-    # AppTestCase('test_media_video_post'),
-    # ContextTestCase("test_change_media_audit_type")
 ]
 
-context_regression_list = [
+# =========== 群聊相關功能測試 ===========
+group_chat_regression_list = [
+    ContextTestCase("test_group_remove_admin"),  # 移除 gubot03 管理員權限
+    ContextTestCase("test_group_change_group_rules"),  # 群組成員權限設定
+    ContextTestCase("test_group_add_admin_and_change_admin_rules"),  # 將 gubot03 加為管理員並更改管裡員權限
+    ContextTestCase("test_group_add_and_remove_member"),  # 加好友A > 加A入群組 > 將A退出群組 > 刪除好友A
 
-    # =================================================================
-    # ContextTestCase("test_web_login"),
-    # ContextTestCase("test_app_login"),
-    # ContextTestCase("test_message_check"),
-    # ContextTestCase("test_admin_member_block"), #未完成
-    # ContextTestCase("test_owner_member_delete"), #未完成
-    # ContextTestCase("test_owner_member_block"), #未完成
-    # =================================================================
-    # ContextTestCase("test_install_apk"),
+    ContextTestCase("test_group_add_and_remove_block_member"),  # gubot05 加入黑名單 > 移出黑名單
+    AppTestCase("test_logout"),
+
+    AppTestCase("test_join_group_by_share_code"),
+    AppTestCase("test_send_message_group"),
+    AppTestCase("test_message_copy_group"),
+    AppTestCase("test_message_reply_group"),
+    AppTestCase("test_message_delete_group"),
+    AppTestCase("test_message_revoke_group"),
+    AppTestCase("test_message_pin_group"),
+    AppTestCase("test_message_pin_reply_group"),
+    AppTestCase("test_message_pin_delete_group"),
+    AppTestCase("test_message_pin_revoke_group"),
+    AppTestCase("test_send_voice_message_group"),
+    AppTestCase('test_voice_message_reply_group'),
+    AppTestCase('test_voice_message_delete_group'),
+    AppTestCase('test_voice_message_revoke_group'),
+
+    AppTestCase('test_file_message_reply_group'),
+    AppTestCase('test_file_message_delete_group'),
+    AppTestCase('test_file_message_revoke_group'),
+
+    ContextTestCase("test_user_contact_whitelist_be_fe_linkage"),
+    ContextTestCase("test_search_contact_by_phone_be_fe_linkage"),
+    ContextTestCase("test_admin_send_system_notification"),  # 後台發送系統訊息 > 前台確認系統通知
+    ContextTestCase("test_admin_send_group_msg"),  # 後台發送群組訊息 > 前台確認群內訊息
+
 ]
+# =========== 發現設定測試 ===========
+discover_regression_list = [
+    ContextTestCase("test_discover_list"),  # 後台切換發現功能 > 前台確認排序
+    AppTestCase("test_discover_floating_icon"),  # 確認功能懸浮按鈕與選單
+    AppTestCase("test_logout"),
+]
+
+# =========== 搶紅包測試 ===========
+grab_red_envelop_regression_list = [
+    ContextTestCase("test_app_grab_red_envelope"),
+    ContextTestCase("test_app_grab_luck_red_envelope"),
+]
+
+# =========== 社群相關功能測試 ===========
+social_features_regression_list = [
+    AppTestCase("test_social_post_photo"),  # 發布圖片
+    AppTestCase('test_social_post_video'),  # 發布影片
+    AppTestCase("test_social_draft_photo"),  # 發布草稿_圖片
+    AppTestCase("test_social_search"),  # 搜索視頻 & 用戶
+    AppTestCase("test_social_follow_unfollow"),  # 關注/取消關注
+    AppTestCase("test_social_post_add_like_collect"),  # 貼文點贊收藏
+    AppTestCase("test_social_self_post_add_comments_reply_like"),  # 自己貼文評論上留言回覆點贊
+    AppTestCase("test_social_other_post_add_comments_reply"),  # 他人貼文評論上留言回覆
+    AppTestCase("test_social_change_account_privacy"),  # 切換帳號隱私設定 > 確認他人端觀看"已點贊"媒體區
+    AppTestCase('test_social_post_with_different_privacy'),  # 不同權限貼文對應不同關注用戶觀看
+
+    AppTestCase('test_social_share_self_main_page'),  # 分享"自己主頁"到群組
+    AppTestCase('test_social_share_other_main_page'),  # 分享"他人主頁"到群組
+
+    AppTestCase('test_social_share_self_post'),  # 分享"自己貼文"到群組
+    AppTestCase('test_social_share_others_post'),  # 分享"他人貼文"到群組
+    ContextTestCase("test_social_change_poster_auto_audit_type"),  # 後台變更發布者自動審核權限
+
+    AppTestCase("test_logout"),
+    ContextTestCase("test_social_change_post_privacy"),  # 前台切換貼文隱私權限 > 後台確認貼文觀看權限
+    ContextTestCase("test_block_words_blocks_instructions_input"),  # 後台新增屏蔽字詞 >前台確認個人簡介阻擋屏蔽字輸入
+    ContextTestCase("test_post_removed_after_impeach_approve"),  # 前台提出貼文檢舉 > 後台approve > 前台確認貼文下架
+
+    AppTestCase("test_logout"),
+    ContextTestCase("test_post_view_then_check_views_and_viewers"),  # 前台觀看貼文 > 後台確認[貼文數據]&[創作者數據]觀看次數&觀看人數
+
+    AppTestCase("test_logout"),
+    ContextTestCase("test_post_comment_when_social_permission_change"),  # 後台切換帳號社群權限 > 前台確認評論留言
+    ContextTestCase("test_post_URL_when_post_permission_change"),  # 後台切換貼文評論超連結開關 > 前台確認評論留言URL
+]
+
 
 if __name__ == '__main__':
     gl._init()
@@ -144,8 +195,11 @@ if __name__ == '__main__':
 
     # TestCase add
     suite = unittest.TestSuite()
-    suite.addTests(app_regression_list)
-    suite.addTests(context_regression_list)
+    suite.addTests(one_on_one_chat_regression_list)
+    # suite.addTests(group_chat_regression_list)
+    # suite.addTests(discover_regression_list)
+    # suite.addTests(grab_red_envelop_regression_list)
+    # suite.addTests(social_features_regression_list)
 
     # RunningTest
     Utils.unittest_xml(suite)

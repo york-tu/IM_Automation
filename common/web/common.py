@@ -285,7 +285,24 @@ class Common(object):
 
     def send_escape(self):
         ActionChains(self.driver).send_keys(Keys.ESCAPE).perform()
-    
+
+    def long_press(self, locator):
+        el = self.find_element(locator)
+        ActionChains(self.driver).click_and_hold(el).pause(2).perform()
+
+    def menu_click(self, locator):
+        el = self.find_element(locator)
+        ActionChains(self.driver).move_to_element(el).click().perform()
+        el.click()
+
+    def enable_DevTools(self):
+        time.sleep(1)
+        pyautogui.click(x=200, y=500)
+        pyautogui.hotkey("ctrl", "shift", "i")
+        time.sleep(1)
+        pyautogui.hotkey("ctrl", "shift", "m")
+
+
     # ======== GetSomething ===========================================
     def get_attribute(self, locator, attribute):
         return self.find_element(locator).get_attribute(attribute)
@@ -398,8 +415,11 @@ class Common(object):
     def font(self, language, text):
         return OpenCC(language).convert(text)
     
-    def windows_to_top(self):
-        width, height = pyautogui.size()
+    def windows_to_top(self, full=True):
+        if full:
+            width, height = pyautogui.size()
+        else:
+            width, height = 300, 1000
         self.driver.set_window_size(width, height)
         self.driver.set_window_position(0, 0)
 
@@ -413,6 +433,7 @@ class Common(object):
             self.sleep(0.5)
             pyautogui.leftClick(x, y)
 
+
     def set_attribute(self, locator, key, value):
         xpath = self.driver.find_element_by_xpath(locator[1])
         self.driver.execute_script(f"arguments[0].setAttribute({key}, {value}", xpath)
@@ -421,4 +442,4 @@ class Common(object):
         el = self.find_element(locator)
         return el.location
 
-        
+

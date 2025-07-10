@@ -5,7 +5,6 @@ from common.app.common import Common
 from configs.app.setting import Setting
 from Project.chat.app.pages.base_page import Base
 from Project.chat.app.pages.xpath.xpath_base import Xpath_Base
-from Project.chat.app.pages.main_page import MainPage, MainPageLocator
 import logging
 import common.utils.globalvar as gl
 
@@ -59,15 +58,22 @@ class PointPageLocator:
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tv_date'),
         iOS=base.data_collation(type_kind='name', type_name='tv_type ')
     )
-
+    main_btn = base.check_device(
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/navigation_bar_item_icon_view', num=-1),
+        iOS=base.data_collation(type_kind='name', type_name='')
+    )
+    main_functions_btn = base.check_device(
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/iv_right'),
+        iOS=base.data_collation(type_kind='name', type_name='')
+    )
 
 class PointPage(Base):
 
     def into_point_record(self):
-        if self.common.poco_exists(MainPageLocator.mine_button):
-            self.common.poco_click(MainPageLocator.mine_button)
-        if self.common.poco_exists(MainPageLocator.mine_menu_btn):
-            self.common.poco_click(MainPageLocator.mine_menu_btn)
+        if self.common.poco_exists(PointPageLocator.main_btn):
+            self.common.poco_click(PointPageLocator.main_btn)
+        if self.common.poco_exists(PointPageLocator.main_functions_btn):
+            self.common.poco_click(PointPageLocator.main_functions_btn)
         self.common.poco_click(PointPageLocator.point_button)
         assert self.common.poco_get_text(PointPageLocator.point_page_title) == '积分', f'非積分頁'
 
@@ -75,5 +81,6 @@ class PointPage(Base):
         assert self.common.poco_get_text(PointPageLocator.point_value) == grab_amount, f'積分領取錯誤'
         assert self.common.poco_get_text(PointPageLocator.point_type) == grab_type, f'積分類型錯誤'
         assert self.common.poco_get_text(PointPageLocator.point_status) == '成功', f'領取失敗'
-        assert self.common.poco_get_text(PointPageLocator.point_date) == grab_time, f'領取時間有誤'
+        actual_grab_time = self.common.poco_get_text(PointPageLocator.point_date).replace('\n', ' ')
+        assert actual_grab_time == grab_time, f'領取時間有誤, 預期:{grab_time},實際:{actual_grab_time}'
         return self.common.poco_get_text(PointPageLocator.point_total)

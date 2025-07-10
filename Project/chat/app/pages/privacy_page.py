@@ -1,0 +1,86 @@
+from time import sleep
+
+from Project.chat.app.pages.main_page import MainPage, MainPageLocator
+from Project.chat.app.pages.social_homepage import SocialHomePage
+from common.app.common import Common
+from configs.app.setting import Setting
+from Project.chat.app.pages.base_page import Base
+from Project.chat.app.pages.xpath.xpath_base import Xpath_Base
+import logging
+import common.utils.globalvar as gl
+
+
+class PrivacyPageLocator:
+    base = Xpath_Base()
+    env = gl.get_value('ENV')
+    brand = gl.get_value('BRAND')
+    app_package = Setting().get_package_name(brand, env)
+
+    @staticmethod
+    def env(env):
+        env = PrivacyPageLocator.base.check_device(
+            Android=PrivacyPageLocator.base.data_collation(type_kind='textMatches', type_name=f'{env}.*'),
+            iOS=PrivacyPageLocator.base.data_collation(type_kind='nameMatches', type_name=f'{env}.*')
+        )
+        return env
+
+    # 功能表 > 隱私
+    privacy_button = base.check_device(
+        Android=base.data_collation(type_kind='text', type_name='隐私'),
+        iOS=base.data_collation(type_kind='name', type_name='隐私'),
+    )
+    page_title = base.check_device(
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tv_toolbar_title'),
+        iOS=base.data_collation(type_kind='type', type_name='StaticText', num=0),
+    )
+    # 功能表 > 隱私 > 按贊貼文
+    liked_post_privacy_btn = base.check_device(
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/cl_sns_like_post_setting'),
+        iOS=base.data_collation(type_kind='name', type_name='按赞贴文'),
+    )
+    # 功能表 > 隱私 > 按贊貼文: 目前設定
+    current_privacy = base.check_device(
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tv_sns_like_post_privacy_option_title'),
+        iOS=base.data_collation(type_kind='name', type_name=''),
+    )
+    # 功能表 > 隱私 > 按贊貼文 > 所有人
+    privacy_all_option = base.check_device(
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/rb_everyone'),
+        iOS=base.data_collation(type_kind='name', type_name='所有人'),
+    )
+    # 功能表 > 隱私 > 按贊貼文 > 僅自己
+    privacy_self_option = base.check_device(
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/rb_only_self'),
+        iOS=base.data_collation(type_kind='name', type_name='仅自己'),
+    )
+    # 功能表 > 隱私 > 按贊貼文 > 儲存
+    privacy_save_btn = base.check_device(
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/btn_save'),
+        iOS=base.data_collation(type_kind='name', type_name='储存'),
+    )
+
+
+def account_privacy_select(privacy_index):
+    privacy_list = [PrivacyPageLocator.privacy_all_option,
+                    PrivacyPageLocator.privacy_self_option]
+    return privacy_list[privacy_index]
+
+
+class PrivacyPage(Base):
+    phone_platform = gl.get_value('PHONE_PLATFORM')
+
+    def into_privacy_page(self):
+        self.common.poco_click(MainPageLocator.main_btn)
+        self.common.poco_click(MainPageLocator.mine_menu_btn)
+        self.common.poco_click(PrivacyPageLocator.privacy_button)
+        assert self.common.poco_get_text(PrivacyPageLocator.page_title) == '隐私'
+
+    def change_privacy(self, privacy_index):
+        self.common.poco_click(PrivacyPageLocator.liked_post_privacy_btn)
+        self.common.poco_click(account_privacy_select(privacy_index))
+        option_select = self.common.poco_get_text(account_privacy_select(privacy_index))
+        self.common.poco_click(PrivacyPageLocator.privacy_save_btn)
+        privacy_display = self.common.poco_get_text(PrivacyPageLocator.current_privacy)
+        assert option_select == privacy_display
+
+

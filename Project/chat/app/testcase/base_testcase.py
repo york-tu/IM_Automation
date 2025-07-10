@@ -67,14 +67,24 @@ class BaseTestCase(UnittestModule):
         cls.poco_package = Setting().get_poco_name()
         cls.web_url = SettingChat().get_account(cls.env, cls.brand, cls.user)['web_url']
         cls.app_url = SettingChat().get_account(cls.env, cls.brand, cls.user)['app_url']
+        cls.wap_url = SettingChat().get_account(cls.env, cls.brand, cls.user)['wap_url']
+
         cls.app_account = SettingChat().get_account(cls.env, cls.brand, cls.user)['app_account']
         cls.web_account = SettingChat().get_account(cls.env, cls.brand, cls.user)['web_account']
+        cls.wap_account = SettingChat().get_account(cls.env, cls.brand, cls.user)['wap_account']
+
         cls.app_password = SettingChat().get_account(cls.env, cls.brand, cls.user)['password']
         cls.web_password = SettingChat().get_account(cls.env, cls.brand, cls.user)['password']
+        cls.wap_password = SettingChat().get_account(cls.env, cls.brand, cls.user)['password']
+
         cls.app_phone = SettingChat().get_account(cls.env, cls.brand, cls.user)['app_phone']
         cls.web_phone = SettingChat().get_account(cls.env, cls.brand, cls.user)['web_phone']
+        cls.wap_phone = SettingChat().get_account(cls.env, cls.brand, cls.user)['wap_phone']
+
         cls.app_nation = SettingChat().get_account(cls.env, cls.brand, cls.user)['nation']
         cls.web_nation = SettingChat().get_account(cls.env, cls.brand, cls.user)['nation']
+        cls.wap_nation = SettingChat().get_account(cls.env, cls.brand, cls.user)['nation']
+
         cls.operate_account = SettingChat().get_account(cls.env, cls.brand, cls.user)['operate_account']
         cls.operate_phone = SettingChat().get_account(cls.env, cls.brand, cls.user)['operate_phone']
         cls.device_id = Setting().get_phone_device_id(cls.phone_name, True)

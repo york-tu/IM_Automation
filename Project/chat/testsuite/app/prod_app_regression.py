@@ -20,18 +20,17 @@ user = 1
 connect_type = 'local'  # 手機連線模式
 phone_name = 'HUAWEI_26'  # 手機型號 'MI10_23' 'Pixel5_31'
 phone_platform = 'Android'  # 手機作業系統
-app_version = '1.42.2'
+app_version = '2.11.0'
 specific_os_version = []  # 指定OS版本, ['10','11','8']
 push = True  # 將結果推倒jira, 預設請給予 True
 
-app_regression_list = [
+# =========== 私聊相關功能測試 ===========
+one_on_one_chat_regression_list = [
     AppTestCase("test_login"),
     AppTestCase("test_version_check"),
-    AppTestCase("test_into_gallery"),
-    AppTestCase("test_into_tread"),
     AppTestCase("test_into_member"),
     AppTestCase("test_into_friend"),
-    AppTestCase("test_change_nickname"),
+    AppTestCase("test_change_nickname_and_instructions"),
     AppTestCase("test_notify_switch"),
     AppTestCase("test_detail_switch"),
     AppTestCase("test_voice_switch"),
@@ -58,6 +57,19 @@ app_regression_list = [
     AppTestCase("test_message_pin_delete"),
     AppTestCase("test_message_pin_revoke"),
     AppTestCase("test_message_emoji"),
+    AppTestCase('test_send_voice_message'),
+    AppTestCase('test_voice_message_reply'),
+    AppTestCase('test_voice_message_delete'),
+    AppTestCase('test_voice_message_revoke'),
+    AppTestCase('test_send_file_message'),
+    AppTestCase('test_file_message_reply'),
+    AppTestCase('test_file_message_delete'),
+    AppTestCase('test_file_message_revoke'),
+    AppTestCase("test_delete_friend"),
+    AppTestCase("test_logout"),
+]
+# =========== 群聊相關功能測試 ===========
+group_chat_regression_list = [
     AppTestCase("test_send_message_group"),
     AppTestCase("test_message_copy_group"),
     AppTestCase("test_message_reply_group"),
@@ -67,23 +79,23 @@ app_regression_list = [
     AppTestCase("test_message_pin_reply_group"),
     AppTestCase("test_message_pin_delete_group"),
     AppTestCase("test_message_pin_revoke_group"),
-    AppTestCase("test_delete_friend"),
+    AppTestCase("test_send_voice_message_group"),
+    AppTestCase('test_voice_message_reply_group'),
+    AppTestCase('test_voice_message_delete_group'),
+    AppTestCase('test_voice_message_revoke_group'),
+    AppTestCase('test_send_file_message_group'),
+    AppTestCase('test_file_message_reply_group'),
+    AppTestCase('test_file_message_delete_group'),
+    AppTestCase('test_file_message_revoke_group'),
     AppTestCase("test_logout"),
 ]
 
-context_regression_list = [
-    # ContextTestCase("test_web_login"),
-    # ContextTestCase("test_app_login"),
-    # ContextTestCase("test_message_check"),
-    # ContextTestCase("test_group_setting"),
-    # ContextTestCase("test_admin_rule"),
-    # ContextTestCase("test_admin_member_delete"),
-    # ContextTestCase("test_admin_member_block"), #未完成
-    # ContextTestCase("test_admin_delete"),
-    # ContextTestCase("test_owner_member_delete"), #未完成
-    # ContextTestCase("test_owner_member_block"), #未完成
-
+# =========== 發現功能測試 ===========
+discover_regression_list = [
+    AppTestCase("test_discover_floating_icon"),
+    AppTestCase("test_logout"),
 ]
+
 
 if __name__ == '__main__':
     gl._init()
@@ -111,14 +123,15 @@ if __name__ == '__main__':
     gl.set_value('SPECIFIC_OS_VERSION', specific_os_version)
 
     # for jira config
-    gl.set_value('TEST_TYPE', 'app')
+    gl.set_value('TEST_TYPE', 'app_android')
     BaseKey().get_jira_data()
     gl.set_value('PUSH', push)
     
     # TestCase add
     suite = unittest.TestSuite()
-    suite.addTests(app_regression_list)
-    # suite.addTests(context_regression_list)
-    
+    suite.addTests(one_on_one_chat_regression_list)
+    suite.addTests(group_chat_regression_list)
+    suite.addTests(discover_regression_list)
+
     # RunningTest
     Utils.unittest_xml(suite)

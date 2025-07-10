@@ -26,7 +26,7 @@ class ChatRoomPageLocator:
     detail_back = (By.XPATH, "//div[@class='header-back']/div[1]")
     detail_title = (By.XPATH, "(//div[@class='header-title'])[1]")
     detail_submit = (By.XPATH, "//div[@class='header-text']/div[1]")
-    detail_edit = (By.XPATH, "//div[@class='header-text']/p[text()='編輯']")
+    detail_edit = (By.XPATH, "//div[@class='header-text']/p[text()='编辑']")
     detail_done = (By.XPATH, "//div[@class='header-text']/p[text()='完成']")
     detail_search = (By.XPATH, "//div[@class='chat-view__item -show']//input[@placeholder='搜索']")
     room_title = (By.XPATH, "//p[@class='chat-detail__name__text']")
@@ -43,7 +43,7 @@ class ChatRoomPageLocator:
     friend_remark_btn = (By.XPATH, "//p[@class='remark__text']")
     friend_remark_pen = (By.XPATH, "//p[@class='chat-info__desc__text']/../div[@class='text-edit']")
     friend_remark_text = (By.XPATH, "//p[@class='chat-info__desc__text']")
-    friend_remark_hint = (By.XPATH, "//textarea[@placeholder='描述最長至300字...']")
+    friend_remark_hint = (By.XPATH, "//textarea[@placeholder='描述最长至300字']")
     friend_remark_input = (By.XPATH, "//textarea[@class='chat-info__textarea__input']")
     friend_remark_submit = (By.XPATH, "//div[@class='submit-btn__img']/..")
     # -------------------- 會員詳情設定 --------------------
@@ -60,17 +60,21 @@ class ChatRoomPageLocator:
     chat_room_total_media = (By.XPATH, "//div[@class='wcr-list__media max-w-half']")
     chat_room_last_media_is_video = (
         By.XPATH, "(//div[@class='wcr-list__media max-w-half'])//div[@class='wcr-list__media video-container'][last()]")
+    # -------------------- 檔案訊息 -------------------------
+    chatroom_last_filename = (By.XPATH, "(//div[@class='file-msg__fileName file-msg__fileName--spaced'])[last()]")
     # -------------------- 聊天室訊息操作 --------------------
     message_menu = (By.XPATH, "//div[@class='el-menu -show']")
     message_copy = (By.XPATH, "//p[@class='menu-text' and text() = '复制']")
-    message_reply = (By.XPATH, "//p[@class='menu-text' and text() = '回覆']")
+    message_reply = (By.XPATH, "//p[@class='menu-text' and text() = '回复']")
     message_revoke = (By.XPATH, "//p[@class='menu-text' and text() = '撤回']")
     message_pin = (By.XPATH, "//p[@class='menu-text' and text() = '设为公告']")
     # -------------------- 訊息回覆框 --------------------
     reply_preview_title = (By.XPATH, "//div[@class='chat-detail__footer']//p[@class='reply-item__name__text']")
     reply_preview_text = (By.XPATH, "//div[@class='chat-detail__footer']//p[@class='reply-item__msg__text']")
+    reply_file_preview_text = (By.XPATH, "//div[@class='chat-detail__footer']//div[@class='reply-file__text']")
     reply_view_title = (By.XPATH, "(//div[@class='wcr-list__block']//p[@class='reply-item__name__text'])[last()]")
     reply_view_text = (By.XPATH, "(//div[@class='wcr-list__block']//p[@class='reply-item__msg__text'])[last()]")
+    reply_file_view_text = (By.XPATH, "(//div[@class='wcr-list__block']//div[@class='reply-file__text'])[last()]")
     reply_msg = (By.XPATH, "(//div[@class='wcr-list__block']//p[@class='reply-item__msg__text'])[last()]")
     # -------------------- 二次確認彈窗 --------------------
     confirm_popup = (By.XPATH, "//div[@class='common-modal']")
@@ -103,7 +107,7 @@ class ChatRoomPageLocator:
     group_rule_btn = (By.XPATH, "//p[text()='群组设定']/..//div[contains(@class,'-arrow')]")
     group_rule_name = (By.XPATH, "//p[@class='chat-name__text']")
     group_rule_name_btn = (By.XPATH, "//p[@class='chat-name__text']/..//div[contains(@class,'-pencil')]")
-    group_rule_input = (By.XPATH, "//input[@placeholder='请输入群组名称']")
+    group_rule_input = (By.XPATH, "//input[@placeholder='填写群组名称']")
     group_rule_submit = (By.XPATH, "//p[text()='保存']/..")
     group_rule_count = (By.XPATH, "//p[text()='群组设定']/..//p[@class='ui-tableviewcell__num']")
 
@@ -157,8 +161,12 @@ class ChatRoomPageLocator:
 
     # 特定訊息定位
     @staticmethod
-    def message_locator(text):
-        locator = (By.XPATH, f"(//span[text()='{text}'])[last()]")
+    def message_locator(text, message_type='text'):
+        if message_type == 'text':
+            locator = (By.XPATH, f"(//span[text()='{text}'])[last()]")
+        elif message_type == 'file':
+            locator = (By.XPATH, f"(//div[text()='{text}'])[last()]")
+
         return locator
 
     # 特定訊息表情符號定位
@@ -255,7 +263,7 @@ class ChatRoomPage(BasePage):
 
     def friend_delete(self):
         self.click(ChatRoomPageLocator.friend_delete)
-
+        sleep(1)
         if self.is_element_finded(ChatRoomPageLocator.confirm_popup) is True:
             assert self.get_text(ChatRoomPageLocator.confirm_text).__contains__(
                 '同时删除与该联络人的聊天纪录。'), f'刪除好友彈窗標題有誤'
@@ -278,79 +286,80 @@ class ChatRoomPage(BasePage):
             self.sleep(0.5)
             num = num + 1
 
-    def send_image(self):
+    def send_media(self, media_type=''):
+        clip_path = ''
+        random_file = ''
+        if media_type == 'photo':
+            clip_path = DIR_NAME + '\\test_medias\\360x360.png'
+        elif media_type == 'video':
+            clip_path = DIR_NAME + '\\test_medias\\ForBiggerMeltdowns.mp4'
+        elif media_type == 'file':
+            file_folder_path = f'{DIR_NAME}\\test_medias\\file_sample'
+            files = [f for f in os.listdir(file_folder_path) if os.path.isfile(os.path.join(file_folder_path, f))]
+            random_file = random.choice(files)
+            clip_path = f'{DIR_NAME}\\test_medias\\file_sample\\{random_file}'
 
-        # """
-        # 從指定URL下載picture並傳送到聊天室
-        # """
-        # img_url = 'https://picsum.photos/400/400'
-        # response = requests.get(img_url)
-        # image_path = os.getcwd() + '\\sample_image.jpg'
-        # with open(image_path, 'wb') as f:
-        #     f.write(response.content)
-
-        image_path = DIR_NAME + '\\test_medias\\5616x3744_1.41mb.jpg'
-
+        self.wait_loading_finish()
         self.click(ChatRoomPageLocator.add_btn)
-        # pyperclip.copy(image_path.replace('\\\\', "\\"))
-        # pyperclip.copy(image_path)
-        self.copy_to_clipboard(image_path)
+        sleep(1)
+        self.copy_to_clipboard(clip_path)
         sleep(1)
         pyautogui.hotkey('ctrl', 'v')
         pyautogui.press('enter')
 
-        # ===============================
-        # file_name_column = (900, 610)  # 系統檔案選擇視窗內的"檔案名稱"欄位座標
-        # open_button_position = (1070, 640)  # 系統檔案選擇視窗內的"開啟(O)"鍵座標
-        # pyautogui.moveTo(file_name_column[0], file_name_column[1], duration=0.5)
-        # pyperclip.copy(image_path.replace('\\\\', "\\"))
-        # pyautogui.click()
-        # pyautogui.hotkey('ctrl', 'v')
-        # pyautogui.moveTo(open_button_position[0], open_button_position[1], duration=0.5)
-        # pyautogui.click()
-        # ===============================
-        while True:
-            if self.get_last_media_src_link().find('http') == 0:
-                break
-            else:
-                sleep(1)
-                continue
-        # os.remove(image_path)
-
-    def send_video(self):
-        # """
-        # 從指定URL下載video並傳送到聊天室
-        # """
-        # video_url = 'https://sample-videos.com/video321/mp4/720/big_buck_bunny_720p_1mb.mp4'
-        # response = requests.get(video_url, verify=True)
-        # video_path = os.getcwd() + '\\sample_video.mp4'
-        # with open(video_path, 'wb') as f:
-        #     f.write(response.content)
-
-        video_path = DIR_NAME + '\\test_medias\\sample_3840x2160.m4v'
-        self.click(ChatRoomPageLocator.add_btn)  # 點擊輸入框旁"+"鍵
-        file_name_column = (900, 610)  # 系統檔案選擇視窗內的"檔案名稱"欄位座標
-        open_button_position = (1070, 640)  # 系統檔案選擇視窗內的"開啟(O)"鍵座標
-        pyautogui.moveTo(file_name_column[0], file_name_column[1], duration=0.5)
-        # pyperclip.copy(video_path.replace('\\\\', "\\"))
-        # pyperclip.copy(video_path)
-        self.copy_to_clipboard(video_path)
-        sleep(1)
-        pyautogui.hotkey('ctrl', 'v')
-        pyautogui.press('enter')
-        # ===============================
-        # pyautogui.click()
-        # pyautogui.hotkey('ctrl', 'v')
-        # pyautogui.moveTo(open_button_position[0], open_button_position[1], duration=0.5)
-        # pyautogui.click()
-        # ===============================
-        while True:
-            if self.get_last_media_src_link('video').find('https://') == 0:
-                break
-            else:
-                sleep(1)
-                continue
-        # os.remove(video_path)
+        if media_type == 'photo':
+            while True:
+                if self.get_last_media_src_link().find('http') == 0:
+                    break
+                else:
+                    sleep(1)
+                    continue
+        elif media_type == 'video':
+            while True:
+                if self.get_last_media_src_link('video').find('https://') == 0:
+                    break
+                else:
+                    sleep(1)
+                    continue
+        elif media_type == 'file':
+            sleep(5)
+            actual_chatroom_filename = self.get_text(ChatRoomPageLocator.chatroom_last_filename)
+            assert actual_chatroom_filename == random_file, f'檔案名稱錯誤, 預期:{random_file},實際:{actual_chatroom_filename}'
+            return random_file
+    # def send_video(self):
+    #     # """
+    #     # 從指定URL下載video並傳送到聊天室
+    #     # """
+    #     # video_url = 'https://sample-videos.com/video321/mp4/720/big_buck_bunny_720p_1mb.mp4'
+    #     # response = requests.get(video_url, verify=True)
+    #     # video_path = os.getcwd() + '\\sample_video.mp4'
+    #     # with open(video_path, 'wb') as f:
+    #     #     f.write(response.content)
+    #
+    #     video_path = DIR_NAME + '\\test_medias\\video (2160p).mp4'
+    #     self.click(ChatRoomPageLocator.add_btn)  # 點擊輸入框旁"+"鍵
+    #     file_name_column = (900, 610)  # 系統檔案選擇視窗內的"檔案名稱"欄位座標
+    #     open_button_position = (1070, 640)  # 系統檔案選擇視窗內的"開啟(O)"鍵座標
+    #     pyautogui.moveTo(file_name_column[0], file_name_column[1], duration=0.5)
+    #     # pyperclip.copy(video_path.replace('\\\\', "\\"))
+    #     # pyperclip.copy(video_path)
+    #     self.copy_to_clipboard(video_path)
+    #     sleep(1)
+    #     pyautogui.hotkey('ctrl', 'v')
+    #     pyautogui.press('enter')
+    #     # ===============================
+    #     # pyautogui.click()
+    #     # pyautogui.hotkey('ctrl', 'v')
+    #     # pyautogui.moveTo(open_button_position[0], open_button_position[1], duration=0.5)
+    #     # pyautogui.click()
+    #     # ===============================
+    #     while True:
+    #         if self.get_last_media_src_link('video').find('https://') == 0:
+    #             break
+    #         else:
+    #             sleep(1)
+    #             continue
+    #     # os.remove(video_path)
 
     def copy_to_clipboard(self, text, retry=50, delay=2):
         for attempt in range(retry):
@@ -367,9 +376,8 @@ class ChatRoomPage(BasePage):
         raise Exception('無法複製路徑')
 
     def get_last_media_src_link(self, media_type='img'):
+        sleep(5)
         total_elements = self.find_elements(ChatRoomPageLocator.chat_room_total_media)
-        # while not total_elements[-1].find_element_by_tag_name(media_type).get_attribute("src").__contains__("http"):
-        #     sleep(3)
         src_value = total_elements[-1].find_element_by_tag_name(media_type).get_attribute("src")
         return src_value
 
@@ -444,17 +452,22 @@ class ChatRoomPage(BasePage):
         self.click(ChatRoomPageLocator.message_input)
         self.type_paste(ChatRoomPageLocator.message_input)
 
-        if self.is_element_finded(ChatRoomPageLocator.message_submit) is True:
-            self.click(ChatRoomPageLocator.message_submit)
+        self.wait_visibility(ChatRoomPageLocator.message_submit)
+        self.click(ChatRoomPageLocator.message_submit)
 
-    def message_reply(self, message):
+    def message_reply(self, message, message_type='text'):
         self.wait_message_finish()
-        if self.is_element_finded(ChatRoomPageLocator().message_locator(message)) is True:
-            self.context_click(ChatRoomPageLocator.message_locator(message))
+        if self.is_element_finded(ChatRoomPageLocator().message_locator(message, message_type)) is True:
+            self.context_click(ChatRoomPageLocator.message_locator(message, message_type))
             self.click(ChatRoomPageLocator.message_reply)
 
         reply_pre_title = self.get_text(ChatRoomPageLocator.reply_preview_title)
-        reply_pre_msg = self.get_text(ChatRoomPageLocator.reply_preview_text)
+
+        reply_pre_msg = ''
+        if message_type == 'text':
+            reply_pre_msg = self.get_text(ChatRoomPageLocator.reply_preview_text)
+        elif message_type == 'file':
+            reply_pre_msg = self.get_text(ChatRoomPageLocator.reply_file_preview_text)
 
         assert reply_pre_title.__contains__('回复'), f'訊息回覆預覽標題有誤'
         assert reply_pre_msg == message, f'回覆訊息預覽有誤'
@@ -467,7 +480,11 @@ class ChatRoomPage(BasePage):
 
         self.sleep(0.5)
         reply_title = self.get_text(ChatRoomPageLocator.reply_view_title)
-        reply_msg = self.get_text(ChatRoomPageLocator.reply_view_text)
+        reply_msg = ''
+        if message_type == 'text':
+            reply_msg = self.get_text(ChatRoomPageLocator.reply_view_text)
+        elif message_type == 'file':
+            reply_msg = self.get_text(ChatRoomPageLocator.reply_file_view_text)
 
         assert reply_pre_title.__contains__(reply_title), f'訊息回覆標題有誤'
         assert reply_msg == message, f'回覆訊息預覽有誤 發送訊息顯示: {message} 回復訊息顯示 {reply_msg}'
@@ -478,10 +495,10 @@ class ChatRoomPage(BasePage):
         if self.get_text(ChatRoomPageLocator.chat_room_last_msg) == message:
             assert self.get_text(ChatRoomPageLocator.reply_msg) == '原始讯息已不存在', f'訊息遺失錯誤提示有誤'
 
-    def message_revoke(self, message):
+    def message_revoke(self, message, message_type='text'):
         self.wait_message_finish()
-        if self.is_element_finded(ChatRoomPageLocator.message_locator(message)) is True:
-            self.context_click(ChatRoomPageLocator.message_locator(message))
+        if self.is_element_finded(ChatRoomPageLocator.message_locator(message, message_type)) is True:
+            self.context_click(ChatRoomPageLocator.message_locator(message, message_type))
 
         self.click(ChatRoomPageLocator.message_revoke)
 
@@ -497,7 +514,7 @@ class ChatRoomPage(BasePage):
                 assert message not in pin_list, f'訊息撤回後，公告沒有消失'
             else:
                 assert self.get_text(ChatRoomPageLocator.system_message).__contains__(
-                    '你已撤回一则讯息'), f'撤回訊息系統訊息有誤'
+                    '你已撤收一则讯息'), f'撤回訊息系統訊息有誤'
 
     def delete_all_pin(self):
         while self.is_element_finded(ChatRoomPageLocator.pin_list):
@@ -522,6 +539,7 @@ class ChatRoomPage(BasePage):
         self.wait_message_finish()
         if self.is_element_finded(ChatRoomPageLocator.message_locator(message)) is True:
             self.context_click(ChatRoomPageLocator.message_locator(message))
+            sleep(2)
             if self.is_element_finded(ChatRoomPageLocator.message_menu) is True:
                 self.click(ChatRoomPageLocator.message_pin)
 
@@ -674,10 +692,13 @@ class ChatRoomPage(BasePage):
 
                 if data_list[1] == '1':  # 傳送圖片
                     self.click(ChatRoomPageLocator.group_rule_img_btn)
+                    self.sleep(1)
                 if data_list[2] == '1':  # 傳送影片
                     self.click(ChatRoomPageLocator.group_rule_video_btn)
+                    self.sleep(1)
                 if data_list[3] == '1':  # 傳送超連結
                     self.click(ChatRoomPageLocator.group_rule_link_btn)
+                    self.sleep(1)
             else:
                 assert not self.is_element_finded(ChatRoomPageLocator.group_rule_img), f'群組權限 圖片按鈕 沒有自動disable'
                 assert not self.is_element_finded(ChatRoomPageLocator.group_rule_link), f'群組權限 超連結按鈕 沒有自動disable'
@@ -758,7 +779,7 @@ class ChatRoomPage(BasePage):
                 assert self.get_text(ChatRoomPageLocator.group_admin_search) == name, f'搜尋結果顯示有誤'
 
                 self.click(ChatRoomPageLocator.group_admin_search)
-                assert self.get_text(ChatRoomPageLocator.detail_title) == '新增管理员设定', f'進入權限設定頁面有誤'
+                assert self.get_text(ChatRoomPageLocator.detail_title) == '新增 管理员设定', f'進入權限設定頁面有誤'
 
                 self.click(ChatRoomPageLocator.detail_done)
 
@@ -793,18 +814,18 @@ class ChatRoomPage(BasePage):
         self.wait_loading_finish()
         if self.get_text(ChatRoomPageLocator.detail_title) == "群聊详情":
             self.click(ChatRoomPageLocator.group_admin_btn)
-        if self.get_text(ChatRoomPageLocator.detail_edit) == '編輯':
+        if self.get_text(ChatRoomPageLocator.detail_edit) == '编辑':
             self.click(ChatRoomPageLocator.detail_edit)
-
+            self.sleep(0.5)
             self.click(ChatRoomPageLocator.admin_remove_locator(account))
-
+            self.sleep(0.5)
             confirm_list = []
             for i in self.find_elements(ChatRoomPageLocator.confirm_text):
                 confirm_list.append(i.text)
 
             confirm_text = ''.join(confirm_list)
-            assert confirm_text == '要把 %s 移除管理员吗?移除后将无管理员权限' % account, f'二次彈窗文案有誤'
-
+            assert confirm_text == '要把 %s 移除管理员吗?\\n移除管理员后，将无管理员权限' % account, f'二次彈窗文案有誤'
+            self.sleep(0.5)
             self.click(ChatRoomPageLocator.confirm_submit)
             self.sleep(0.5)
 
@@ -840,7 +861,7 @@ class ChatRoomPage(BasePage):
 
     def grab_red_envelope(self, grab_type):
         self.click(ChatRoomPageLocator.red_envelope)
-        assert self.get_text(ChatRoomPageLocator.envelope_modal_title) == grab_type, f'紅包類型錯誤'
+        assert self.get_text(ChatRoomPageLocator.envelope_modal_title) == grab_type, f'紅包類型錯誤, 預期{grab_type}, 實際{self.get_text(ChatRoomPageLocator.envelope_modal_title)}'
         self.click(ChatRoomPageLocator.envelope_modal_open_btn)
         grab_time = datetime.now().strftime("%Y-%m-%d %H:%M")
         grab_amount = self.get_text(ChatRoomPageLocator.envelope_grab_result_num)

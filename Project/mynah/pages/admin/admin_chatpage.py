@@ -345,7 +345,7 @@ class AdminChatPage(AdminBasePage):
                     raise EOFError('訪客名稱和個人資訊不一致')
             else:
                 raise EOFError('品牌帳號和個人資訊不一致，可能沒設第三方接入')
-        elif channel_account == guest_id == nickname == account_info:
+        elif guest_id == nickname:  # channel_account == guest_id == nickname == account_info
             pass
         else:
             raise EOFError('暱稱和帳號不一致，可能沒設第三方接入')
@@ -399,9 +399,9 @@ class AdminChatPage(AdminBasePage):
     def search_message(self, message_list):
         mes_dict={}
         ran_data = random.choice(message_list).text.split('\n', 2)
-        mes_dict['name'] = ran_data[0]
-        mes_dict['time'] = ran_data[1]
-        mes_dict['text'] = ran_data[2]
+        a=mes_dict['name'] = ran_data[0]
+        b=mes_dict['time'] = ran_data[1][:5]
+        c=mes_dict['text'] = ran_data[2]
         
         random_mes = random.choice(mes_dict['text'])        # 隨機從text中抽一個字
         # print(random_mes)

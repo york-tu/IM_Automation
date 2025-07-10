@@ -25,7 +25,7 @@ class AdminTestCase(BaseTestCase):
     revise_time = []
     brand = gl.get_value('BRAND')
     member_ID = datetime.datetime.now().strftime("%yy%m%d%H%M")
-
+    manual_account_id = f'm{datetime.datetime.now().strftime("%m%d%H%M%S")}'
     # ================================= TestSetting ================================
 
     @classmethod
@@ -79,12 +79,12 @@ class AdminTestCase(BaseTestCase):
     def setting_browser(cls):
         wd = web_dr.WebDriver()
         cls.setting_test_data()  # 設定測試數據
-        cls.driver_list.append(wd.setting_driver(1900, 1000, cls.implicitly_wait_time))  # 設定ChromeDriver
+        cls.driver_list.append(wd.setting_driver(1900, 1000, cls.implicitly_wait_time, is_wap=False))  # 設定ChromeDriver
         cls.function_dict['wp'] = WebPages(cls.driver_list[-1], cls.wait_time, cls.web_url, cls.skipTest)  # 導入Web全部頁面
         cls.function_dict['wp'].basePage().hide_windows()
 
         if not sys.argv[0].__contains__('prod'):
-            cls.driver_list.append(wd.setting_driver(1900, 1000, cls.implicitly_wait_time))  # 設定ChromeDriver
+            cls.driver_list.append(wd.setting_driver(1900, 1000, cls.implicitly_wait_time, is_wap=False))  # 設定ChromeDriver
             cls.function_dict['ad'] = AdminPages(cls.driver_list[-1], cls.wait_time, cls.admin_url, cls.skipTest)
             cls.function_dict['ad'].basePage().hide_windows()
 
@@ -112,8 +112,6 @@ class AdminTestCase(BaseTestCase):
         self.function_dict['ad'].basePage().windows_to_top()  # 切換視窗
         self.function_dict['ad'].basePage().open_base_url()  # 開啟前台網站
         self.function_dict['ad'].loginPage().login(self.admin_account, self.admin_password) # 登入admin
-
-
 
     # 測試-WEB登入
     @DecorateClass('CHATAPP-T1790')
@@ -155,6 +153,12 @@ class AdminTestCase(BaseTestCase):
         self.test_admin_login()
         self.function_dict['ad'].mainPage().into_groups_own()
 
+    # 測試-進入群發消息
+    @DecorateClass('CHATAPP-T3251')
+    def test_into_groups_message(self):
+        self.test_admin_login()
+        self.function_dict['ad'].mainPage().into_group_msg()
+
     # 測試-進入APP/Web维护
     @DecorateClass('CHATAPP-T1891')
     def test_into_system_maintenance(self):
@@ -172,6 +176,7 @@ class AdminTestCase(BaseTestCase):
     # 測試 - 後台登入不同權限帳號, 確認對應'好友添加白名单设定'頁顯示與不顯示
     @DecorateClass('CHATAPP-T2539')
     def test_into_system_contact_whitelist_setting(self):
+        self.test_admin_login()
         self.function_dict['ad'].basePage().windows_to_top()  # 切換視窗
         self.function_dict['ad'].basePage().open_base_url()  # 開啟前台網站
         self.function_dict['ad'].loginPage().logout()
@@ -201,6 +206,15 @@ class AdminTestCase(BaseTestCase):
         self.test_admin_login()
         self.function_dict['ad'].mainPage().add_share_code(share_code_sample, 'AutoTestShareCode')
         self.function_dict['ad'].mainPage().delete_share_code(share_code_sample)
+
+    # 測試-進入發現頁並確認可正常編輯網址, 開關切換
+    @DecorateClass('CHATAPP-T2926')
+    def test_into_discover_and_edit(self):
+        self.test_admin_login()
+        self.function_dict['ad'].mainPage().into_discover_setting()
+        self.function_dict['ad'].mainPage().disable_discover_function(3)
+        self.function_dict['ad'].mainPage().restore_discover_function()
+        self.function_dict['ad'].mainPage().edit_restore_discover_index0_url()
 
     # 測試-進入聊天纪录頁並確認紀錄
     @DecorateClass('CHATAPP-T1893')
@@ -260,13 +274,37 @@ class AdminTestCase(BaseTestCase):
     @DecorateClass('CHATAPP-T2711')
     def test_into_media_audit(self):
         self.test_admin_login()
-        self.function_dict['ad'].socialManagementPage().into_media_audit_page()
+        self.function_dict['ad'].socialManagementPage().into_media_audit_page(first_enter=True)
 
     # 測試-進入自动审核
     @DecorateClass('CHATAPP-T2712')
     def test_into_auto_audit(self):
         self.test_admin_login()
-        self.function_dict['ad'].socialManagementPage().into_auto_audit_page()
+        self.function_dict['ad'].socialManagementPage().into_auto_audit_page(first_enter=True)
+
+    # 測試-進入屏蔽字詞
+    @DecorateClass('CHATAPP-T2850')
+    def test_into_block_words(self):
+        self.test_admin_login()
+        self.function_dict['ad'].socialManagementPage().into_block_words_page(first_enter=True)
+
+    # 測試-進入检举内容
+    @DecorateClass('CHATAPP-T2851')
+    def test_into_impeach(self):
+        self.test_admin_login()
+        self.function_dict['ad'].socialManagementPage().into_impeach_page(first_enter=True)
+
+    # 測試-進入贴文数据
+    @DecorateClass('CHATAPP-T2852')
+    def test_into_post_data(self):
+        self.test_admin_login()
+        self.function_dict['ad'].socialManagementPage().into_post_data_page(first_enter=True)
+
+    # 測試-進入创作者数据
+    @DecorateClass('CHATAPP-T2853')
+    def test_into_creator_data(self):
+        self.test_admin_login()
+        self.function_dict['ad'].socialManagementPage().into_creator_data_page(first_enter=True)
 
     # 測試-進入水量控制
     @DecorateClass('CHATAPP-T1901')
@@ -274,26 +312,40 @@ class AdminTestCase(BaseTestCase):
         self.test_admin_login()
         self.function_dict['ad'].mainPage().into_red_water()
 
-    # 測試-建立群組設定
+    # 測試-群組建立權限設定
     @DecorateClass('CHATAPP-T2507')
-    def test_groups_build(self):
+    def test_build_group_permission(self):
         bool_list = [False, True]
-        for boling in bool_list:
+        for _bool in bool_list:
             self.test_admin_login()
             self.function_dict['ad'].mainPage().into_groups_set()
-            self.function_dict['ad'].groupsPage().groups_biuld_switch(boling)
+            self.function_dict['ad'].groupsPage().groups_build_switch(_bool)
 
             self.test_web_login()
             self.function_dict['wp'].mainPage().open_user_info()
-            self.function_dict['wp'].mainPage().check_groups_build(boling)
+            self.function_dict['wp'].mainPage().check_groups_build(_bool)
 
-    # 測試-建立帳號 
+    # 測試-新增會員帳號
     @DecorateClass('CHATAPP-T2508')
     def test_member_build(self):
         self.test_into_and_check_member_list()
         self.function_dict['ad'].memberPage().build_account(self.member_ID)
-        build_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+        build_time = datetime.datetime.now().strftime("%Y/%m/%d %H:%M")
         self.function_dict['ad'].memberPage().check_data(self.member_ID, build_time, self.revise_time, condition = 'confirm_build')
+
+    # 測試-新增人工創建帳號
+    @DecorateClass('CHATAPP-T2908')
+    def test_manual_create_account(self):
+        phone = '13141000999'
+        password = '000111abc'
+        self.test_into_and_check_member_list()
+        self.function_dict['ad'].memberPage().manual_create_app_account(self.manual_account_id, phone, password)
+        build_time = datetime.datetime.now().strftime("%Y/%m/%d %H:%M")
+        self.function_dict['ad'].memberPage().check_data(self.manual_account_id, build_time, self.revise_time, condition = 'confirm_manual_create')
+
+        self.function_dict['wp'].basePage().windows_to_top()  # 切換視窗
+        self.function_dict['wp'].basePage().open_base_url()  # 開啟前台網站
+        self.function_dict['wp'].loginPage().login(phone, password, 'CN')
 
     # 測試-設定備註 
     @DecorateClass('CHATAPP-T2509')
@@ -334,7 +386,7 @@ class AdminTestCase(BaseTestCase):
         time.sleep(1)
 
         self.function_dict['ad'].memberPage().member_change_password(self.member_ID)
-        revise_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+        revise_time = datetime.datetime.now().strftime("%Y/%m/%d %H:%M")
         self.function_dict['ad'].memberPage().check_data(self.member_ID, self.build_time, revise_time, condition = 'confirm_revise')
 
     # 測試-搜尋功能
@@ -343,12 +395,35 @@ class AdminTestCase(BaseTestCase):
         self.test_into_and_check_member_list()
         self.function_dict['ad'].memberPage().search(self.member_ID)
 
-    # 測試-刪除帳號
+    # 測試-刪除後台新增帳號
     @DecorateClass('CHATAPP-T2516')
     def test_member_delete(self):
         self.test_into_and_check_member_list()
-
         self.function_dict['ad'].memberPage().delete_member(self.member_ID)
+
+    # @DecorateClass('')
+    # def test_change_social_permission(self):
+    #     self.test_into_and_check_member_list()
+    #     self.function_dict['ad'].memberPage().change_social_permission(self.member_ID, enable=False)
+
+    # 測試-刪除人工創建帳號
+    @DecorateClass('CHATAPP-T2907')
+    def test_manual_create_account_delete(self):
+        self.test_into_and_check_member_list()
+        self.function_dict['ad'].memberPage().delete_member(self.manual_account_id)
+
+    # 測試-刪除群組
+    @DecorateClass('CHATAPP-T2783')
+    def test_group_delete(self):
+        self.test_admin_login()
+        self.function_dict['ad'].mainPage().into_groups_list()
+        self.function_dict['ad'].groupsPage().groups_delete(self.get_group_name())
+
+    def get_group_name(self):
+        if self.env == 'prod':
+            return 'QA_bot_only'
+        elif self.env == 'uat':
+            return str(datetime.datetime.now().strftime("%m%d") + "group")
 
     # 測試-順付成功積分紀錄
     @DecorateClass('CHATAPP-T2522')
@@ -418,7 +493,7 @@ class AdminTestCase(BaseTestCase):
         self.function_dict['ad'].waterControlPage().edit_point(operator, original_water)
         self.function_dict['ad'].mainPage().into_red_list()
         total_cost = self.function_dict['ad'].redenvelopePage().add_luck_red_envelope_for_auto_grad()
-        operate_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+        operate_time = datetime.datetime.now().strftime("%Y/%m/%d %H:%M")
         after_water = str(round((float(original_water) - float(total_cost)), 2))
         # 測試-水量編輯&使用詳情
         self.test_water_control(operator, operate_time, original_water, total_cost, after_water)
@@ -427,8 +502,6 @@ class AdminTestCase(BaseTestCase):
     def test_water_control(self, member_name, operate_time, original_water, total_cost, after_water):
         self.test_into_red_water()
         self.function_dict['ad'].waterControlPage().test_point_control_search(member_name)
-        # self.function_dict['ad'].waterControlPage().test_point_control(member_name, original_water, set_water)
-        # operate_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
         self.function_dict['ad'].waterControlPage().test_water_control_detail(operate_time, member_name, original_water, total_cost, after_water)
 
 

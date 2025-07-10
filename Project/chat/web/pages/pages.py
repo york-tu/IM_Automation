@@ -97,8 +97,8 @@ class AdminPages:
         return MemberPage(*self.pages_parameter)
 
     def recodePage(self):
-        from Project.chat.web.pages.admin.admin_recodepage import RecodePage
-        return RecodePage(*self.pages_parameter)
+        from Project.chat.web.pages.admin.admin_recodepage import RecordPage
+        return RecordPage(*self.pages_parameter)
 
     def redenvelopePage(self):
         from Project.chat.web.pages.admin.admin_redenvelopepage import RedEnvelopePage
@@ -127,5 +127,48 @@ class AdminPages:
     def recordPage(self):
         from Project.chat.web.pages.admin.admin_recodepage import RecordPage
         return RecordPage(*self.pages_parameter)
+
+class WapPages:
+    def __init__(self, driver, wait_sec, base_url, skip_test_method):
+        self.pages_parameter = driver, wait_sec, base_url, skip_test_method
+
+    def commomPage(self):
+        from common.web.common import Common
+        return Common(*self.pages_parameter)
+
+    def basePage(self):
+        from Project.chat.web.pages.wap.wap_basepage import BasePage
+        return BasePage(*self.pages_parameter)
+
+    def wapFirstPage(self):
+        from Project.chat.web.pages.wap.wap_firstpage import FirstPage
+        return FirstPage(*self.pages_parameter)
+
+    def wapFriendsPage(self):
+        from Project.chat.web.pages.wap.wap_friendspage import FriendsPage
+        return FriendsPage(*self.pages_parameter)
+
+    def wapMessagePage(self):
+        from Project.chat.web.pages.wap.wap_messagepage import MessagePage
+        return MessagePage(*self.pages_parameter)
+
+    def wapMainPage(self):
+        from Project.chat.web.pages.wap.wap_mainpage import MainPage
+        return MainPage(*self.pages_parameter)
+
+    def wapMainPersonalPage(self):
+        from Project.chat.web.pages.wap.wap_main_personal_settings import PersonalSettingPage
+        return PersonalSettingPage(*self.pages_parameter)
+
+    def wapLoginPage(self):
+        from Project.chat.web.pages.wap.wap_loginpage import LoginPage
+        return LoginPage(*self.pages_parameter)
+
+    def searchPage(self):
+        from Project.chat.web.pages.wap.wap_searchpage import SearchPage
+        return SearchPage(*self.pages_parameter)
+
+
+
 
 

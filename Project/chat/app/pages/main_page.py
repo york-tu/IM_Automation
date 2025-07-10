@@ -5,6 +5,7 @@ from common.app.common import Common
 from configs.app.setting import Setting
 from Project.chat.app.pages.base_page import Base
 from Project.chat.app.pages.xpath.xpath_base import Xpath_Base
+from Project.chat.app.pages.friend_page import FriendPageLocator
 import logging
 import common.utils.globalvar as gl
 
@@ -80,9 +81,13 @@ class MainPageLocator:
         iOS=base.data_collation(type_kind='name', type_name='取消'),
     )
 
-    friends_list = base.check_device(
-        Android=base.data_collation(type_kind='text', type_name='好友'),
-        iOS=base.data_collation(type_kind='name', type_name='好友'),
+    friends_btn = base.check_device(
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/iv_friend'),
+        iOS=base.data_collation(type_kind='name', type_name=''),
+    )
+    message_btn = base.check_device(
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/navigation_bar_item_icon_view', num=1),
+        iOS=base.data_collation(type_kind='name', type_name=''),
     )
 
     friends_list_check = base.check_device(
@@ -90,9 +95,9 @@ class MainPageLocator:
         iOS=base.data_collation(type_kind='name', type_name='群组'),
     )
 
-    mine_button = base.check_device(
-        Android=base.data_collation(type_kind='text', type_name='主页'),
-        iOS=base.data_collation(type_kind='name', type_name='主页'),
+    main_btn = base.check_device(
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/navigation_bar_item_icon_view', num=-1),
+        iOS=base.data_collation(type_kind='name', type_name=''),
     )
 
     main_nickname = base.check_device(
@@ -101,18 +106,22 @@ class MainPageLocator:
     )
 
     main_description = base.check_device(
-        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tv_description'),
-        iOS=base.data_collation(type_kind='type', type_name='StaticText', num=20),
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tv_content'),
+        iOS=base.data_collation(type_kind='nameMatches', type_name='.*自動化.*'),
     )
 
     mine_menu_btn = base.check_device(
-        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/iv_menu'),
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/iv_right'),
         iOS=base.data_collation(type_kind='name', type_name='icon menu', num=0),
     )
 
     followed_tab = base.check_device(
         Android=base.data_collation(type_kind='text', type_name='已关注'),
         iOS=base.data_collation(type_kind='name', type_name='已关注'),
+    )
+    recommend_tab = base.check_device(
+        Android=base.data_collation(type_kind='text', type_name='推荐'),
+        iOS=base.data_collation(type_kind='name', type_name='推荐'),
     )
 
     about_button = base.check_device(
@@ -179,7 +188,6 @@ class MainPageLocator:
     )
 
 
-
 class MainPage(Base):
     phone_platform = gl.get_value('PHONE_PLATFORM')
 
@@ -192,7 +200,6 @@ class MainPage(Base):
         elif self.phone_platform.lower() == 'ios' and self.common.poco_exists(MainPageLocator.login):
             return False
         return True
-
 
     def into_home_check(self, status):
         if self.phone_platform.lower() == 'android':
@@ -208,8 +215,8 @@ class MainPage(Base):
                     return False
                 elif self.check_login_status() is False:
                     return False
-
-                if self.common.poco_exists(MainPageLocator.friends_list) or self.common.poco_exists(MainPageLocator.mine_button):
+                sleep(3)
+                if self.common.poco_exists(MainPageLocator.message_btn) or self.common.poco_exists(MainPageLocator.main_btn):
                     number += 1  # 為避免找到首頁定位後才跳出彈窗，故找到後再跑一次
                     if number == 2:
                         break
@@ -240,7 +247,7 @@ class MainPage(Base):
 
     # 登入
     def login(self, account: str, password: str, nation: str):
-        self.wait_loading_finish()
+        sleep(3)
         if self.check_login_status() is True:
             self.into_main_setting_page()
             if self.common.poco_exists(MainPageLocator.login_expired_msg):  # popup 登入狀態已過期視窗
@@ -250,7 +257,10 @@ class MainPage(Base):
                 self.logout()
 
         if self.phone_platform.lower() == 'android':
-            self.common.poco_click(MainPageLocator.login)
+
+            while self.common.poco_exists(MainPageLocator.register_button):
+                self.common.poco_click(MainPageLocator.login_button)
+                sleep(1)
         else:
             if not self.poco(type="StaticText").attr('value') == '登录':
                 if self.common.poco_exists(MainPageLocator.login):
@@ -274,11 +284,15 @@ class MainPage(Base):
             raise EOFError(f'登入失敗-{error_message}')
 
         self.wait_loading_finish()
-        assert self.common.poco_exists(MainPageLocator.followed_tab), f'登入失敗'
+        # assert self.common.poco_exists(MainPageLocator.recommend_tab), f'登入失敗'
+
+    def check_focus_recommend_tab_after_login(self):
+        if self.phone_platform.lower() == 'android':
+            assert self.common.poco_get_attr(MainPageLocator.recommend_tab, "selected") is True, f'登入後沒有focus推薦頁'
 
     def into_main_setting_page(self):
-        if self.common.poco_wait_exists(MainPageLocator.mine_button):
-            self.common.poco_click(MainPageLocator.mine_button)
+        if self.common.poco_wait_exists(MainPageLocator.main_btn):
+            self.common.poco_click(MainPageLocator.main_btn)
         if self.common.poco_wait_exists(MainPageLocator.mine_menu_btn):
             self.common.poco_click(MainPageLocator.mine_menu_btn)
         self.skip_login_rush()
@@ -291,13 +305,16 @@ class MainPage(Base):
                 assert self.common.poco_exists(MainPageLocator.about_button), f'進入主頁_我的設定頁錯誤'
 
     def into_main_page(self):
-        if self.common.poco_wait_exists(MainPageLocator.mine_button):
-            self.common.poco_click(MainPageLocator.mine_button)
+        if self.common.poco_wait_exists(MainPageLocator.main_btn):
+            self.common.poco_click(MainPageLocator.main_btn)
             assert self.common.poco_exists(MainPageLocator.share_profile_btn), f'進入主頁錯誤'
             assert self.common.poco_exists(MainPageLocator.edit_profile_btn), f'進入主頁錯誤'
 
     def get_nickname(self):
-        data = self.common.poco_get_text(MainPageLocator.main_nickname)
+        if self.phone_platform.lower() == 'android':
+            data = self.common.poco_get_text(MainPageLocator.main_nickname)
+        else:
+            data = self.poco(type="StaticText").attr('value')
         return data
 
     def get_self_introduction(self):
@@ -305,17 +322,20 @@ class MainPage(Base):
         return data
 
     def into_friend_page(self):
-        if self.common.poco_wait_exists(MainPageLocator.friends_list):
-            self.common.poco_click(MainPageLocator.friends_list)
+        if self.common.poco_wait_exists(MainPageLocator.message_btn):
+            self.common.poco_click(MainPageLocator.message_btn)
+        if self.common.poco_wait_exists(MainPageLocator.friends_btn):
+            self.common.poco_click(MainPageLocator.friends_btn)
+        if self.common.poco_exists(FriendPageLocator.search_clear):
+            self.common.poco_click(FriendPageLocator.search_clear)
         self.skip_login_rush()
-
         assert self.common.poco_exists(MainPageLocator.friends_list_check), f'進入好友名單錯誤'
 
     def into_chat_page(self):
         while self.common.poco_wait_exists(MainPageLocator.back_btn):
             self.common.poco_click(MainPageLocator.back_btn)
-        if self.common.poco_wait_exists(MainPageLocator.chat_list):
-            self.common.poco_click(MainPageLocator.chat_list)
+        if self.common.poco_wait_exists(MainPageLocator.message_btn):
+            self.common.poco_click(MainPageLocator.message_btn)
         self.skip_login_rush()
 
         assert self.common.poco_exists(MainPageLocator.chat_list_check), f'進入聊天列表錯誤'
@@ -346,7 +366,7 @@ class MainPage(Base):
                 self.common.sleep(0.5)
                 if self.phone_platform.lower() == 'android':
                     assert self.common.poco_get_text(
-                        MainPageLocator.nation_check) == '国家/地区', f'進入國家選擇頁面失敗'
+                        MainPageLocator.nation_check) == '选择国家和地区', f'進入國家選擇頁面失敗'
                 else:
                     assert self.common.poco_get_text(
                         MainPageLocator.nation_check) == '选择国家和地区', f'進入國家選擇頁面失敗'

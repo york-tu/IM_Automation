@@ -13,8 +13,8 @@ class LoginPageLocator:
     login_btn = (By.XPATH, "//span[text()='登录']/..")  # 登入按鈕
     login_check_point = (By.XPATH, "//div[@class='version']")  # 判斷已登入點
     login_deshboard = (By.XPATH, "//a[@href='/dashboard']")
-    user_info_btn = (By.XPATH, "//*[@id='app']/div/header/div[2]/div[2]/div")  # 右上角user_info按鈕
-    logout_btn = (By.XPATH, "//*[text()='登出']/..")  # 登出按鈕
+    user_info_btn = (By.XPATH, "//*[@id='app']/div/header/div[2]/div[3]/div")  # 右上角user_info按鈕
+    logout_btn = (By.XPATH, "//*[text()='登出']")  # 登出按鈕
 
 
 class LoginPage(BasePage):

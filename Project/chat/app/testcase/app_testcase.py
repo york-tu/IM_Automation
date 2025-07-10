@@ -23,6 +23,7 @@ from Project.chat.apis.function_layer.base_functions import BaseFunction as Base
 
 class AppTestCase(BaseTestCase, BaseFunction_API):
     brand = gl.get_value('BRAND')
+    env = gl.get_value('ENV')
     # ================================= TestSetting ===============================
     
     @classmethod
@@ -102,11 +103,12 @@ class AppTestCase(BaseTestCase, BaseFunction_API):
     @DecorateClass('CHATAPP-T1679')
     # 登入
     def test_login(self):
-        if self.unknown_env[0] is True:
-            self.function_dict['ap'].commomPage().skip_test('測試環境不正確')
+        # if self.unknown_env[0] is True:
+        #     self.function_dict['ap'].commomPage().skip_test('測試環境不正確')
         if self._login_status[0] is False:
             self.function_dict['ap'].mainPage().login(self.app_phone, self.app_password, self.app_nation)
             self._login_status[0] = True
+            self.function_dict['ap'].mainPage().check_focus_recommend_tab_after_login()
 
     @DecorateClass('CHATAPP-T1681')
     # 登出
@@ -123,28 +125,19 @@ class AppTestCase(BaseTestCase, BaseFunction_API):
     # 檢查版本
     def test_version_check(self):
         self.test_login()
+
         app_version = self.app_version
         self.function_dict['ap'].mainPage().into_main_page()
         self.function_dict['ap'].mainPage().into_main_setting_page()
         self.function_dict['ap'].memberPage().into_about()
         self.function_dict['ap'].aboutPage().check_version(app_version)
 
-    @DecorateClass('CHATAPP-T2560')
-    # 進入圖庫頁
-    def test_into_gallery(self):
-        self.test_login()
-        self.function_dict['ap'].treadandgalleryPage().into_gallery_page()
-
-    @DecorateClass('CHATAPP-T2561')
-    # 進入走勢頁
-    def test_into_tread(self):
-        self.test_login()
-        self.function_dict['ap'].treadandgalleryPage().into_tread_page()
 
     @DecorateClass('CHATAPP-T1752')
     # 進入主頁_我的設定頁面
     def test_into_member(self):
         self.test_login()
+
         self.function_dict['ap'].mainPage().into_main_page()
         self.function_dict['ap'].mainPage().into_main_setting_page()
 
@@ -152,19 +145,21 @@ class AppTestCase(BaseTestCase, BaseFunction_API):
     # 進入好友頁面
     def test_into_friend(self):
         self.test_login()
+
         self.function_dict['ap'].mainPage().into_friend_page()
     
     @DecorateClass('CHATAPP-T1754')
     # 變更自己暱稱 & 個人簡介
     def test_change_nickname_and_instructions(self):
         self.test_login()
+
         self.function_dict['ap'].mainPage().into_main_page()
         old_nickname = self.function_dict['ap'].mainPage().get_nickname()
         old_description = self.function_dict['ap'].mainPage().get_self_introduction()
         self.function_dict['ap'].memberPage().into_edit()
         self.function_dict['ap'].memberPage().change_nickname('gutest1234')
         self.function_dict['ap'].memberPage().change_nickname(old_nickname)
-        self.function_dict['ap'].memberPage().change_introduction('👿😡😍😖😍(*^ω^*)udhヾ(@^▽^@)ノ ❤💔🎃🎓🍻🍰🍱🎰🎧🎶🎱🎫😲😱😰😭🐷🐶🍀🐱🐔🐰🐮🍀🐑')
+        self.function_dict['ap'].memberPage().change_introduction('自動化編輯簡介Test👿😡😍😖😍(*^ω^*)udhヾ(@^▽^@)ノ🐱🐔🐰🎱🎫😲😱😰😭🐷🐶🍀')
         self.function_dict['ap'].memberPage().change_introduction(old_description)
 
 
@@ -208,6 +203,7 @@ class AppTestCase(BaseTestCase, BaseFunction_API):
     # 關於聊天
     def test_about_terms(self):
         self.test_login()
+
         self.function_dict['ap'].mainPage().into_main_setting_page()
         self.function_dict['ap'].memberPage().into_about()
         self.function_dict['ap'].aboutPage().check_service()
@@ -242,10 +238,28 @@ class AppTestCase(BaseTestCase, BaseFunction_API):
         self.function_dict['ap'].memberPage().into_security()
         self.function_dict['ap'].securityPage().check_value(self.app_phone, self.app_account, self.app_nation)
 
+    @DecorateClass('CHATAPP-T')
+    # 確認釋出空間
+    def test_free_up_space(self):
+        self.test_login()
+
+        product = 'UAT_股聊'
+        chatroom = 'QA_bot_only'
+
+        self.function_dict['ap'].mainPage().into_main_setting_page()
+        self.function_dict['ap'].freeupspacePage().into_free_up_space(product)
+        # ============================== 清除緩存 ====================================
+        self.function_dict['ap'].freeupspacePage().clear_cache_data()
+        # ============================== 依聊天室釋出空間 =============================
+        self.function_dict['ap'].freeupspacePage().clear_data_by_chatroom(chatroom)
+        self.function_dict['ap'].freeupspacePage().clear_all_data()
+
+
     @DecorateClass('CHATAPP-T1760')
     # 好友頁面新增好友
     def test_add_friend(self):
         self.test_login()
+
         self.function_dict['ap'].mainPage().into_friend_page()
         can_add_friend = self.function_dict['ap'].friendPage().search_new_friend(self.operate_account)
 
@@ -254,7 +268,7 @@ class AppTestCase(BaseTestCase, BaseFunction_API):
             self.function_dict['ap'].friendPage().delete_friend(self.operate_account)
             self.function_dict['ap'].friendPage().search_new_friend(self.operate_account)
 
-        self.function_dict['ap'].friendPage().add_friend()
+        self.function_dict['ap'].friendPage().add_friend(self.operate_account)
 
     @DecorateClass('CHATAPP-T1762')
     # 好友頁面新增自己
@@ -302,7 +316,7 @@ class AppTestCase(BaseTestCase, BaseFunction_API):
         self.function_dict['ap'].memberPage().into_blacklist()
         self.function_dict['ap'].blacklistPage().search_friend(self.operate_account)
         self.function_dict['ap'].blacklistPage().into_block_setting()
-        self.function_dict['ap'].blacklistPage().set_note('asdasdasdasda')
+        self.function_dict['ap'].blacklistPage().set_note('黑名單設定TESt')
         self.function_dict['ap'].blacklistPage().set_nickname()
     
     @DecorateClass('CHATAPP-T1765')
@@ -430,7 +444,7 @@ class AppTestCase(BaseTestCase, BaseFunction_API):
         self.function_dict['ap'].chatlistPage().into_chat_room(self.operate_account)
         self.function_dict['ap'].chatroomPage().delete_all_pin()
         self.function_dict['ap'].chatroomPage().send_text_message()
-        self.function_dict['ap'].chatroomPage().copy_message('測試TeSt12345!@#$%测试#5')
+        self.function_dict['ap'].chatroomPage().copy_message('測試TeSt12345!@#$%测试#0')
         self.function_dict['ap'].chatroomPage().pin_full_messages()
         self.function_dict['ap'].chatroomPage().delete_all_pin()
 
@@ -474,6 +488,100 @@ class AppTestCase(BaseTestCase, BaseFunction_API):
         self.function_dict['ap'].chatroomPage().revoke_message('測試TeSt12345!@#$%测试#3')
         self.function_dict['ap'].chatroomPage().delete_all_pin()
 
+    @DecorateClass('CHATAPP-T3190')
+    # 個人-發送語音訊息
+    def test_send_voice_message(self):
+        self.test_login()
+
+        voice_length = random.randint(10, 15)
+        self.function_dict['ap'].chatlistPage().into_chat_room(self.operate_account)
+        self.function_dict['ap'].chatroomPage().send_voice_message(voice_length)
+        self.function_dict['ap'].chatlistPage().check_last_message(message_type='voice')
+
+    @DecorateClass('CHATAPP-T3191')
+    # 個人-回覆語音訊息
+    def test_voice_message_reply(self):
+        self.test_login()
+
+        voice_length = random.randint(10, 15)
+        self.function_dict['ap'].chatlistPage().into_chat_room(self.operate_account)
+        self.function_dict['ap'].chatroomPage().send_voice_message(voice_length)
+        room_voice_message = self.function_dict['ap'].chatroomPage().get_last_message(is_voice=True)
+        self.function_dict['ap'].chatroomPage().reply_voice_message(room_voice_message)
+        self.function_dict['ap'].chatlistPage().check_last_message()
+
+    @DecorateClass('CHATAPP-T3192')
+    # 個人-刪除語音訊息
+    def test_voice_message_delete(self):
+        self.test_login()
+
+        voice_length_1 = random.randint(1, 5)
+        voice_length_2 = random.randint(5, 9)
+        self.function_dict['ap'].chatlistPage().into_chat_room(self.operate_account)
+        self.function_dict['ap'].chatroomPage().send_voice_message(voice_length_1)
+        room_voice_message_1 = self.function_dict['ap'].chatroomPage().get_last_message(is_voice=True)
+        self.function_dict['ap'].chatroomPage().send_voice_message(voice_length_2)
+        room_voice_message_2 = self.function_dict['ap'].chatroomPage().get_last_message(is_voice=True)
+        self.function_dict['ap'].chatroomPage().delete_message(room_voice_message_2, room_voice_message_1, -1, is_voice=True)
+        assert room_voice_message_1 == self.function_dict['ap'].chatroomPage().get_last_message(is_voice=True)
+
+    @DecorateClass('CHATAPP-T3193')
+    # 個人-撤回語音訊息
+    def test_voice_message_revoke(self):
+        self.test_login()
+
+        voice_length_1 = random.randint(10, 15)
+        voice_length_2 = random.randint(15, 19)
+        self.function_dict['ap'].chatlistPage().into_chat_room(self.operate_account)
+        self.function_dict['ap'].chatroomPage().send_voice_message(voice_length_1)
+        room_voice_message_1 = self.function_dict['ap'].chatroomPage().get_last_message(is_voice=True)
+        self.function_dict['ap'].chatroomPage().send_voice_message(voice_length_2)
+        room_voice_message_2 = self.function_dict['ap'].chatroomPage().get_last_message(is_voice=True)
+        self.function_dict['ap'].chatroomPage().revoke_message(room_voice_message_2)
+        assert room_voice_message_1 == self.function_dict['ap'].chatroomPage().get_last_message(is_voice=True)
+
+    @DecorateClass('CHATAPP-T3253')
+    # 個人-發送檔案訊息
+    def test_send_file_message(self):
+        self.test_login()
+        self.function_dict['ap'].chatlistPage().into_chat_room(self.operate_account)
+        self.function_dict['ap'].chatroomPage().send_file_message(1)
+        self.function_dict['ap'].chatlistPage().check_last_message(message_type='file')
+
+    @DecorateClass('CHATAPP-T3254')
+    # 個人-回覆檔案訊息
+    def test_file_message_reply(self):
+        self.test_login()
+        self.function_dict['ap'].chatlistPage().into_chat_room(self.operate_account)
+        self.function_dict['ap'].chatroomPage().send_file_message(2)
+        room_file_message = self.function_dict['ap'].chatroomPage().get_last_message(is_file=True)
+        self.function_dict['ap'].chatroomPage().reply_file_message(room_file_message)
+        self.function_dict['ap'].chatlistPage().check_last_message()
+
+    @DecorateClass('CHATAPP-T3255')
+    # 個人-刪除檔案訊息
+    def test_file_message_delete(self):
+        self.test_login()
+        self.function_dict['ap'].chatlistPage().into_chat_room(self.operate_account)
+        self.function_dict['ap'].chatroomPage().send_file_message(3)
+        room_file_message_1 = self.function_dict['ap'].chatroomPage().get_last_message(is_file=True)
+        self.function_dict['ap'].chatroomPage().send_file_message(4)
+        room_file_message_2 = self.function_dict['ap'].chatroomPage().get_last_message(is_file=True)
+        self.function_dict['ap'].chatroomPage().delete_message(room_file_message_2, room_file_message_1, -1, is_file=True)
+        assert room_file_message_1 == self.function_dict['ap'].chatroomPage().get_last_message(is_file=True)
+
+    @DecorateClass('CHATAPP-T3256')
+    # 個人-撤回檔案訊息
+    def test_file_message_revoke(self):
+        self.test_login()
+        self.function_dict['ap'].chatlistPage().into_chat_room(self.operate_account)
+        self.function_dict['ap'].chatroomPage().send_file_message(2)
+        room_file_message_1 = self.function_dict['ap'].chatroomPage().get_last_message(is_file=True)
+        self.function_dict['ap'].chatroomPage().send_file_message(5)
+        room_file_message_2 = self.function_dict['ap'].chatroomPage().get_last_message(is_file=True)
+        self.function_dict['ap'].chatroomPage().revoke_message(room_file_message_2)
+        assert room_file_message_1 == self.function_dict['ap'].chatroomPage().get_last_message(is_file=True)
+
     @DecorateClass('CHATAPP-T1778')
     # 群組發送文字超連結訊息
     def test_send_message_group(self):
@@ -508,7 +616,7 @@ class AppTestCase(BaseTestCase, BaseFunction_API):
     @DecorateClass('CHATAPP-T1781')
     # 群組訊息刪除
     def test_message_delete_group(self):
-        # self.test_login()
+        self.test_login()
 
         self.function_dict['ap'].chatlistPage().into_chat_room('QA_bot_only')
         room_message = self.function_dict['ap'].chatroomPage().get_last_message()
@@ -522,12 +630,10 @@ class AppTestCase(BaseTestCase, BaseFunction_API):
         self.test_login()
 
         self.function_dict['ap'].chatlistPage().into_chat_room('QA_bot_only')
-        # self.function_dict['ap'].chatroomPage().delete_all_pin()
         self.function_dict['ap'].chatroomPage().send_text_message()
-        self.function_dict['ap'].chatroomPage().revoke_message('測試TeSt12345!@#$%测试#3')
-        self.function_dict['ap'].chatlistPage().check_last_message()
         self.function_dict['ap'].chatroomPage().revoke_message('測試TeSt12345!@#$%测试#5')
         self.function_dict['ap'].chatlistPage().check_last_message()
+
 
     @DecorateClass('CHATAPP-T1783')
     # 群組訊息設置公告
@@ -535,9 +641,8 @@ class AppTestCase(BaseTestCase, BaseFunction_API):
         self.test_login()
         
         self.function_dict['ap'].chatlistPage().into_chat_room('QA_bot_only')
-        # self.function_dict['ap'].chatroomPage().delete_all_pin()
+        self.function_dict['ap'].chatroomPage().delete_all_pin()
         self.function_dict['ap'].chatroomPage().send_text_message()
-        self.function_dict['ap'].chatroomPage().copy_message('測試TeSt12345!@#$%测试#5')
         self.function_dict['ap'].chatroomPage().pin_full_messages()
         self.function_dict['ap'].chatroomPage().delete_all_pin()
 
@@ -547,7 +652,6 @@ class AppTestCase(BaseTestCase, BaseFunction_API):
         self.test_login()
 
         self.function_dict['ap'].chatlistPage().into_chat_room('QA_bot_only')
-        # self.function_dict['ap'].chatroomPage().delete_all_pin()
         self.function_dict['ap'].chatroomPage().send_text_message()
         self.function_dict['ap'].chatroomPage().reply_message('測試TeSt12345!@#$%测试#3')
         self.function_dict['ap'].chatroomPage().pin_message('回覆訊息测试Test')
@@ -560,7 +664,6 @@ class AppTestCase(BaseTestCase, BaseFunction_API):
         self.test_login()
 
         self.function_dict['ap'].chatlistPage().into_chat_room('QA_bot_only')
-        # self.function_dict['ap'].chatroomPage().delete_all_pin()
         room_message = self.function_dict['ap'].chatroomPage().get_last_message()
         self.function_dict['ap'].chatroomPage().send_message('刪除用测试訊息')
         self.function_dict['ap'].chatroomPage().pin_message('刪除用测试訊息')
@@ -574,51 +677,620 @@ class AppTestCase(BaseTestCase, BaseFunction_API):
         self.test_login()
 
         self.function_dict['ap'].chatlistPage().into_chat_room('QA_bot_only')
-        # self.function_dict['ap'].chatroomPage().delete_all_pin()
         self.function_dict['ap'].chatroomPage().send_text_message()
         self.function_dict['ap'].chatroomPage().pin_message('測試TeSt12345!@#$%测试#3')
         self.function_dict['ap'].chatroomPage().check_pin_message('測試TeSt12345!@#$%测试#3')
         self.function_dict['ap'].chatroomPage().revoke_message('測試TeSt12345!@#$%测试#3')
         self.function_dict['ap'].chatroomPage().delete_all_pin()
 
+    @DecorateClass('CHATAPP-T3194')
+    # 群組內發送語音訊息
+    def test_send_voice_message_group(self):
+        self.test_login()
+
+        voice_length = random.randint(10, 15)
+        self.function_dict['ap'].chatlistPage().into_chat_room('QA_bot_only')
+        self.function_dict['ap'].chatroomPage().send_voice_message(voice_length)
+        self.function_dict['ap'].chatlistPage().check_last_message(message_type='voice')
+
+    @DecorateClass('CHATAPP-T3195')
+    # 群組內回覆語音訊息
+    def test_voice_message_reply_group(self):
+        self.test_login()
+
+        voice_length = random.randint(15, 19)
+        self.function_dict['ap'].chatlistPage().into_chat_room('QA_bot_only')
+        self.function_dict['ap'].chatroomPage().send_voice_message(voice_length)
+        room_voice_message = self.function_dict['ap'].chatroomPage().get_last_message(is_voice=True)
+        self.function_dict['ap'].chatroomPage().reply_voice_message(room_voice_message)
+        self.function_dict['ap'].chatlistPage().check_last_message()
+
+    @DecorateClass('CHATAPP-T3196')
+    # 群組內刪除語音訊息
+    def test_voice_message_delete_group(self):
+        self.test_login()
+
+        voice_length_1 = random.randint(1, 5)
+        voice_length_2 = random.randint(5, 9)
+        self.function_dict['ap'].chatlistPage().into_chat_room('QA_bot_only')
+        self.function_dict['ap'].chatroomPage().send_voice_message(voice_length_1)
+        room_voice_message_1 = self.function_dict['ap'].chatroomPage().get_last_message(is_voice=True)
+        self.function_dict['ap'].chatroomPage().send_voice_message(voice_length_2)
+        room_voice_message_2 = self.function_dict['ap'].chatroomPage().get_last_message(is_voice=True)
+        self.function_dict['ap'].chatroomPage().delete_message(room_voice_message_2, room_voice_message_1, -1, is_voice=True)
+        assert room_voice_message_1 == self.function_dict['ap'].chatroomPage().get_last_message(is_voice=True)
+
+    @DecorateClass('CHATAPP-T3197')
+    # 群組內撤回語音訊息
+    def test_voice_message_revoke_group(self):
+        self.test_login()
+
+        self.function_dict['ap'].chatlistPage().into_chat_room('QA_bot_only')
+        self.function_dict['ap'].chatroomPage().send_voice_message(15)
+        room_voice_message_1 = self.function_dict['ap'].chatroomPage().get_last_message(is_voice=True)
+        self.function_dict['ap'].chatroomPage().send_voice_message(10)
+        room_voice_message_2 = self.function_dict['ap'].chatroomPage().get_last_message(is_voice=True)
+        self.function_dict['ap'].chatroomPage().revoke_message(room_voice_message_2)
+        assert room_voice_message_1 == self.function_dict['ap'].chatroomPage().get_last_message(is_voice=True)
+
+    @DecorateClass('CHATAPP-T3257')
+    # 群組-發送檔案訊息
+    def test_send_file_message_group(self):
+        self.test_login()
+        self.function_dict['ap'].chatlistPage().into_chat_room('QA_bot_only')
+        self.function_dict['ap'].chatroomPage().send_file_message(4)
+        self.function_dict['ap'].chatlistPage().check_last_message(message_type='file')
+
+    @DecorateClass('CHATAPP-T3258')
+    # 群組-回覆檔案訊息
+    def test_file_message_reply_group(self):
+        self.test_login()
+
+        self.function_dict['ap'].chatlistPage().into_chat_room('QA_bot_only')
+        self.function_dict['ap'].chatroomPage().send_file_message(3)
+        room_file_message = self.function_dict['ap'].chatroomPage().get_last_message(is_file=True)
+        self.function_dict['ap'].chatroomPage().reply_file_message(room_file_message)
+        self.function_dict['ap'].chatlistPage().check_last_message()
+
+    @DecorateClass('CHATAPP-T3259')
+    # 群組-刪除檔案訊息
+    def test_file_message_delete_group(self):
+        self.test_login()
+
+        self.function_dict['ap'].chatlistPage().into_chat_room('QA_bot_only')
+        self.function_dict['ap'].chatroomPage().send_file_message(2)
+        room_file_message_1 = self.function_dict['ap'].chatroomPage().get_last_message(is_file=True)
+        self.function_dict['ap'].chatroomPage().send_file_message(5)
+        room_file_message_2 = self.function_dict['ap'].chatroomPage().get_last_message(is_file=True)
+        self.function_dict['ap'].chatroomPage().delete_message(room_file_message_2, room_file_message_1, -1,
+                                                               is_file=True)
+        assert room_file_message_1 == self.function_dict['ap'].chatroomPage().get_last_message(is_file=True)
+
+    @DecorateClass('CHATAPP-T3260')
+    # 群組-撤回檔案訊息
+    def test_file_message_revoke_group(self):
+        self.test_login()
+
+        self.function_dict['ap'].chatlistPage().into_chat_room('QA_bot_only')
+        self.function_dict['ap'].chatroomPage().send_file_message(3)
+        room_file_message_1 = self.function_dict['ap'].chatroomPage().get_last_message(is_file=True)
+        self.function_dict['ap'].chatroomPage().send_file_message(4)
+        room_file_message_2 = self.function_dict['ap'].chatroomPage().get_last_message(is_file=True)
+        self.function_dict['ap'].chatroomPage().revoke_message(room_file_message_2)
+        assert room_file_message_1 == self.function_dict['ap'].chatroomPage().get_last_message(is_file=True)
+
     @DecorateClass('CHATAPP-T2568')
     # 透過邀請碼加入群組 > 退出群組
     def test_join_group_by_share_code(self):
-        share_code = 'AUTOTEST'
+        if self.brand.lower() == 'gu':
+            share_code = 'AUTOTEST'
+        elif self.brand.lower() == 'mee':
+            share_code ='AUTOMEE'
         group_name = 'AuToTeSt'
         self.test_login()
+
         self.function_dict['ap'].chatlistPage().join_group_by_input_share_code(share_code, group_name)
         self.function_dict['ap'].chatlistPage().leave_group(group_name)
 
+    @DecorateClass('CHATAPP-T2928')
+    # 發現頁 > 確認功能懸浮按鈕與選單
+    def test_discover_floating_icon(self):
+        self.test_login()
+        random_index = random.randint(0,1)
+        self.function_dict['ap'].discoverPages().into_discover_page()
+        self.function_dict['ap'].discoverPages().check_discover_menu_and_icon(random_index)
+
+
     @DecorateClass('CHATAPP-T2717')
     # 媒體發布_圖片
-    def test_media_photo_post(self):
+    def test_social_post_photo(self):
         self.test_login()
 
         media_index = random.randint(-21, -1)
         media_type = 'photo'
-        description = f'👿😡😍自動化Test_그림👿😡😍{media_index}'
+        # ================= 發布頁設置=====================
+        description = f'👿😡😍自動化{self.brand}Test_發布圖片👿😡😍{media_index}'
+        privacy_index = 0  # 隱私權設定: 所有人
+        save_to_local = True  # 儲存至裝置: 開啟
+        post = True  # 發布
+        #================================================
 
-        self.function_dict['ap'].mediareleasePage().select_media(media_index, media_type)
-        self.function_dict['ap'].mediareleasePage().into_post_page(description, privacy_index=0, media_type=media_type,
-                                                                   post=True)
-        self.function_dict['ap'].mediareleasePage().check_media_post(self.app_account, description, post=True)
-        self.function_dict['ap'].mediareleasePage().check_recent_post_media(self.app_account, description)
+        self.function_dict['ap'].socialmediapostPage().select_media(media_index, media_type)
+        self.function_dict['ap'].socialmediapostPage().post_page_setting_and_post(description, privacy_index, media_type, save_to_local, post)
+        self.function_dict['ap'].socialmedialibraryPage().check_recent_post_media(self.app_account, description, save_to_local, post)
+        self.function_dict['ap'].socialsharePage().check_share_popup_window(save_to_local, self_post=True) # 確認分享彈窗
+        self.function_dict['ap'].socialhomePage().return_to_my_social_page()
+        self.function_dict['ap'].socialmedialibraryPage().into_first_post(self.app_account, description)
 
     # 媒體發布_圖片
     @DecorateClass('CHATAPP-T2718')
-    def test_media_video_post(self):
+    def test_social_post_video(self):
         self.test_login()
 
         media_index = random.randint(-11, -1)
         media_type = 'video'
-        description = f'👿😡😍自動化Test_βίντεο👿😡😍{media_index}'
+        # ================= 發布頁設置=====================
+        description = f'👿😡😍自動化{self.brand}Test_發布影片👿😡😍{media_index}'
+        privacy_index = 0  # 隱私權設定: 所有人
+        save_to_local = True  # 儲存至裝置: 開啟
+        post = True  # 發布
+        # ================================================
 
-        self.function_dict['ap'].mediareleasePage().select_media(media_index, media_type)
-        self.function_dict['ap'].mediareleasePage().into_post_page(description, privacy_index=0, media_type=media_type,
-                                                                   post=True)
-        self.function_dict['ap'].mediareleasePage().check_media_post(self.app_account, description, post=True)
-        self.function_dict['ap'].mediareleasePage().check_recent_post_media(self.app_account, description)
+        self.function_dict['ap'].socialmediapostPage().select_media(media_index, media_type)
+        self.function_dict['ap'].socialmediapostPage().post_page_setting_and_post(description, privacy_index, media_type, save_to_local, post)
+        self.function_dict['ap'].socialmedialibraryPage().check_recent_post_media(self.app_account, description, save_to_local, post)
+        self.function_dict['ap'].socialsharePage().check_share_popup_window(save_to_local, self_post=True)  # 確認分享彈窗
+        self.function_dict['ap'].socialhomePage().return_to_my_social_page()
+        self.function_dict['ap'].socialmedialibraryPage().into_first_post(self.app_account, description)
+
+    # 發布成草稿_圖片 (測試帳號原環境無任何草稿)
+    @DecorateClass('CHATAPP-T2775')
+    def test_social_draft_photo(self):
+        self.test_login()
+
+        media_index = random.randint(-21, -1)
+        media_type = 'photo'
+        # ================= 發布頁設置=====================
+        description = f'👿😡😍自動化{self.brand}Test_存成草稿👿😡😍{media_index}'
+        privacy_index = 0  # 隱私權設定: 所有人
+        save_to_local = True  # 儲存至裝置: 開啟
+        post = False  # 存成草稿
+        # ================================================
+
+        original_draft_counts = self.function_dict['ap'].socialmedialibraryPage().draft_media_counts()
+        current_date = datetime.datetime.now().strftime('%Y/%m/%d')
+        self.function_dict['ap'].socialmediapostPage().select_media(media_index, media_type)
+        self.function_dict['ap'].socialmediapostPage().post_page_setting_and_post(description, privacy_index, media_type, save_to_local, post)  # 發布為草稿
+        self.function_dict['ap'].socialmedialibraryPage().check_draft_folder_exist(True)  # 確認草稿夾存在
+        self.function_dict['ap'].socialmedialibraryPage().delete_draft_media(original_draft_counts, current_date)  # 刪除該筆草稿
+        self.function_dict['ap'].socialmedialibraryPage().check_draft_folder_exist(False)  # 確認草稿夾內無任何草稿時, 整個草稿夾消失不顯示
+
+    # 關注他人 > 取消關注他人
+    @DecorateClass('CHATAPP-T2776')
+    def test_social_follow_unfollow(self):
+        self.test_login()
+        self.test_add_friend()  # 新增operator_account (test1234) 為好友
+
+        self.function_dict['ap'].socialhomePage().return_to_my_social_page()
+        original_main_page_followed_counts,fans_counts, thumb_up_counts = self.function_dict['ap'].socialhomePage().get_page_all_counts()  # 取得自己主頁關注數
+
+        # ============================ 關注對方 ====================================
+        self.function_dict['ap'].mainPage().into_friend_page()
+        self.function_dict['ap'].friendPage().search_friend(self.operate_account)
+        self.function_dict['ap'].socialhomePage().into_member_social_page_from_chat(self.operate_account)  # 從聊天室個人資訊進入對方主頁
+        fans_counts_after_followed = self.function_dict['ap'].socialhomePage().follow_member(self.operate_account)  # 關注對方 > 確認對方粉絲數+1,關注建"已關注", 回傳對方目前粉絲數
+        self.function_dict['ap'].socialhomePage().return_to_my_social_page()
+        after_followed_counts, fans_counts, thumb_up_counts = self.function_dict['ap'].socialhomePage().get_page_all_counts()  # 取得自己主頁關注數
+        assert int(after_followed_counts) == int(original_main_page_followed_counts) + 1  # 確認自己主頁關注數新增1
+        self.function_dict['ap'].socialhomePage().into_followed_list()  # 進入主頁關注列表
+        self.function_dict['ap'].socialhomePage().check_followed_list(self.operate_account, after_followed_counts, add_follow=True)  # 確認關注列表: 關注數+1, 對方出現在列表
+        self.function_dict['ap'].socialhomePage().return_to_my_social_page()
+
+        # ============================ 取消關注對方 ==================================
+        self.function_dict['ap'].socialhomePage().into_followed_list()
+        self.function_dict['ap'].socialhomePage().unfollow_member(self.operate_account, after_followed_counts)  # 取消關注對方 > 確認自己關注頁籤數-1, 關注建"關注"
+        self.function_dict['ap'].socialhomePage().return_to_my_social_page()
+        after_unfollowed_counts, fans_counts, thumb_up_counts = self.function_dict['ap'].socialhomePage().get_page_all_counts()  # 取得自己主頁關注數
+        assert int(after_unfollowed_counts) == int(after_followed_counts) - 1  # 確認自己主頁關注數減少1
+        self.function_dict['ap'].socialhomePage().into_followed_list()
+        self.function_dict['ap'].socialhomePage().check_followed_list(self.operate_account, after_unfollowed_counts, add_follow=False)  # 確認關注列表: 自己關注數-1, 列表不出現對方
+
+        # ============================ 確認對方粉絲列表 ===============================
+        self.function_dict['ap'].socialhomePage().return_to_my_social_page()
+        self.function_dict['ap'].mainPage().into_friend_page()
+        self.function_dict['ap'].friendPage().search_friend(self.operate_account)
+        followed_counts, fans_counts_after_unfollowed, thumb_up_counts = self.function_dict['ap'].socialhomePage().into_member_social_page_from_chat(self.operate_account)  # 進入對方主頁並取得當下對方粉絲數
+        assert int(fans_counts_after_unfollowed) == int(fans_counts_after_followed) - 1  # 對方主頁粉絲數少1
+        self.function_dict['ap'].socialhomePage().into_fans_list()  # 進入對方粉絲頁
+        self.function_dict['ap'].socialhomePage().check_fans_list(self.operate_account, fans_counts_after_unfollowed, add_fans=False) # 確認對方粉絲列表: 對方粉絲數-1, 列表上不出現我
+
+        self.function_dict['ap'].socialhomePage().return_to_my_social_page()
+        self.test_delete_friend()  #刪除好友 operator_account (test1234)
+
+    # 貼文點贊+收藏
+    @DecorateClass('CHATAPP-T2778')
+    def test_social_post_add_like_collect(self):
+        # ============================ 他人(gubot02) 發布貼文 ===============================
+        self.function_dict['ap'].mainPage().login(self.web_phone, self.web_password, self.web_nation)
+
+        media_index = random.randint(-20, -1)
+        current_time = datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S")
+        media_type = 'photo'
+        # ================= 發布頁設置=====================
+        description = f'👿自動化{self.brand}Test_貼文點贊收藏_{current_time}👿'
+        privacy_index = 0  # 隱私權設定: 所有人
+        save_to_local = True  # 儲存至裝置: 開啟
+        post = True  # 發布
+        # ================================================
+
+        self.function_dict['ap'].socialmediapostPage().select_media(media_index, media_type)
+        self.function_dict['ap'].socialmediapostPage().post_page_setting_and_post(description, privacy_index, media_type, save_to_local, post)
+        self.function_dict['ap'].socialmedialibraryPage().check_recent_post_media(self.web_account, description, save_to_local, post)
+        # ============================ 他人(gubot02) 對 他人(gubot02) 貼文點贊 ======================
+        self.function_dict['ap'].socialmedialibraryPage().self_post_add_like(self.web_account)
+        self.function_dict['ap'].socialhomePage().return_to_my_social_page()
+        # ============================ 我(gubot03) 對 他人(gubot02) 貼文點贊 ======================
+        self.function_dict['ap'].mainPage().login(self.app_phone, self.app_password, self.app_nation)
+        self.function_dict['ap'].socialhomePage().return_to_my_social_page()
+        self.function_dict['ap'].socialhomePage().into_followed_list()
+        follow_counts, fans_count, thumb_up_counts = self.function_dict['ap'].socialhomePage().into_member_social_page_from_followed_list(self.web_account) # 進入到他人主頁
+        self.function_dict['ap'].socialmedialibraryPage().into_first_post(self.web_account, description)
+        main_after_add_liked_counts, post_after_add_liked_counts = self.function_dict['ap'].socialmedialibraryPage().post_add_like(thumb_up_counts)  # 在他人剛發的貼文上點贊
+        self.function_dict['ap'].socialhomePage().return_to_my_social_page()  # 回到我的主頁
+        self.function_dict['ap'].socialmedialibraryPage().check_my_liked_library_after_add(self.web_account, description)  # 進入我的點贊媒體櫃確認"新增"
+        # ============================ 我(gubot03) 對 他人(gubot02) 貼文取消贊 ======================
+        self.function_dict['ap'].socialmedialibraryPage().check_my_liked_library_after_uncollected(description)  # 進入我的點贊媒體櫃確認"移除"
+        self.function_dict['ap'].socialhomePage().return_to_my_social_page()  # 回到我的主頁
+        self.function_dict['ap'].socialhomePage().into_followed_list()
+        follow_counts, fans_count, thumb_up_counts_after_cancel = self.function_dict['ap'].socialhomePage().into_member_social_page_from_followed_list(self.web_account)
+        assert int(thumb_up_counts_after_cancel) == int(main_after_add_liked_counts) - 1, f'取消對方贊後, 對方主頁贊數沒有-1'
+        self.function_dict['ap'].socialmedialibraryPage().into_first_post(self.web_account, description)
+        self.function_dict['ap'].socialmedialibraryPage().check_post_liked_counts_after_cancel(post_after_add_liked_counts)
+
+        # ============================ 我(gubot03) 對 他人(gubot02) 貼文進行收藏 ====================
+        self.function_dict['ap'].socialhomePage().return_to_my_social_page()
+        self.function_dict['ap'].socialhomePage().into_followed_list()
+        self.function_dict['ap'].socialhomePage().into_member_social_page_from_followed_list(self.web_account)
+        self.function_dict['ap'].socialmedialibraryPage().into_first_post(self.web_account, description)
+        post_after_collected_counts = self.function_dict['ap'].socialmedialibraryPage().post_add_collect() # 在他人剛發的貼文上點收藏
+        self.function_dict['ap'].socialhomePage().return_to_my_social_page()
+        self.function_dict['ap'].socialmedialibraryPage().check_my_collected_library_after_add(self.web_account, description)  # 進入我的收藏媒體櫃確認"新增"
+
+        # ============================ 我(gubot03) 對 他人(gubot02) 貼文取消收藏 ====================
+        self.function_dict['ap'].socialmedialibraryPage().check_my_collected_library_after_uncollected(description)  # 進入我的收藏媒體櫃確認"移除"
+        self.function_dict['ap'].socialhomePage().return_to_my_social_page()
+        self.function_dict['ap'].socialhomePage().into_followed_list()
+        self.function_dict['ap'].socialhomePage().into_member_social_page_from_followed_list(self.web_account)
+        self.function_dict['ap'].socialmedialibraryPage().into_first_post(self.web_account, description)
+        self.function_dict['ap'].socialmedialibraryPage().check_post_collects_after_cancel(post_after_collected_counts)
+
+    # 自己貼文上評論: 自己留言+回覆 > 他人留言+回覆 > 他人點贊 > 我點贊
+    @DecorateClass('CHATAPP-T2780')
+    def test_social_self_post_add_comments_reply_like(self):
+
+        comment = '🍄自己留言test🍄'
+        reply_comment = '🍊🍉自己回覆母留言test🍉🍊'
+        reply_reply_comment = '🥦🥪🌭他人回覆子留言test🌭🥪🥦'
+
+        # ============================ gubot02 在 gubot02 的第一則公開貼文上"留言" ============================================
+        self.function_dict['ap'].mainPage().login(self.web_phone, self.web_password, self.web_nation)
+        self.function_dict['ap'].socialhomePage().return_to_my_social_page()
+        self.function_dict['ap'].socialmedialibraryPage().into_first_post()
+        self.function_dict['ap'].socialmedialibraryPage().into_post_comment_page(self_post=True)  # 確認自己貼文的評論頁出現評論/贊/觀看次數頁籤
+        self.function_dict['ap'].socialmedialibraryPage().post_add_comment(self.web_account, comment, post_url=False, self_post=True)  # 留言+確認留言相關
+
+        # ============================ gubot02 在該貼文最新留言上"回覆留言" ====================================================
+        self.function_dict['ap'].socialmedialibraryPage().post_recent_comment_add_reply(self.web_account, self.web_account, reply_comment, self_post=True) # 回覆留言+確認回覆相關
+        self.function_dict['ap'].socialhomePage().return_to_my_social_page()
+
+        # ============================ gubot03 在 gubot02 的第一則公開貼文上確認最新一則留言&回覆訊息 =============================
+        self.function_dict['ap'].mainPage().login(self.app_phone, self.app_password, self.app_nation)
+        self.function_dict['ap'].socialhomePage().return_to_my_social_page()
+        self.function_dict['ap'].socialhomePage().into_followed_list()
+        self.function_dict['ap'].socialhomePage().into_member_social_page_from_followed_list(self.web_account)
+        self.function_dict['ap'].socialmedialibraryPage().into_first_post()
+        self.function_dict['ap'].socialmedialibraryPage().into_post_comment_page(self_post=False)
+        self.function_dict['ap'].socialmedialibraryPage().check_post_recent_comment(comment)  # 確認出現稍早gubot02的留言
+        self.function_dict['ap'].socialmedialibraryPage().check_post_recent_reply(reply_comment)  # 確認出現稍早gubot02的回覆留言
+
+        # ============================ gubot03 在 gubot02 該則貼文最新留言(母留言)的最新回覆訊息(子留言)上"回覆" ====================
+        self.function_dict['ap'].socialmedialibraryPage().post_recent_comment_recent_reply_add_reply(self.web_account, self.app_account, reply_reply_comment, self_post=False)
+
+        # ============================ gubot03 在 gubot02 該則貼文最新留言(母留言)與最新回覆訊息(子留言)上"點贊" ====================
+        recent_comment_after_add_liked_counts = self.function_dict['ap'].socialmedialibraryPage().post_recent_comment_add_like()
+        recent_reply_after_add_liked_counts = self.function_dict['ap'].socialmedialibraryPage().post_recent_reply_add_like()
+
+        # ============================ gubot02 在 gubot02 該則貼文上確認最新留言(母留言)與最新回覆訊息(子留言)的"贊數" ================
+        self.function_dict['ap'].socialhomePage().return_to_my_social_page()
+        self.function_dict['ap'].mainPage().login(self.web_phone, self.web_password, self.web_nation)
+        self.function_dict['ap'].socialhomePage().return_to_my_social_page()
+        self.function_dict['ap'].socialmedialibraryPage().into_first_post()
+        self.function_dict['ap'].socialmedialibraryPage().into_post_comment_page(self_post=True)
+        assert self.function_dict['ap'].socialmedialibraryPage().check_recent_comment_liked_counts() == recent_comment_after_add_liked_counts
+        assert self.function_dict['ap'].socialmedialibraryPage().check_recent_reply_liked_counts() == recent_reply_after_add_liked_counts
+
+        # ============================ gubot02 在 gubot02 該則貼文上最新留言(母留言)與最新回覆訊息(子留言)上"點贊" ====================
+        self.function_dict['ap'].socialmedialibraryPage().post_recent_comment_add_like()
+        self.function_dict['ap'].socialmedialibraryPage().post_recent_reply_add_like()
+
+
+    # 他人貼文上評論: 自己留言+回覆 > 他人留言+回覆 > 他人點贊 > 我點贊
+    @DecorateClass('CHATAPP-T2781')
+    def test_social_other_post_add_comments_reply(self):
+
+        current_time = datetime.datetime.now().strftime("%H:%M")
+        comment = f'🌹他人留言Test_{current_time}🌹'
+        reply_comment = f'🥪🌭他人回覆母留言test_{current_time}🌭🥪'
+
+        # ============================ gubot03 在 gubot02 的貼文上"留言"+"回覆"===========================================
+        self.function_dict['ap'].mainPage().login(self.app_phone, self.app_password, self.app_nation)
+        self.function_dict['ap'].socialhomePage().return_to_my_social_page()
+        self.function_dict['ap'].socialhomePage().into_followed_list()
+        self.function_dict['ap'].socialhomePage().into_member_social_page_from_followed_list(self.web_account)
+        self.function_dict['ap'].socialmedialibraryPage().into_first_post()
+        self.function_dict['ap'].socialmedialibraryPage().into_post_comment_page(self_post=False)
+        self.function_dict['ap'].socialmedialibraryPage().post_add_comment(self.app_account, comment, post_url=False, self_post=False)  # 留言+確認留言相關
+        self.function_dict['ap'].socialmedialibraryPage().post_recent_comment_add_reply(self.app_account,self.app_account, reply_comment,self_post=False)  # 回覆留言+確認回覆相關
+        self.function_dict['ap'].socialhomePage().return_to_my_social_page()
+
+        # ============================ gubot02 在 gubot02 的"第一則公開貼文"上確認"最新一則留言" & "回覆訊息" ==========================
+        self.function_dict['ap'].mainPage().login(self.web_phone, self.web_password, self.web_nation)
+        self.function_dict['ap'].socialhomePage().return_to_my_social_page()
+        self.function_dict['ap'].socialmedialibraryPage().into_first_post()
+        self.function_dict['ap'].socialmedialibraryPage().into_post_comment_page(self_post=True)
+        self.function_dict['ap'].socialmedialibraryPage().check_post_recent_comment(comment)  # 確認出現稍早gubot03的留言
+        self.function_dict['ap'].socialmedialibraryPage().check_post_recent_reply(reply_comment)  # 確認出現稍早gubot03的回覆留言
+
+
+    # 發布不同隱私權限貼文 > 確認不同關注狀態用戶觀看
+    @DecorateClass('CHATAPP-T2782')
+    def test_social_post_with_different_privacy(self):
+        self.function_dict['ap'].mainPage().login(self.app_phone, self.app_password, self.app_nation)
+        self.function_dict['ap'].socialhomePage().return_to_my_social_page()
+
+        # ================= gubot03 依序發布 所有人 > 互關 > 粉絲 > 僅自己 4則貼文 ===========================================
+        privacy_list =[0,1,2,3]  # 隱私設置: 0所有人, 1互關, 2粉絲, 3僅自己
+        privacy_description_list = ['所有人', '互關', '粉絲', '僅自己']
+        media_list = ['video', 'photo']
+        description_list=[]
+        for privacy_index in privacy_list:
+            media_index = random.randint(-10, -1)
+            current_time = datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S")
+            media_type = random.choice(media_list)
+            description = f'👿自動化{self.brand}Test_{media_type}_{privacy_description_list[privacy_index]}_{current_time}👿'
+            description_list.append(description)
+            save_to_local = True  # 儲存至裝置: 開啟
+            post = True  # 發布
+
+            self.function_dict['ap'].socialmediapostPage().select_media(media_index, media_type)
+            self.function_dict['ap'].socialmediapostPage().post_page_setting_and_post(description, privacy_index, media_type, save_to_local, post)
+            self.function_dict['ap'].socialmedialibraryPage().check_recent_post_media(self.app_account, description, save_to_local, post)
+        self.function_dict['ap'].socialhomePage().return_to_my_social_page()
+        # ================= 互關成員 gubot04/05/06 觀看貼文確認 =================================================================
+        # 定義每個帳號的 media_type 和 privacy_index
+        if self.brand == 'gu':
+            if self.env =='uat':
+                account_list = ['13542600004', '13542600005', '13542600006']
+            else:
+                account_list = ['9016000203', '9016000204', '9016000205']  # 正式環境
+        elif self.brand == 'mee':
+            if self.env=='uat':
+                account_list = ['5568844444', '5568855555', '5568866666']
+            else:
+                account_list = ['9016001203', '9016001204', '9016001205']  # 正式環境
+
+        account_checks = {
+            account_list[0]: {'media_index': [0, 1, 2], 'privacy_index': [2, 1, 0]},  # 04看到貼文順序: 粉絲貼文 > 互關貼文 > 所有人貼文
+            account_list[1]: {'media_index': [0, 1], 'privacy_index': [2, 0]},  # 05看到貼文順序: 粉絲貼文 > 所有人貼文
+            account_list[2]: {'media_index': [0], 'privacy_index': [0]},  # 06看到貼文順序: 所有人貼文
+        }
+
+        # 定義執行檢查的函數
+        def check_media_for_user(account, descriptions, media_index, privacy_index):
+            self.function_dict['ap'].mainPage().login(account, self.app_password, self.app_nation)
+            self.function_dict['ap'].socialhomePage().return_to_my_social_page()
+
+            if account == account_list[2]:
+                self.function_dict['ap'].mainPage().into_friend_page()
+                self.function_dict['ap'].friendPage().search_friend(self.app_account)
+                self.function_dict['ap'].socialhomePage().into_member_social_page_from_chat(
+                    self.app_account)  # 從聊天室進入個人頁面
+            else:
+                self.function_dict['ap'].socialhomePage().into_followed_list()
+                self.function_dict['ap'].socialhomePage().into_member_social_page_from_followed_list(
+                    self.app_account)  # 從關注列表進入個人頁面
+
+            # 使用 zip 遍歷 media_type 和 privacy_index 的配對
+            for media_index, privacy_index in zip(media_index, privacy_index):
+                description = descriptions[privacy_index]  # 根據 privacy_index 取 description
+                self.function_dict['ap'].socialmedialibraryPage().check_post_media_info(
+                    self.app_account, description, media_index=media_index, privacy_index=privacy_index)
+
+            self.function_dict['ap'].socialhomePage().return_to_my_social_page()
+
+        # 迴圈遍歷每個 account 並執行對應的檢查
+        for account, checks in account_checks.items():
+            media_index = checks['media_index']
+            privacy_index = checks['privacy_index']
+            check_media_for_user(account, description_list, media_index, privacy_index)
+
+    # 切換帳號隱私設定 > 確認他人端觀看"已點贊"媒體區
+    @DecorateClass('CHATAPP-T2786')
+    def test_social_change_account_privacy(self):
+
+        account_privacy_setting_list = [1,0]  #1:僅自己, 0:所有人
+        for account_privacy in account_privacy_setting_list:
+            self.function_dict['ap'].mainPage().login(self.web_phone, self.web_password, self.web_nation)
+            self.function_dict['ap'].privacyPage().into_privacy_page()
+            self.function_dict['ap'].privacyPage().change_privacy(account_privacy)
+            self.function_dict['ap'].socialhomePage().return_to_my_social_page()
+            self.function_dict['ap'].mainPage().login(self.app_phone, self.app_password, self.app_nation)
+            self.function_dict['ap'].socialhomePage().return_to_my_social_page()
+            self.function_dict['ap'].socialhomePage().into_followed_list()
+            self.function_dict['ap'].socialhomePage().into_member_social_page_from_followed_list(self.web_account)
+            self.function_dict['ap'].socialmedialibraryPage().into_liked_library(account_privacy)
+            self.function_dict['ap'].socialhomePage().return_to_my_social_page()
+
+    # 搜索視頻 & 用戶
+    @DecorateClass('CHATAPP-T2787')
+    def test_social_search(self):
+        if self.brand =='gu':
+            if self.env =='uat':
+                poster_phone_list =['13542600001','13542600002']
+                poster_nickname_list = ['gubot01', 'gubot02']
+            else:
+                poster_phone_list = ['9016000202', '9016000203']
+                poster_nickname_list = ['gutest002', 'gutest03']
+        elif self.brand =='mee':
+            if self.env =='uat':
+                poster_phone_list =['5568811111','5568822222']
+                poster_nickname_list = ['gubot01', 'gubot02']
+            else:
+                poster_phone_list = ['9016001202', '9016001203']
+                poster_nickname_list = ['meetest002', 'meetest003']
+
+        description_list = []
+        for poster_phone, poster_nickname in zip(poster_phone_list, poster_nickname_list):
+            self.function_dict['ap'].mainPage().login(poster_phone, self.web_password, self.web_nation)
+            # ========================== gubot01 & gubot02 依序發布貼文 ==================================================
+            privacy_index = 0  # 貼文隱私設置: 0所有人
+            media_list = ['video', 'photo']
+            media_index = random.randint(-10, -1)
+            current_time = datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
+            media_type = random.choice(media_list)
+            description = f'{self.brand}SearchTest_{current_time}'
+            description_list.append(description)
+            save_to_local = True  # 儲存至裝置: 開啟
+            post = True  # 發布
+
+            self.function_dict['ap'].socialmediapostPage().select_media(media_index, media_type)
+            self.function_dict['ap'].socialmediapostPage().post_page_setting_and_post(description, privacy_index, media_type, save_to_local, post)
+            self.function_dict['ap'].socialmedialibraryPage().check_recent_post_media(poster_nickname, description, save_to_local, post)
+            self.function_dict['ap'].socialhomePage().return_to_my_social_page()
+        # ========================== gubot03 登入 =======================================================================
+        self.function_dict['ap'].mainPage().login(self.app_phone, self.app_password, self.app_nation)
+        # ========================== 1. 搜索頁: 輸入01貼文說明01 > 點搜索鍵 >>> 搜索結果-視頻頁 ===============================
+        self.function_dict['ap'].socialsearchPage().search_from_search_page(description_list[0])
+        self.function_dict['ap'].socialsearchPage().check_search_post_result(poster_nickname_list[0], description_list[0])
+        # ========================== 2. 搜索視頻結果頁: 輸入02貼文說明02 > 點搜索鍵 >>> 搜索結果-視頻頁 =========================
+        self.function_dict['ap'].socialsearchPage().search_post(description_list[1], search_by_switch_tab=False)
+        self.function_dict['ap'].socialsearchPage().check_search_post_result(poster_nickname_list[1],description_list[1])
+        # ========================== 3. 搜索視頻結果頁: 輸入01貼文說明01 > 點"視頻"頁籤 >>> 立即搜索 ===========================
+        # self.function_dict['ap'].socialsearchPage().search_post(description_list[0], search_by_switch_tab=True)
+        # self.function_dict['ap'].socialsearchPage().check_search_post_result(poster_nickname_list[0], description_list[0])
+        # ========================== 4. 搜索視頻結果頁: 輸入01 > 點"用戶"頁籤 >>> 切換到用戶頁並立即搜索 ========================
+        self.function_dict['ap'].socialsearchPage().search_poster(poster_nickname_list[0], search_by_switch_tab=True)
+        self.function_dict['ap'].socialsearchPage().check_search_post_user_result(poster_nickname_list[0])
+        # ========================== 5. 搜索用戶結果頁: 輸入02 > 點搜索鍵 >>> 搜索結果-用戶頁 =================================
+        self.function_dict['ap'].socialsearchPage().search_poster(poster_nickname_list[1], search_by_switch_tab=False)
+        self.function_dict['ap'].socialsearchPage().check_search_post_user_result(poster_nickname_list[1])
+        # ========================== 6. 搜索戶用結果頁: 輸入01 > 點"用戶"頁籤 >>> 立即搜索 ====================================
+        # self.function_dict['ap'].socialsearchPage().search_poster(poster_nickname_list[0], search_by_switch_tab=True)
+        # self.function_dict['ap'].socialsearchPage().check_search_post_user_result(poster_nickname_list[0])
+        # ========================== 7. 搜索用戶結果頁: 輸入02貼文說明02 > 點"視頻"頁籤 >>> 立即搜索 ===========================
+        self.function_dict['ap'].socialsearchPage().search_post(description_list[1], search_by_switch_tab=True)
+        self.function_dict['ap'].socialsearchPage().check_search_post_result(poster_nickname_list[1],description_list[1])
+        # ========================== 確認搜索紀錄頁 =======================================================================
+        self.function_dict['ap'].socialsearchPage().check_recent_search_record([description_list[1],poster_nickname_list[1],
+                                                                                poster_nickname_list[0], description_list[0]])
+
+    # 分享自己主頁
+    @DecorateClass('CHATAPP-T2827')
+    def test_social_share_self_main_page(self):
+        current_time = datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S")
+        share_message = f'{self.brand}_分享自己({self.app_account})主頁_{current_time}'
+        share_group = 'QA_bot_only'
+        self.test_login()
+        self.function_dict['ap'].socialhomePage().return_to_my_social_page()
+        self.function_dict['ap'].socialsharePage().into_share_pop_window(0)
+        self.function_dict['ap'].socialsharePage().share_to_group(share_group, share_message, share_main_page=True)
+        self.function_dict['ap'].chatlistPage().into_chat_room(share_group)
+        # ============================= 自己端確認聊天室內分享文 ====================================
+        self.function_dict['ap'].socialsharePage().check_chatroom_share_result(self.app_account, share_message,
+                                                                               share_main_page=True)
+        # ============================= 他人端確認聊天室內分享文 ====================================
+        self.function_dict['ap'].chatlistPage().back_to_checklist()
+        self.function_dict['ap'].mainPage().login(self.web_phone, self.web_password, self.web_nation)
+        self.function_dict['ap'].socialhomePage().return_to_my_social_page()
+        self.function_dict['ap'].chatlistPage().into_chat_room(share_group)
+        self.function_dict['ap'].socialsharePage().check_chatroom_share_result(self.app_account, share_message,
+                                                                               share_main_page=True)
+
+
+    # 分享他人主頁
+    @DecorateClass('CHATAPP-T2828')
+    def test_social_share_other_main_page(self):
+        current_time = datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S")
+        share_message = f'{self.brand}_分享他人({self.web_account})主頁_{current_time}'
+        share_group = 'QA_bot_only'
+        self.test_login()
+        self.function_dict['ap'].socialhomePage().return_to_my_social_page()
+        self.function_dict['ap'].socialhomePage().into_followed_list()
+        self.function_dict['ap'].socialhomePage().into_member_social_page_from_followed_list(self.web_account)
+        self.function_dict['ap'].socialsharePage().into_share_pop_window(1)
+        self.function_dict['ap'].socialsharePage().share_to_group(share_group, share_message, share_main_page=True)
+        self.function_dict['ap'].socialhomePage().return_to_my_social_page()
+        self.function_dict['ap'].chatlistPage().into_chat_room(share_group)
+        # ============================= 自己端確認聊天室內分享文 ====================================
+        self.function_dict['ap'].socialsharePage().check_chatroom_share_result(self.web_account, share_message,
+                                                                               share_main_page=True)
+        # ============================= 他人端確認聊天室內分享文 ====================================
+        self.function_dict['ap'].chatlistPage().back_to_checklist()
+        self.function_dict['ap'].mainPage().login(self.web_phone, self.web_password, self.web_nation)
+        self.function_dict['ap'].socialhomePage().return_to_my_social_page()
+        self.function_dict['ap'].chatlistPage().into_chat_room(share_group)
+        self.function_dict['ap'].socialsharePage().check_chatroom_share_result(self.web_account, share_message,
+                                                                               share_main_page=True)
+    # 分享自己貼文
+    @DecorateClass('CHATAPP-T2830')
+    def test_social_share_self_post(self):
+        current_time = datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S")
+        share_message = f'{self.brand}_分享自己({self.app_account})貼文_{current_time}'
+        share_group = 'QA_bot_only'
+        self.test_login()
+        self.function_dict['ap'].socialhomePage().return_to_my_social_page()
+        self.function_dict['ap'].socialmedialibraryPage().into_first_post()
+        self.function_dict['ap'].socialsharePage().into_share_pop_window(2)
+        self.function_dict['ap'].socialsharePage().share_to_group(share_group, share_message, share_main_page=False)
+        self.function_dict['ap'].chatlistPage().into_chat_room(share_group)
+        # ============================= 自己端確認聊天室內分享文 ====================================
+        self.function_dict['ap'].socialsharePage().check_chatroom_share_result(self.app_account, share_message,
+                                                                               share_main_page=False)
+        # ============================= 他人端確認聊天室內分享文 ====================================
+        self.function_dict['ap'].chatlistPage().back_to_checklist()
+        self.function_dict['ap'].socialhomePage().return_to_my_social_page()
+        self.test_logout()
+        self.function_dict['ap'].mainPage().login(self.web_phone, self.web_password, self.web_nation)
+        self.function_dict['ap'].socialhomePage().return_to_my_social_page()
+        self.function_dict['ap'].chatlistPage().into_chat_room(share_group)
+        self.function_dict['ap'].socialsharePage().check_chatroom_share_result(self.app_account, share_message,
+                                                                               share_main_page=False)
+
+    # 分享他人貼文
+    @DecorateClass('CHATAPP-T2829')
+    def test_social_share_others_post(self):
+        current_time = datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S")
+        share_message = f'{self.brand}_分享他人({self.web_account})貼文_{current_time}'
+        share_group = 'QA_bot_only'
+        self.test_login()
+        self.function_dict['ap'].socialhomePage().return_to_my_social_page()
+        self.function_dict['ap'].socialhomePage().into_followed_list()
+        self.function_dict['ap'].socialhomePage().into_member_social_page_from_followed_list(self.web_account)
+        self.function_dict['ap'].socialmedialibraryPage().into_first_post()
+        self.function_dict['ap'].socialsharePage().into_share_pop_window(3)
+        self.function_dict['ap'].socialsharePage().share_to_group(share_group, share_message, share_main_page=False)
+        self.function_dict['ap'].socialhomePage().return_to_my_social_page()
+        self.function_dict['ap'].chatlistPage().into_chat_room(share_group)
+        # ============================= 自己端確認聊天室內分享文 ====================================
+        self.function_dict['ap'].socialsharePage().check_chatroom_share_result(self.web_account, share_message,
+                                                                               share_main_page=False)
+        # ============================= 他人端確認聊天室內分享文 ====================================
+        self.function_dict['ap'].chatlistPage().back_to_checklist()
+        self.function_dict['ap'].mainPage().login(self.web_phone, self.web_password, self.web_nation)
+        self.function_dict['ap'].socialhomePage().return_to_my_social_page()
+        self.function_dict['ap'].chatlistPage().into_chat_room(share_group)
+        self.function_dict['ap'].socialsharePage().check_chatroom_share_result(self.web_account, share_message,
+                                                                          share_main_page=False)
 
     def run(self, result=None):
         gl.set_value('RESULT', result)

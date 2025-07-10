@@ -8,7 +8,7 @@ from Project.chat.web.pages.admin.admin_basepage import BasePage
 class WaterRecodePageLocator:
     # 通用
     page_title = (By.XPATH, '//div[@class="page-title"]')
-    search_btn = (By.XPATH, "//span[text()=' 搜寻 ']")
+    search_btn = (By.XPATH, "//span[text()='搜寻']")
 
     # 搜尋欄位
     member_ID = (By.XPATH, '//label[text()="会员ID"]/..//input[@placeholder="请输入"]')
@@ -63,15 +63,15 @@ class WaterRecodePage(BasePage):
             assert self.get_text(WaterRecodePageLocator.data_state) == '成功', f'狀態有誤'
         elif condition == 'fail':
             assert self.get_text(WaterRecodePageLocator.data_use_type) == '顺付返还', f'媒介有誤'
-            assert self.get_text(WaterRecodePageLocator.data_point) == '1', '積分有誤'
+            assert self.get_text(WaterRecodePageLocator.data_point) == '3', '積分有誤'
             # assert self.get_text(WaterRecodePageLocator.data_total_line) == '共 1 条', f'總數有誤'
             assert self.get_text(WaterRecodePageLocator.data_state) == '成功', f'狀態有誤'
 
     def check_current_exchange_record(self, grab_account, grab_time, grab_amount, grab_type, source_group,
                                       total_remain_amount):
         self.wait_loading_finish()
-        aaa = self.get_text(WaterRecodePageLocator.data_member_ID)
-        assert self.get_text(WaterRecodePageLocator.data_member_ID) == grab_account, f'積分使用紀錄: 會員ID錯誤'
+        actual_id = self.get_text(WaterRecodePageLocator.data_member_ID)
+        assert actual_id == grab_account, f'積分使用紀錄: 會員ID錯誤, 預期:{grab_account},實際:{actual_id}'
         if grab_time is not None:
             assert self.get_text(WaterRecodePageLocator.data_use_time)[:-3] == grab_time, f'積分使用紀錄: 使用時間錯誤'
         assert self.get_text(WaterRecodePageLocator.data_point) == grab_amount, f'積分使用紀錄: 使用積分錯誤'

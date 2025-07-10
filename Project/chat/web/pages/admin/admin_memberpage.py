@@ -1,3 +1,5 @@
+from time import sleep
+
 from selenium.webdriver.common.by import By
 from Project.chat.web.pages.admin.admin_basepage import BasePage
 
@@ -16,34 +18,49 @@ class MemberPageLocator:
     search_end_time = (By.XPATH, '//input[@placeholder="结束日期"]')
     search_ID_type = (By.XPATH, '//input[@placeholder="请选择帐号类型"]')
     search_remark = (By.XPATH, '//input[@placeholder="请输入备注"]')
-    search_btn = (By.XPATH, '//span[text()=" 搜寻 "]')
-    export_btn = (By.XPATH, '//span[text()=" 汇出 "]')
+    search_btn = (By.XPATH, '//span[text()="搜寻"]')
+    export_btn = (By.XPATH, '//span[text()="汇出"]')
 
     # 新增會員帳號
+    new_account_btn = (By.XPATH, '//button//span[text()="新增会员帐号"]')
     new_account_title = (By.XPATH, '//div[text()="帐号设定"]')
-    new_account_ID = (By.XPATH, '//input[@placeholder="请填写6-12位数英文、数字"]')
-    new_account_name = (By.XPATH, '//input[@placeholder="请填写2-12位数、支援中文、英文、数字"]')
+    new_account_ID = (By.XPATH, '//input[@placeholder="请填写3-30字且不可包含特殊符号"]')
+    new_account_name = (By.XPATH, '(//input[@placeholder="请填写3-30字且不可包含特殊符号"])[last()]')
     new_account_password = (By.XPATH, '//span[text()="新增会员帐号"]/../..//input[@placeholder="请填写8-16位数英文、数字"]')
     new_account_password_confirm = (By.XPATH, '//span[text()="新增会员帐号"]/../..//input[@placeholder="请再次输入密码"]')
     new_account_remark = (By.XPATH, '//span[text()="新增会员帐号"]/../..//input[@placeholder="请输入品牌帐号"]')
-    new_account_btn = (By.XPATH, '//button//span[text()="新增会员帐号"]')
-    new_manual_create_account_btn = (By.XPATH, '//button//span[text()=" 人工创建帐号 "]')
+
+    # 人工創建帳號
+    manual_create_app_account_btn = (By.XPATH, '//button//span[text()="人工创建帐号"]')
+    manual_add_account_btn = (By.XPATH, '//button//span[text()="手动新增账号"]')
+    manual_account_phone_input = (By.XPATH, '//input[@placeholder="请填写手机号(符合所选国家/地区手机号位数)"]')
+    manual_account_password = (By.XPATH, '//span[text()="人工创建帐号"]/../..//input[@placeholder="请填写8-16位数英文、数字"]')
+    manual_account_password_confirm = (By.XPATH, '//span[text()="人工创建帐号"]/../..//input[@placeholder="请再次输入密码"]')
+    manual_account_remark = (By.XPATH, '//span[text()="人工创建帐号"]/../..//input[@placeholder="请输入品牌帐号"]')
+
 
     # 會員列表資料
     member_list_member_status_title = (By.XPATH, '//div[text()="会员状态"]')
     member_list_member_last_login_time_title = (By.XPATH, '//div[text()="最后登入时间"]')
     member_list_account_type_title = (By.XPATH, '//div[text()="帐号类型"]')
 
-    member_list_ID = (By.XPATH, '//tr[@class="el-table__row"]//td[1]')
-    member_list_name = (By.XPATH, '//tr[@class="el-table__row"]//td[2]')
-    member_list_brand_id = (By.XPATH, '//tr[@class="el-table__row"]//td[4]')
-    member_list_member_status = (By.XPATH, '//tr[@class="el-table__row"]//td[6]')
-    member_list_group_amount = (By.XPATH, '//tr[@class="el-table__row"]//td[9]')
-    member_list_build_time = (By.XPATH, '//tr[@class="el-table__row"]//td[10]')
-    member_list_revise_time = (By.XPATH, '//tr[@class="el-table__row"]//td[11]')
-    member_list_ID_type = (By.XPATH, '//tr[@class="el-table__row"]//td[12]')
-    member_list_ID_remark = (By.XPATH, '//tr[@class="el-table__row"]//td[13]')
+    member_list_ID = (By.XPATH, '//tr[@class="el-table__row"]//td[2]')
+    member_list_name = (By.XPATH, '//tr[@class="el-table__row"]//td[3]')
+    member_list_brand_id = (By.XPATH, '//tr[@class="el-table__row"]//td[5]')
+    member_list_member_status = (By.XPATH, '//tr[@class="el-table__row"]//td[7]')
+    member_list_group_amount = (By.XPATH, '//tr[@class="el-table__row"]//td[10]')
+    member_list_build_time = (By.XPATH, '//tr[@class="el-table__row"]//td[12]')
+    member_list_revise_time = (By.XPATH, '//tr[@class="el-table__row"]//td[13]')
+    member_list_ID_type = (By.XPATH, '//tr[@class="el-table__row"]//td[14]')
+    member_list_ID_remark = (By.XPATH, '//tr[@class="el-table__row"]//td[15]')
     
+    # 社群權限
+    social_permission_btn = (By.XPATH, '//button[@class="el-button el-button--primary el-button--mini"]//span[text()="社群权限"]')
+    social_post_comment_permission_btn = (By.XPATH, '//*[@id="app"]/div/div/div[2]/div/div/div[8]/div/div[2]/form/div/div/div') # 評論切換開關
+    social_permission_page_close_btn = (By.XPATH, '//span[text()="关闭"]')
+    social_permission_page_title = (By.XPATH, '//span[text()="社群权限"]')
+    update_succeed_toast = (By.XPATH, '//p[text()="更新成功"]')
+
     # 修改會員帳號
     member_change_data_title = (By.XPATH, '//span[text()="修改会员帐号"]')
     member_change_name = (By.XPATH, '//div[@aria-label="修改会员帐号"]/..//input[@placeholder="请输入会员昵称"]')
@@ -62,9 +79,9 @@ class MemberPageLocator:
     member_password_btn =(By.XPATH, '//button[@class="el-button el-button--primary el-button--mini"]//span[text()="变更密码"]')
     
     # 刪除
-    member_delete_title = (By.XPATH, '//span[text()="删除会员"]')
-    member_delete_check = (By.XPATH, '//td[@class="el-table_1_column_15 is-center  "]//span[text()="已删除的帐号"]')
-    member_delete_btn = (By.XPATH, '//span[text()="删除"]')
+    member_delete_title = (By.XPATH, '(//span[text()="删除会员"])[last()]')
+    member_delete_check = (By.XPATH, '//td[@class="el-table_1_column_17 is-center  "]//span[text()="已删除的帐号"]')
+    member_delete_btn = (By.XPATH, '//td[@class="el-table_1_column_17 is-center  "]//span[text()="删除"]')
 
     # 設定備註
     remark_title = (By.XPATH, '//span[text() ="备注文案"]') 
@@ -79,12 +96,12 @@ class MemberPageLocator:
     bind_member_account = (By.XPATH, '//div[@aria-label= "兑换绑定"]//tr[1]//td[2]')
     bind_time = (By.XPATH, '//div[@aria-label= "兑换绑定"]//tr[1]//td[3]')
     bind_operate = (By.XPATH, '//div[@aria-label= "兑换绑定"]//tr[1]//td[4]')
-    entry_rebind_btn = (By.XPATH, '//tr[@class="el-table__row"]//td[14]//span[@class="text-link"]')
+    entry_rebind_btn = (By.XPATH, '//tr[@class="el-table__row"]//td[16]//span[@class="text-link"]')
     rebind_btn = (By.XPATH, '//span[text()="重新绑定"]')
 
     # ============================== 会员层级 ===================================
     member_level_dropdownlist = (By.XPATH, '//input[@placeholder="请选择会员层级"]')
-    new_member_level_btn = (By.XPATH, '//button//span[text()=" 新增层级 "]')
+    new_member_level_btn = (By.XPATH, '//button//span[text()="新增层级"]')
     member_level_list_level_title = (By.XPATH, '//div[text()="层级名称"]')
     member_level_list_member_amount_title = (By.XPATH, '//div[text()="会员数量"]')
     member_level_list_wellpay_exchange_title = (By.XPATH, '//div[text()="顺付积分兑换"]')
@@ -103,7 +120,7 @@ class MemberPage(BasePage):
         assert self.is_element_finded(MemberPageLocator.search_brand_id), f'未看見品牌帳號輸入欄位'
         assert self.is_element_finded(MemberPageLocator.search_btn), f'未看見"搜尋"鍵'
         assert self.is_element_finded(MemberPageLocator.new_account_btn), f'未看見"+新增會員帳號"鍵'
-        assert self.is_element_finded(MemberPageLocator.new_manual_create_account_btn), f'未看見"+人工創建帳號"鍵'
+        assert self.is_element_finded(MemberPageLocator.manual_create_app_account_btn), f'未看見"+人工創建帳號"鍵'
         assert self.is_element_finded(MemberPageLocator.export_btn), f'未看見"匯出"鍵'
         assert self.is_element_finded(MemberPageLocator.member_list_member_status_title), f'未看見會員列表的"會員狀態"欄位'
         assert self.is_element_finded(MemberPageLocator.member_list_member_last_login_time_title), f'未看見會員列表的"最後登入時間"欄位'
@@ -167,7 +184,7 @@ class MemberPage(BasePage):
         if self.is_element_finded(MemberPageLocator.new_account_btn) is True:
             self.click(MemberPageLocator.new_account_btn)
             self.wait_loading_finish()
-            assert self.get_text(MemberPageLocator.new_account_title) == "帐号设定" , f'進入新增帳號頁面失敗'
+            assert self.get_text(MemberPageLocator.new_account_title) == "帐号设定", f'進入新增帳號頁面失敗'
             self.type(MemberPageLocator.new_account_ID, member_ID)
             self.type(MemberPageLocator.new_account_name, member_ID)
             self.type(MemberPageLocator.new_account_password, 'Heaven5267')
@@ -176,7 +193,25 @@ class MemberPage(BasePage):
             self.click(MemberPageLocator.confirm_btn)
             self.wait_loading_finish()
         self.wait_loading_finish()
-            
+
+    def manual_create_app_account(self, member_id, phone, password):
+        self.wait_loading_finish()
+        self.click(MemberPageLocator.manual_create_app_account_btn)
+        if self.is_element_finded(MemberPageLocator.manual_add_account_btn):
+            self.click(MemberPageLocator.manual_add_account_btn)
+            self.wait_loading_finish()
+            assert self.get_text(MemberPageLocator.new_account_title) == "帐号设定", f'進入人工創建帳號頁面失敗'
+            self.type(MemberPageLocator.manual_account_phone_input, phone)
+            self.type(MemberPageLocator.new_account_ID, member_id)
+            self.type(MemberPageLocator.new_account_name, member_id)
+            self.type(MemberPageLocator.manual_account_password, password)
+            self.type(MemberPageLocator.manual_account_password_confirm, password)
+            self.type(MemberPageLocator.manual_account_remark, 'AutoTest')
+            self.click(MemberPageLocator.confirm_btn)
+            self.wait_loading_finish()
+        self.wait_loading_finish()
+
+
     # 設定備註 備註填寫 西元年y月份m日期d
     # 設定完備住後應更新修改時間 需開BUG單
     def revise_remark(self, member_ID):
@@ -239,7 +274,7 @@ class MemberPage(BasePage):
             assert self.get_text(MemberPageLocator.member_list_brand_id) == 'TestRemark', f'品牌帳號有誤'
             assert self.get_text(MemberPageLocator.member_list_member_status) == '正常', f'會員狀態有誤'
             assert self.get_text(MemberPageLocator.member_list_group_amount) == '0', f'群組數量有誤'
-            assert self.get_text(MemberPageLocator.member_list_build_time) == build_time , f'建立時間有誤'
+            assert self.get_text(MemberPageLocator.member_list_build_time)[:-3] == build_time , f'預期:{self.get_text(MemberPageLocator.member_list_build_time)},實際:{build_time}, 建立時間有誤'
             assert self.get_text(MemberPageLocator.member_list_ID_type) == '后台开通', f'帳號類型有誤'
         elif condition == 'confirm_revise':
             assert self.get_text(MemberPageLocator.member_list_ID) == member_ID, f'搜尋帳號失敗'
@@ -247,9 +282,8 @@ class MemberPage(BasePage):
             assert self.get_text(MemberPageLocator.member_list_brand_id) == 'TestRemark', f'品牌帳號有誤'
             assert self.get_text(MemberPageLocator.member_list_member_status) == '正常', f'會員狀態有誤'
             assert self.get_text(MemberPageLocator.member_list_group_amount) == '0', f'群組數量有誤'
-            assert self.get_text(MemberPageLocator.member_list_revise_time) == revise_time, f'修改時間有誤'
+            assert self.get_text(MemberPageLocator.member_list_revise_time)[:-3] == revise_time, f'預期:{self.get_text(MemberPageLocator.member_list_revise_time)},實際:{revise_time},修改時間有誤'
             assert self.get_text(MemberPageLocator.member_list_ID_type) == '后台开通', f'帳號類型有誤'
-            a= self.get_text(MemberPageLocator.member_list_ID_remark)
             assert self.get_text(MemberPageLocator.member_list_ID_remark) == member_ID, f'帳號備註有誤'
         elif condition == 'confirm_base':
             assert self.get_text(MemberPageLocator.member_list_ID) == member_ID, f'print member_ID fail'
@@ -258,6 +292,15 @@ class MemberPage(BasePage):
             assert self.get_text(MemberPageLocator.member_list_member_status) == '正常', f'會員狀態有誤'
             assert self.get_text(MemberPageLocator.member_list_group_amount) == '0', f'群組數量有誤'
             assert self.get_text(MemberPageLocator.member_list_ID_type) == '后台开通', f'帳號類型有誤'
+        elif condition == 'confirm_manual_create':
+            assert self.get_text(MemberPageLocator.member_list_ID) == member_ID, f'搜尋帳號失敗'
+            assert self.get_text(MemberPageLocator.member_list_name) == member_ID, f'帳號資料有誤'
+            assert self.get_text(MemberPageLocator.member_list_brand_id) == 'AutoTest', f'品牌帳號有誤'
+            assert self.get_text(MemberPageLocator.member_list_member_status) == '正常', f'會員狀態有誤'
+            assert self.get_text(MemberPageLocator.member_list_group_amount) == '0', f'群組數量有誤'
+            actual_time = self.get_text(MemberPageLocator.member_list_build_time)[:-3]
+            assert self.get_text(MemberPageLocator.member_list_build_time)[:-3] == build_time, f'建立時間有誤,預期:{build_time},實際:{actual_time}'
+            assert self.get_text(MemberPageLocator.member_list_ID_type) == 'App注册', f'帳號類型有誤'
         self.wait_loading_finish()
         
     # 順付解綁
@@ -270,8 +313,9 @@ class MemberPage(BasePage):
             self.click(MemberPageLocator.wellpay_page)
             self.wait_loading_finish()
             assert self.get_text(MemberPageLocator.bind_platform) == '顺付', f'進入順付頁面失敗'
-            self.click(MemberPageLocator.rebind_btn)
-            self.wait_loading_finish()
+            if self.is_element_finded(MemberPageLocator.rebind_btn):
+                self.click(MemberPageLocator.rebind_btn)
+                self.wait_loading_finish()
             assert self.get_text(MemberPageLocator.bind_operate) == '已解绑', f'兌換解綁失敗'
         self.send_escape()
         self.wait_loading_finish()
@@ -306,7 +350,7 @@ class MemberPage(BasePage):
             self.wait_loading_finish()
             assert self.get_text(MemberPageLocator.bind_platform) == '顺付', f'進入順付頁面失敗'
             assert self.get_text(MemberPageLocator.bind_member_account) == wellpay_address, f'錢包地址錯誤'
-            assert self.get_text(MemberPageLocator.bind_time) == bind_time, f'綁定時間有誤'
+            assert self.get_text(MemberPageLocator.bind_time)[:-3] == bind_time, f'綁定時間有誤'
             assert self.get_text(MemberPageLocator.bind_operate) == '重新绑定', f'兌換綁定失敗'
         self.wait_loading_finish()
 
@@ -319,6 +363,30 @@ class MemberPage(BasePage):
             assert self.get_text(MemberPageLocator.member_delete_title) == '删除会员', f'進入刪除頁面失敗'
             self.click(MemberPageLocator.confirm_btn)
             self.wait_loading_finish()
+            aaa = self.get_text(MemberPageLocator.member_delete_check)
             assert self.get_text(MemberPageLocator.member_delete_check) == '已删除的帐号', f'刪除帳號失敗'
-            assert self.get_text(MemberPageLocator.member_list_member_status) == '已删除', f'會員狀態錯誤'
+            assert self.get_text(MemberPageLocator.member_list_member_status) == '已刪除', f'會員狀態錯誤, 預期:,實際:{self.get_text(MemberPageLocator.member_list_member_status)}'
         self.wait_loading_finish()
+
+    def change_social_permission(self, member_ID, enable=True):
+        self.search_ID(member_ID)
+        if self.is_element_finded(MemberPageLocator.social_permission_btn) is True:
+            self.click(MemberPageLocator.social_permission_btn)
+            sleep(3)
+            assert self.is_element_finded(MemberPageLocator.social_permission_page_title)
+            origin_switch_status = self.get_attribute(MemberPageLocator.social_post_comment_permission_btn, 'aria-checked')
+            if enable and origin_switch_status == 'false':
+                self.click(MemberPageLocator.social_post_comment_permission_btn)
+                self.wait_visibility(MemberPageLocator.update_succeed_toast)
+                assert self.get_attribute(MemberPageLocator.social_post_comment_permission_btn, 'aria-checked') == 'true'
+                self.click(MemberPageLocator.social_permission_page_close_btn)
+            elif not enable and origin_switch_status == 'true':
+                self.click(MemberPageLocator.social_post_comment_permission_btn)
+                self.wait_visibility(MemberPageLocator.update_succeed_toast)
+                assert self.get_attribute(MemberPageLocator.social_post_comment_permission_btn, 'aria-checked') == 'false'
+                self.click(MemberPageLocator.social_permission_page_close_btn)
+            else:
+                assert str(enable).lower() == self.get_attribute(MemberPageLocator.social_post_comment_permission_btn, 'aria-checked')
+                self.click(MemberPageLocator.social_permission_page_close_btn)
+
+

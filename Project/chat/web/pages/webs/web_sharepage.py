@@ -14,7 +14,7 @@ class SharePageLocator:
 class SharePage(BasePage):
     def get_share_link(self):
         if self.get_text(SharePageLocator.header_title) == '分享':
-            assert self.get_text(SharePageLocator.header_text) == '分享連結給好友，一起聊天吧！', f'分享提示文案有誤'
+            assert self.get_text(SharePageLocator.header_text) == '分享连结给好友，一起聊天吧！', f'分享提示文案有誤'
             url = self.get_text(SharePageLocator.share_url)
             
             self.click(SharePageLocator.share_btn)

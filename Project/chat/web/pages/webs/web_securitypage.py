@@ -56,7 +56,7 @@ class SecurityPage(BasePage):
             self.wait_login_finish()
             assert self.get_text(SecurityPageLocator.header_title) == '设定股聊密码', f'開啟變更密碼彈窗有誤'
             assert self.get_text(SecurityPageLocator.changepwd_id) == my_id, f'重設密碼頁ＩＤ顯示有誤'
-            assert self.get_text(SecurityPageLocator.changepwd_note) == '提醒：密码必须为8-16码英文+数字', f'重設密碼頁提醒有誤'
+            assert self.get_text(SecurityPageLocator.changepwd_note) == '提醒密码必须为8-16位英文+数字', f'重設密碼頁提醒有誤'
 
             self.type(SecurityPageLocator.changepwd_old_input, old_pwd)
             self.type(SecurityPageLocator.changepwd_new_input, new_pwd)

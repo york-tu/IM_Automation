@@ -28,12 +28,12 @@ class NotificationPageLocator:
 
     notify_check = base.check_device(
         Android=base.data_collation(type_kind='text', type_name='关闭后，手机将不再接受新讯息通知'),
-        iOS=base.data_collation(type_kind='name', type_name='ScrollView', pos=[0.5, 0.7952008928571429]),
+        iOS=base.data_collation(type_kind='name', type_name='ScrollView', pos=[0.5, 0.7807881773399015]),
     )
 
     notify_switch = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/sw_new_notify'),
-        iOS=base.data_collation(type_kind='name', type_name='Switch', num=0),
+        iOS=base.data_collation(type_kind='type', type_name='Switch', num=0),
     )
 
     detail_check = base.check_device(
@@ -43,22 +43,22 @@ class NotificationPageLocator:
 
     detail_switch = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/sw_notify_detail'),
-        iOS=base.data_collation(type_kind='name', type_name='Switch', num=-3),
+        iOS=base.data_collation(type_kind='type', type_name='Switch', num=-3),
     )
 
     voice_switch = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/sw_notify_voice'),
-        iOS=base.data_collation(type_kind='name', type_name='Switch', num=-2),
+        iOS=base.data_collation(type_kind='type', type_name='Switch', num=-2),
     )
 
     vibration_switch = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/sw_notify_vibration'),
-        iOS=base.data_collation(type_kind='name', type_name='Switch', num=-1),
+        iOS=base.data_collation(type_kind='type', type_name='Switch', num=-1),
     )
 
     close_button = base.check_device(
         Android=base.data_collation(type_kind='text', type_name='确认关闭'),
-        iOS=base.data_collation(type_kind='name', type_name='ScrollView', pos=[0.5, 0.8577008928571429]),
+        iOS=base.data_collation(type_kind='name', type_name='ScrollView', pos=[0.5, 0.8429802955665024]),
     )
 
     cancel_button = base.check_device(
@@ -104,9 +104,9 @@ class NotificationPage(Base):
                 if self.common.poco_wait_exists(NotificationPageLocator.notify_check):
                     self.common.poco_click(NotificationPageLocator.close_button)
 
-                    assert self.common.poco_get_attr(NotificationPageLocator.detail_switch, 'isEnabled') == '0', f'詳情開關沒有disable'
-                    assert self.common.poco_get_attr(NotificationPageLocator.voice_switch, 'isEnabled') == '0', f'聲音開關沒有disable'
-                    assert self.common.poco_get_attr(NotificationPageLocator.vibration_switch, 'isEnabled') == '0', f'震動開關沒有disable'
+                    assert self.common.poco_get_attr(NotificationPageLocator.detail_switch, 'isEnabled') == '0', f'詳情開關沒有被鎖定'
+                    assert self.common.poco_get_attr(NotificationPageLocator.voice_switch, 'isEnabled') == '0', f'聲音開關沒有被鎖定'
+                    assert self.common.poco_get_attr(NotificationPageLocator.vibration_switch, 'isEnabled') == '0', f'震動開關沒有沒有被鎖定'
                 else:
                     assert self.common.poco_get_attr(NotificationPageLocator.detail_switch, 'isEnabled') == '1', f'詳情開關沒有enable'
                     assert self.common.poco_get_attr(NotificationPageLocator.voice_switch, 'isEnabled') == '1', f'聲音開關沒有enable'

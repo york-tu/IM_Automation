@@ -156,12 +156,12 @@ class ContextTestCase(BaseTestCase, BaseFunction_API, BasePage_Web, BasePage_Adm
     def setting_browser(cls):
         wd = web_dr.WebDriver()
         cls.setting_test_data()  # 設定測試數據
-        cls.driver_list.append(wd.setting_driver(1900, 1000, cls.implicitly_wait_time))  # 設定ChromeDriver
+        cls.driver_list.append(wd.setting_driver(1900, 1000, cls.implicitly_wait_time, is_wap=False))  # 設定ChromeDriver
         cls.function_dict['wp'] = WebPages(cls.driver_list[-1], cls.wait_time, cls.web_url, cls.skipTest)  # 導入Web全部頁面
         cls.function_dict['wp'].basePage().hide_windows()
 
         if not sys.argv[0].__contains__('prod'):
-            cls.driver_list.append(wd.setting_driver(1900, 1000, cls.implicitly_wait_time))  # 設定ChromeDriver
+            cls.driver_list.append(wd.setting_driver(1900, 1000, cls.implicitly_wait_time, is_wap=False))  # 設定ChromeDriver
             cls.function_dict['ad'] = AdminPages(cls.driver_list[-1], cls.wait_time, cls.admin_url, cls.skipTest)
             cls.function_dict['ad'].basePage().hide_windows()
 
@@ -194,6 +194,11 @@ class ContextTestCase(BaseTestCase, BaseFunction_API, BasePage_Web, BasePage_Adm
         self.function_dict['wp'].basePage().open_base_url()  # 開啟前台網站
         self.function_dict['wp'].loginPage().login(self.web_phone, self.web_password, self.web_nation)
 
+    def web_login(self, phone, password, nation):
+        self.test_all_windows_mini()
+        self.function_dict['wp'].basePage().windows_to_top()  # 切換視窗
+        self.function_dict['wp'].basePage().open_base_url()  # 開啟前台網站
+        self.function_dict['wp'].loginPage().login(phone, password, nation)
     # ADMIN登入
     def test_admin_login(self):
         self.function_dict['ad'].basePage().windows_to_top()  # 切換視窗
@@ -380,7 +385,7 @@ class ContextTestCase(BaseTestCase, BaseFunction_API, BasePage_Web, BasePage_Adm
         self.function_dict['wp'].chatroomPage().change_group_rule('11010')  # 發連結
         self.function_dict['ap'].chatsetupPage().check_group_rule('11010')
 
-        self.function_dict['wp'].chatroomPage().change_group_rule('00001')  # 加好友
+        self.function_dict['wp'].chatroomPage().change_group_rule('00001')  # 允許加入新成員
         self.function_dict['ap'].chatsetupPage().check_group_rule('00001')
 
         self.function_dict['wp'].chatroomPage().change_group_rule('00000')  # 權限全關
@@ -392,6 +397,7 @@ class ContextTestCase(BaseTestCase, BaseFunction_API, BasePage_Web, BasePage_Adm
     # 測試 - [群組擁有者] 1. 新增管理員 + 更改該管理員權限
     @DecorateClass('CHATAPP-T2573')
     def test_group_add_admin_and_change_admin_rules(self):
+
         self.test_web_login()
         self.test_app_login()
         default_rule = '11111'
@@ -412,12 +418,16 @@ class ContextTestCase(BaseTestCase, BaseFunction_API, BasePage_Web, BasePage_Adm
     @DecorateClass('CHATAPP-T2574')
     def test_group_add_and_remove_member(self):
         self.function_dict['wp'].basePage().hide_windows()
-        friend = "gubot06"
+        friend=''
+        if self.brand == 'gu':
+            friend = "auto_test_7788"
+        elif self.brand == 'mee':
+            friend = "meebot03"
         # =============== 新增指定成員為好友 ============================
         self.test_app_login()
         self.function_dict['ap'].mainPage().into_friend_page()
         self.function_dict['ap'].friendPage().search_new_friend(friend)
-        self.function_dict['ap'].friendPage().add_friend()
+        self.function_dict['ap'].friendPage().add_friend(friend)
         # =============== 添加該好友到群組 ==============================
         self.function_dict['ap'].chatlistPage().into_chat_room('QA_bot_only')
         self.function_dict['ap'].chatsetupPage().into_setting()
@@ -433,9 +443,7 @@ class ContextTestCase(BaseTestCase, BaseFunction_API, BasePage_Web, BasePage_Adm
     def test_group_add_and_remove_block_member(self):
         self.function_dict['wp'].basePage().hide_windows()
         block_name = "gubot05"
-        self.function_dict['ap'].mainPage().login(self.web_phone, self.web_password,
-                                                  self.web_nation)  # 登入gubot02群組擁有者帳號
-
+        self.function_dict['ap'].mainPage().login(self.web_phone, self.web_password,self.web_nation)  # 登入gubot02群組擁有者帳號
         self.function_dict['ap'].chatlistPage().into_chat_room('QA_bot_only')
         self.function_dict['ap'].chatsetupPage().into_setting()
         detail_page_before_add_black_amount, black_setting_page_before_add_black_amount = self.function_dict[
@@ -462,33 +470,54 @@ class ContextTestCase(BaseTestCase, BaseFunction_API, BasePage_Web, BasePage_Adm
         self.function_dict['wp'].chatroomPage().into_setting()
         self.function_dict['wp'].chatroomPage().delete_admin(self.app_account, self.web_account)
 
-    # 測試 - 後台變更發布者自動審核權限 > 前台發布媒體 > 後台確認媒體審核狀態
+    # 測試 - (後台)變更發布者gubot06自動審核權限 > (前台)發布媒體 > (後台)確認媒體審核狀態
     @DecorateClass('CHATAPP-T2719')
-    def test_change_media_audit_type(self):
+    def test_social_change_poster_auto_audit_type(self):
         self.test_admin_login()
-        self.test_app_login()
+        if self.brand == 'gu':
+            self.function_dict['ap'].mainPage().login('13542600006', self.web_password, self.web_nation)
+        elif self.brand == 'mee':
+            self.function_dict['ap'].mainPage().login('5568866666', self.web_password, self.web_nation)
+        audit_type_list = [2, 0, 1]  # 2:黑名單, 0:一般會員, 1:白名單
+        # ============ 將發布者自動審核權限設為不同權限後確認貼文狀態 ====================================
+        for audit_type in audit_type_list:
+            self.function_dict['ad'].socialManagementPage().into_auto_audit_page()
+            self.function_dict['ad'].socialManagementPage().set_audit_privacy('gubot06', audit_type)
+            instructions = self.media_photo_post(audit_type)
+            self.function_dict['ad'].socialManagementPage().into_media_audit_page()
+            self.function_dict['ad'].socialManagementPage().search_audit_result('gubot06', instructions, audit_type)
 
-        # ============ 將發布者自動審核權限設為: 一般會員 ==============
-        audit_type = 0
-        self.function_dict['ad'].socialManagementPage().into_auto_audit_page()
-        self.function_dict['ad'].socialManagementPage().set_audit_privacy(self.app_account, audit_type)
-        instructions = self.media_photo_post(audit_type)
-        self.function_dict['ad'].socialManagementPage().into_media_audit_page()
-        self.function_dict['ad'].socialManagementPage().search_media_audit_result(self.app_account, instructions, audit_type)
-        # ============ 將發布者自動審核權限設為: 白名單 ================
-        audit_type = 1
-        self.function_dict['ad'].socialManagementPage().into_auto_audit_page()
-        self.function_dict['ad'].socialManagementPage().set_audit_privacy(self.app_account, audit_type)
-        instructions = self.media_photo_post(audit_type)
-        self.function_dict['ad'].socialManagementPage().into_media_audit_page()
-        self.function_dict['ad'].socialManagementPage().search_media_audit_result(self.app_account, instructions, audit_type)
-        # ============ 將發布者自動審核權限設為: 黑名單 ================
-        audit_type = 2
-        self.function_dict['ad'].socialManagementPage().into_auto_audit_page()
-        self.function_dict['ad'].socialManagementPage().set_audit_privacy(self.app_account, audit_type)
-        instructions = self.media_photo_post(audit_type)
-        self.function_dict['ad'].socialManagementPage().into_media_audit_page()
-        self.function_dict['ad'].socialManagementPage().search_media_audit_result(self.app_account, instructions, audit_type)
+    # 測試 - (前台)變更"貼文隱私" > (後台)確認媒體"觀看權限"
+    @DecorateClass('CHATAPP-T2784')
+    def test_social_change_post_privacy(self):
+        self.test_admin_login()
+
+        # ================ 貼文設定 =================================================================
+        media_list = ['video', 'photo']
+        media_index = random.randint(-10, -1)
+        current_time = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
+        media_type = random.choice(media_list)
+        user = self.app_account
+        description = f'😯自動化{self.brand}Test_後台"觀看權限"測試_{current_time}😯'
+        default_privacy_index = 0  # 貼文發布隱私設置 (0所有人, 1互關, 2粉絲, 3僅自己)
+        # ================ 發布貼文 =================================================================
+        self.test_app_login()
+        self.function_dict['ap'].socialhomePage().return_to_my_social_page()
+        self.function_dict['ap'].socialmediapostPage().select_media(media_index, media_type)
+        self.function_dict['ap'].socialmediapostPage().post_page_setting_and_post(description, default_privacy_index, media_type, save_to_local=True, post=True)
+        self.function_dict['ap'].socialhomePage().return_to_my_social_page()
+        # ------------------------------------------------------------------------------------------
+
+        privacy_list = [3, 2, 1, 0]  # 隱私設置: 3僅自己, 2粉絲, 1互關, 0所有人
+        for privacy_index in privacy_list:
+            # ============ 前台切換貼文隱私設定 =======
+            self.function_dict['ap'].socialhomePage().return_to_my_social_page()
+            self.function_dict['ap'].socialmedialibraryPage().change_first_post_privacy_type(user, description, privacy_index)
+            self.function_dict['ap'].socialhomePage().return_to_my_social_page()
+            self.function_dict['ap'].socialmedialibraryPage().check_first_post_privacy_type(user, description, privacy_index)
+            # ============ 後台確認貼文觀看權限 =======
+            self.function_dict['ad'].socialManagementPage().into_media_audit_page()
+            self.function_dict['ad'].socialManagementPage().check_post_viewing_permission(user,  privacy_index, audit_page='媒体审核')
 
     def media_photo_post(self, audit_type):
         if audit_type == 1:
@@ -497,23 +526,239 @@ class ContextTestCase(BaseTestCase, BaseFunction_API, BasePage_Web, BasePage_Adm
             _type = '黑名单'
         else:
             _type = '一般会员'
-        media_index = random.randint(-5, -1)
+        media_index = random.randint(-10, -1)
         media_type = 'photo'
-        description = f'自動審核_{_type}_{media_index}'
+        description = f'自動審核_{self.brand}_{_type}_{media_index}'
 
-        self.function_dict['ap'].mediareleasePage().select_media(media_index, media_type)
-        self.function_dict['ap'].mediareleasePage().into_post_page(description, privacy_index=0, media_type=media_type,
-                                                                   post=True)
+        self.function_dict['ap'].socialmediapostPage().select_media(media_index, media_type)
+        self.function_dict['ap'].socialmediapostPage().post_page_setting_and_post(description, privacy_index=0, media_type=media_type, post=True)
         return description
 
+    # (後台)新增屏蔽字 > (前台)確認個人簡介不可輸入屏蔽字
+    @DecorateClass('CHATAPP-T2846')
+    def test_block_words_blocks_instructions_input(self):
+        current_time = datetime.now().strftime("%H_%M_%S")
+        block_words = f'shit_{current_time}'
+        self.test_admin_login()
+        self.function_dict['ad'].socialManagementPage().into_block_words_page()
+        self.function_dict['ad'].socialManagementPage().add_block_words(block_words)
 
-    # -------------------------------------------------------------------------------------------------------
+        self.test_app_login()
+        self.function_dict['ap'].mainPage().into_main_page()
+        self.function_dict['ap'].memberPage().into_edit()
+        self.function_dict['ap'].memberPage().input_block_words_then_check_toast(block_words)
+        self.function_dict['ad'].socialManagementPage().delete_block_words(block_words)
+
+    # (前台)提出貼文檢舉 > (後台)approve > (前台)確認貼文下架
+    @DecorateClass('CHATAPP-T2847')
+    def test_post_removed_after_impeach_approve(self):
+        # ================ 貼文設定 =================================================================
+        media_list = ['video', 'photo']
+        media_index = random.randint(-10, -1)
+        current_time = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
+        media_type = random.choice(media_list)
+        description = f'😯自動化{self.brand}Test_檢舉貼文"測試_{current_time}😯'
+        default_privacy_index = 0  # 貼文發布隱私設置 (0所有人, 1互關, 2粉絲, 3僅自己)
+        # ================ A發布貼文 =================================================================
+        self.test_app_login()
+        self.function_dict['ap'].socialhomePage().return_to_my_social_page()
+        self.function_dict['ap'].socialmediapostPage().select_media(media_index, media_type)
+        self.function_dict['ap'].socialmediapostPage().post_page_setting_and_post(description, default_privacy_index, media_type, save_to_local=True, post=True)
+        self.function_dict['ap'].socialhomePage().return_to_my_social_page()
+
+        # ================ B檢舉A貼文 =================================================================
+        self.function_dict['ap'].mainPage().login(self.web_phone, self.web_password, self.web_nation)
+        self.function_dict['ap'].socialhomePage().return_to_my_social_page()
+        self.function_dict['ap'].socialhomePage().into_fans_list()
+        self.function_dict['ap'].socialhomePage().into_member_social_page_from_fans_list(self.app_account)
+        self.function_dict['ap'].socialmedialibraryPage().into_first_post(self.app_account, description)
+        request_reason = self.function_dict['ap'].socialsharePage().submit_impeach_request(random.choice([0,1,2,3]))
+        self.function_dict['ap'].socialhomePage().return_to_my_social_page()
+
+        # ================ 後台approve檢舉request =====================================================
+        self.test_admin_login()
+        self.function_dict['ad'].socialManagementPage().into_impeach_page()
+        self.function_dict['ad'].socialManagementPage().search_impeach_content(self.web_account, self.app_account, request_reason)
+        self.function_dict['ad'].socialManagementPage().impeach_request_approve()
+
+        # ================ B端重進A主頁, 確認貼文下架 =================================================================
+        self.function_dict['ap'].socialhomePage().into_fans_list()
+        self.function_dict['ap'].socialhomePage().into_member_social_page_from_fans_list(self.app_account)
+        self.function_dict['ap'].socialmedialibraryPage().into_first_post()
+        current_user_nickname, current_content = self.function_dict['ap'].socialmedialibraryPage().get_post_author_and_content()
+        assert current_content != description
+        self.function_dict['ap'].socialhomePage().return_to_my_social_page()
+
+        # ================ A進到自己主頁, 確認自己的貼文還在 =================================================================
+        self.function_dict['ap'].mainPage().login(self.app_phone, self.app_password, self.app_nation)
+        self.function_dict['ap'].socialhomePage().return_to_my_social_page()
+        self.function_dict['ap'].socialmedialibraryPage().into_first_post()
+        post_user_nickname, post_content = self.function_dict['ap'].socialmedialibraryPage().get_post_author_and_content()
+        assert post_content == description
+
+    # (後台)發送系統通知 > (前台)確認系統訊息
+    @DecorateClass('CHATAPP-T2848')
+    def test_admin_send_system_notification(self):
+        current_time = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
+        deposit_amount = '1.11'
+        system_message = f'自動化{self.brand}Test_系統訊息_{current_time}'
+        # ================ 後台發布系統通知訊息 =================================================================
+        self.test_admin_login()
+        self.function_dict['ad'].mainPage().into_manual_deposit()
+        send_system_message_time = self.function_dict['ad'].mainPage().manual_add_system_notification(self.app_account, deposit_amount, system_message, deposit_item=random.choice([0,1,2,3]))
+
+        # ================ 前台確認系統通知訊息內容===============================================================
+        self.test_app_login()
+        self.function_dict['ap'].socialhomePage().return_to_my_social_page()
+        self.function_dict['ap'].chatlistPage().into_system_notification()
+        self.function_dict['ap'].chatlistPage().check_latest_system_message(system_message, send_system_message_time)
+
+    # (後台)發送群組訊息 > (前台)群組內確認訊息
+    @DecorateClass('CHATAPP-T3252')
+    def test_admin_send_group_msg(self):
+        current_time = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
+        group_msg = f'群發訊息_自動化測試_{current_time}'
+        self.test_admin_login()
+        self.function_dict['ad'].mainPage().into_group_msg()
+        # ============ (後台)發送群組訊息 ============
+        group_msg_send_time = self.function_dict['ad'].groupsPage().group_add_group_msg(group_msg)
+        # ============ (後台)確認群組訊息 ============
+        self.function_dict['ad'].groupsPage().check_group_msg_list(group_msg_send_time, 'gubot01', 'QA_bot_only', group_msg)
+        # ============ (前台)確認群組內訊息 ============
+        self.test_app_login()
+        self.function_dict['ap'].chatlistPage().into_chat_room('QA_bot_only')
+        self.function_dict['ap'].chatlistPage().check_last_message(message=group_msg)
+
+    # (前台)觀看貼文 > (後台)確認[貼文數據]&[創作者數據]觀看次數 & 觀看人數
+    @DecorateClass('CHATAPP-T2854')
+    def test_post_view_then_check_views_and_viewers(self):
+        view_counts = 7  # 觀看次數
+        # ================ 貼文設定 =================================================================
+        media_list = ['video', 'photo']
+        media_index = random.randint(-10, -1)
+        current_time = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
+        media_type = random.choice(media_list)
+        description = f'😯自動化{self.brand}Test_觀看次數&觀看人數_{current_time}😯'
+        default_privacy_index = 0  # 貼文發布隱私設置 (0所有人, 1互關, 2粉絲, 3僅自己)
+        # ================ A發布貼文 =================================================================
+        self.test_app_login()
+        self.function_dict['ap'].socialhomePage().return_to_my_social_page()
+        self.function_dict['ap'].socialmediapostPage().select_media(media_index, media_type)
+        self.function_dict['ap'].socialmediapostPage().post_page_setting_and_post(description, default_privacy_index,
+                                                                                  media_type, save_to_local=True,
+                                                                                  post=True)
+        self.function_dict['ap'].socialhomePage().return_to_my_social_page()
+        # ================ 後台確認創作者A原觀看人數&觀看次數 =============================================
+        self.test_admin_login()
+        _original_creator_view_counts, _original_creator_viewer_counts = (
+            self.function_dict['ad'].socialManagementPage().check_creator_view_and_viewers(self.app_account))
+        # ================ B觀看A貼文10秒*觀看次數(view_counts) ========================================
+        self.function_dict['ap'].mainPage().login(self.web_phone, self.web_password, self.web_nation)
+        self.function_dict['ap'].socialhomePage().return_to_my_social_page()
+        self.function_dict['ap'].socialhomePage().into_fans_list()
+        self.function_dict['ap'].socialhomePage().into_member_social_page_from_fans_list(self.app_account)
+        for i in range(view_counts):
+            self.function_dict['ap'].socialmedialibraryPage().into_first_post()
+            sleep(10)
+            self.function_dict['ap'].socialmedialibraryPage().return_to_post_list()
+        self.function_dict['ap'].socialhomePage().return_to_my_social_page()
+        self.function_dict['ap'].socialhomePage().into_fans_list()
+        self.function_dict['ap'].socialhomePage().into_member_social_page_from_fans_list(self.app_account)
+        after_view_counts = self.function_dict['ap'].socialhomePage().get_post_view_counts()
+        # ================ 後台[創作者數據]確認創作者總觀看人數 & 觀看次數 ===================================
+        _after_creator_view_counts, _after_creator_viewer_counts = self.function_dict['ad'].socialManagementPage().check_creator_view_and_viewers(self.app_account)
+        assert int(_after_creator_view_counts) == int(_original_creator_view_counts) + int(view_counts), f"預期{_after_creator_view_counts},實際{_original_creator_view_counts}+{view_counts}"
+        assert int(_after_creator_viewer_counts) == int(_original_creator_viewer_counts) + 1
+        # ================ 後台[貼文數據]確認貼文觀看人數 & 觀看次數 ========================================
+        _data_view_counts, _data_viewer_counts = self.function_dict['ad'].socialManagementPage().check_post_view_and_viewers(self.app_account, description)
+        assert _data_view_counts == after_view_counts
+        assert _data_viewer_counts == '1'
+
+    # (後台)切換發現功能 > (前台)確認排序
+    @DecorateClass('CHATAPP-T2927')
+    def test_discover_list(self):
+        # ================ 後台關閉發現功能 > 前台確認發現頁排序 ========================================
+        self.test_admin_login()
+        self.test_app_login()
+        self.function_dict['ad'].mainPage().into_discover_setting()
+        for _ in range(5):
+            self.function_dict['ad'].mainPage().disable_discover_function(1)
+            expect_list = self.function_dict['ad'].mainPage().get_discover_enable_list()
+
+            self.function_dict['ap'].discoverPages().into_discover_page()
+            current_list = self.function_dict['ap'].discoverPages().check_discover_list()
+            assert current_list == expect_list
+            self.function_dict['ad'].mainPage().restore_discover_function()
+            self.function_dict['ap'].socialhomePage().return_to_my_social_page()
+        # ================ 後台restore to default > 前台確認發現頁排序 ========================================
+        expect_list = self.function_dict['ad'].mainPage().get_discover_enable_list()
+        self.function_dict['ap'].discoverPages().into_discover_page()
+        current_list = self.function_dict['ap'].discoverPages().check_discover_list()
+        assert current_list == expect_list
+
+    # (後台)切換帳號社群權限 > (前台)確認評論留言
+    @DecorateClass('CHATAPP-T2988')
+    def test_post_comment_when_social_permission_change(self):
+        self.test_admin_login()
+        self.test_app_login()
+
+        # ================ (後台)關閉帳號社群權限 > (前台)確認不可評論留言 =================
+        self.function_dict['ad'].mainPage().into_member_list()
+        self.change_social_permission(enable=False)
+
+        # 確認無法在自己與他人貼文上留言
+        self.check_post_comment_permission(expected=False, is_own_post=True)
+        self.check_post_comment_permission(expected=False, is_own_post=False)
+
+        # ================ (後台)開啟帳號社群權限 > (前台)確認可評論留言 =================
+        self.change_social_permission(enable=True)
+
+        # 確認可在自己與他人貼文上留言
+        self.check_post_comment_permission(expected=True, is_own_post=True)
+        self.check_post_comment_permission(expected=True, is_own_post=False)
+
+    def change_social_permission(self, enable: bool):
+        """變更社群權限"""
+        self.function_dict['ad'].memberPage().change_social_permission(self.app_account, enable)
+
+    def check_post_comment_permission(self, expected: bool, is_own_post: bool):
+        """檢查貼文留言權限"""
+        if is_own_post:
+            self.function_dict['ap'].socialhomePage().return_to_my_social_page()
+            self.function_dict['ap'].socialmedialibraryPage().into_first_post()
+        else:
+            self.function_dict['ap'].socialhomePage().return_to_my_social_page()
+            self.function_dict['ap'].socialhomePage().into_followed_list()
+            self.function_dict['ap'].socialhomePage().into_member_social_page_from_followed_list(self.web_account)
+            self.function_dict['ap'].socialmedialibraryPage().into_first_post()
+
+        self.function_dict['ap'].socialmedialibraryPage().is_post_comment(expected)
+
+    # (後台)切換貼文評論超連結開關 > (前台)確認評論留言URL
+    @DecorateClass('CHATAPP-T2989')
+    def test_post_URL_when_post_permission_change(self):
+        comment = "https://www.youtube.com/"
+
+        self.test_admin_login()
+        self.test_app_login()
+        # ================ 後台"開啟"貼文評論超連結開關 > 前台確認成功留言URL =================
+        self.function_dict['ad'].socialManagementPage().enable_post_url_setting()
+        self.function_dict['ap'].socialhomePage().return_to_my_social_page()
+        self.function_dict['ap'].socialmedialibraryPage().into_first_post()
+        self.function_dict['ap'].socialmedialibraryPage().into_post_comment_page(self_post=True)
+        self.function_dict['ap'].socialmedialibraryPage().post_add_comment(self.app_account, comment, post_url=True, self_post=True)  # 留言+確認留言相關
+        # ================ 後台"關閉"貼文評論超連結開關 > 前台確認阻擋留言URL =================
+        self.function_dict['ad'].socialManagementPage().disable_post_url_setting()
+        self.function_dict['ap'].socialmedialibraryPage().post_add_comment(self.app_account, comment, post_url=False, self_post=True)  # 留言+確認留言相關
+
+    # ==================================================================================================================
     def test_app_login(self):
-        if self.unknown_env[0] == True:
+        if self.unknown_env[0] is True:
             self.function_dict['ap'].commomPage().skip_test('測試環境不正確')
-        if self._login_status[0] == False:
+        if self._login_status[0] is False:
             self.function_dict['ap'].mainPage().login(self.app_phone, self.app_password, self.app_nation)
             self._login_status[0] = True
+            self.function_dict['ap'].mainPage().check_focus_recommend_tab_after_login()
 
     # 測試-發訊息檢查
     @DecorateClass('CHATAPP-T')

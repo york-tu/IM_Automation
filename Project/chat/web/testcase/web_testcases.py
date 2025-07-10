@@ -26,7 +26,7 @@ class WebTestCase(BaseTestCase):
     function_dict = {}
     driver_list = []
     brand = gl.get_value('BRAND')
-    security_code = 111111
+    security_code = 326789
     env = gl.get_value('ENV')
 
     # ================================= TestSetting ================================
@@ -83,12 +83,12 @@ class WebTestCase(BaseTestCase):
     def setting_browser(cls):
         wd = web_dr.WebDriver()
         cls.setting_test_data()  # 設定測試數據
-        cls.driver_list.append(wd.setting_driver(1900, 1000, cls.implicitly_wait_time))  # 設定ChromeDriver
+        cls.driver_list.append(wd.setting_driver(1900, 1000, cls.implicitly_wait_time, is_wap=False))  # 設定ChromeDriver
         cls.function_dict['wp'] = WebPages(cls.driver_list[-1], cls.wait_time, cls.web_url, cls.skipTest)  # 導入Web全部頁面
         cls.function_dict['wp'].basePage().hide_windows()
 
         if not sys.argv[0].__contains__('prod'):
-            cls.driver_list.append(wd.setting_driver(1900, 1000, cls.implicitly_wait_time))  # 設定ChromeDriver
+            cls.driver_list.append(wd.setting_driver(1900, 1000, cls.implicitly_wait_time, is_wap=False))  # 設定ChromeDriver
             cls.function_dict['ad'] = AdminPages(cls.driver_list[-1], cls.wait_time, cls.admin_url, cls.skipTest)
             cls.function_dict['ad'].basePage().hide_windows()
 
@@ -103,7 +103,6 @@ class WebTestCase(BaseTestCase):
 
     # ================================= TestCases =================================
 
-
     def test_all_windows_mini(self):
         for function in self.function_dict.values():
             function.basePage().hide_windows()
@@ -116,7 +115,7 @@ class WebTestCase(BaseTestCase):
         if self.env == 'prod':
             return 'QA_bot_only'
         elif self.env == 'uat':
-            return str(datetime.now().strftime("%y%m%d") + "_bot_group")
+            return str(datetime.now().strftime("%m%d") + "group")
 
     # 測試-登入
     @DecorateClass('CHATAPP-T1790')
@@ -278,7 +277,7 @@ class WebTestCase(BaseTestCase):
         self.function_dict['wp'].mainPage().open_user_info()
         self.function_dict['wp'].mainPage().into_friend_add()
         self.function_dict['wp'].mainPage().add_friend(member_name)
-        self.function_dict['wp'].mainPage().close_modal(2)
+        # self.function_dict['wp'].mainPage().close_modal(1)
         # self.function_dict['wp'].mainPage().switch_tab_to('好友')
         # self.function_dict['wp'].friendPage().check_friend(member_name)
 
@@ -418,7 +417,7 @@ class WebTestCase(BaseTestCase):
         self.function_dict['wp'].mainPage().open_user_info()
         self.function_dict['wp'].mainPage().into_friend_add()
         self.function_dict['wp'].mainPage().add_friend(self.operate_account)
-        self.function_dict['wp'].mainPage().close_modal(2)
+        # self.function_dict['wp'].mainPage().close_modal(2)
         self.function_dict['wp'].friendPage().check_friend(self.operate_account)
 
     # 測試-好友暱稱
@@ -489,7 +488,6 @@ class WebTestCase(BaseTestCase):
         self.function_dict['wp'].chatroomPage().send_url_message()
         self.function_dict['wp'].chatlistPage().check_last_message()
 
-
     # 測試-A在與B的聊天室內發送圖片/影片 > B端確認該圖片影片與A端相同
     @DecorateClass('CHATAPP-T2543')
     def test_send_media(self):
@@ -498,7 +496,7 @@ class WebTestCase(BaseTestCase):
         self.function_dict['wp'].chatlistPage().into_chat_room(self.app_account)  # into to app_id chatroom
         self.function_dict['wp'].chatlistPage().delete_chatroom_record()
         self.function_dict['wp'].chatlistPage().into_chat_room(self.app_account)
-        self.function_dict['wp'].chatroomPage().send_image()  # send picture to chatroom
+        self.function_dict['wp'].chatroomPage().send_media(media_type='photo')  # send picture to chatroom
         a_side_image_src_link = self.function_dict[
             'wp'].chatroomPage().get_last_media_src_link()  # 取得聊天室該image的src link
         self.test_web_logout()
@@ -514,7 +512,7 @@ class WebTestCase(BaseTestCase):
         self.function_dict['wp'].chatlistPage().delete_chatroom_record()
         self.function_dict['wp'].chatlistPage().into_chat_room(self.web_account)
         # -----------B端: 與A的1v1聊天室內傳送影片 > 獲取聊天室內該影片src link > 帳號B登出
-        self.function_dict['wp'].chatroomPage().send_video()  # send video to chatroom
+        self.function_dict['wp'].chatroomPage().send_media(media_type='video')  # send video to chatroom
         b_side_video_src_link = self.function_dict['wp'].chatroomPage().get_last_media_src_link(
             'video')  # 獲取聊天室該video的src link
         self.test_web_logout()
@@ -558,7 +556,6 @@ class WebTestCase(BaseTestCase):
         self.function_dict['wp'].chatroomPage().message_revoke('測試TeSt12345!@#$%测试#3')
         self.function_dict['wp'].chatlistPage().check_last_message()
         self.function_dict['wp'].chatroomPage().message_revoke('測試TeSt12345!@#$%测试#5')
-        # self.function_dict['wp'].chatlistPage().check_last_message() // web 尚未有列表最後一筆屏蔽系統功能
 
     # 測試-個人訊息回覆後撤回
     @DecorateClass('CHATAPP-T1926')
@@ -619,6 +616,37 @@ class WebTestCase(BaseTestCase):
         self.function_dict['wp'].chatroomPage().message_revoke('測試TeSt12345!@#$%测试#4')
         self.function_dict['wp'].chatroomPage().delete_all_pin()
 
+    # 測試-個人發送檔案訊息
+    @DecorateClass('CHATAPP-T3272')
+    def test_send_file_message(self):
+        self.test_web_login()
+
+        self.function_dict['wp'].chatlistPage().into_chat_room(self.operate_account)
+        self.function_dict['wp'].chatroomPage().send_media(media_type='file')
+        self.function_dict['wp'].chatlistPage().check_last_message(message_type='file')
+
+    # 測試-個人檔案訊息回覆
+    @DecorateClass('CHATAPP-T3273')
+    def test_file_message_reply(self):
+        self.test_web_login()
+
+        self.function_dict['wp'].chatlistPage().into_chat_room(self.operate_account)
+        file_name = self.function_dict['wp'].chatroomPage().send_media(media_type='file')
+        self.function_dict['wp'].chatroomPage().message_reply(file_name,message_type='file')
+        self.function_dict['wp'].chatlistPage().check_last_message()
+
+    # 測試-個人撤回檔案訊息
+    @DecorateClass('CHATAPP-T3274')
+    def test_file_message_revoke(self):
+        self.test_web_login()
+
+        self.function_dict['wp'].chatlistPage().into_chat_room(self.operate_account)
+        self.function_dict['wp'].chatroomPage().send_message('私聊檔案訊息Test_文字訊息')
+        file_name = self.function_dict['wp'].chatroomPage().send_media(media_type='file')
+        self.function_dict['wp'].chatroomPage().message_revoke(file_name, message_type='file')
+        self.function_dict['wp'].chatlistPage().into_chat_room(self.operate_account)
+        self.function_dict['wp'].chatlistPage().check_last_message()
+
     # 測試-建立群組
     @DecorateClass('CHATAPP-T1938')
     def test_groups_build(self):
@@ -637,9 +665,9 @@ class WebTestCase(BaseTestCase):
 
         self.function_dict['wp'].chatlistPage().into_chat_room(self.get_group_name())
         self.function_dict['wp'].chatroomPage().into_setting()
-        self.function_dict['wp'].chatroomPage().change_group_name(self.get_group_name(), 'name_test')
+        self.function_dict['wp'].chatroomPage().change_group_name(self.get_group_name(), 'nametest')
         self.function_dict['wp'].chatroomPage().into_setting()
-        self.function_dict['wp'].chatroomPage().change_group_name('name_test', self.get_group_name())
+        self.function_dict['wp'].chatroomPage().change_group_name('nametest', self.get_group_name())
 
     # 測試-變更群組權限設定
     @DecorateClass('CHATAPP-T1940')
@@ -691,7 +719,6 @@ class WebTestCase(BaseTestCase):
         self.function_dict['wp'].chatroomPage().message_revoke('測試TeSt12345!@#$%测试#3')
         self.function_dict['wp'].chatlistPage().check_last_message()
         self.function_dict['wp'].chatroomPage().message_revoke('測試TeSt12345!@#$%测试#5')
-        # self.function_dict['wp'].chatlistPage().check_last_message() // web 尚未有列表最後一筆屏蔽系統功能
 
     # 測試-群組訊息設置公告
     @DecorateClass('CHATAPP-T1819')
@@ -729,6 +756,37 @@ class WebTestCase(BaseTestCase):
         self.function_dict['wp'].chatroomPage().message_revoke('測試TeSt12345!@#$%测试#4')
         self.function_dict['wp'].chatroomPage().delete_all_pin()
 
+    # 測試-個人發送檔案訊息
+    @DecorateClass('CHATAPP-T3277')
+    def test_send_file_message_group(self):
+        self.test_web_login()
+
+        self.function_dict['wp'].chatlistPage().into_chat_room(self.get_group_name())
+        self.function_dict['wp'].chatroomPage().send_media(media_type='file')
+        self.function_dict['wp'].chatlistPage().check_last_message(message_type='file')
+
+    # 測試-個人檔案訊息回覆
+    @DecorateClass('CHATAPP-T3275')
+    def test_file_message_reply_group(self):
+        self.test_web_login()
+
+        self.function_dict['wp'].chatlistPage().into_chat_room(self.get_group_name())
+        file_name = self.function_dict['wp'].chatroomPage().send_media(media_type='file')
+        self.function_dict['wp'].chatroomPage().message_reply(file_name, message_type='file')
+        self.function_dict['wp'].chatlistPage().check_last_message()
+
+    # 測試-群組撤回檔案訊息
+    @DecorateClass('CHATAPP-T3276')
+    def test_file_message_revoke_group(self):
+        self.test_web_login()
+
+        self.function_dict['wp'].chatlistPage().into_chat_room(self.get_group_name())
+        self.function_dict['wp'].chatroomPage().send_message('群組檔案訊息Test_文字訊息')
+        file_name = self.function_dict['wp'].chatroomPage().send_media(media_type='file')
+        self.function_dict['wp'].chatroomPage().message_revoke(file_name, message_type='file')
+        self.function_dict['wp'].chatlistPage().into_chat_room(self.get_group_name())
+        self.function_dict['wp'].chatlistPage().check_last_message()
+
     # 測試-刪除好友
     @DecorateClass('CHATAPP-T1822')
     def test_delete_friend(self):
@@ -757,7 +815,10 @@ class WebTestCase(BaseTestCase):
         web_phone = '5568899999'
         web_password = 'ps43941122'
         member_ID = 'exchange0'
-        wellpay_address = '0xe1d6cfe14f9f23d49c2637695a1570f3fa3049bb'  # original: 0x90ebd6ff86db243597294150e472a80a3fb84d40
+        if self.brand == 'gu':
+            wellpay_address = '0xe1d6cfe14f9f23d49c2637695a1570f3fa3049bb'
+        else:
+            wellpay_address = '0x90ebd6ff86db243597294150e472a80a3fb84d40'
         exchange_amount = 1
 
         self.test_admin_login_to_memberlist()
@@ -772,7 +833,7 @@ class WebTestCase(BaseTestCase):
         self.function_dict['wp'].mainPage().into_integral_page()
         self.function_dict['wp'].integralPage().entry_exchange_page()
         self.function_dict['wp'].integralPage().bind_wellpay(wellpay_address, self.security_code)
-        bind_time = datetime.now().strftime("%Y-%m-%d %H:%M")
+        bind_time = datetime.now().strftime("%Y/%m/%d %H:%M")
 
         self.test_admin_login_to_memberlist()
         self.function_dict['ad'].memberPage().check_wellpay_bind_data(member_ID, bind_time, wellpay_address)
@@ -788,7 +849,7 @@ class WebTestCase(BaseTestCase):
         web_password = 'ps43941122'
         member_ID = 'exchange0'
         wellpay_address_incorrect = '123'
-        exchange_amount = 1
+        exchange_amount = 3
 
         self.test_admin_login_to_memberlist()
         self.function_dict['ad'].memberPage().unbind_wellpay(member_ID)
@@ -816,7 +877,7 @@ class WebTestCase(BaseTestCase):
         web_password = 'ps43941122'
         member_ID = 'exchange0'
         operate_type = '平台'
-        brand = 'SC'
+        brand = 'SC'  #SC
         env = 'uat'
 
         # =========================== 登入SC平臺, 設定股聊積分兌換數值 =====================
@@ -861,7 +922,7 @@ class WebTestCase(BaseTestCase):
         self.function_dict['wp'].mainPage().open_user_info()
         remain_integral_amount_deposit_before = self.function_dict['wp'].mainPage().into_integral_page()  # 獲得原積分
 
-        # =========================== 後台人工存入積分 ======================================
+        # =========================== 後台人工存入積分-檢舉獎金 ======================================
         self.test_admin_login()
         self.function_dict['ad'].mainPage().into_manual_deposit()
         self.function_dict['ad'].mainPage().manual_add_deposit(member_id, integral_amount)  # 後台人工存入積分
@@ -870,7 +931,7 @@ class WebTestCase(BaseTestCase):
         self.function_dict['wp'].basePage().refresh_browser()
         self.function_dict['wp'].mainPage().open_user_info()
         self.function_dict['wp'].mainPage().into_integral_page()
-        current_total_integral_amount = self.function_dict['wp'].integralPage().exchange_record_check(integral_amount, '人工存入_红包奖励积分', add_deposit_time, remain_integral_amount_deposit_before)  # 前台積分詳情頁確認積分變動紀錄
+        current_total_integral_amount = self.function_dict['wp'].integralPage().exchange_record_check(integral_amount, '人工存入_检举奖金', add_deposit_time, remain_integral_amount_deposit_before)  # 前台積分詳情頁確認積分變動紀錄
 
         # =========================== 後台人工提出積分 ======================================
         self.function_dict['ad'].mainPage().into_manual_withdraw()

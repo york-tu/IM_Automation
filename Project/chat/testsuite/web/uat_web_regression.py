@@ -51,6 +51,11 @@ web_regression_list = [
     WebTestCase("test_message_pin"),  # 測試-個人訊息設置公告
     WebTestCase("test_message_pin_reply"),  # 測試-個人訊息設置公告後回覆
     WebTestCase("test_message_pin_revoke"),  # 測試-個人訊息設置公告後撤回
+
+    WebTestCase("test_send_file_message"),  # 測試-個人發送檔案
+    WebTestCase("test_file_message_reply"),  # 測試-個人檔案訊息回覆
+    WebTestCase("test_file_message_revoke"),  # 測試-個人檔案訊息撤回
+
     WebTestCase("test_groups_build"),  # 測試-建立群組
     WebTestCase("test_group_name_change"),  # 測試-變更群組名稱
     WebTestCase("test_group_rule_all"),  # 測試-變更群組權限設定
@@ -61,6 +66,11 @@ web_regression_list = [
     WebTestCase("test_message_pin_group"),  # 測試-群組訊息設置公告
     WebTestCase("test_message_pin_reply_group"),  # 測試-群組訊息設置公告後回覆
     WebTestCase("test_message_pin_revoke_group"),  # 測試-群組訊息設置公告後撤回
+
+    WebTestCase("test_send_file_message_group"),  # 測試-群組發送檔案
+    WebTestCase("test_file_message_reply_group"),  # 測試-群組檔案訊息回覆
+    WebTestCase("test_file_message_revoke_group"),  # 測試-群組檔案訊息撤回
+
     WebTestCase("test_delete_friend"),  # 測試-刪除好友
     WebTestCase("test_web_logout"),  # 測試-登出
 
@@ -76,12 +86,14 @@ admin_regression_list = [
     AdminTestCase("test_into_and_check_groups_list"),  # 測試-進入群組列表
     AdminTestCase("test_into_groups_set"),  # 測試-進入群組設定
     AdminTestCase("test_into_groups_own"),  # 測試-進入群組建立成員
-    AdminTestCase("test_into_share_code_setting"),  # 測試 - 後台登入不同權限帳號, 確認對應'邀請碼管理'頁顯示與不顯示
+    AdminTestCase("test_into_share_code_setting"),  # 測試-後台登入不同權限帳號,確認對應'邀請碼管理'頁顯示與不顯示
     AdminTestCase("test_add_share_code"),  # 測試 - 後台新增邀請碼 > 刪除邀請碼
-    WebTestCase("test_share_code_visible_when_permission_change"),
+    WebTestCase("test_share_code_visible_when_permission_change"),  # 測試-後台設定邀請碼權限>前台一般成員&管理員確認邀請碼分享欄位
+    AdminTestCase("test_into_groups_message"),  # 測試-進入群發消息
     AdminTestCase("test_into_system_maintenance"),  # 測試-進入APP/Web维护
     AdminTestCase("test_into_system_app_setting"),  # 測試-進入APP/Web设定
     AdminTestCase("test_into_system_contact_whitelist_setting"),  # 測試-不同權限帳號下的'好友添加白名单设定'頁顯示與否
+    AdminTestCase("test_into_discover_and_edit"),  # 測試-發現設定編輯網址+開關切換
     AdminTestCase("test_into_record_check_chat_record"),  # 測試-進入聊天纪录並確認紀錄
     AdminTestCase("test_into_setting_account"),   # 測試-進入帳號管理
     AdminTestCase("test_into_setting_role"),  # 測試-進入角色權限
@@ -93,28 +105,37 @@ admin_regression_list = [
     AdminTestCase("test_into_red_water"),  # 測試-進入水量控制
     AdminTestCase("test_into_media_audit"),  # 測試-進入媒体审核
     AdminTestCase("test_into_auto_audit"),  # 測試-進入自动审核
-    AdminTestCase("test_groups_build"),  # 測試-建立群組設定
-    AdminTestCase("test_member_build"),  # 測試-建立帳號
+    AdminTestCase("test_into_block_words"),  # 測試-進入屏蔽字詞
+    AdminTestCase("test_into_impeach"),  # 測試-進入检举内容
+    AdminTestCase("test_into_post_data"),  # 測試-進入贴文数据
+    AdminTestCase("test_into_creator_data"),  # 測試-進入创作者数据
+    AdminTestCase("test_build_group_permission"),  # 測試-群組建立權限設定
+    AdminTestCase("test_member_build"),  # 測試-新增會員帳號 (無法用於前台登入)
     AdminTestCase("test_member_revise_remark"),  # 測試-設定備註
     AdminTestCase("test_member_change_data"),  # 測試-修改資料
     AdminTestCase("test_member_reset_security_password"),  # 測試-重製安全密碼
     AdminTestCase("test_member_change_password"),  # 測試-變更密碼
     AdminTestCase("test_member_search_function"),   # 測試-搜尋功能
-    AdminTestCase("test_member_delete")  # 測試-刪除帳號
+    AdminTestCase("test_member_delete"),  # 測試-刪除後台建立(無法用於前台登入)會員帳號
+    AdminTestCase("test_manual_create_account"),  # 測試-人工創建帳號
+    AdminTestCase("test_manual_create_account_delete"),  # 測試-刪除人工創建帳號
+    AdminTestCase("test_group_delete"),  # 測試-刪除群組
+
 ]
 
-Integral_exchange_related_list = [
+exchange_related_list = [
     WebTestCase("test_manual_deposit_and_withdraw"),  # 測試-人工存入&人工提出積分
     # ======================積分兌換=====================================
-    # =========順付積分兌換==========
+    # ---------- 順付 ---------
     WebTestCase("test_exchange_wellpay"),  # 測試-綁定正確的錢包並兌換積分 (順付)
     AdminTestCase("test_exchange_success_recode"),   # 測試-順付成功積分紀錄
     WebTestCase("test_exchange_wellpay_incorrect"),  # 測試-綁定錯誤的錢包並兌換積分 (順付)
     AdminTestCase("test_exchange_fail_recode"),  # 測試-順付返還積分紀錄
-    # =========平臺積分兌換==========
+    # ---------- 平臺 ---------
     WebTestCase("test_exchange_brand"),  # 測試-綁定平臺SC,兌換積分,確認兌換紀錄
 
-    # ======================紅包相關======================================
+]
+red_envelope_related_list = [
     AdminTestCase("test_add_redenvelope"),  # 測試-[後台]新增紅包
     AdminTestCase("test_check_red_envelope"),  # 測試-[後台]檢查紅包詳情
     WebTestCase("test_grab_red_envelope"),  # 測試-[前台]搶紅包
@@ -126,9 +147,7 @@ Integral_exchange_related_list = [
     WebTestCase("test_auto_grab_red_envelope"),  # 測試-[前台]自動搶一般紅包
     AdminTestCase("add_auto_grad_luck_red_envelope_then_check_water_control"),  # 測試-[後台]新增拚手氣紅包並檢查水量
     WebTestCase("test_auto_grab_luck_red_envelope"),  # 測試-[前台]自動搶拚手氣紅包
-
 ]
-
 # TestCase frame add
 suite = unittest.TestSuite()
 
@@ -156,9 +175,10 @@ if __name__ == "__main__":
     gl.set_value('PUSH', push)
 
     # TestCase add
-    # suite.addTests(web_regression_list)
-    # suite.addTests(admin_regression_list)
-    suite.addTests(Integral_exchange_related_list)
+    suite.addTests(web_regression_list)
+    suite.addTests(admin_regression_list)
+    suite.addTests(exchange_related_list)
+    suite.addTests(red_envelope_related_list)
 
     # RunningTest
     Utils.unittest_xml(suite)

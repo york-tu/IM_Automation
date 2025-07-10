@@ -8,7 +8,7 @@ from Project.chat.web.pages.admin.admin_basepage import BasePage
 class WaterControlPageLocator:
     # 通用
     page_title = (By.XPATH, '//div[@class="page-title"]')
-    search_btn = (By.XPATH, "//span[text()=' 搜寻 ']")
+    search_btn = (By.XPATH, "//span[text()='搜寻']")
     close_btn = (By.XPATH ,"//span[text()='关闭']")
 
     # 搜尋欄位
@@ -38,9 +38,9 @@ class WaterControlPageLocator:
     data_edit_original_water = (By.XPATH, "//label[text()='原水量']/..//span")
     data_edit_water_control = (By.XPATH, "//label[text()='水量编辑']/..//input")
 
-    data_detail_save_btn = (By.XPATH, "//span[text()='保存']")
-    data_detail_btn = (By.XPATH, "//table[@class='el-table__body']//tr[1]//span[text()=' 详情 ']")
-    data_waterControl_btn = (By.XPATH, "//table[@class='el-table__body']//tr[1]//span[text()=' 水量编辑 ']")
+    data_detail_save_btn = (By.XPATH, "//span[text()='储存']")
+    data_detail_btn = (By.XPATH, "//table[@class='el-table__body']//tr[1]//span[text()=' 详情']")
+    data_waterControl_btn = (By.XPATH, "//table[@class='el-table__body']//tr[1]//span[text()='水量编辑']")
 
     data_total_line = (By.XPATH, "//span[@class='el-pagination__total']")
     
@@ -73,10 +73,11 @@ class WaterControlPage(BasePage):
         self.click(WaterControlPageLocator.data_detail_btn)
         self.wait_loading_finish()
         assert self.get_text(WaterControlPageLocator.data_detail_title) == member_name, f'標題有誤'
-        assert self.get_text(WaterControlPageLocator.data_detail_original_water) == original_water, f'原水量有誤'
+        assert self.get_text(WaterControlPageLocator.data_detail_original_water) == original_water, f'原水量有誤, 預期:{original_water}, 實際:{self.get_text(WaterControlPageLocator.data_detail_original_water)}'
         assert self.get_text(WaterControlPageLocator.data_detail_after_water) == after_water, f'水量餘額有誤'
-        assert self.get_text(WaterControlPageLocator.data_detail_operate) == f'发拼手气红包: -{total_cost}', f'操作內容有誤'
-        assert self.get_text(WaterControlPageLocator.data_detail_time) == operate_time, f'操作時間有誤'
+        assert self.get_text(WaterControlPageLocator.data_detail_operate) == f'发拼手气红包: -{total_cost}', f'操作內容有誤,預期-{total_cost},實際{self.get_text(WaterControlPageLocator.data_detail_operate)}'
+        actual_time = self.get_text(WaterControlPageLocator.data_detail_time)[:-3].replace("/", "-")
+        assert actual_time == operate_time.replace("/", "-"), f'操作時間有誤, 預期: {operate_time.replace("/", "-")}, 實際: {actual_time}'
         assert self.get_text(WaterControlPageLocator.data_detail_operate_ID) == member_name, f'操作ID有誤'
         assert self.get_text(WaterControlPageLocator.data_detail_operate_name) == member_name, f'操作名稱有誤'
 

@@ -1,3 +1,4 @@
+import re
 from datetime import datetime
 from time import sleep
 from airtest.core.api import text, touch
@@ -6,7 +7,7 @@ from configs.app.setting import Setting
 from Project.chat.app.pages.base_page import Base
 from Project.chat.app.pages.xpath.xpath_base import Xpath_Base
 from Project.chat.app.pages.point_page import PointPageLocator
-from Project.chat.app.pages.main_page import MainPageLocator
+
 import logging
 import common.utils.globalvar as gl
 
@@ -82,8 +83,8 @@ class ChatRoomPageLocator:
     )
 
     menu_reply = base.check_device(
-        Android=base.data_collation(type_kind='text', type_name='回覆'),
-        iOS=base.data_collation(type_kind='name', type_name='回覆'),
+        Android=base.data_collation(type_kind='text', type_name='回复'),
+        iOS=base.data_collation(type_kind='name', type_name='回复'),
     )
 
     menu_pin = base.check_device(
@@ -273,7 +274,6 @@ class ChatRoomPageLocator:
         iOS=base.data_collation(type_kind='text', type_name='退出群组')
     )
 
-
     red_envelope_system_message = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tv_event_name', num=-1),
         iOS=base.data_collation(type_kind='name', type_name='xxx')
@@ -294,10 +294,56 @@ class ChatRoomPageLocator:
         iOS=base.data_collation(type_kind='name', type_name='xxx')
     )
 
-    red_envelope_close_btn = base.check_device(
+    close_btn = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/iv_close'),
         iOS=base.data_collation(type_kind='name', type_name='xxx')
     )
+
+    # =========== 語音 ============
+    mic_btn = base.check_device(
+        Android=base.data_collation(type_kind='text', type_name='语音'),
+        iOS=base.data_collation(type_kind='name', type_name='xxx')
+    )
+    record_voice_btn = base.check_device(
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/iv_audio_state'),
+        iOS=base.data_collation(type_kind='name', type_name='xxx')
+    )
+    record_count = base.check_device(
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tv_count'),
+        iOS=base.data_collation(type_kind='name', type_name='xxx')
+    )
+    last_voice_message = base.check_device(
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tv_duration', num=-1),
+        iOS=base.data_collation(type_kind='name', type_name='xxx')
+    )
+    popup_title = base.check_device(
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tv_title', num=-1),
+        iOS=base.data_collation(type_kind='type', type_name='StaticText', num=1)
+    )
+
+    # =========== 檔案 ============
+    file_btn = base.check_device(
+        Android=base.data_collation(type_kind='text', type_name='档案'),
+        iOS=base.data_collation(type_kind='name', type_name='xxx')
+    )
+    file_first_name = base.check_device(
+        Android=base.data_collation(type_kind='name', type_name='android:id/title'),
+        iOS=base.data_collation(type_kind='name', type_name='xxx')
+    )
+    confirm_msg_content = base.check_device(
+        Android=base.data_collation(type_kind='name', type_name='android:id/message'),
+        iOS=base.data_collation(type_kind='name', type_name='xxx')
+    )
+    confirm_msg_send_btn = base.check_device(
+        Android=base.data_collation(type_kind='text', type_name='传送'),
+        iOS=base.data_collation(type_kind='name', type_name='xxx')
+    )
+    last_chatroom_filename = base.check_device(
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tv_filename', num=-1),
+        iOS=base.data_collation(type_kind='name', type_name='xxx')
+    )
+
+
 
     @staticmethod
     def message_locator(message, num=-1):
@@ -307,6 +353,24 @@ class ChatRoomPageLocator:
         )
 
         return message_path
+
+    @staticmethod
+    def folder_file_index(num=-1):
+        folder_file_path = ChatRoomPageLocator.base.check_device(
+            Android=ChatRoomPageLocator.base.data_collation(type_kind='name', type_name='android:id/title', num=num),
+            iOS=ChatRoomPageLocator.base.data_collation(type_kind='name', type_name='', num=num),
+        )
+
+        return folder_file_path
+
+    @staticmethod
+    def chatroom_file_index(app_package, num=-1):
+        chatroom_file_message_path = ChatRoomPageLocator.base.check_device(
+            Android=ChatRoomPageLocator.base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tv_filename', num=num),
+            iOS=ChatRoomPageLocator.base.data_collation(type_kind='name', type_name='', num=num),
+        )
+
+        return chatroom_file_message_path
 
     @staticmethod
     def message_emoji_locator(message):
@@ -348,36 +412,39 @@ class ChatRoomPage(Base):
             assert title[2:] == '详情', f'進入設定頁面有誤'
 
     def send_message(self, message):
-        if self.common.poco_exists(ChatRoomPageLocator.message_input_empty):
-            if not self.poco(name='下一个键盘').exists():
-                self.common.poco_click(ChatRoomPageLocator.message_input)
+        if self.phone_platform.lower() == 'ios':
+            # if not self.poco(name='下一个键盘').exists():
+            #     self.common.poco_click(ChatRoomPageLocator.message_input)
             self.common.poco_send_text(ChatRoomPageLocator.message_input, message)
             self.common.poco_click(ChatRoomPageLocator.send_message_btn)
-            # self.wait_loading_finish()
+        else:
+            self.common.poco_send_text(ChatRoomPageLocator.message_input, message)
+            self.common.poco_click(ChatRoomPageLocator.send_message_btn)
             if self.common.poco_exists(ChatRoomPageLocator.retry_send_message_btn):
                 self.common.poco_click(ChatRoomPageLocator.retry_send_message_btn)
-            if self.phone_platform.lower() == 'android':
-                last_room_msg = self.common.poco_get_text(ChatRoomPageLocator.last_message_room)
-                assert last_room_msg == message, f'發送聊天訊息有誤, 預期: {message}, 實際:{last_room_msg}'
+            last_room_msg = self.common.poco_get_text(ChatRoomPageLocator.last_message_room)
+            assert last_room_msg == message, f'發送聊天訊息有誤, 預期: {message}, 實際:{last_room_msg}'
 
-                # ========================== for ios =======================================
-                # if message.__contains__('http'):
-                #     last_room_msg = self.poco(type='Table').child(type='Cell')[-1].child()[-2].attr('name')
-                # else:
-                #     last_room_msg = self.poco(type='Table').child(type='Cell')[-1].child().child().attr('name')
-                #
-                # assert last_room_msg == message, f'發送聊天訊息有誤, 預期: {message}, 實際:{last_room_msg}'
+            # ========================== for ios =======================================
+            # if message.__contains__('http'):
+            #     last_room_msg = self.poco(type='Table').child(type='Cell')[-1].child()[-2].attr('name')
+            # else:
+            #     last_room_msg = self.poco(type='Table').child(type='Cell')[-1].child().child().attr('name')
+            #
+            # assert last_room_msg == message, f'發送聊天訊息有誤, 預期: {message}, 實際:{last_room_msg}'
 
     def send_text_message(self):
-        if self.common.poco_exists(ChatRoomPageLocator.send_message_btn):
-            if self.phone_platform.lower() == 'ios':
-                self.poco(type='Other')[-1].click()
+        if self.phone_platform.lower() == 'android':
+            if self.common.poco_exists(ChatRoomPageLocator.send_message_btn):
+                self.common.poco_click(ChatRoomPageLocator.message_input)
+                self.common.poco_send_text(ChatRoomPageLocator.message_input, 'clear_text')
+                self.common.poco_click(ChatRoomPageLocator.send_message_btn)
             else:
                 self.common.poco_click(ChatRoomPageLocator.message_input)
-            self.common.poco_send_text(ChatRoomPageLocator.message_input, 'clear_text')
-            self.common.poco_click(ChatRoomPageLocator.send_message_btn)
         else:
+            # self.poco(type='Other')[-1].click()
             self.common.poco_click(ChatRoomPageLocator.message_input)
+
         messages = '測試TeSt12345!@#$%测试'
         num = 0
         for _ in range(0, 6):
@@ -458,7 +525,7 @@ class ChatRoomPage(Base):
         if self.phone_platform.lower() == 'ios':
             title = self.common.poco_get_text(ChatRoomPageLocator.reply_name)
             reply_message = self.common.poco_get_text(ChatRoomPageLocator.reply_message)
-            assert title.__contains__(f'回覆')  # 確認訊息回覆時標題為"回覆{原訊息發話成員}}"
+            assert title.__contains__(f'回复')  # 確認訊息回覆時標題為"回覆{原訊息發話成員}}"
             assert message == reply_message, f'回覆訊息預覽有誤'  # 確認原訊息
 
             if self.common.poco_exists(ChatRoomPageLocator.message_input_empty):
@@ -472,7 +539,8 @@ class ChatRoomPage(Base):
                 # b1 = self.poco(type='Cell')[-1].child(type='StaticText')[0].attr('name')
                 original_msg_user = self.poco(nameMatches='gu.*')[-1].attr('value')
                 replied_msg = self.common.poco_get_text(ChatRoomPageLocator.last_message_room)
-                assert original_msg_user == title[2:], f'訊息回覆對象有錯, result:{original_msg_user}, expect: {title[2:]}'  # 確認聊天室內訊息回覆框原文發話成員
+                aaa = title[3:]
+                assert original_msg_user == title[3:], f'訊息回覆對象有錯, result:{original_msg_user}, expect:{title[3:]}'  # 確認聊天室內訊息回覆框原文發話成員
                 assert replied_msg == '回覆訊息测试Test', f'回覆訊息內容有誤, result:{replied_msg}, expect: 回覆訊息测试Test'
                 # assert self.poco(type='TextView')[-2].attr('value') == '回覆訊息測試Test', f'回覆訊息內容有誤'  # 確認回覆文字
 
@@ -491,13 +559,50 @@ class ChatRoomPage(Base):
                 assert self.common.poco_get_text(
                     ChatRoomPageLocator.last_message_room) == '回覆訊息测试Test', f'回覆訊息內容有誤'
 
+    def reply_voice_message(self, message):
+        self.common.poco_long_click(ChatRoomPageLocator.message_locator(message))
+        self.common.poco_click(ChatRoomPageLocator.menu_reply)
+
+        title = self.common.poco_get_text(ChatRoomPageLocator.reply_name)
+        reply_message = self.common.poco_get_text(ChatRoomPageLocator.reply_message)
+        assert title.__contains__('回复'), f'訊息回覆標題有誤'
+        assert message == reply_message, f'回覆訊息預覽有誤'
+
+        if self.common.poco_exists(ChatRoomPageLocator.message_input_empty):
+            self.common.poco_send_text(ChatRoomPageLocator.message_input, '回覆語音訊息Test')
+            self.common.poco_click(ChatRoomPageLocator.send_message_btn)
+
+            assert title.__contains__(
+                self.common.poco_get_text(ChatRoomPageLocator.author_name)), f'訊息回覆標題有誤'
+            assert self.common.poco_get_text(
+                ChatRoomPageLocator.last_message_room) == '回覆語音訊息Test', f'回覆訊息內容有誤'
+
+    def reply_file_message(self, message):
+        self.common.poco_long_click(ChatRoomPageLocator.message_locator(message))
+        self.common.poco_click(ChatRoomPageLocator.menu_reply)
+
+        title = self.common.poco_get_text(ChatRoomPageLocator.reply_name)
+        reply_message = self.common.poco_get_text(ChatRoomPageLocator.reply_message)
+        assert title.__contains__('回复'), f'訊息回覆標題有誤'
+        assert message == reply_message, f'回覆訊息預覽有誤'
+
+        if self.common.poco_exists(ChatRoomPageLocator.message_input_empty):
+            self.common.poco_send_text(ChatRoomPageLocator.message_input, '回覆檔案訊息测试Test')
+            self.common.poco_click(ChatRoomPageLocator.send_message_btn)
+
+            assert title.__contains__(
+                self.common.poco_get_text(ChatRoomPageLocator.author_name)), f'訊息回覆標題有誤'
+            assert self.common.poco_get_text(
+                ChatRoomPageLocator.last_message_room) == '回覆檔案訊息测试Test', f'回覆訊息內容有誤'
+
     def check_reply_title(self, message):
         assert self.common.poco_exists(ChatRoomPageLocator.message_locator(message)), f'回覆原訊息遺失 顯示有誤'
 
-    def delete_message(self, message, last_message='', num=-1):
-        self.common.poco_click(ChatRoomPageLocator.message_locator(message, num))
+    def delete_message(self, message, last_message='', num=-1, is_voice=None, is_file=None):
+        sleep(3)
         self.common.poco_long_click(ChatRoomPageLocator.message_locator(message, num))
         self.common.poco_click(ChatRoomPageLocator.menu_delete)
+        sleep(1)
         self.common.poco_click(ChatRoomPageLocator.popup_btn)
         self.wait_loading_finish()
         assert self.common.poco_wait_disappearance(ChatRoomPageLocator.message_locator(message)) is False, f'刪除訊息失敗'
@@ -505,12 +610,24 @@ class ChatRoomPage(Base):
         if last_message == '':
             pass
         else:
-            assert self.common.poco_get_text(ChatRoomPageLocator.last_message_room) == last_message, f'實際:{self.common.poco_get_text(ChatRoomPageLocator.last_message_room)}, 預期:{last_message}'
+            if is_voice:
+                assert self.common.poco_get_text(ChatRoomPageLocator.last_voice_message) == last_message
+            elif is_file:
+                assert self.common.poco_get_text(ChatRoomPageLocator.last_chatroom_filename) == last_message
+            else:
+                assert self.common.poco_get_text(
+                    ChatRoomPageLocator.last_message_room) == last_message, f'實際:{self.common.poco_get_text(ChatRoomPageLocator.last_message_room)}, 預期:{last_message}'
 
-    def get_last_message(self):
+    def get_last_message(self, is_voice=False, is_file=False):
         # ========== for ios method ==========
         # last_message_method_1 = self.poco(type='TextView')[-3].attr('name')
-        return self.common.poco_get_text(ChatRoomPageLocator.last_message_room)
+        sleep(3)
+        if is_voice:
+            return self.common.poco_get_text(ChatRoomPageLocator.last_voice_message)
+        elif is_file:
+            return self.common.poco_get_text(ChatRoomPageLocator.last_chatroom_filename)
+        else:
+            return self.common.poco_get_text(ChatRoomPageLocator.last_message_room)
 
     def revoke_message(self, message, num=-1):
         self.common.poco_long_click(ChatRoomPageLocator.message_locator(message, num))
@@ -551,7 +668,7 @@ class ChatRoomPage(Base):
 
     def pin_full_messages(self):
         message = '測試TeSt12345!@#$%测试#'
-        pin_sort = [2, 4, 5, 1, 0, 3]
+        pin_sort = [3, 0, 1, 2, 5, 4]
 
         times = 1
         expected_list = []
@@ -692,14 +809,62 @@ class ChatRoomPage(Base):
             assert self.common.poco_get_text(ChatRoomPageLocator.emoji_count) == 1
 
     def app_grab_red_envelope(self, user_name):
+        self.wait_loading_finish()
         self.common.poco_click(ChatRoomPageLocator.red_envelope_message)
         self.common.poco_click(ChatRoomPageLocator.red_envelope_open_btn)
         grab_time = datetime.now().strftime("%Y-%m-%d %H:%M")
         grab_amount = self.common.poco_get_text(ChatRoomPageLocator.red_envelope_amount)
         if grab_amount.endswith('.0'):
             grab_amount = grab_amount[:-2]
-        self.common.poco_click(ChatRoomPageLocator.red_envelope_close_btn)
+        self.common.poco_click(ChatRoomPageLocator.close_btn)
         a = self.common.poco_get_text(ChatRoomPageLocator.red_envelope_system_message)
         assert self.common.poco_get_text(ChatRoomPageLocator.red_envelope_system_message) == f'{user_name} 领取了红包 {grab_amount}', f'系統紅包訊息錯誤, 實際:{a}, 預期:{user_name} 领取了红包 {grab_amount}'
         self.common.poco_click(ChatRoomPageLocator.back_btn)
         return grab_amount, grab_time
+
+    def send_voice_message(self, record_length):
+        length = int(record_length)
+        sleep(3)
+        if self.common.poco_exists(ChatRoomPageLocator.mic_btn):
+            self.common.poco_click(ChatRoomPageLocator.mic_btn)
+        else:
+            self.common.poco_click(ChatRoomPageLocator.add_function_btn)
+            self.common.poco_click(ChatRoomPageLocator.mic_btn)
+        assert self.common.poco_get_text(ChatRoomPageLocator.popup_title) == "点击以进行录音", f'錄音初始介面有誤'
+
+        self.common.poco_click(ChatRoomPageLocator.record_voice_btn)
+        sleep(length)
+        self.common.poco_click(ChatRoomPageLocator.record_voice_btn)
+        if length < 9:
+            expect_result = f"00:0{length+1}"
+        else:
+            expect_result = f"00:{length + 1}"
+        actual_result = self.common.poco_get_text(ChatRoomPageLocator.record_count)
+        assert self.common.poco_get_text(ChatRoomPageLocator.record_count) == expect_result, f'語音長度有誤, 預期:{expect_result}, 實際:{actual_result}'
+
+        self.common.poco_click(ChatRoomPageLocator.send_message_btn)
+        self.common.poco_click(ChatRoomPageLocator.close_btn)
+        assert self.common.poco_get_text(ChatRoomPageLocator.last_voice_message) == expect_result, f'聊天室內語音長度有誤'
+
+    def send_file_message(self, file_index):
+        if self.common.poco_exists(ChatRoomPageLocator.file_btn):
+            self.common.poco_click(ChatRoomPageLocator.file_btn)
+        else:
+            self.common.poco_click(ChatRoomPageLocator.add_function_btn)
+            self.common.poco_click(ChatRoomPageLocator.file_btn)
+
+        file_name = self.common.poco_get_text(ChatRoomPageLocator.folder_file_index(file_index))
+        self.common.poco_click(ChatRoomPageLocator.folder_file_index(file_index))
+        # self.common.poco_click(ChatRoomPageLocator.chatroom_file_index(ChatRoomPageLocator.app_package, file_index))
+
+        confirm_msg_content = self.common.poco_get_text(ChatRoomPageLocator.confirm_msg_content)
+        assert confirm_msg_content == f'您要传送『{file_name}』吗？'
+        self.common.poco_click(ChatRoomPageLocator.confirm_msg_send_btn)
+        sleep(5)
+        actual_chatroom_filename = self.common.poco_get_text(ChatRoomPageLocator.last_chatroom_filename)
+        assert actual_chatroom_filename == file_name, f'檔案名稱錯誤, 預期:{file_name},實際:{actual_chatroom_filename}'
+
+
+
+
+

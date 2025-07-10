@@ -10,7 +10,7 @@ from Project.chat.web.pages.admin.admin_basepage import BasePage
 class RedEnvelopePageLocator:
     # 通用
     page_title = (By.XPATH, '//div[@class="page-title"]')
-    search_btn = (By.XPATH, "//span[text()=' 搜寻 ']")
+    search_btn = (By.XPATH, "//span[text()='搜寻']")
     redenvelope_type = (By.XPATH, '//label[text()="红包种类"]/..//span[@class="el-input__suffix-inner"]')
 
     # LOADING
@@ -24,7 +24,7 @@ class RedEnvelopePageLocator:
     redenvelope_type_normal = (By.XPATH, '//div[@aria-hidden="false"]//span[text()="发红包"]')
     redenvelope_type_lucky = (By.XPATH, '//div[@aria-hidden="false"]//span[text()="手气红包"]')
 
-    add_redenvelope_btn = (By.XPATH, "//span[text()=' 新增红包 ']")
+    add_redenvelope_btn = (By.XPATH, "//span[text()='新增红包']")
 
     # 資料欄位
     data_drop_menu = (By.XPATH, "//tr[1]//td[1]//i")
@@ -36,7 +36,7 @@ class RedEnvelopePageLocator:
     data_red_type = (By.XPATH, "//tr[1]//td[6]")
     data_chatroom = (By.XPATH, "//tr[1]//td[7]")
     data_initiate_member = (By.XPATH, "//tr[1]//td[8]")
-    data_detail = (By.XPATH, "//tr[1]//span[text()=' 详情 ']")  # 列表第一行
+    data_detail = (By.XPATH, "//tr[1]//span[text()='详情']")  # 列表第一行
     data_copy = (By.XPATH, "//tr[1]//span[text()='复制']")  # 列表第一行
     data_edit = (By.XPATH, "//tr[1]//span[text()='编辑']")  # 列表第一行
     data_cancel =(By.XPATH, "//tr[1]//span[text()='取消']")  # 列表第一行
@@ -80,10 +80,13 @@ class RedEnvelopePageLocator:
     add_red_select_all = (By.XPATH, '//span[text()="全选"]')
     add_auto_grad_member = (By.XPATH, '//label[text()="请选择自动领取"]/..//span[@class="el-input__suffix-inner"]')
     add_red_select_member_select = (By.XPATH, '//div[@aria-hidden="false"]//span[text()="gubot02"]')
-    add_red_remind = (By.XPATH, '//p[text()=" 確定執行？"]')
+    add_red_remind = (By.XPATH, '//p[text()=" 确定执行？"]')
 
     add_red_add_btn = (By.XPATH, '//span[text()="新增"]')
-    add_red_confirm_btn = (By.XPATH, '//span[text()="確定"]')
+    add_red_confirm_btn = (By.XPATH, '//div[@class="el-popconfirm"]//span[text()="确定"]')
+    # '//div[@class="el-popconfirm"]//span[text()="确定"]'
+    add_envelope_fail_toast = (By.XPATH, '//div[@class="el-message el-message--error"]')  # 新增紅包失敗toast
+    add_envelope_pass_toast = (By.XPATH, '//div[@class="el-message el-message--success"]')  # 新增紅包成功toast
 
     add_red_lucky = (By.XPATH, '//div[@aria-hidden="false"]//span[text()="拼手气红包"]')
 
@@ -103,17 +106,17 @@ class RedEnvelopePageLocator:
     luck_award_3 = (By.XPATH, "//div[@class='my-3 px-2'][3]//input[@placeholder='请输入金额']")
     luck_statement_total_amount = (By.XPATH, "(//p[text()='总计']/../p[@class='text-container totals'])[2]")
 
-    luck_add_award = (By.XPATH, "//span[text()=' 设置下一奖项 ']")
+    luck_add_award = (By.XPATH, "//span[text()='设置下一奖项']")
     luck_now_initial = (By.XPATH, "//span[text()='即刻发布']/..//span[@class='el-checkbox__inner']")
     luck_select_all = (By.XPATH, "//span[text()='全选']")
-    luck_delete_btn = (By.XPATH, "//span[text()=' 删除奖项 ']")
+    luck_delete_btn = (By.XPATH, "//span[text()='删除奖项']")
     luck_award_calculate = (By.XPATH, "//span[text()='奖项计算']")
     luck_award_calculate_results = (By.XPATH, '//*[@id="app"]/div/div/div[2]/div/div/div/div[3]/div/div[3]/div')
-    luck_detail = (By.XPATH, "//span[text()='明細']")
+    luck_detail = (By.XPATH, "//span[text()='明细']")
 
     luck_single_picture = (By.XPATH, '//label[text()="单图"]/..//span[@class="el-radio__input"]')
-    luck_detail_save = (By.XPATH, "//span[text()='保存']")
-    luck_detail_close = (By.XPATH, "(//span[text()='關閉'])[2]")
+    luck_detail_save = (By.XPATH, "//span[text()='储存']")
+    luck_detail_close = (By.XPATH, "(//span[text()='关闭'])[2]")
 
 
 class RedEnvelopePage(BasePage):
@@ -130,7 +133,7 @@ class RedEnvelopePage(BasePage):
             self.click(RedEnvelopePageLocator.add_red_end_time)
             end_time = (datetime.datetime.now()+datetime.timedelta(hours=1)).strftime("%Y-%m-%d %H:%M")
             self.type(RedEnvelopePageLocator.add_red_end_time, end_time)
-            self.click(RedEnvelopePageLocator.add_red_confirm_time)
+            self.click(RedEnvelopePageLocator.add_auto_grad_member)
             self.click(RedEnvelopePageLocator.add_initiate_ID)
             self.wait_loading_finish()
             self.click(RedEnvelopePageLocator.add_initiate_ID_select)
@@ -153,16 +156,16 @@ class RedEnvelopePage(BasePage):
         self.wait_loading_finish()
         if self.is_element_finded(RedEnvelopePageLocator.add_redenvelope_btn) is True:
             self.click(RedEnvelopePageLocator.add_redenvelope_btn)
-            self.wait_loading_finish()
+            sleep(1)
             self.click(RedEnvelopePageLocator.add_red_start_time)
             start_time = (datetime.datetime.now() + datetime.timedelta(minutes=1)).strftime("%Y-%m-%d %H:%M")
             self.type(RedEnvelopePageLocator.add_red_start_time, start_time)
-            self.click(RedEnvelopePageLocator.add_red_confirm_time)
+            self.click(RedEnvelopePageLocator.add_auto_grad_member)
             self.click(RedEnvelopePageLocator.add_initiate_ID)
-            self.wait_loading_finish()
+            sleep(1)
             self.click(RedEnvelopePageLocator.add_initiate_ID_select)
             self.click(RedEnvelopePageLocator.add_chatroom)
-            self.wait_loading_finish()
+            sleep(1)
             self.click(RedEnvelopePageLocator.add_chatroom_select)
             self.click(RedEnvelopePageLocator.add_red_package)
             self.type(RedEnvelopePageLocator.add_red_package, str(random.randint(10,20)))
@@ -171,7 +174,7 @@ class RedEnvelopePage(BasePage):
             self.sleep(1)
             self.click(RedEnvelopePageLocator.add_red_select_all)
             self.click(RedEnvelopePageLocator.add_red_add_btn)
-            self.wait_loading_finish()
+            sleep(1)
             if self.is_element_finded(RedEnvelopePageLocator.add_red_remind) is True:
                 self.click(RedEnvelopePageLocator.add_red_confirm_btn)
         sleep(60)
@@ -180,26 +183,26 @@ class RedEnvelopePage(BasePage):
         self.wait_loading_finish()
         if self.is_element_finded(RedEnvelopePageLocator.add_redenvelope_btn) is True:
             self.click(RedEnvelopePageLocator.add_redenvelope_btn)
-            self.wait_loading_finish()
+            sleep(1)
             self.click(RedEnvelopePageLocator.redenvelope_type)
-            self.wait_loading_finish()
+            sleep(1)
             self.click(RedEnvelopePageLocator.add_red_lucky)
-            self.wait_loading_finish()
+            sleep(1)
             if self.is_element_finded(RedEnvelopePageLocator.luck_delete_btn):
                 self.click(RedEnvelopePageLocator.add_chatroom)
-                self.wait_loading_finish()
+                sleep(1)
                 self.click(RedEnvelopePageLocator.add_chatroom_select)
                 self.click(RedEnvelopePageLocator.add_initiate_ID)
-                self.wait_loading_finish()
+                sleep(1)
                 self.click(RedEnvelopePageLocator.add_initiate_ID_select)
                 self.click(RedEnvelopePageLocator.add_red_select_all)
                 self.type(RedEnvelopePageLocator.luck_award_high, str(random.randint(10,100)))
                 self.click(RedEnvelopePageLocator.luck_now_initial)
                 self.click(RedEnvelopePageLocator.luck_award_calculate)
-                self.wait_loading_finish()
+                sleep(1)
                 self.click(RedEnvelopePageLocator.luck_single_picture)
                 self.click(RedEnvelopePageLocator.add_red_add_btn)
-                self.wait_loading_finish()
+                sleep(1)
                 if self.is_element_finded(RedEnvelopePageLocator.add_red_remind) is True:
                     self.click(RedEnvelopePageLocator.add_red_confirm_btn)
         sleep(60)
@@ -212,7 +215,7 @@ class RedEnvelopePage(BasePage):
             self.click(RedEnvelopePageLocator.add_red_start_time)
             start_time = (datetime.datetime.now() + datetime.timedelta(minutes=1)).strftime("%Y-%m-%d %H:%M")
             self.type(RedEnvelopePageLocator.add_red_start_time, start_time)
-            self.click(RedEnvelopePageLocator.add_red_confirm_time)
+            self.click(RedEnvelopePageLocator.add_auto_grad_member)
             self.click(RedEnvelopePageLocator.add_initiate_ID)
             self.wait_loading_finish()
             self.click(RedEnvelopePageLocator.add_initiate_ID_select)
@@ -236,37 +239,47 @@ class RedEnvelopePage(BasePage):
         result_text = ''
         self.wait_loading_finish()
         if self.is_element_finded(RedEnvelopePageLocator.add_redenvelope_btn) is True:
-            self.click(RedEnvelopePageLocator.add_redenvelope_btn)
-            self.wait_loading_finish()
-            self.click(RedEnvelopePageLocator.redenvelope_type)
-            self.wait_loading_finish()
-            self.click(RedEnvelopePageLocator.add_red_lucky)
-            self.wait_loading_finish()
-            if self.is_element_finded(RedEnvelopePageLocator.luck_delete_btn):
-                self.click(RedEnvelopePageLocator.add_chatroom)
+            add_envelope_success_flag = False
+            while add_envelope_success_flag is False:
+                self.click(RedEnvelopePageLocator.add_redenvelope_btn)
                 self.wait_loading_finish()
-                self.click(RedEnvelopePageLocator.add_chatroom_select)
-                self.click(RedEnvelopePageLocator.add_initiate_ID)
+                self.click(RedEnvelopePageLocator.redenvelope_type)
                 self.wait_loading_finish()
-                self.click(RedEnvelopePageLocator.add_initiate_ID_select)
-                self.click(RedEnvelopePageLocator.add_red_select_all)
-                self.type(RedEnvelopePageLocator.luck_award_high, '1')
-                self.click(RedEnvelopePageLocator.add_auto_grad_member)  # 自動領取下拉選單
-                self.click(RedEnvelopePageLocator.add_red_select_member_select)  # 設定自動領取人員為gubot02
-                self.click(RedEnvelopePageLocator.luck_award_high)
-                self.click(RedEnvelopePageLocator.luck_now_initial)
-                self.click(RedEnvelopePageLocator.luck_award_calculate)
+                self.click(RedEnvelopePageLocator.add_red_lucky)
                 self.wait_loading_finish()
-                result_text = self.get_text(RedEnvelopePageLocator.luck_award_calculate_results)
+                if self.is_element_finded(RedEnvelopePageLocator.luck_delete_btn):
+                    self.click(RedEnvelopePageLocator.add_chatroom)
+                    self.wait_loading_finish()
+                    self.click(RedEnvelopePageLocator.add_chatroom_select)
+                    self.click(RedEnvelopePageLocator.add_initiate_ID)
+                    self.wait_loading_finish()
+                    self.click(RedEnvelopePageLocator.add_initiate_ID_select)
+                    self.click(RedEnvelopePageLocator.add_red_select_all)
+                    self.type(RedEnvelopePageLocator.luck_award_high, '1')
+                    self.click(RedEnvelopePageLocator.add_auto_grad_member)  # 自動領取下拉選單
+                    self.click(RedEnvelopePageLocator.add_red_select_member_select)  # 設定自動領取人員為gubot02
+                    self.click(RedEnvelopePageLocator.luck_award_high)
+                    self.click(RedEnvelopePageLocator.luck_now_initial)
+                    self.click(RedEnvelopePageLocator.luck_award_calculate)
+                    self.wait_loading_finish()
+                    result_text = self.get_text(RedEnvelopePageLocator.luck_award_calculate_results)
 
-                self.click(RedEnvelopePageLocator.luck_single_picture)
-                self.click(RedEnvelopePageLocator.add_red_add_btn)
-                self.wait_loading_finish()
-                if self.is_element_finded(RedEnvelopePageLocator.add_red_remind) is True:
-                    self.click(RedEnvelopePageLocator.add_red_confirm_btn)
+                    self.click(RedEnvelopePageLocator.luck_single_picture)
+                    self.click(RedEnvelopePageLocator.add_red_add_btn)
 
-        total_cost = re.search(r"金額 (\d+\.\d+)", result_text).group(1)
-        return total_cost
+                    if self.is_element_finded(RedEnvelopePageLocator.add_red_remind) is True:
+                        self.click(RedEnvelopePageLocator.add_red_confirm_btn)
+
+                    sleep(3)
+                    if self.is_element_finded(RedEnvelopePageLocator.add_redenvelope_btn):
+                        add_envelope_success_flag = True
+                    else:
+                        self.refresh_browser()
+                        self.wait_loading_finish()
+        total_cost = re.search(r"金额\s*([0-9]+(?:\.[0-9]+)?)", result_text).group(1)
+        # total_cost = re.search(r"金額 (\d+\.\d+)", result_text).group(1)
+        # total_cost_format = str(total_cost).rstrip('0').rstrip('.')
+        return str(float(total_cost))
 
     def redenvelope_detail(self, wait_time_seconds):
         self.sleep(wait_time_seconds)
@@ -338,6 +351,12 @@ class RedEnvelopePage(BasePage):
                     self.click(RedEnvelopePageLocator.luck_detail_save)
                     self.click(RedEnvelopePageLocator.luck_detail_close)
                     self.click(RedEnvelopePageLocator.luck_single_picture)
+
+                    self.click(RedEnvelopePageLocator.luck_now_initial)
+                    sleep(0.5)
+                    self.click(RedEnvelopePageLocator.luck_now_initial)
+                    self.click(RedEnvelopePageLocator.luck_award_calculate)
+
                     self.click(RedEnvelopePageLocator.add_red_add_btn)
                     self.wait_loading_finish()
                     if self.is_element_finded(RedEnvelopePageLocator.add_red_remind) is True:
@@ -405,10 +424,14 @@ class RedEnvelopePage(BasePage):
         self.wait_loading_finish()
         if grab_type == '拼手气红包':
             grab_type = '手气红包'
-        self.click(RedEnvelopePageLocator.detail_type_sort_caret_descending)
+        # ======================== 紅包詳情頁搜尋目標人物 =====================
+        self.type(RedEnvelopePageLocator.detail_search_ID,grab_account)
+        self.click(RedEnvelopePageLocator.search_btn)
+        # =================================================================
+        aaa = self.get_text(RedEnvelopePageLocator.detail_list_ID)
         assert self.get_text(RedEnvelopePageLocator.detail_red_type_info) == f'红包种类:{grab_type}', f'紅包詳情頁種類錯誤'
-        assert self.get_text(RedEnvelopePageLocator.detail_list_ID) == grab_account, f'搶紅包人員有誤'
+        assert self.get_text(RedEnvelopePageLocator.detail_list_ID) == grab_account, f'搶紅包人員有誤, 預期{grab_account}, 實際:{self.get_text(RedEnvelopePageLocator.detail_list_ID)}'
         if grab_time is not None:
-            assert self.get_text(RedEnvelopePageLocator.detail_list_time) == grab_time, f'搶紅包時間有誤'
+            assert self.get_text(RedEnvelopePageLocator.detail_list_time)[:-3].replace("/", "-") == grab_time.replace("/", "-"), f'搶紅包時間有誤'
         assert self.get_text(RedEnvelopePageLocator.detail_list_type) == '已领取', f'紅包領取狀態有誤'
         assert self.get_text(RedEnvelopePageLocator.detail_list_point) == grab_amount, f'獲得積分有誤'

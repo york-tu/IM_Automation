@@ -63,7 +63,7 @@ class SharePage(Base):
                 if SharePageLocator.brand == 'chit':
                     assert share_list[0].__contains__('下载免费' + name + 'App，分享乐趣 一起畅聊!')
                 else:
-                    assert share_list[0].__contains__('加强好友间联系！下载免费' + name + 'App，串连好友')
+                    assert share_list[0].__contains__('加强好友间联系！下载免费' + name + 'App，串连好友'), f'預期:{name}, 實際:{ share_list[0]}'
 
                 self.common.poco_click(SharePageLocator.copy_btn)
                 self.wait_loading_finish()

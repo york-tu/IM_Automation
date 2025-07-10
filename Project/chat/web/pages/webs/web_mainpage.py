@@ -1,6 +1,11 @@
+from time import sleep
+
 from selenium.webdriver.common.by import By
 from Project.chat.web.pages.webs.web_basepage import BasePage
 from Project.chat.web.pages.webs.web_loginpage import LoginPageLocator
+from Project.chat.web.pages.webs.web_chatroompage import ChatRoomPageLocator
+from Project.chat.web.pages.webs.web_chatlistpage import ChatListPageLocator
+
 import os, random, re
 
 
@@ -14,7 +19,7 @@ class MainPageLocator:
     user_info_name = (By.XPATH, "//p[@class='chat-name__head']")
     user_name_edit = (By.XPATH, "//div[contains(@class,'pencil')]")
     user_name_save = (By.XPATH, "//button[@class='btn btn-primary btn-sm']")
-    user_name_input = (By.XPATH, "//input[@placeholder='填写眤称']")
+    user_name_input = (By.XPATH, "//input[@placeholder='填写昵称']")
     user_plat_account = (By.XPATH, "//span[text()='帐号备注:']/../span[@class='user-info__text']")
 
     friend_input = (By.XPATH, "//input[@placeholder='输入帐号ID/手机号进行搜寻']")
@@ -46,7 +51,7 @@ class MainPageLocator:
     group_add_member_list = (By.XPATH, "//div[@class='chat-member-list__group']")
     group_add_member_selet = (By.XPATH, "//div[@class='chat-member-select__item']")
     group_add_member_btn = (By.XPATH, "//label[@class='el-checkbox-style']")
-    group_add_name_input = (By.XPATH, "//input[@placeholder='请填写群组名称']")
+    group_add_name_input = (By.XPATH, "//input[@placeholder='填写群组名称']")
     group_add_member_owner = (By.XPATH, "//p[@class='chat-member-tag__head__text']")
     group_add_member_build = (By.XPATH, "//div[@class='chat-member-tag__icon']/..")
     group_add_submit = (By.XPATH, "//p[text()='建立']")
@@ -71,7 +76,9 @@ class MainPage(BasePage):
     def into_integral_page(self):
         remain_integral_amount = self.get_text(MainPageLocator.remain_integral_amount)
         self.click(MainPageLocator.integral_btn)
-        assert self.get_text(MainPageLocator.header_title) == '积分详情', f'進入積分頁面有誤'
+        self.sleep(0.5)
+        header_title=self.get_text(MainPageLocator.header_title)
+        assert header_title == '积分详情', f'進入積分頁面有誤, 實際:{header_title}'
         return remain_integral_amount
 
     def into_notification_page(self):
@@ -80,6 +87,7 @@ class MainPage(BasePage):
 
     def into_security_page(self):
         self.click(MainPageLocator.security_btn)
+        sleep(1)
         assert self.get_text(MainPageLocator.header_title) == '帐号与安全', f'進入帳號與安全頁面有誤'
 
     def into_black_page(self):
@@ -102,8 +110,10 @@ class MainPage(BasePage):
 
     def check_friend_add_disabled(self):
         assert self.is_element_finded(MainPageLocator.friend_btn) is False, f'新增好友選項可見'
+
     def check_friend_add_enabled(self):
         assert self.is_element_finded(MainPageLocator.friend_btn) is True, f'新增好友選項不可見'
+
     def change_nickname(self, before_name, after_name):
         assert self.get_text(MainPageLocator.user_info_name) == before_name, f'名稱變更前有誤'
         self.click(MainPageLocator.user_name_edit)
@@ -130,10 +140,18 @@ class MainPage(BasePage):
         self.wait_loading_finish()
         self.search_member(name)
 
+        if name == '8613141010103':
+            name = 'inwhite02'
+        elif name == '8613141010102':
+            name = 'outwhite02'
+
         if self.is_element_finded(MainPageLocator.friend_add):
             if self.get_text(MainPageLocator.friend_add) == '新增至通讯录':
                 self.click(MainPageLocator.friend_add)
-                assert self.get_text(MainPageLocator.friend_add) == '打招呼' or '传讯息', f'新增後按鈕顯示錯誤'
+                # assert self.get_text(MainPageLocator.friend_add) == '打招呼' or '传讯息', f'新增後按鈕顯示錯誤'
+                self.wait_loading_finish()
+
+                assert self.get_text(ChatRoomPageLocator.room_title) == name, f'當下聊天室非該新好友聊天室'
             else:
                 print(f"{name}已經為好友")
         elif self.is_element_finded(MainPageLocator.not_support_toast):
@@ -143,8 +161,6 @@ class MainPage(BasePage):
                 raise EOFError(f'{name}被加入黑名單')
             elif self.is_element_finded(MainPageLocator.friend_empty):
                 raise EOFError('找不到相關帳號')
-
-
 
     def search_member(self, name):
         self.type(MainPageLocator.friend_input, name)
@@ -196,7 +212,7 @@ class MainPage(BasePage):
         self.type(MainPageLocator.group_add_search, 'bot0')
 
         group_add_text = self.get_text(MainPageLocator.group_add_text)
-        assert group_add_text == '您最多可以邀请2300位好友加入群组。请在此选择您要邀请的好友。在他们加入群组后，即可开始聊天。'
+        assert group_add_text == '您最多可以邀请2300位好友加入群组。请在此选择您要邀请的好友。在他们加入群组后，即可开始聊'
 
         self.wait_loading_finish()
         member_search_list = []

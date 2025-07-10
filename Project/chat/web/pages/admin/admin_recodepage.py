@@ -13,7 +13,7 @@ class RecordPageLocator:
     add_chat_start_time = (By.XPATH, '//label[text()="查詢时间"]/..//input[@placeholder="开始日期"]')
     add_chat_end_time = (By.XPATH, '//label[text()="查詢时间"]/..//input[@placeholder="结束日期"]')
     today = (By.XPATH, "//td[contains(@class,'available today')]")
-    search_btn = (By.XPATH, "//span[text()=' 搜寻 ']")
+    search_btn = (By.XPATH, "//span[text()='搜寻']")
     check_btn = (By.XPATH, "//span[text()='查看']")
     last_message = (By.XPATH, '(//div[@class="wcr-list__msg"])[last()]')
 

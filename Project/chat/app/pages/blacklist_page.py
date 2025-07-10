@@ -194,11 +194,14 @@ class BlackListPage(Base):
             self.common.poco_click(BlackListPageLocator.black_remark_btn)
             assert self.common.poco_get_text(BlackListPageLocator.nickname_input) == 'Paradise_天堂', f'暱稱更換失敗'
 
-            self.common.poco_send_text(BlackListPageLocator.nickname_input, '')
+            self.common.poco_long_click(BlackListPageLocator.nickname_input)
+            self.poco(name='全选').click()
+            self.poco(name='剪切').click()
+
+            # self.common.poco_send_text(BlackListPageLocator.nickname_input, '')
             default_nickname = self.common.poco_get_text(BlackListPageLocator.nickname_input)
             self.common.poco_click(BlackListPageLocator.remark_submit)
             self.common.poco_click(BlackListPageLocator.black_remark_btn)
-            bbb = self.common.poco_get_text(BlackListPageLocator.nickname_input)
             assert self.common.poco_get_text(BlackListPageLocator.nickname_input) == default_nickname, f'暱稱預設失敗'
 
             self.common.poco_send_text(BlackListPageLocator.nickname_input, nick_name)

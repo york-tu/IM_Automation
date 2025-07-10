@@ -26,6 +26,11 @@ class BaseTestCase(UnittestModule):
     web_password = ''
     web_phone = ''
     web_nation = ''
+    wap_url = ''
+    wap_account = ''
+    wap_password = ''
+    wap_phone = ''
+    wap_nation = ''
     operate_account = ''
     operate_phone = ''
     admin_url = ''
@@ -38,6 +43,7 @@ class BaseTestCase(UnittestModule):
         cls.env = gl.get_value('ENV')
         cls.brand = gl.get_value('BRAND')
         cls.user = gl.get_value('USER')
+        cls.wap_version = gl.get_value('PHONE_PLATFORM')
 
     # 登入帳號
         cls.web_url = SettingChat().get_account(cls.env, cls.brand, cls.user)['web_url']
@@ -45,6 +51,12 @@ class BaseTestCase(UnittestModule):
         cls.web_password = SettingChat().get_account(cls.env, cls.brand, cls.user)['password']
         cls.web_phone = SettingChat().get_account(cls.env, cls.brand, cls.user)['web_phone']
         cls.web_nation = SettingChat().get_account(cls.env, cls.brand, cls.user)['nation']
+
+        cls.wap_url = SettingChat().get_account(cls.env, cls.brand, cls.user)['wap_url']
+        cls.wap_account = SettingChat().get_account(cls.env, cls.brand, cls.user)['wap_account']
+        cls.wap_password = SettingChat().get_account(cls.env, cls.brand, cls.user)['password']
+        cls.wap_phone = SettingChat().get_account(cls.env, cls.brand, cls.user)['wap_phone']
+        cls.wap_nation = SettingChat().get_account(cls.env, cls.brand, cls.user)['nation']
 
         cls.app_account = SettingChat().get_account(cls.env, cls.brand, cls.user)['app_account']
         cls.app_password = SettingChat().get_account(cls.env, cls.brand, cls.user)['password']

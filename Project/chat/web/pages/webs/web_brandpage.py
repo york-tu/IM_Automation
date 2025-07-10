@@ -46,8 +46,8 @@ class BrandPage(BasePage):
         self.wait_loading_finish()
         if self.is_element_finded(BrandPageLocator.popup_msg):
             self.click(BrandPageLocator.close_btn)
-        self.type(BrandPageLocator.login_id_input, 'cmtest006')
-        self.type(BrandPageLocator.login_pw_input, 'Heaven@4394')
+        self.type(BrandPageLocator.login_id_input, 'cmtest005')
+        self.type(BrandPageLocator.login_pw_input, 'ps43941122')
         self.type(BrandPageLocator.login_verify_code_input, '1')
         self.click(BrandPageLocator.login_btn)
         self.wait_loading_finish()
@@ -95,5 +95,5 @@ class BrandPage(BasePage):
         assert self.get_text(BrandPageLocator.result_list_type) == '优惠', f'入款類型錯誤'
         assert self.get_text(BrandPageLocator.result_list_before_money) == str(before_money), f'入款前原金額有誤, 預期:{before_money},實際:{self.get_text(BrandPageLocator.result_list_before_money)}'
         assert self.get_text(BrandPageLocator.result_list_deposit_amount) == str(deposit_amount), f'入款金額錯誤, 預期:{deposit_amount},實際:{self.get_text(BrandPageLocator.result_list_deposit_amount)}'
-        assert float(before_money) + float(deposit_amount) == float(after_money), f'入款後金額有誤, 前:{before_money}+入:{deposit_amount}=後:{after_money}'
+        assert round(float(before_money) + float(deposit_amount), 2) == round(float(after_money), 2), f'入款後金額有誤, 前:{before_money}+入:{deposit_amount}=後:{after_money}'
         assert self.get_text(BrandPageLocator.result_list_after_money) == str(after_money), f'入款後金額有誤, 預期:{after_money},實際:{self.get_text(BrandPageLocator.result_list_after_money)}'

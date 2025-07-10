@@ -34,12 +34,12 @@ class SecurityPageLocator:
 
     id_value = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tv_id'),
-        iOS=base.data_collation(type_kind='type', type_name='StaticText', num=1),
+        iOS=base.data_collation(type_kind='type', type_name='StaticText', num=2),
     )
 
     phone_value = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tv_phone'),
-        iOS=base.data_collation(type_kind='type', type_name='StaticText', num=3),
+        iOS=base.data_collation(type_kind='type', type_name='StaticText', num=4),
     )
 
     password_button = base.check_device(
@@ -82,12 +82,12 @@ class SecurityPage(Base):
         if self.phone_platform.lower() == 'ios':
             self.common.poco_click(SecurityPageLocator.password_input_check)
         self.common.poco_send_text(SecurityPageLocator.password_input_check, new_pwd)
-
+        sleep(3)
         if self.common.poco_exists(SecurityPageLocator.submit_button):
             if self.phone_platform.lower() == 'ios':
                 assert self.common.poco_get_attr(SecurityPageLocator.submit_button, 'isEnabled') == '1', f'更換密碼完成鍵disabled'
             else:
-                assert self.common.poco_get_attr(SecurityPageLocator.submit_button, 'enabled'), f'更換密碼完程鍵disabled'
+                assert self.common.poco_get_attr(SecurityPageLocator.submit_button, 'enabled'), f'更換密碼完成鍵disabled'
         self.common.poco_click(SecurityPageLocator.submit_button)
 
         if self.phone_platform.lower() == 'ios':

@@ -2,7 +2,6 @@ import os, sys, glob, platform, shutil, logging
 from selenium import webdriver
 root_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
 sys.path.append(root_path)
-from Project.lottery.configs.setting import Setting
 from configs.web.setting_chrome import Setting_Chrome
 import common.utils.globalvar as gl
 from jira.module.base_module import UnittestModule
@@ -12,7 +11,7 @@ import logging
 
 class WebDriver(UnittestModule):
     
-    def setting_driver(self, width, height, implicitly_wait_time=35, mode='', headless=1, is_wap=False):
+    def setting_driver(self, width, height, implicitly_wait_time=35, mode='', headless=1, is_wap=True):
         brand = gl.get_value('BRAND')
 
         if platform.system() == 'Windows': 
@@ -33,7 +32,8 @@ class WebDriver(UnittestModule):
         os.makedirs(path)
         
         self.chrome_path = Setting_Chrome().get_chromedriver_path_by_os()
-        self.chrome_option = Setting_Chrome().get_chrome_options(width=width, height=height, is_wap=is_wap, Headless=headless)
+        self.chrome_option = Setting_Chrome().get_chrome_options(width=width, height=height, _is_wap=is_wap, Headless=headless)
+
         prefs = {"download.default_directory": f"{path}"}
         self.chrome_option.add_experimental_option("prefs",prefs)
 
@@ -43,7 +43,9 @@ class WebDriver(UnittestModule):
             self.driver = webdriver.Chrome(executable_path=ChromeDriverManager().install(), chrome_options=self.chrome_option)
         else:
             self.driver = webdriver.Chrome(executable_path=self.chrome_path, chrome_options=self.chrome_option)
+
         self.driver.implicitly_wait(implicitly_wait_time)
+
         # self.driver.set_network_conditions(        # 測試慢網速用
         #     offline=False,
         #     latency=5,  # additional latency (ms)  defalut is 5

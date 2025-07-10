@@ -5,6 +5,7 @@ from common.app.common import Common
 from configs.app.setting import Setting
 from Project.chat.app.pages.base_page import Base
 from Project.chat.app.pages.xpath.xpath_base import Xpath_Base
+from Project.chat.app.pages.chatroom_page import ChatRoomPageLocator
 import logging
 import common.utils.globalvar as gl
 
@@ -39,7 +40,7 @@ class FriendPageLocator:
         iOS=base.data_collation(type_kind='name', type_name='找不到任何结果'),
     )
 
-    back_button = base.check_device(
+    back_btn = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/iv_back'),
         iOS=base.data_collation(type_kind='type', type_name='Button'),
     )
@@ -64,7 +65,7 @@ class FriendPageLocator:
         iOS=base.data_collation(type_kind='nameMatches', type_name='搜寻：.*'),
     )
 
-    add_friend_btn = base.check_device(
+    add_to_address_book_btn = base.check_device(
         Android=base.data_collation(type_kind='text', type_name='新增至通讯录'),
         iOS=base.data_collation(type_kind='name', type_name='新增至通讯录'),
     )
@@ -186,13 +187,21 @@ class FriendPageLocator:
 
     friend_block_button = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/sw_block'),
-        iOS=base.data_collation(type_kind='name', type_name='Switch', num=0),
+        iOS=base.data_collation(type_kind='type', type_name='Switch', num=0),
     )
 
     page_title = base.check_device(
         Android=base.data_collation(type_kind='text', type_name='name'),
         iOS=base.data_collation(type_kind='name', type_name='好友名单', num=0),
     )
+
+    # ============================== 社群化 ===================================
+    personal_social_homepage_btn = base.check_device(
+        Android=base.data_collation(type_kind='text', type_name='个人页面'),
+        iOS=base.data_collation(type_kind='name', type_name='个人页面'),
+    )
+
+
 class FriendPage(Base):
     phone_platform = gl.get_value('PHONE_PLATFORM')
 
@@ -200,14 +209,14 @@ class FriendPage(Base):
         assert self.common.poco_exists(FriendPageLocator.add_button), '新增好友鍵未顯示'
 
     def check_add_to_address_book_non_display(self):
-        assert not self.common.poco_exists(FriendPageLocator.add_friend_btn), f"預期不該顯示卻顯示'新增至通訊錄'選項"
+        assert not self.common.poco_exists(FriendPageLocator.add_to_address_book_btn), f"預期不該顯示卻顯示'新增至通訊錄'選項"
 
     def check_add_to_address_book_display(self):
-        assert self.common.poco_exists(FriendPageLocator.add_friend_btn), "預期該顯示但未顯示'新增至通訊錄'選項"
+        assert self.common.poco_exists(FriendPageLocator.add_to_address_book_btn), "預期該顯示但未顯示'新增至通訊錄'選項"
 
     def return_previous_page(self, count=1):
         for i in range(0, count):
-            self.common.poco_click(FriendPageLocator.back_button)
+            self.common.poco_click(FriendPageLocator.back_btn)
 
     def search_new_friend(self, name):
         if self.common.poco_exists(FriendPageLocator.search_clear):
@@ -222,7 +231,7 @@ class FriendPage(Base):
             self.common.poco_click(FriendPageLocator.add_friend_search)
         self.wait_loading_finish()
 
-        if self.common.poco_exists(FriendPageLocator.add_friend_btn):
+        if self.common.poco_exists(FriendPageLocator.add_to_address_book_btn):
             return True
         else:
             return False
@@ -244,7 +253,13 @@ class FriendPage(Base):
                 self.common.poco_click(FriendPageLocator.team_list_frist)
 
     def add_myself(self, number, nation):
+        if gl.get_value('ENV').lower() == 'uat':
+            self_id = "gubot03"
+        else:
+            self_id = "gutest001"
+
         full_number = ''
+
         if nation == "TW":
             full_number = '886' + str(number)
         elif nation == "CN":
@@ -260,8 +275,8 @@ class FriendPage(Base):
                 self.common.poco_click(FriendPageLocator.add_friend_search)
             else:
                 self.common.poco_click(FriendPageLocator.add_friend_input)
-                self.common.poco_send_text(FriendPageLocator.add_friend_input, 'gubot03')
-                self.poco(name='Search').click()
+                self.common.poco_send_text(FriendPageLocator.add_friend_input, self_id)
+                self.common.poco_click(FriendPageLocator.add_friend_search)
         assert self.common.poco_exists(FriendPageLocator.add_myself_popup), f'未顯示增加自己好友錯誤彈窗'
         self.common.poco_click(FriendPageLocator.add_myself_button)
 
@@ -349,10 +364,11 @@ class FriendPage(Base):
             # ============================= 將暱稱刪除, 欄位留空, 使用預設暱稱 ==========================
             self.common.poco_click(FriendPageLocator.friend_remark_btn)
             self.common.poco_send_text(FriendPageLocator.nickname_input, '')
+            sleep(3)
             default_nickname = self.common.poco_get_text(FriendPageLocator.nickname_input)
             self.common.poco_click(FriendPageLocator.remark_submit)
             aaa = self.common.poco_get_text(FriendPageLocator.friend_nickname)
-            assert self.common.poco_get_text(FriendPageLocator.friend_nickname) == default_nickname, f'暱稱預設失敗'
+            assert self.common.poco_get_text(FriendPageLocator.friend_nickname) == default_nickname, f'暱稱預設失敗, 預期:{default_nickname},實際:{aaa}'
 
             # ============================= 將預設暱稱改為原暱稱 =======================================
             self.common.poco_click(FriendPageLocator.friend_remark_btn)
@@ -361,35 +377,35 @@ class FriendPage(Base):
             if self.common.poco_exists(FriendPageLocator.friend_nickname):
                 assert self.common.poco_get_text(FriendPageLocator.friend_nickname) == original_nick_name, f'暱稱更換失敗'
 
-    def add_friend(self):
-        original_nickname = self.common.poco_get_text(FriendPageLocator.friend_nickname)
-        self.common.poco_click(FriendPageLocator.add_friend_btn)
-        if self.phone_platform.lower() == 'ios':
-            self.common.poco_click(FriendPageLocator.nickname_input)
-            self.common.poco_click(FriendPageLocator.search_clear)
-        self.common.poco_send_text(FriendPageLocator.nickname_input, 'tengyuntech_騰雲科技')
-        self.common.poco_click(FriendPageLocator.add_friend_submit)
+    def add_friend(self, nickname):
+        # original_nickname = self.common.poco_get_text(FriendPageLocator.friend_nickname)
+        self.common.poco_click(FriendPageLocator.add_to_address_book_btn)
+        # if self.phone_platform.lower() == 'ios':
+        #     self.common.poco_click(FriendPageLocator.nickname_input)
+        #     self.common.poco_click(FriendPageLocator.search_clear)
+        # self.common.poco_send_text(FriendPageLocator.nickname_input, 'tengyuntech_騰雲科技')
+        # self.common.poco_click(FriendPageLocator.add_friend_submit)
+        # self.wait_loading_finish()
+        # assert self.common.poco_exists(FriendPageLocator.friend_first_chat), f'新好友沒有出現打招呼選項'
+        # assert self.common.poco_get_text(FriendPageLocator.friend_nickname) == 'tengyuntech_騰雲科技', f'暱稱更換失敗'
+
+        # self.common.poco_click(FriendPageLocator.friend_remark_btn)  # 設定備註
+        #
+        # if self.phone_platform.lower() == 'android':
+        #     while not self.poco(text='全选').exists():
+        #         self.common.poco_long_click(FriendPageLocator.nickname_input)
+        #     self.poco(text='全选').click()
+        #     sleep(1)
+        #     self.poco(text='剪切').click()
+        # else:
+        #     self.common.poco_click(FriendPageLocator.nickname_input)
+        #     self.common.poco_click(FriendPageLocator.search_clear)
+        # self.common.poco_click(FriendPageLocator.remark_submit)
+        # assert self.common.poco_get_text(FriendPageLocator.friend_nickname) == original_nickname, f'暱稱預設失敗'
         self.wait_loading_finish()
-        assert self.common.poco_exists(FriendPageLocator.friend_first_chat), f'新好友沒有出現打招呼選項'
-        assert self.common.poco_get_text(FriendPageLocator.friend_nickname) == 'tengyuntech_騰雲科技', f'暱稱更換失敗'
-
-        self.common.poco_click(FriendPageLocator.friend_remark_btn)  # 設定備註
-
-        if self.phone_platform.lower() == 'android':
-            while not self.poco(text='全选').exists():
-                self.common.poco_long_click(FriendPageLocator.nickname_input)
-            self.poco(text='全选').click()
-            sleep(1)
-            self.poco(text='剪切').click()
-        else:
-            self.common.poco_click(FriendPageLocator.nickname_input)
-            self.common.poco_click(FriendPageLocator.search_clear)
-        self.common.poco_click(FriendPageLocator.remark_submit)
-        assert self.common.poco_get_text(FriendPageLocator.friend_nickname) == original_nickname, f'暱稱預設失敗'
-        self.wait_loading_finish()
-
-        for _ in range(2):
-            self.common.poco_click(FriendPageLocator.back_button)
+        assert self.common.poco_get_text(ChatRoomPageLocator.options_title) == nickname
+        if self.common.poco_exists(ChatRoomPageLocator.back_btn):
+            self.common.poco_click(ChatRoomPageLocator.back_btn)
 
     def delete_friend(self, name):
         self.search_friend(name)
@@ -400,8 +416,7 @@ class FriendPage(Base):
             if self.phone_platform.lower() == 'ios':
                 popup_message = self.common.poco_get_attr(FriendPageLocator.friend_popup_message, 'value')
                 assert popup_message == f'将联络人「{name}」删除，同时删除与该联络人的聊天记录', f'刪除彈窗訊息有誤'
-
-                self.poco(type='Other')[39].child(name='删除').click()
+                self.poco(type='Other')[-3].child(name='删除').click()
                 self.common.poco_click(FriendPageLocator.search_input)
                 self.common.poco_click(FriendPageLocator.search_clear)
 
@@ -420,8 +435,9 @@ class FriendPage(Base):
         self.common.poco_click(FriendPageLocator.friend_setting_button)
         if self.phone_platform.lower() == 'ios':
             self.common.poco_long_click(FriendPageLocator.friend_block_button)
-            assert self.poco(name='ScrollView')[0].children()[0].children()[0].children()[0].children()[0].attr(
-                'name') == '加入黑名单，你将不再收到对方的讯息，对方也无法查看你。', f'黑名單彈窗訊息有誤'
+            string = self.poco(name='ScrollView')[0].children()[0].children()[0].children()[0].children()[0].attr(
+                'name')
+            assert string == '加入黑名单，你将不再收到对方的讯息，对方也无法查看你。', f'黑名單彈窗訊息有誤'
             self.common.poco_click(FriendPageLocator.friend_popup_submit)
             assert self.poco(type='Switch')[0].attr('value') == '1', f'未成功加入黑名單'
 
@@ -436,14 +452,19 @@ class FriendPage(Base):
         self.common.poco_click(FriendPageLocator.impeach_radio)
         self.common.poco_click(FriendPageLocator.impeach_agree)
 
-    def add_friend_frist_chat(self):
-        self.common.poco_click(FriendPageLocator.add_friend_btn)
+    def add_friend_first_chat(self):
+        self.common.poco_click(FriendPageLocator.add_to_address_book_btn)
         self.common.poco_click(FriendPageLocator.add_friend_submit)
         self.wait_loading_finish()
 
-        if self.common.poco_exists(FriendPageLocator.friend_frist_chat):
-            self.common.poco_click(FriendPageLocator.friend_frist_chat)
+        if self.common.poco_exists(FriendPageLocator.friend_first_chat):
+            self.common.poco_click(FriendPageLocator.friend_first_chat)
 
     def back_to_friends_page(self):
         for _ in range(2):
-            self.common.poco_click(FriendPageLocator.back_button)
+            self.common.poco_click(FriendPageLocator.back_btn)
+
+
+
+
+

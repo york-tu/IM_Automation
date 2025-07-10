@@ -98,14 +98,14 @@ class MemberPageLocator:
     )
 
     nick_name_input = base.check_device(
-        Android=base.data_collation(type_kind='text', type_name='填写眤称'),
-        iOS=base.data_collation(type_kind='name', type_name='TextField'),
-    )
-    nickname_column = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/et_input_text'),
         iOS=base.data_collation(type_kind='name', type_name='TextField'),
     )
-    self_introduction_column = base.check_device(
+    main_nickname_display = base.check_device(
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tv_nickname'),
+        iOS=base.data_collation(type_kind='name', type_name='TextField'),
+    )
+    self_introduction_input = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/et_introduction'),
         iOS=base.data_collation(type_kind='name', type_name='TextView', num=-1),
     )
@@ -121,13 +121,22 @@ class MemberPageLocator:
         Android=base.data_collation(type_kind='text', type_name='编辑主页'),
         iOS=base.data_collation(type_kind='name', type_name='编辑主页'),
     )
+
     back_btn = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/iv_back'),
         iOS=base.data_collation(type_kind='name', type_name='返回'),
     )
-    main_description = base.check_device(
-        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':tv_description'),
+    main_description_display = base.check_device(
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tv_content'),
         iOS=base.data_collation(type_kind='name', type_name='back'),
+    )
+    toast_wordings = base.check_device(
+        Android=base.data_collation(type_kind='textMatches', type_name='请勿包含.*'),
+        iOS=base.data_collation(type_kind='', type_name=''),
+    )
+    toast_confirm_btn = base.check_device(
+        Android=base.data_collation(type_kind='text', type_name='确定'),
+        iOS=base.data_collation(type_kind='', type_name=''),
     )
 
 class MemberPage(Base):
@@ -169,67 +178,89 @@ class MemberPage(Base):
         assert self.common.poco_wait_exists(MemberPageLocator.about_check), f'進入關於聊天頁面錯誤'
 
     def get_nickname(self):
-        data = self.common.poco_get_text(MemberPageLocator.nickname_column)
+        data = self.common.poco_get_text(MemberPageLocator.main_description_display)
         return data
 
     def get_self_introduction(self):
-        data = self.common.poco_get_text(MemberPageLocator.self_introduction_column)
+        data = self.common.poco_get_text(MemberPageLocator.main_nickname_display)
         return data
 
     def change_nickname(self, new_nickname):
-        self.common.poco_click(MemberPageLocator.nickname_column)  # 點 暱稱欄位
+        self.common.poco_click(MemberPageLocator.nick_name_input)  # 點 暱稱欄位
         self.common.poco_click(MemberPageLocator.clear_button)  # 在暱稱頁面 > 點[x]清除欄位
         if self.phone_platform.lower() == 'android':
             self.common.poco_send_text(MemberPageLocator.nick_name_input, new_nickname)
+            self.common.poco_click(MemberPageLocator.save_btn)
             sleep(3)
-            user_name = self.common.poco_get_text(MemberPageLocator.nickname_column)
-            assert user_name == new_nickname, f'編輯主頁_暱稱修改失敗'
+            user_name = self.common.poco_get_text(MemberPageLocator.main_nickname_display)
+            assert user_name == new_nickname, f'編輯主頁_暱稱修改失敗, 預期{new_nickname},實際{user_name}'
             if self.common.poco_wait_exists(MemberPageLocator.back_btn):
                 self.common.poco_click(MemberPageLocator.back_btn)
         else:
             self.common.poco_send_text(MemberPageLocator.nick_name_input, new_nickname)
             sleep(3)
-            user_name = self.common.poco_get_attr(MemberPageLocator.nickname_column, 'value')
-            assert user_name == new_nickname, f'編輯主頁_暱稱修改失敗'
+            user_name = self.common.poco_get_attr(MemberPageLocator.main_nickname_display, 'value')
+            assert user_name == new_nickname, f'編輯主頁_暱稱修改失敗, 預期{new_nickname},實際{user_name}'
             self.common.poco_click(MemberPageLocator.user_id_title)
             self.common.poco_click(MemberPageLocator.save_btn)
 
-        sleep(1)
-        main_nickname = self.common.poco_get_text(MainPageLocator.main_nickname)
-        assert main_nickname == new_nickname, f'個人主頁_個人暱稱顯示錯誤'
+        sleep(2)
+        if self.phone_platform.lower() == 'android':
+            main_nickname = self.common.poco_get_text(MainPageLocator.main_nickname)
+        else:
+            main_nickname = self.poco(type="StaticText").attr('value')
+
+        assert main_nickname == new_nickname, f'個人主頁_個人暱稱顯示錯誤, 預期{new_nickname},實際{main_nickname}'
         self.common.poco_click(MemberPageLocator.edit_profile_btn)
 
     def change_introduction(self, text):
-        self.common.poco_click(MemberPageLocator.self_introduction_column)  # 點 個人簡介欄位
-        self.common.poco_long_click(MemberPageLocator.self_introduction_column)  # 在暱稱頁面 > 點[x]清除欄位
+        self.common.poco_click(MemberPageLocator.self_introduction_input)  # 點 個人簡介欄位
+        self.common.poco_long_click(MemberPageLocator.self_introduction_input)  # 在暱稱頁面 > 點[x]清除欄位
 
         if self.phone_platform == 'Android':
             self.poco(text='全选').click()
-            self.common.poco_send_text(MemberPageLocator.self_introduction_column, text)
+            self.common.poco_send_text(MemberPageLocator.self_introduction_input, text)
+            self.common.poco_click(MemberPageLocator.save_btn)
             sleep(3)
-            self_instruction = self.common.poco_get_text(MemberPageLocator.self_introduction_column)
+            self_instruction = self.common.poco_get_text(MemberPageLocator.main_description_display)
             assert self_instruction == text, f'編輯主頁_個人簡介編輯錯誤'
             self.poco.swipe([0.5, 0.1], [0.5, 0.5], duration=0.1)
 
             if self.common.poco_wait_exists(MemberPageLocator.back_btn):
                 self.common.poco_click(MemberPageLocator.back_btn)
         else:
+            self.common.poco_long_click(MemberPageLocator.self_introduction_input)
+            sleep(1)
             self.poco(name='全选').click()
-            self.common.poco_send_text(MemberPageLocator.self_introduction_column, text)
+            self.common.poco_send_text(MemberPageLocator.self_introduction_input, text)
             sleep(3)
-            self_instruction = self.common.poco_get_attr(MemberPageLocator.self_introduction_column, 'value')
+            self_instruction = self.common.poco_get_attr(MemberPageLocator.main_description_display, 'value')
 
             assert self_instruction == text, f'編輯主頁_個人簡介編輯錯誤'
 
             self.common.poco_click(MemberPageLocator.user_id_title)
             self.common.poco_click(MemberPageLocator.save_btn)
 
-        sleep(1)
+        sleep(3)
         main_description = self.common.poco_get_text(MainPageLocator.main_description)
-        assert main_description == text, f'個人主頁_個人簡介顯示錯誤'
+        assert main_description == text, f'個人主頁_個人簡介顯示錯誤, 預期{text},實際{main_description}'
         self.common.poco_click(MemberPageLocator.edit_profile_btn)
 
+    def input_block_words_then_check_toast(self, block_words):
+        self.common.poco_click(MemberPageLocator.self_introduction_input)  # 點 個人簡介欄位
+        for _ in range(3):
+            self.common.poco_long_click(MemberPageLocator.self_introduction_input)  # 在暱稱頁面 > 點[x]清除欄位
+            sleep(1)
 
+        if self.phone_platform == 'Android':
+            self.poco(text='全选').click()
+            self.common.poco_send_text(MemberPageLocator.self_introduction_input, block_words)
+            self.common.poco_click(MemberPageLocator.save_btn)
+            actual_wordings = self.common.poco_get_text(MemberPageLocator.toast_wordings)
+            assert actual_wordings == f'请勿包含{block_words}', '錯誤訊息有誤'
+            self.common.poco_click(MemberPageLocator.toast_confirm_btn)
+            self.wait_loading_finish()
+            self.common.poco_click(MemberPageLocator.back_btn)
 
 
 

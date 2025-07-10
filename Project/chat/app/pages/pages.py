@@ -53,6 +53,10 @@ class AppPages:
         from Project.chat.app.pages.security_page import SecurityPage
         return SecurityPage(*self.pages_parameter)
 
+    def privacyPage(self):
+        from Project.chat.app.pages.privacy_page import PrivacyPage
+        return PrivacyPage(*self.pages_parameter)
+
     def chatsetupPage(self):
         from Project.chat.app.pages.chatsetup_page import ChatSetupPage
         return ChatSetupPage(*self.pages_parameter)
@@ -68,7 +72,26 @@ class AppPages:
     def treadandgalleryPage(self):
         from Project.chat.app.pages.trend_gallery_page import TreadAndGalleryPage
         return TreadAndGalleryPage(*self.pages_parameter)
+    def socialhomePage(self):
+        from Project.chat.app.pages.social_homepage import SocialHomePage
+        return SocialHomePage(*self.pages_parameter)
+    def socialmediapostPage(self):
+        from Project.chat.app.pages.social_media_post_page import SocialMediaPostPage
+        return SocialMediaPostPage(*self.pages_parameter)
+    def socialmedialibraryPage(self):
+        from Project.chat.app.pages.social_media_library_page import SocialMediaLibraryPage
+        return SocialMediaLibraryPage(*self.pages_parameter)
+    def socialsharePage(self):
+        from Project.chat.app.pages.social_sharepage import SocialSharePage
+        return SocialSharePage(*self.pages_parameter)
+    def socialsearchPage(self):
+        from Project.chat.app.pages.social_search_page import SocialSearchPage
+        return SocialSearchPage(*self.pages_parameter)
 
-    def mediareleasePage(self):
-        from Project.chat.app.pages.media_release_page import MediaReleasePage
-        return MediaReleasePage(*self.pages_parameter)
+    def discoverPages(self):
+        from Project.chat.app.pages.discover_page import DiscoverPage
+        return DiscoverPage(*self.pages_parameter)
+
+    def freeupspacePage(self):
+        from Project.chat.app.pages.free_up_spcae_page import FreeUpSpacePage
+        return FreeUpSpacePage(*self.pages_parameter)

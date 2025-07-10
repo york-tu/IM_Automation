@@ -31,16 +31,20 @@ class ChatListPage(BasePage):
 
 			assert self.get_text(ChatListPageLocator.chat_room_title) == name , f"進入聊天室有誤"
 
-	def check_last_message(self):
+	def check_last_message(self, message_type='txt'):
 		self.sleep(0.5)
-		room_last_msg = self.get_text(ChatListPageLocator.chat_room_last_msg)
 		list_last_msg = self.get_text(ChatListPageLocator.chat_list_msg_frist)
+		if message_type == 'txt':
+			room_last_msg = self.get_text(ChatListPageLocator.chat_room_last_msg)
+			assert room_last_msg == list_last_msg, f"列表最後一筆訊息有誤 應為: {room_last_msg} 顯示為: {list_last_msg}"
+		elif message_type == 'file':
+			assert list_last_msg == '[档案讯息]', f"列表最後一筆訊息有誤 應為: [档案讯息] 顯示為: {list_last_msg}"
 
-		assert room_last_msg == list_last_msg , f"列表最後一筆訊息有誤 應為: {room_last_msg} 顯示為: {list_last_msg}"
+
 	
 	def check_group_build(self, user_id, name):
 		self.wait_loading_finish()
 
 		system_message = self.get_text(ChatListPageLocator.system_message)
-		message = user_id + '已建立「' + name + '」群组' 
+		message = user_id + ' 已建立「' + name + '」群组'
 		assert system_message == message , f"列表最後一筆訊息有誤 應為: {system_message} 顯示為: {message}"

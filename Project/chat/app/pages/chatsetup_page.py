@@ -197,9 +197,9 @@ class ChatSetupPage(Base):
     def into_group_member_list(self):
         if self.common.poco_exists(ChatSetupPageLocator.member_count):
             self.common.poco_click(ChatSetupPageLocator.member_btn)
-        self.wait_loading_finish()
+        sleep(3)
         title = self.common.poco_get_text(ChatSetupPageLocator.options_title)
-        assert title == '成員', f'進入 成員列表有誤'
+        assert title == '成员', f'進入成員列表有誤, 實際{title}'
 
     def search_block_member(self, target_member):
         if self.common.poco_exists(ChatSetupPageLocator.member_serch_clear):
@@ -216,7 +216,7 @@ class ChatSetupPage(Base):
             self.common.poco_click(ChatSetupPageLocator.member_add_rule)
 
         title = self.common.poco_get_text(ChatSetupPageLocator.options_title)
-        assert title == '成員', f'進入 成員列表有誤'
+        assert title == '成员', f'進入成員列表有誤'
 
     def into_group_black(self):
         detail_page_original_black_amount = self.common.poco_get_text(ChatSetupPageLocator.black_amount)
@@ -240,7 +240,9 @@ class ChatSetupPage(Base):
         self.wait_loading_finish()
         self.common.poco_click(ChatSetupPageLocator.member_add_radio)
         self.common.poco_click(ChatSetupPageLocator.options_next)
-        assert self.common.poco_get_text(ChatSetupPageLocator.popup_message) == f'将{block_name}加入黑名單嗎？\n加入黑名單將被移除群组，並不可再次加入', f'加入黑名單成員/文案錯誤'
+        aaa = self.common.poco_get_text(ChatSetupPageLocator.popup_message)
+        bbb = f'将{block_name}加入黑名單嗎？\n加入黑名單將被移除群组，並不可再次加入'
+        assert self.common.poco_get_text(ChatSetupPageLocator.popup_message) == f'将{block_name}加入黑名单吗？\n加入黑名單將被移除群组，並不可再次加入', f'加入黑名單成員/文案錯誤'
 
         self.common.poco_click(ChatSetupPageLocator.popup_btn)
         _text = self.common.poco_get_text(ChatSetupPageLocator.member_text)
@@ -476,8 +478,7 @@ class ChatSetupPage(Base):
 
             self.wait_loading_finish()
 
-            assert self.common.poco_get_text(
-                ChatSetupPageLocator.member_edit_btn) == '编辑', f'權限開啟 成員列標沒有出現編輯'
+            assert self.common.poco_get_text(ChatSetupPageLocator.member_edit_btn) == '编辑', f'權限開啟 成員列標沒有出現編輯'
             self.common.poco_click(ChatSetupPageLocator.member_edit_btn)
 
             assert self.common.poco_exists(ChatSetupPageLocator.member_delete_btn)

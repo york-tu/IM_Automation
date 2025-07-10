@@ -25,7 +25,7 @@ class Setting_Chrome:
             Headless = 0
             return Headless
 
-    def get_chrome_options(self, width, height, is_wap, Headless = 1):
+    def get_chrome_options(self, width, height, _is_wap, Headless = 1):
         headless_mode = self.get_headless_mode(Headless)
         chrome_options = webdriver.ChromeOptions()
         chrome_options.add_argument('--window-size=%s,%s' % (str(width), str(height)))
@@ -38,13 +38,28 @@ class Setting_Chrome:
         chrome_options.add_argument("--disable-backgrounding-occluded-windows")
         # 限制selenium本身的Error LOG噴出(無關測試腳本問題)
         chrome_options.add_argument("--log-level=3")
+        # chrome_options.add_argument("--auto-open-devtools-for-tabs")
 
-        if is_wap:
+        chrome_options.add_argument("--disable-infobars")
+        chrome_options.add_argument("--start-maximized")
+        chrome_options.add_argument("--disable-notifications")
+        chrome_options.add_argument("--disable-popup-blocking")
+        chrome_options.add_argument("--disable-save-password-bubble")
+
+        prefs = {
+            "credentials_enable_service": False,
+            "profile.password_manager_enabled": False,
+            "profile.default_content_setting_values.media_stream_mic": 1,
+        }
+        chrome_options.add_experimental_option("prefs", prefs)
+
+        if _is_wap:
             mobile_emulation = {
-                "deviceMetrics": {"width": 375, "height": 850, "pixelRatio": 3.0},  # 定義設備高寬，象素比
-                "userAgent": "Mozilla/5.0 (Linux; Android 4.2.1; en-us; Nexus 5 Build/JOP40D) "  # 通過UA來模擬
+                "deviceName": "iPhone 12 Pro"
             }
             chrome_options.add_experimental_option("mobileEmulation", mobile_emulation)
+            # mobile_ua = "Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X) AppleWebKit/537.36 (KHTML, like Gecko) Version/14.0 Mobile/15E148 Safari/604.1"
+            # chrome_options.add_argument(f"user-agent={mobile_ua}")
 
         if headless_mode == 1:
             chrome_options.add_argument('--headless')
