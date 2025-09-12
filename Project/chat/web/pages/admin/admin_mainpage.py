@@ -56,6 +56,8 @@ class MainPageLocator:
     menu_system_app_setting = (By.XPATH, "//a[text()=' APP/Web设定']")  # APP 設定
     register_with_social_account = (By.XPATH, "//label[text()='品牌帐号']")  # 品牌帐号選項
     geetest = (By.XPATH, "//label[text()='极验']")  # 极验選項
+    geetest_on = (By.XPATH, '(//label[text()="极验"]/..//span[text() = "开启"])')  # 极验: 開
+    geetest_off = (By.XPATH, '(//label[text()="极验"]/..//span[text() = "关闭"])')  # 极验: 關
     user_contact_whitelist = (By.XPATH, "//label[text()='会员添加好友']")  # 会员添加好友選項
     add_friend_by_search_phone = (By.XPATH, "//label[text()='手机号搜索添加好友']")  # 手机号搜索添加好友選項
 
@@ -282,6 +284,18 @@ class MainPage(BasePage):
         assert self.is_element_finded(MainPageLocator.geetest), "沒有顯示'極驗'選項"
         assert self.is_element_finded(MainPageLocator.user_contact_whitelist), "沒有顯示'會会员添加好友'選項"
         assert self.is_element_finded(MainPageLocator.add_friend_by_search_phone), "沒有顯示'手机号搜索添加好友'選項"
+
+    def enable_geetest(self, enable=True):
+        if enable:
+            self.click(MainPageLocator.geetest_on)
+            if self.is_element_finded(MainPageLocator.save_btn):
+                self.click(MainPageLocator.save_btn)
+                self.click(MainPageLocator.save_confirm_btn)
+        else:
+            self.click(MainPageLocator.geetest_off)
+            if self.is_element_finded(MainPageLocator.save_btn):
+                self.click(MainPageLocator.save_btn)
+                self.click(MainPageLocator.save_confirm_btn)
 
     def check_member_add_friend_tip(self):
         aaa = self.get_text(MainPageLocator.member_add_friend_tip)

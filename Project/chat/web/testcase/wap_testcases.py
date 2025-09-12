@@ -24,11 +24,14 @@ class WapTestCase(BaseTestCase):
     chrome_crash = 0
     folder_path = ''
     group_name = datetime.now().strftime("%y%m%d") + "_bot_group"
+    mail_account_id = f'mail{datetime.now().strftime("%m%d%H%M")}'
+    security_code = 111111
     function_dict = {}
     driver_list = []
+
     brand = gl.get_value('BRAND')
-    security_code = 111111
     env = gl.get_value('ENV')
+    account_type = gl.get_value('ACCOUNT_TYPE')
 
     # ================================= TestSetting ================================
 
@@ -38,6 +41,7 @@ class WapTestCase(BaseTestCase):
         cls.setting_browser()
         current_wap_version = cls.function_dict['wap'].wapMainPage().return_wap_version()  # 獲取web版本號
         gl.set_value('APP_VERSION', current_wap_version)
+
 
     def setUp(self):
         for key, function in self.function_dict.items():
@@ -124,7 +128,10 @@ class WapTestCase(BaseTestCase):
         self.test_all_windows_mini()
         self.function_dict['wap'].basePage().windows_to_top(full=True)  # 切換視窗
         self.function_dict['wap'].basePage().open_base_url()  # 開啟wap網頁
-        self.function_dict['wap'].wapLoginPage().login(self.wap_phone, self.wap_password, self.web_nation)
+        if 'mail' in self.account_type.lower():
+            self.function_dict['wap'].wapLoginPage().login(self.mail_address, self.mail_password, login_method='mail')
+        elif 'phone' in self.account_type.lower():
+            self.function_dict['wap'].wapLoginPage().login(self.wap_phone, self.wap_password, self.web_nation)
 
     # 登出
     @DecorateClass('CHATAPP-T3206')
@@ -177,13 +184,24 @@ class WapTestCase(BaseTestCase):
         self.function_dict['wap'].wapMainPersonalPage().change_password(self.wap_password, new_pwd)
         self.test_wap_logout()
 
-        self.function_dict['wap'].wapLoginPage().login(self.wap_phone, new_pwd, self.wap_nation)
+        self.function_dict['wap'].basePage().open_base_url()  # 開啟wap網頁
+
+        if 'mail' in self.account_type.lower():
+            self.function_dict['wap'].wapLoginPage().login(self.mail_address, new_pwd, login_method='mail')
+        elif 'phone' in self.account_type.lower():
+            self.function_dict['wap'].wapLoginPage().login(self.wap_phone, new_pwd, self.wap_nation)
+
         self.function_dict['wap'].wapMainPersonalPage().into_main_setting_page()
         self.function_dict['wap'].wapMainPersonalPage().into_security_page()
         self.function_dict['wap'].wapMainPersonalPage().change_password(new_pwd, self.wap_password)
         self.test_wap_logout()
 
-        self.function_dict['wap'].wapLoginPage().login(self.wap_phone, self.wap_password, self.wap_nation)
+        self.function_dict['wap'].basePage().open_base_url()  # 開啟wap網頁
+
+        if 'mail' in self.account_type.lower():
+            self.function_dict['wap'].wapLoginPage().login(self.mail_address, self.mail_password, login_method='mail')
+        elif 'phone' in self.account_type.lower():
+            self.function_dict['wap'].wapLoginPage().login(self.wap_phone, self.wap_password, self.wap_nation)
 
     # 更改自己暱稱 & 個人簡介
     @DecorateClass('CHATAPP-T3219')
@@ -423,30 +441,48 @@ class WapTestCase(BaseTestCase):
     # 群組-發送文字訊息+超連結
     @DecorateClass('CHATAPP-T3233')
     def test_group_send_message(self):
+        account = ''
+        if 'mail' in self.account_type.lower():
+            account = self.mail_account
+        elif 'phone' in self.account_type.lower():
+            account = self.wap_account
+
         self.test_wap_login()
         group = 'QA_bot_only'
         self.function_dict['wap'].wapMessagePage().into_chat_room(group)
         # ======================= 發送"訊息"測試 =================================================
         last_text = self.function_dict['wap'].wapMessagePage().send_text_message()
-        self.function_dict['wap'].wapMessagePage().check_chatroom_list_last_message(f'{self.wap_account}: {last_text}')
+        self.function_dict['wap'].wapMessagePage().check_chatroom_list_last_message(f'{account}: {last_text}')
         # ======================= 發送"超連結"測試 ===============================================
         self.function_dict['wap'].wapMessagePage().into_chat_room(group)
         last_url = self.function_dict['wap'].wapMessagePage().send_url_message()
-        self.function_dict['wap'].wapMessagePage().check_chatroom_list_last_message(f'{self.wap_account}: {last_url}')
+        self.function_dict['wap'].wapMessagePage().check_chatroom_list_last_message(f'{account}: {last_url}')
 
     #  [Done] 群組-訊息複製並發送
     @DecorateClass('CHATAPP-T3239')
     def test_group_message_copy(self):
+        account = ''
+        if 'mail' in self.account_type.lower():
+            account = self.mail_account
+        elif 'phone' in self.account_type.lower():
+            account = self.wap_account
+
         self.test_wap_login()
         group = 'QA_bot_only'
         self.function_dict['wap'].wapMessagePage().into_chat_room(group)
         self.function_dict['wap'].wapMessagePage().send_text_message()
         self.function_dict['wap'].wapMessagePage().message_copy('mWeb發訊息TeSt!@#$%_4')
-        self.function_dict['wap'].wapMessagePage().check_chatroom_list_last_message(f'{self.wap_account}: mWeb發訊息TeSt!@#$%_4')
+        self.function_dict['wap'].wapMessagePage().check_chatroom_list_last_message(f'{account}: mWeb發訊息TeSt!@#$%_4')
 
     #  [Done] 群組-回覆訊息
     @DecorateClass('CHATAPP-T3237')
     def test_group_message_reply(self):
+        account = ''
+        if 'mail' in self.account_type.lower():
+            account = self.mail_account
+        elif 'phone' in self.account_type.lower():
+            account = self.wap_account
+
         self.test_wap_login()
         group = 'QA_bot_only'
         original_message = 'mWeb發訊息TeSt!@#$%_2'
@@ -454,11 +490,17 @@ class WapTestCase(BaseTestCase):
         self.function_dict['wap'].wapMessagePage().into_chat_room(group)
         self.function_dict['wap'].wapMessagePage().send_text_message()
         self.function_dict['wap'].wapMessagePage().message_reply(original_message, reply_text)
-        self.function_dict['wap'].wapMessagePage().check_chatroom_list_last_message(f'{self.wap_account}: {reply_text}')
+        self.function_dict['wap'].wapMessagePage().check_chatroom_list_last_message(f'{account}: {reply_text}')
 
     # [目前聊天列表上私聊最後一筆訊息會顯示對方/自己暱稱] 群組-撤回訊息
     @DecorateClass('CHATAPP-T3238')
     def test_group_message_revoke(self):
+        account = ''
+        if 'mail' in self.account_type.lower():
+            account = self.mail_account
+        elif 'phone' in self.account_type.lower():
+            account = self.wap_account
+
         self.test_wap_login()
         group = 'QA_bot_only'
         revoke_message = 'mWeb群組_訊息撤回TeSt!@#$%'
@@ -466,7 +508,7 @@ class WapTestCase(BaseTestCase):
         last_text = self.function_dict['wap'].wapMessagePage().send_text_message()
         self.function_dict['wap'].wapMessagePage().send_message(revoke_message)
         self.function_dict['wap'].wapMessagePage().message_revoke(revoke_message)
-        self.function_dict['wap'].wapMessagePage().check_chatroom_list_last_message(f'{self.wap_account}: {last_text}')
+        self.function_dict['wap'].wapMessagePage().check_chatroom_list_last_message(f'{account}: {last_text}')
 
     # 群聊-訊息回覆後撤回
     @DecorateClass('CHATAPP-T3240')
@@ -512,7 +554,7 @@ class WapTestCase(BaseTestCase):
     # 群組-回覆訊息設為公告
     @DecorateClass('CHATAPP-T3243')
     def test_group_message_pin_reply(self):
-        self.test_admin_account_login()
+        self.test_wap_login()
         group = 'QA_bot_only'
         reply_original_message = 'mWeb測試原訊息_群組_回覆後設為公告'
         reply_message = 'mWeb測試:回覆訊息(群組_回覆後設為公告)'
@@ -526,7 +568,7 @@ class WapTestCase(BaseTestCase):
     # 測試-群組訊息設置公告後撤回
     @DecorateClass('CHATAPP-T3245')
     def test_group_message_pin_revoke(self):
-        self.test_admin_account_login()
+        self.test_wap_login()
         group = 'QA_bot_only'
         original_message = 'mWeb測試原訊息_群聊_設為公告後撤回'
         self.function_dict['wap'].wapMessagePage().into_chat_room(group)
@@ -606,28 +648,39 @@ class WapTestCase(BaseTestCase):
     @DecorateClass('CHATAPP-T3286')
     def test_social_post_photo(self):
         self.test_wap_login()
+        account = ''
+        if 'mail' in self.account_type.lower():
+            account = self.mail_account
+        elif 'phone' in self.account_type.lower():
+            account = self.wap_account
 
         current_time = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
         description = f'mWeb自動化{self.brand}Test_發布photo_{current_time}'
 
         self.function_dict['wap'].wapMainPage().select_media(media_type='photo')
         self.function_dict['wap'].wapMainPage().into_post_settings(description)
-        self.function_dict['wap'].wapMainPage().check_post(self.wap_account,description)
+        self.function_dict['wap'].wapMainPage().check_post(account, description)
 
     @DecorateClass('CHATAPP-T3287')
     def test_social_post_video(self):
         self.test_wap_login()
+        account = ''
+        if 'mail' in self.account_type.lower():
+            account = self.mail_account
+        elif 'phone' in self.account_type.lower():
+            account = self.wap_account
 
         current_time = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
         description = f'mWeb自動化{self.brand}Test_發布video_{current_time}'
 
         self.function_dict['wap'].wapMainPage().select_media(media_type='video')
         self.function_dict['wap'].wapMainPage().into_post_settings(description)
-        self.function_dict['wap'].wapMainPage().check_post(self.wap_account, description)
+        self.function_dict['wap'].wapMainPage().check_post(account, description)
 
     # 搜索視頻 & 用戶
     @DecorateClass('CHATAPP-T3285')
     def test_social_search(self):
+        self.test_wap_logout()
 
         if self.env == 'uat':
             poster_phone_list = ['13542600001', '13542600002']
@@ -639,7 +692,7 @@ class WapTestCase(BaseTestCase):
         description_list = []
 
         for poster_phone, poster_nickname in zip(poster_phone_list, poster_nickname_list):
-
+            self.function_dict['wap'].basePage().open_base_url()  # 開啟wap網頁
             self.function_dict['wap'].wapLoginPage().login(poster_phone, self.wap_password, self.web_nation)
             # ========================== gubot01 & gubot02 依序發布貼文 ==================================================
             current_time = datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
@@ -650,8 +703,11 @@ class WapTestCase(BaseTestCase):
             self.function_dict['wap'].wapMainPage().into_post_settings(description)
             self.function_dict['wap'].wapMainPage().check_post(poster_nickname, description)
             self.test_wap_logout()
-        # ========================== gubot04 登入 =======================================================================
-        self.function_dict['wap'].wapLoginPage().login(self.wap_phone, self.wap_password, self.wap_nation)
+        # ========================== gubot04 or gubotmail01 登入 ========================================================
+        if 'mail' in self.account_type.lower():
+            self.function_dict['wap'].wapLoginPage().login(self.mail_address, self.mail_password, login_method='mail')
+        elif 'phone' in self.account_type.lower():
+            self.function_dict['wap'].wapLoginPage().login(self.wap_phone, self.wap_password, self.wap_nation)
         # ========================== 1. 搜索頁: 輸入01貼文說明01 > 點搜索鍵 >>> 搜索結果-視頻頁 ===============================
         self.function_dict['wap'].searchPage().search_from_search_page(description_list[0])
         self.function_dict['wap'].searchPage().check_search_post_result(poster_nickname_list[0], description_list[0])
@@ -711,7 +767,90 @@ class WapTestCase(BaseTestCase):
 
         self.test_delete_friend()  # 刪除好友 operator_account (test1234)
 
-    # ============================ not yet =========================
+    # 分享自己主頁
+    @DecorateClass('CHATAPP-T3295')
+    def test_social_share_self_main_page(self):
+        current_time = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
+        poster = ''
+        if 'mail' in self.account_type.lower():
+            poster = self.mail_account
+        elif 'phone' in self.account_type.lower():
+            poster = self.wap_account
+
+        share_message = f'mWeb_{self.brand}_分享自己({poster})主頁_{current_time}'
+        share_group = 'QA_bot_only'
+        self.test_wap_login()
+        self.function_dict['wap'].wapMainPage().into_main_page()
+        self.function_dict['wap'].wapMainPage().into_share_to_window(0)
+        self.function_dict['wap'].wapMainPage().share_to_group(share_group, share_message, share_main_page=True)
+        self.function_dict['wap'].wapMessagePage().into_chat_room(share_group)
+        # ============================= 自己端確認聊天室內分享文 ====================================
+        self.function_dict['wap'].wapMessagePage().check_chat_share_info(poster, share_message, share_main_page=True)
+        # ============================= 他人端確認聊天室內分享文 ====================================
+        self.function_dict['wap'].wapFriendsPage().back_to_message_page()
+        self.test_wap_logout()
+
+        self.function_dict['wap'].basePage().open_base_url()  # 開啟wap網頁
+        self.function_dict['wap'].wapLoginPage().login(self.web_phone, self.web_password, self.web_nation)
+        self.function_dict['wap'].wapMessagePage().into_chat_room(share_group)
+        self.function_dict['wap'].wapMessagePage().check_chat_share_info(poster, share_message,share_main_page=True)
+
+    # 分享自己貼文
+    @DecorateClass('CHATAPP-T3296')
+    def test_social_share_self_post(self):
+        current_time = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
+        poster = ''
+        if 'mail' in self.account_type.lower():
+            poster = self.mail_account
+        elif 'phone' in self.account_type.lower():
+            poster = self.wap_account
+
+        share_message = f'mWeb_{self.brand}_分享自己({poster})貼文_{current_time}'
+        share_group = 'QA_bot_only'
+        self.test_wap_login()
+        self.function_dict['wap'].wapMainPage().into_main_page()
+        self.function_dict['wap'].wapMainPage().into_first_post()
+        self.function_dict['wap'].wapMainPage().into_share_to_window(2)
+        self.function_dict['wap'].wapMainPage().share_to_group(share_group, share_message, share_main_page=False)
+        self.function_dict['wap'].wapMessagePage().into_chat_room(share_group)
+        # ============================= 自己端確認聊天室內分享文 ====================================
+        self.function_dict['wap'].wapMessagePage().check_chat_share_info(poster, share_message, share_main_page=False)
+        # ============================= 他人端確認聊天室內分享文 ====================================
+        self.function_dict['wap'].wapFriendsPage().back_to_message_page()
+        self.test_wap_logout()
+
+        self.function_dict['wap'].basePage().open_base_url()  # 開啟wap網頁
+        self.function_dict['wap'].wapLoginPage().login(self.web_phone, self.web_password, self.web_nation)
+        self.function_dict['wap'].wapMessagePage().into_chat_room(share_group)
+        self.function_dict['wap'].wapMessagePage().check_chat_share_info(poster, share_message, share_main_page=False)
+
+    # email註冊帳號 > 登出 > 登入 > 登出
+    @DecorateClass('CHATAPP-T')
+    def test_mWeb_email_registration(self):
+        email = 'qa5@tengyuntech.com'
+        pw = "000111abc"
+        # =============== 後台需先關閉極驗 ================
+        self.test_all_windows_mini()
+        self.function_dict['wap'].basePage().windows_to_top(full=True)  # 切換視窗
+        self.function_dict['wap'].basePage().open_base_url()  # 開啟wap網頁
+        self.function_dict['wap'].wapLoginPage().register_by_email(self.mail_account_id, email, pw)
+        # =============== 登出後再登入 ================
+        self.test_wap_logout()
+        self.function_dict['wap'].basePage().windows_to_top(full=True)  # 切換視窗
+        self.function_dict['wap'].basePage().open_base_url()  # 開啟wap網頁
+        self.function_dict['wap'].wapLoginPage().login(email,pw,login_method='mail')
+
+    # email欄位檢核確認
+    @DecorateClass('CHATAPP-T')
+    def test_mWeb_email_field_check(self):
+        self.test_all_windows_mini()
+        self.function_dict['wap'].basePage().windows_to_top(full=True)  # 切換視窗
+        self.function_dict['wap'].basePage().open_base_url()  # 開啟wap網頁
+        self.function_dict['wap'].wapLoginPage().email_field_check_in_login()  # 註冊頁
+        self.function_dict['wap'].wapLoginPage().email_field_check_in_registration()  # 登入頁
+        self.function_dict['wap'].wapLoginPage().email_field_check_in_forget_pw()  # 忘記密碼頁
+
+    # ======================================================== not yet =================================================
     # 登入ADMIN
     def test_admin_login(self):
         self.function_dict['ad'].basePage().windows_to_top()  # 切換視窗
@@ -1100,6 +1239,9 @@ class WapTestCase(BaseTestCase):
         self.test_all_windows_mini()
         self.function_dict['wp'].basePage().windows_to_top()  # 切換視窗
         self.function_dict['wp'].chatroomPage().check_share_code_visible_when_permission_changed(share_code, group_name, user, permission=1)  # 確認前台可見邀請碼分享欄位
+
+
+
 
     def run(self, result=None):
         gl.set_value('RESULT', result)

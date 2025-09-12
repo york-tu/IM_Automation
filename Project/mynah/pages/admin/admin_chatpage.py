@@ -138,7 +138,7 @@ class AdminChatPage(AdminBasePage):
     def into_select_group(self, guest_ID):
         self.sleep(2)
         try:
-            guest_id= (By.XPATH, self.mix_xpath(ChatLocator.select_id,guest_ID))
+            guest_id = (By.XPATH, self.mix_xpath(ChatLocator.select_id,guest_ID))
             self.wait_visibility(guest_id)
             self.click(guest_id)
         except:

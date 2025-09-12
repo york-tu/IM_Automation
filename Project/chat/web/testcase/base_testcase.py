@@ -19,6 +19,7 @@ class BaseTestCase(UnittestModule):
     env = ''
     brand = ''
     user = ''
+    account_type = ''
 
     # ACCOUNT SETTING
     web_url = ''
@@ -37,12 +38,15 @@ class BaseTestCase(UnittestModule):
     admin_account = ''
     admin_password = ''
     admin_otp = ''
+    mail_account = ''
+    mail_password = ''
 
     @classmethod
     def setting_test_data(cls):
         cls.env = gl.get_value('ENV')
         cls.brand = gl.get_value('BRAND')
         cls.user = gl.get_value('USER')
+        cls.account_type = gl.get_value('ACCOUNT_TYPE')
         cls.wap_version = gl.get_value('PHONE_PLATFORM')
 
     # 登入帳號
@@ -62,6 +66,10 @@ class BaseTestCase(UnittestModule):
         cls.app_password = SettingChat().get_account(cls.env, cls.brand, cls.user)['password']
         cls.app_phone = SettingChat().get_account(cls.env, cls.brand, cls.user)['app_phone']
         cls.app_nation = SettingChat().get_account(cls.env, cls.brand, cls.user)['nation']
+
+        cls.mail_account = SettingChat().get_account(cls.env, cls.brand, cls.user)['mail_account']
+        cls.mail_address = SettingChat().get_account(cls.env, cls.brand, cls.user)['mail_address']
+        cls.mail_password = SettingChat().get_account(cls.env, cls.brand, cls.user)['password']
 
         cls.operate_account = SettingChat().get_account(cls.env, cls.brand, cls.user)['operate_account']
         cls.operate_phone = SettingChat().get_account(cls.env, cls.brand, cls.user)['operate_phone']

@@ -36,10 +36,13 @@ class BaseTestCase(UnittestModule):
     app_url = ''
     app_account = ''
     web_account = ''
+    mail_account = ''
     app_password = ''
     web_password = ''
+    mail_password = ''
     app_phone = ''
     web_phone = ''
+    mail_address = ''
     app_nation = ''
     web_nation = ''
     operate_account = ''
@@ -60,6 +63,7 @@ class BaseTestCase(UnittestModule):
         cls.phone_platform = gl.get_value('PHONE_PLATFORM')
         cls.connect_type = gl.get_value('CONNECT_TYPE')
         cls.app_version = gl.get_value('APP_VERSION')
+        cls.account_type = gl.get_value('ACCOUNT_TYPE')
         cls.specific_os_version = gl.get_value('SPECIFIC_OS_VERSION')
         cls.duration = gl.get_value('Duration')
 
@@ -72,14 +76,17 @@ class BaseTestCase(UnittestModule):
         cls.app_account = SettingChat().get_account(cls.env, cls.brand, cls.user)['app_account']
         cls.web_account = SettingChat().get_account(cls.env, cls.brand, cls.user)['web_account']
         cls.wap_account = SettingChat().get_account(cls.env, cls.brand, cls.user)['wap_account']
+        cls.mail_account = SettingChat().get_account(cls.env, cls.brand, cls.user)['mail_account']
 
         cls.app_password = SettingChat().get_account(cls.env, cls.brand, cls.user)['password']
         cls.web_password = SettingChat().get_account(cls.env, cls.brand, cls.user)['password']
         cls.wap_password = SettingChat().get_account(cls.env, cls.brand, cls.user)['password']
+        cls.mail_password = SettingChat().get_account(cls.env, cls.brand, cls.user)['password']
 
         cls.app_phone = SettingChat().get_account(cls.env, cls.brand, cls.user)['app_phone']
         cls.web_phone = SettingChat().get_account(cls.env, cls.brand, cls.user)['web_phone']
         cls.wap_phone = SettingChat().get_account(cls.env, cls.brand, cls.user)['wap_phone']
+        cls.mail_address = SettingChat().get_account(cls.env, cls.brand, cls.user)['mail_address']
 
         cls.app_nation = SettingChat().get_account(cls.env, cls.brand, cls.user)['nation']
         cls.web_nation = SettingChat().get_account(cls.env, cls.brand, cls.user)['nation']
@@ -88,7 +95,7 @@ class BaseTestCase(UnittestModule):
         cls.operate_account = SettingChat().get_account(cls.env, cls.brand, cls.user)['operate_account']
         cls.operate_phone = SettingChat().get_account(cls.env, cls.brand, cls.user)['operate_phone']
         cls.device_id = Setting().get_phone_device_id(cls.phone_name, True)
-        
+
         if not cls.env.__contains__('prod'):
             cls.admin_url = SettingChat().get_account(cls.env, cls.brand, cls.user)['admin_url']
             cls.admin_account = SettingChat().get_account(cls.env, cls.brand, cls.user)['admin_id']

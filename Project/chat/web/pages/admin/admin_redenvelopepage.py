@@ -1,11 +1,15 @@
 import random
 import re
 from time import sleep
-
+import pandas as pd
+import pyautogui
+import win32clipboard
 from selenium.webdriver.common.by import By
 import os, sys, datetime
 from Project.chat.web.pages.admin.admin_basepage import BasePage
 
+DIR_NAME = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+sys.path.append(DIR_NAME)
 
 class RedEnvelopePageLocator:
     # 通用
@@ -79,7 +83,8 @@ class RedEnvelopePageLocator:
     add_red_select_member = (By.XPATH, '//label[text()="请选择指定名单"]/..//span[@class="el-input__suffix-inner"]')
     add_red_select_all = (By.XPATH, '//span[text()="全选"]')
     add_auto_grad_member = (By.XPATH, '//label[text()="请选择自动领取"]/..//span[@class="el-input__suffix-inner"]')
-    add_red_select_member_select = (By.XPATH, '//div[@aria-hidden="false"]//span[text()="gubot02"]')
+    add_red_select_member_select = (By.XPATH, '(//div[@aria-hidden="false"]//li[@class="el-select-dropdown__item"])[1]')
+    add_red_select_member_select_first = (By.XPATH, '//div[@aria-hidden="false"]//span[text()="gubot02"]')
     add_red_remind = (By.XPATH, '//p[text()=" 确定执行？"]')
 
     add_red_add_btn = (By.XPATH, '//span[text()="新增"]')
@@ -93,7 +98,7 @@ class RedEnvelopePageLocator:
     # 手氣紅包
     luck_package = (By.XPATH, '//label[text()="包数"]/..//input[@placeholder="请输入包数"]')
     luck_detail_title = (By.XPATH, "//div[@aria-label='明细']//span[text()='明细']")
-    luck_detail_expand = (By.XPATH, "//div[@aria-label='明细']//img")
+    luck_detail_expand = (By.XPATH, '//*[@id="app"]/div/div/div[2]/div/div/div/div[3]/div/div[5]/div/div[2]/div[2]/div')
     luck_award_high = (By.XPATH, '//label[text()="最高"]/..//input[@placeholder="请输入最高"]')
     luck_award_1_member = (By.XPATH, "//label[text()='奖项 1']/..//label[text()='成员名单']/..//i")
     luck_award_2_member = (By.XPATH, "//label[text()='奖项 2']/..//label[text()='成员名单']/..//i")
@@ -101,9 +106,9 @@ class RedEnvelopePageLocator:
     luck_award_1_member_select = (By.XPATH, '//div[@aria-hidden="false"]//span[text()="gubot02"]')
     luck_award_2_member_select = (By.XPATH, '//div[@aria-hidden="false"]//span[text()="gubot03"]')
     luck_award_3_member_select = (By.XPATH, '//div[@aria-hidden="false"]//span[text()="gubot04"]')
-    luck_award_1 = (By.XPATH, "//div[@class='my-3 px-2'][1]//input[@placeholder='请输入金额']")
-    luck_award_2 = (By.XPATH, "//div[@class='my-3 px-2'][2]//input[@placeholder='请输入金额']")
-    luck_award_3 = (By.XPATH, "//div[@class='my-3 px-2'][3]//input[@placeholder='请输入金额']")
+    luck_award_1 = (By.XPATH, "//div[@class='my-3 px-2 mt-0'][1]//input[@placeholder='请输入金额']")
+    luck_award_2 = (By.XPATH, "//div[@class='my-3 px-2'][1]//input[@placeholder='请输入金额']")
+    luck_award_3 = (By.XPATH, "//div[@class='my-3 px-2 mb-0'][1]//input[@placeholder='请输入金额']")
     luck_statement_total_amount = (By.XPATH, "(//p[text()='总计']/../p[@class='text-container totals'])[2]")
 
     luck_add_award = (By.XPATH, "//span[text()='设置下一奖项']")
@@ -111,12 +116,44 @@ class RedEnvelopePageLocator:
     luck_select_all = (By.XPATH, "//span[text()='全选']")
     luck_delete_btn = (By.XPATH, "//span[text()='删除奖项']")
     luck_award_calculate = (By.XPATH, "//span[text()='奖项计算']")
-    luck_award_calculate_results = (By.XPATH, '//*[@id="app"]/div/div/div[2]/div/div/div/div[3]/div/div[3]/div')
+    luck_award_calculate_results = (By.XPATH, '//*[@id="app"]/div/div/div[2]/div/div/div/div[3]/div/div[2]/div')
     luck_detail = (By.XPATH, "//span[text()='明细']")
 
     luck_single_picture = (By.XPATH, '//label[text()="单图"]/..//span[@class="el-radio__input"]')
     luck_detail_save = (By.XPATH, "//span[text()='储存']")
     luck_detail_close = (By.XPATH, "(//span[text()='关闭'])[2]")
+
+    #批量上傳
+    bulk_upload_tab = (By.XPATH, "(//div[@class='el-tabs__nav-scroll']/..//div[contains(@class,'el-tabs__item is-top')])[last()]")
+    red_envelope_data_type_fixed_amount_radio_btn = (By.XPATH, "//span[text()='固定金额']")
+    red_envelope_data_type_random_amount_radio_btn = (By.XPATH, "//span[text()='随机金额']")
+    file_import_btn = (By.XPATH, "//span[text()='档案汇入']")
+    preview_window_title = (By.XPATH, '//div[@class="el-dialog__header"]')
+    preview_window_member_id_first = (By.XPATH, "//table[@class='el-table__body']//tr[1]/td[1]")
+    preview_window_confirm_btn = (By.XPATH, '//*[@id="pane-batch"]/div/div/div[3]/div/button[2]')
+    upload_filename = (By.XPATH, '//*[@id="pane-batch"]/form/div[4]/span')
+    # ------固定金額預覽彈窗欄位----------
+    preview_window_fix_amount_first = (By.XPATH, "//table[@class='el-table__body']//tr[1]/td[2]")
+    preview_window_fix_winning_message_first = (By.XPATH, "//table[@class='el-table__body']//tr[1]/td[3]")
+    # ------隨機金額預覽彈窗欄位----------
+    preview_window_random_min_first = (By.XPATH, "//table[@class='el-table__body']//tr[1]/td[2]")
+    preview_window_random_max_first = (By.XPATH, "//table[@class='el-table__body']//tr[1]/td[3]")
+    preview_window_random_winning_message_first = (By.XPATH, "//table[@class='el-table__body']//tr[1]/td[4]")
+
+
+def copy_to_clipboard(text, retry=50, delay=2):
+    for attempt in range(retry):
+        try:
+            win32clipboard.OpenClipboard()
+            try:
+                win32clipboard.EmptyClipboard()
+                win32clipboard.SetClipboardText(text)
+                return
+            finally:
+                win32clipboard.CloseClipboard()
+        except OSError as e:
+            sleep(delay)
+    raise Exception('無法複製路徑')
 
 
 class RedEnvelopePage(BasePage):
@@ -146,7 +183,7 @@ class RedEnvelopePage(BasePage):
             self.type(RedEnvelopePageLocator.add_red_amount, '1')
             self.sleep(1)
             self.click(RedEnvelopePageLocator.add_red_select_member)
-            self.click(RedEnvelopePageLocator.add_red_select_member_select)
+            self.click(RedEnvelopePageLocator.add_red_select_member_select_first)
             self.click(RedEnvelopePageLocator.add_red_add_btn)
             self.wait_loading_finish()
             if self.is_element_finded(RedEnvelopePageLocator.add_red_remind) is True:
@@ -178,6 +215,97 @@ class RedEnvelopePage(BasePage):
             if self.is_element_finded(RedEnvelopePageLocator.add_red_remind) is True:
                 self.click(RedEnvelopePageLocator.add_red_confirm_btn)
         sleep(60)
+    # def add_bulk_upload_luck_red_envelope(self):
+
+    def random_red_envelope_data_type_bulk_upload(self):
+        self.wait_loading_finish()
+        self.click(RedEnvelopePageLocator.add_redenvelope_btn)  # 新增紅包鍵
+        sleep(2)
+        self.click(RedEnvelopePageLocator.redenvelope_type)  # 紅包種類
+        self.click(RedEnvelopePageLocator.add_red_lucky)  # 拚手氣紅包
+        self.click(RedEnvelopePageLocator.add_chatroom)  # 選聊天室
+        self.click(RedEnvelopePageLocator.add_chatroom_select)  # 指定QA_bot_only
+        self.click(RedEnvelopePageLocator.add_initiate_ID)  # 發布帳號
+        self.click(RedEnvelopePageLocator.add_initiate_ID_select)  # 指定gubot01
+        sleep(0.5)
+        self.click(RedEnvelopePageLocator.bulk_upload_tab)
+
+        random_choice_type = random.randint(1, 2)
+        # ===================== 選擇紅包資料類別 ===========================
+        if random_choice_type == 1:  # 點固定金額 radio button
+            self.click(RedEnvelopePageLocator.red_envelope_data_type_fixed_amount_radio_btn)
+        else:  # 點隨機金額 radio button
+            self.click(RedEnvelopePageLocator.red_envelope_data_type_random_amount_radio_btn)
+        # ===================== 獲取excel檔案路徑 ==============================
+        folder_path = f'{DIR_NAME}\\test_medias\\red_envelope_bulk_upload'
+        mapping = {1: 'fix_amount', 2: "random_amount"}
+        select = mapping[random_choice_type]
+        filename = ''
+        for f in os.listdir(folder_path):
+            if select in f and f.endswith(".xlsx"):
+                filename = f
+                break
+        file_path = os.path.join(folder_path,filename)
+        # ===================== 讀取excel內資料 =========================
+        df = pd.read_excel(file_path)
+        excel_amount_first = ''
+        excel_amount_min_first = ''
+        excel_amount_max_first = ''
+        if random_choice_type == 1:
+            excel_member_id_first = df.loc[0, "member_id"]
+            excel_amount_first = df.loc[0, "amount"]
+            excel_winning_message_first = df.loc[0, "winning_message"]
+        else:
+            excel_member_id_first = df.loc[0, "member_id"]
+            excel_amount_min_first = df.loc[0, "minimum"]
+            excel_amount_max_first = df.loc[0, "maximum"]
+            excel_winning_message_first = df.loc[0, "winning_message"]
+        # ===================== excel檔上傳 =============================
+        self.click(RedEnvelopePageLocator.file_import_btn)
+        sleep(1)
+        copy_to_clipboard(file_path)
+        sleep(1)
+        pyautogui.hotkey('ctrl', 'v')
+        pyautogui.press('enter')
+        sleep(3)
+        # ===================== 確認預覽視窗 =============================
+        preview_window_member_id_first = self.get_text(RedEnvelopePageLocator.preview_window_member_id_first)
+        assert excel_member_id_first == preview_window_member_id_first
+
+        if random_choice_type == 1:
+            preview_window_amount_first = self.get_text(RedEnvelopePageLocator.preview_window_fix_amount_first)
+            preview_window_winning_message_first = self.get_text(RedEnvelopePageLocator.preview_window_fix_winning_message_first)
+            assert str(excel_amount_first) == preview_window_amount_first
+            assert str(excel_winning_message_first) == preview_window_winning_message_first
+        else:
+            preview_window_random_min_first = self.get_text(RedEnvelopePageLocator.preview_window_random_min_first)
+            preview_window_random_max_first = self.get_text(RedEnvelopePageLocator.preview_window_random_max_first)
+            preview_window_random_winning_message_first = self.get_text(RedEnvelopePageLocator.preview_window_random_winning_message_first)
+            assert str(excel_amount_min_first) == preview_window_random_min_first
+            assert str(excel_amount_max_first) == preview_window_random_max_first
+            assert str(excel_winning_message_first) == preview_window_random_winning_message_first
+        # ===================== 確認並關閉預覽視窗 =============================
+        self.click(RedEnvelopePageLocator.preview_window_confirm_btn)
+        sleep(1)
+        upload_filename = self.get_text(RedEnvelopePageLocator.upload_filename)
+        assert upload_filename == filename
+        # ==================================================================
+        self.click(RedEnvelopePageLocator.luck_now_initial)
+        self.click(RedEnvelopePageLocator.luck_award_calculate)
+        sleep(0.5)
+        result_text = self.get_text(RedEnvelopePageLocator.luck_award_calculate_results)
+        total_cost = re.search(r"金额\s*([0-9]+(?:\.[0-9]+)?)", result_text).group(1)
+
+        if random_choice_type == 1:
+            assert float(total_cost) == float(excel_amount_first)
+        else:
+            assert float(excel_amount_min_first) <= float(total_cost) <= float(excel_amount_max_first)
+        self.click(RedEnvelopePageLocator.add_red_add_btn)
+        sleep(1)
+        if self.is_element_finded(RedEnvelopePageLocator.add_red_remind) is True:
+            self.click(RedEnvelopePageLocator.add_red_confirm_btn)
+        sleep(60)
+        return str(float(total_cost))
 
     def add_random_amount_luck_red_envelope(self):
         self.wait_loading_finish()
@@ -229,7 +357,7 @@ class RedEnvelopePage(BasePage):
             self.sleep(1)
             self.click(RedEnvelopePageLocator.add_red_select_all)
             self.click(RedEnvelopePageLocator.add_auto_grad_member)  # 自動領取下拉選單
-            self.click(RedEnvelopePageLocator.add_red_select_member_select)  # 設定自動領取人員為gubot02
+            self.click(RedEnvelopePageLocator.add_red_select_member_select_first)  # 設定自動領取人員為gubot02
             self.click(RedEnvelopePageLocator.add_red_add_btn)
             self.wait_loading_finish()
             if self.is_element_finded(RedEnvelopePageLocator.add_red_remind) is True:
@@ -417,6 +545,7 @@ class RedEnvelopePage(BasePage):
             assert self.get_text(RedEnvelopePageLocator.detail_list_point) == '0.1', f'獲得積分有誤'
 
     def red_envelope_detail_check(self, grab_account, grab_amount, grab_type, grab_time):
+        self.type(RedEnvelopePageLocator.search_initiate_member, 'gubot01')
         self.click(RedEnvelopePageLocator.search_btn)
         self.wait_loading_finish()
         self.click(RedEnvelopePageLocator.data_detail)

@@ -1,24 +1,26 @@
 import os
 import sys
 import unittest
+from common.utils.utils import Utils
+from Project.chat.web.testcase.wap_testcases import WapTestCase
+from Project.chat.web.testcase.admin_testcases import AdminTestCase
+from Project.chat.app.testcase.context_testcase import ContextTestCase
+import common.utils.globalvar as gl
+from jira.config.base_key import BaseKey
 
 root_path = os.path.dirname(
     os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
 sys.path.append(root_path)
 
-from common.utils.utils import Utils
-from Project.chat.web.testcase.wap_testcases import WapTestCase
-from Project.chat.web.testcase.admin_testcases import AdminTestCase
-import common.utils.globalvar as gl
-from jira.config.base_key import BaseKey
 
 # Test Setting
-env = 'prod'  # uat, prod
+env = 'uat'  # uat, prod
 brand = 'gu'
 user = 1
 test_type = 'wap'
-wap_version = '2.4.0'
+wap_version = '2.6.0'
 os_version = 'Win11'  # 作業系統
+account_type = 'phone'  # 帳號類型: mail, phone...
 
 push = True  # 將結果推倒jira, 預設請給予 True
 
@@ -77,14 +79,20 @@ wap_regression_list = [
     WapTestCase('test_wap_logout'),  # 測試-登出
 
 ]
-# UAT only
+# =========================================== UAT only ===========================================
 social_regression_list = [
-    WapTestCase("test_social_post_photo"),
-    WapTestCase('test_social_post_video'),
-    WapTestCase('test_social_search'),
-    WapTestCase('test_social_follow_unfollow'),
-
+    WapTestCase("test_social_post_photo"),  # 測試-發布圖片
+    WapTestCase('test_social_post_video'),  # 測試-發布影片
+    WapTestCase('test_social_search'),  # 測試-搜索視頻&用戶
+    WapTestCase('test_social_follow_unfollow'),  # 測試-關注&取消關注
+    WapTestCase('test_social_share_self_main_page'),  # 測試-分享自己主頁
+    WapTestCase('test_social_share_self_post'),  # 測試-分享自己貼文
 ]
+combination_regression_list = [
+    # WapTestCase("test_mWeb_email_registration"),  # 測試-email註冊 (後台需先關閉極驗)
+    WapTestCase("test_mWeb_email_field_check")
+]
+
 
 # TestCase frame add
 suite = unittest.TestSuite()
@@ -101,11 +109,13 @@ if __name__ == "__main__":
         brand = sys.argv[2]
         user = sys.argv[3]
         wap_version = data[4]
+        account_type = data[5]
         push = bool(data[3])
 
     gl.set_value('ENV', env)
     gl.set_value('BRAND', brand)
     gl.set_value('USER', int(user))
+    gl.set_value('ACCOUNT_TYPE', account_type)
     # gl.set_value('WAP_VERSION', wap_version)
     gl.set_value('PHONE_PLATFORM', wap_version)  # 作業系統名稱
 
@@ -115,10 +125,10 @@ if __name__ == "__main__":
     gl.set_value('PUSH', push)
 
     # TestCase add
-    suite.addTests(wap_regression_list)
-
+    # suite.addTests(wap_regression_list)
     # ===================== UAT Only ========================
     # suite.addTests(social_regression_list)
+    suite.addTests(combination_regression_list)
 
     # RunningTest
     Utils.unittest_xml(suite)

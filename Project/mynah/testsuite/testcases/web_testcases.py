@@ -94,12 +94,12 @@ class WebTestCases(BaseTestCase, AdminBasePage):
     def setting_browser(cls, ADdriver_num, Webdriver_num):
         cls.setting_test_data(cls)  # 設定測試數據
         for _ in range(ADdriver_num):
-            cls.driver_list.append(web_dr.WebDriver.setting_driver(cls, 1900, 1000))  # 設定ChromeDriver
+            cls.driver_list.append(web_dr.WebDriver.setting_driver(cls,1900, 1000, is_wap=False))  # 設定ChromeDriver
             cls.ap= AdminPage(cls.driver, cls.wait_time, cls.admin_url, cls.skipTest)     # 導入Web全部頁面
             cls.adps.append(cls.ap)
 
         for _ in range(Webdriver_num):
-            cls.driver_list.append(web_dr.WebDriver.setting_driver(cls, 1900, 1000))
+            cls.driver_list.append(web_dr.WebDriver.setting_driver(cls, 1900, 1000, is_wap=False))
             cls.wp= WebPages(cls.driver, cls.wait_time, cls.web_url1, cls.skipTest)     # 導入Web全部頁面
             cls.weps.append(cls.wp)
         

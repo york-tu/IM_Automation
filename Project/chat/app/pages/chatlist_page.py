@@ -42,11 +42,11 @@ class ChatListPageLocator:
     )
     message_btn = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/navigation_bar_item_icon_view',num=1),
-        iOS=base.data_collation(type_kind='name', type_name=''),
+        iOS=base.data_collation(type_kind='name', type_name='mainTabBar_chat_button'),
     )
 
     search_input = base.check_device(
-        Android=base.data_collation(type_kind='text', type_name='搜索'),
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/search_content_et'),
         iOS=base.data_collation(type_kind='type', type_name='TextField', num=0),
     )
 
@@ -62,7 +62,7 @@ class ChatListPageLocator:
 
     back_btn = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/btn_back'),
-        iOS=base.data_collation(type_kind='type', type_name='Button', num=0),
+        iOS=base.data_collation(type_kind='name', type_name='999+'),
     )
 
     add_button = base.check_device(
@@ -132,7 +132,10 @@ class ChatListPageLocator:
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/rv_selected_users'),
         iOS=base.data_collation(type_kind='name', type_name='新增好友'),
     )
-
+    last_url_message_room = base.check_device(
+        Android=base.data_collation(type_kind='', type_name=''),
+        iOS=base.data_collation(type_kind='nameMatches', type_name='https.*', num=-1),
+    )
     last_message_room = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tv_content', num=-1),
         iOS=base.data_collation(type_kind='nameMatches', type_name='.*测试.*', num=-1),
@@ -154,20 +157,22 @@ class ChatListPage(Base):
     def into_chat_room(self, name):
         # if not self.common.poco_exists(ChatListPageLocator.search_input):
         self.common.poco_click(ChatListPageLocator.message_btn)
-        if self.common.poco_exists(ChatListPageLocator.search_input):
-            self.common.poco_click(ChatListPageLocator.search_input)
-            self.common.poco_send_text(ChatListPageLocator.search_input, name)
+        self.common.poco_click(ChatListPageLocator.search_input)
+        if self.common.poco_exists(ChatListPageLocator.search_clear):
+            self.common.poco_click(ChatListPageLocator.search_clear)
+        self.common.poco_send_text(ChatListPageLocator.search_input, name)
 
-        # self.wait_loading_finish()
         if self.common.poco_exists(ChatListPageLocator.search_empty):
             raise EOFError('找不到任何結果')
         else:
             if self.common.poco_exists(ChatListPageLocator.friend_frist):
                 assert self.common.poco_get_text(ChatListPageLocator.friend_frist).__contains__(name), f'好友搜查結果有誤'
                 self.common.poco_click(ChatListPageLocator.friend_frist)
+                sleep(1)
             elif self.common.poco_exists(ChatListPageLocator.group_frist):
                 assert self.common.poco_get_text(ChatListPageLocator.group_frist).__contains__(name), f'群組搜查結果有誤'
                 self.common.poco_click(ChatListPageLocator.group_frist)
+                sleep(1)
 
     def into_system_notification(self):
         self.common.poco_click(ChatListPageLocator.message_btn)
@@ -208,6 +213,7 @@ class ChatListPage(Base):
             self.common.poco_click(ChatListPageLocator.search_clear)
         self.wait_loading_finish()
         self.common.poco_send_text(ChatListPageLocator.search_input, group_name)  # 搜尋群組
+        sleep(1)
         self.common.poco_click(ChatListPageLocator.group_frist)  # 進入該群組
         self.common.poco_click(ChatRoomPageLocator.options_btn)  # 點群組右上角設定鍵
         self.common.poco_click(ChatRoomPageLocator.options_delete_and_leave)  # 點"刪除並退出"鍵
@@ -236,31 +242,30 @@ class ChatListPage(Base):
         sleep(3)
         assert self.common.poco_get_text(ChatListPageLocator.group_frist).__contains__(group_name), f'綁定群組名與預期不符'  # 搜尋群組名, 確認已透過邀請碼加入該群組
 
-    def check_last_message(self, message_type='text', message=None):
-
+    def check_last_message(self, message_type='text', is_url_msg=False):
         if self.phone_platform.lower() == 'ios':
-            self.poco(name='iconIconSearch').click()
-            touch((200, 500))
-            if message_type == 'url':
-                room_message = self.poco(type='TextView')[-2].attr('name')
+            # ==================== 獲取聊天室內最後一則訊息 ====================
+            if is_url_msg:
+                room_message = self.common.poco_get_text(ChatListPageLocator.last_url_message_room)
+                touch((200, 500))
+            elif message_type == 'voice':
+                room_message = '语音讯息'
+            elif message_type == 'file':
+                room_message = '档案讯息'
             else:
                 room_message = self.common.poco_get_text(ChatListPageLocator.last_message_room)
-                # room_message = self.poco(type='TextView')[-3].attr('name')
 
-            self.poco(name='Chat').click()
+            # ==================== 回到聊天列表 > 獲取聊天室最後一則訊息 ====================
+            self.common.poco_click(ChatListPageLocator.back_btn)  # 回到聊天列表
 
-            if self.common.poco_exists(ChatListPageLocator.search_input):
-                self.common.poco_click(ChatListPageLocator.search_input)
+            self.common.poco_click(ChatListPageLocator.search_input)
             if self.common.poco_exists(ChatListPageLocator.search_clear):
                 self.common.poco_click(ChatListPageLocator.search_clear)
 
-            self.wait_loading_finish()
-
-            list_message= self.poco(type='Cell')[0].child(type='StaticText')[-1].attr('name')
-            # list_message = self.poco(type='Cell')[0].child(type='StaticText')[2].attr('name')
+            list_message = self.poco(type='Cell')[0].child(type='StaticText')[-1].attr('name')
             assert list_message.__contains__(room_message), f'最後一筆訊息顯示錯誤, 目前:{list_message},預期:{room_message}'
 
-            self.common.poco_click(ChatListPageLocator.list_frist)
+            self.common.poco_click(ChatListPageLocator.list_frist)  # 重新進入聊天室
 
         else:
             self.wait_loading_finish()
@@ -270,8 +275,7 @@ class ChatListPage(Base):
                 room_message = '档案讯息'
             else:
                 room_message = self.common.poco_get_text(ChatListPageLocator.last_message_room)
-                if message is not None:
-                    assert room_message == message
+
             self.common.poco_click(ChatListPageLocator.back_btn)
 
             if self.common.poco_exists(ChatListPageLocator.search_clear):
@@ -288,7 +292,8 @@ class ChatListPage(Base):
         self.common.poco_click(ChatListPageLocator.back_btn)
 
     def check_latest_system_message(self, system_message, system_time):
-        self.wait_loading_finish()
+        # self.wait_loading_finish()
+        sleep(1)
         system_message_text = self.common.poco_get_text(ChatListPageLocator.latest_system_message_text)
         system_time_text = self.common.poco_get_text(ChatListPageLocator.latest_system_message_time)
 

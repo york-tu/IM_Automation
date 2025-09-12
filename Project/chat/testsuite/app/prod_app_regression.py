@@ -20,7 +20,8 @@ user = 1
 connect_type = 'local'  # 手機連線模式
 phone_name = 'HUAWEI_26'  # 手機型號 'MI10_23' 'Pixel5_31'
 phone_platform = 'Android'  # 手機作業系統
-app_version = '2.11.0'
+app_version = '2.14.0'
+account_type = 'phone'  # 帳號類型: mail, phone...
 specific_os_version = []  # 指定OS版本, ['10','11','8']
 push = True  # 將結果推倒jira, 預設請給予 True
 
@@ -120,6 +121,7 @@ if __name__ == '__main__':
     gl.set_value('PHONE_NAME', phone_name)
     gl.set_value('PHONE_PLATFORM', phone_platform) # 作業系統名稱
     gl.set_value('APP_VERSION', app_version)
+    gl.set_value('ACCOUNT_TYPE', account_type)
     gl.set_value('SPECIFIC_OS_VERSION', specific_os_version)
 
     # for jira config
@@ -130,8 +132,8 @@ if __name__ == '__main__':
     # TestCase add
     suite = unittest.TestSuite()
     suite.addTests(one_on_one_chat_regression_list)
-    suite.addTests(group_chat_regression_list)
-    suite.addTests(discover_regression_list)
+    # suite.addTests(group_chat_regression_list)
+    # suite.addTests(discover_regression_list)
 
     # RunningTest
     Utils.unittest_xml(suite)

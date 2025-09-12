@@ -110,17 +110,19 @@ admin_regression_list = [
     AdminTestCase("test_into_post_data"),  # 測試-進入贴文数据
     AdminTestCase("test_into_creator_data"),  # 測試-進入创作者数据
     AdminTestCase("test_build_group_permission"),  # 測試-群組建立權限設定
-    AdminTestCase("test_member_build"),  # 測試-新增會員帳號 (無法用於前台登入)
+
+    AdminTestCase("test_manual_create_account"),  # 測試-人工創建帳號
     AdminTestCase("test_member_revise_remark"),  # 測試-設定備註
     AdminTestCase("test_member_change_data"),  # 測試-修改資料
     AdminTestCase("test_member_reset_security_password"),  # 測試-重製安全密碼
     AdminTestCase("test_member_change_password"),  # 測試-變更密碼
     AdminTestCase("test_member_search_function"),   # 測試-搜尋功能
-    AdminTestCase("test_member_delete"),  # 測試-刪除後台建立(無法用於前台登入)會員帳號
-    AdminTestCase("test_manual_create_account"),  # 測試-人工創建帳號
     AdminTestCase("test_manual_create_account_delete"),  # 測試-刪除人工創建帳號
     AdminTestCase("test_group_delete"),  # 測試-刪除群組
 
+    # ========================= Remove ===============================
+    # AdminTestCase("test_member_build"),  # 測試-新增會員帳號 (無法用於前台登入)
+    # AdminTestCase("test_member_delete"),  # 測試-刪除後台建立(無法用於前台登入)會員帳號
 ]
 
 exchange_related_list = [
@@ -148,6 +150,12 @@ red_envelope_related_list = [
     AdminTestCase("add_auto_grad_luck_red_envelope_then_check_water_control"),  # 測試-[後台]新增拚手氣紅包並檢查水量
     WebTestCase("test_auto_grab_luck_red_envelope"),  # 測試-[前台]自動搶拚手氣紅包
 ]
+
+geetest = [
+    # AdminTestCase("test_system_app_setting_geetest_off"),  # 測試-"關閉"極驗
+    # AdminTestCase("test_system_app_setting_geetest_on"),  # 測試-開啟極驗
+]
+
 # TestCase frame add
 suite = unittest.TestSuite()
 
@@ -179,6 +187,8 @@ if __name__ == "__main__":
     suite.addTests(admin_regression_list)
     suite.addTests(exchange_related_list)
     suite.addTests(red_envelope_related_list)
+
+    # suite.addTests(geetest)
 
     # RunningTest
     Utils.unittest_xml(suite)

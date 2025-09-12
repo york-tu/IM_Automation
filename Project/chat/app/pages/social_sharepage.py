@@ -75,10 +75,10 @@ class SocialSharePageLocator:
         Android=base.data_collation(type_kind='text', type_name='短信'),
         iOS=base.data_collation(type_kind='text', type_name='短信'),
     )
-    # 三方app-電子郵件鍵_3
+    # 三方app-電子郵箱鍵_3
     mail_btn = base.check_device(
-        Android=base.data_collation(type_kind='text', type_name='电子邮件'),
-        iOS=base.data_collation(type_kind='text', type_name='电子邮件'),
+        Android=base.data_collation(type_kind='text', type_name='电子邮箱'),
+        iOS=base.data_collation(type_kind='text', type_name='电子邮箱'),
     )
     # 三方app-WhatsApp鍵_4
     WhatsApp_btn = base.check_device(

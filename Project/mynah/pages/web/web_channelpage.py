@@ -6,8 +6,9 @@ from Project.mynah.pages.web.webs_basepage import WebBasePage
 class ChannelLocator:
     logout_btn = (By.XPATH, "//*[@id='nzc-header-logout' or @class='btn-out' or text()='登出' or contains(text(),'退出')]")     #登出按鈕
     login_input_window = (By.XPATH, "//a[@class='btn-login' and contains(text(),'登录')]")  # 打開登入視窗
-    login_input_account = (By.XPATH, "//*[@id='nzc-header-account' or @placeholder='请输入您的用户名' or @placeholder='账号']")  # 登入帳號欄
-    login_input_password = (By.XPATH, "//input[@id='nzc-header-password' or @placeholder='请输入您的登录密码' or @placeholder='密码']")  # 登入密碼欄
+    continue_login_btn = (By.XPATH, "//a[@class='download-app__btn btn--main' and contains(text(),'继续访问')]")  # "繼續訪問"鍵
+    login_input_account = (By.XPATH, "//*[@id='nzc-header-account' or @placeholder='请输入账号' or @placeholder='账号']")  # 登入帳號欄
+    login_input_password = (By.XPATH, "//input[@id='nzc-header-password' or @placeholder='请输入密码' or @placeholder='密码']")  # 登入密碼欄
     login_input_captcha = (By.XPATH, "//*[@id='nzc-header-captcha' or @class='verification' and @placeholder='验证码']")  # 登入驗證碼欄
     login_btn = (By.XPATH, "(//*[@id='nzc-header-login' or @class='btn-primary btn-lg' and text()='登入账户' or @class='btn btn-primary' or @class='button__sign-in'])[last()]")  # 登入按鈕
     login_chagnepwd_btn = (By.XPATH, "//a[contains(text(),'暂不修改')]")  # 更換密碼彈窗按鈕
@@ -26,7 +27,8 @@ class WebChannelPage(WebBasePage):
     def channel_login(self,account,password,captcha=''):    
         if self.is_element_finded(ChannelLocator.logout_btn) is True:
             return
-
+        if self.is_element_finded(ChannelLocator.continue_login_btn):
+            self.click(ChannelLocator.continue_login_btn)
         # 點擊登入
         if self.is_element_finded(ChannelLocator.login_input_window) is True:
            self.sleep(1)

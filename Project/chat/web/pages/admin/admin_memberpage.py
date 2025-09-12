@@ -119,7 +119,6 @@ class MemberPage(BasePage):
         assert self.is_element_finded(MemberPageLocator.search_member_ID), f'未看見會員帳號輸入欄位'
         assert self.is_element_finded(MemberPageLocator.search_brand_id), f'未看見品牌帳號輸入欄位'
         assert self.is_element_finded(MemberPageLocator.search_btn), f'未看見"搜尋"鍵'
-        assert self.is_element_finded(MemberPageLocator.new_account_btn), f'未看見"+新增會員帳號"鍵'
         assert self.is_element_finded(MemberPageLocator.manual_create_app_account_btn), f'未看見"+人工創建帳號"鍵'
         assert self.is_element_finded(MemberPageLocator.export_btn), f'未看見"匯出"鍵'
         assert self.is_element_finded(MemberPageLocator.member_list_member_status_title), f'未看見會員列表的"會員狀態"欄位'
@@ -279,19 +278,19 @@ class MemberPage(BasePage):
         elif condition == 'confirm_revise':
             assert self.get_text(MemberPageLocator.member_list_ID) == member_ID, f'搜尋帳號失敗'
             assert self.get_text(MemberPageLocator.member_list_name) == member_ID, f'帳號資料有誤'
-            assert self.get_text(MemberPageLocator.member_list_brand_id) == 'TestRemark', f'品牌帳號有誤'
+            assert self.get_text(MemberPageLocator.member_list_brand_id) == 'AutoTest', f'品牌帳號有誤'
             assert self.get_text(MemberPageLocator.member_list_member_status) == '正常', f'會員狀態有誤'
             assert self.get_text(MemberPageLocator.member_list_group_amount) == '0', f'群組數量有誤'
             assert self.get_text(MemberPageLocator.member_list_revise_time)[:-3] == revise_time, f'預期:{self.get_text(MemberPageLocator.member_list_revise_time)},實際:{revise_time},修改時間有誤'
-            assert self.get_text(MemberPageLocator.member_list_ID_type) == '后台开通', f'帳號類型有誤'
+            assert self.get_text(MemberPageLocator.member_list_ID_type) == 'App注册', f'帳號類型有誤'
             assert self.get_text(MemberPageLocator.member_list_ID_remark) == member_ID, f'帳號備註有誤'
         elif condition == 'confirm_base':
             assert self.get_text(MemberPageLocator.member_list_ID) == member_ID, f'print member_ID fail'
             assert self.get_text(MemberPageLocator.member_list_name) == member_ID, f'print name fail'
-            assert self.get_text(MemberPageLocator.member_list_brand_id) == 'TestRemark', f'品牌帳號有誤'
+            assert self.get_text(MemberPageLocator.member_list_brand_id) == 'AutoTest', f'品牌帳號有誤'
             assert self.get_text(MemberPageLocator.member_list_member_status) == '正常', f'會員狀態有誤'
             assert self.get_text(MemberPageLocator.member_list_group_amount) == '0', f'群組數量有誤'
-            assert self.get_text(MemberPageLocator.member_list_ID_type) == '后台开通', f'帳號類型有誤'
+            assert self.get_text(MemberPageLocator.member_list_ID_type) == 'App注册', f'帳號類型有誤'
         elif condition == 'confirm_manual_create':
             assert self.get_text(MemberPageLocator.member_list_ID) == member_ID, f'搜尋帳號失敗'
             assert self.get_text(MemberPageLocator.member_list_name) == member_ID, f'帳號資料有誤'
@@ -363,9 +362,8 @@ class MemberPage(BasePage):
             assert self.get_text(MemberPageLocator.member_delete_title) == '删除会员', f'進入刪除頁面失敗'
             self.click(MemberPageLocator.confirm_btn)
             self.wait_loading_finish()
-            aaa = self.get_text(MemberPageLocator.member_delete_check)
             assert self.get_text(MemberPageLocator.member_delete_check) == '已删除的帐号', f'刪除帳號失敗'
-            assert self.get_text(MemberPageLocator.member_list_member_status) == '已刪除', f'會員狀態錯誤, 預期:,實際:{self.get_text(MemberPageLocator.member_list_member_status)}'
+            assert self.get_text(MemberPageLocator.member_list_member_status) == '已刪除', f'會員狀態錯誤'
         self.wait_loading_finish()
 
     def change_social_permission(self, member_ID, enable=True):

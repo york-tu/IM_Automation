@@ -1027,6 +1027,8 @@ class WebTestCase(BaseTestCase):
         self.function_dict['ad'].mainPage().into_integral_record()
         self.function_dict['ad'].waterRecodePage().check_current_exchange_record(self.web_account, None, amount, red_envelope_type, 'QA_bot_only',remain_integral_amount)  # [後台]積分使用紀錄頁確認積分訊息
 
+
+
     # 測試 - [後台]設定邀請碼權限 > [前台]登入一般成員 & 管理員帳號確認邀請碼分享欄位顯示與否
     @DecorateClass('CHATAPP-T2569')
     def test_share_code_visible_when_permission_change(self):

@@ -10,7 +10,9 @@ import time, pytz, datetime, platform, sys
 import pyautogui, logging
 from random import randint
 from opencc import OpenCC
-
+import imaplib
+import email
+import re
 
 class Common(object):
     def __init__(self, driver, sec, base_url, test_skip_method):
@@ -276,6 +278,10 @@ class Common(object):
         js = 'window.scrollTo(0, document.body.scrollHeight);'  # 頁面滾到最下方js
         self.execute_js(js)
 
+    def scroll_to_middle(self):
+        js = 'window.scrollTo(0, document.body.scrollHeight / 2);'  # 頁面滾到畫面中js
+        self.execute_js(js)
+
     def scroll_to_element(self, locator):
         ActionChains(self.driver).move_to_element(self.find_element(locator)).perform()
 
@@ -442,4 +448,52 @@ class Common(object):
         el = self.find_element(locator)
         return el.location
 
+    def get_verification_code_from_mail(self):
+        """
+        從 Gmail 收件匣獲取第一封未讀驗證碼郵件並回傳驗證碼
+        條件: 寄件人包含 'GuChat' 且主旨包含 'GuChat'
+        """
+        imap_server = "imap.gmail.com"
+        mail = imaplib.IMAP4_SSL(imap_server)
 
+        account = "york_tu@tengyuntech.com"
+        pw = "rhzt lzqi xqnz pdsf"
+
+        try:
+            # 登入 Gmail
+            mail.login(account, pw)
+            mail.select("inbox")
+
+            # 搜尋未讀信件
+            status, data = mail.search(None, '(UNSEEN FROM "GuChat" SUBJECT "GuChat")')
+            mail_ids = data[0].split()
+
+            if not mail_ids:
+                return None  # 沒有符合的信件
+
+            # 取最新一封
+            latest_email_id = mail_ids[0]
+            status, msg_data = mail.fetch(latest_email_id, "(RFC822)")
+            msg = email.message_from_bytes(msg_data[0][1])
+
+            # 取郵件內容
+            email_content = ""
+            if msg.is_multipart():
+                for part in msg.walk():
+                    if part.get_content_type() == "text/plain":
+                        email_content = part.get_payload(decode=True).decode()
+                        break
+            else:
+                email_content = msg.get_payload(decode=True).decode()
+
+            clean_text = re.sub(r"<.*?>", "", email_content)  # 去掉所有 HTML 標籤
+            match = re.search(r"验证码：\s*(\d{6})", clean_text)
+
+            if match:
+                code = match.group(1)
+                return code
+            else:
+                return None
+
+        finally:
+            mail.logout()

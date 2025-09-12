@@ -16,7 +16,7 @@ brand = 'gu'  # gu > mee > s365 > chit
 user = 1
 test_type = 'web'
 os_version = 'Win11'  # 作業系統
-web_version = '1.23.0'  # 版本號 (開web console: VITE_APP_VERSION: 正式版號; VITE_LAST_HASH: uat測試版號)
+web_version = '1.24.0'  # 版本號 (開web console: VITE_APP_VERSION: 正式版號; VITE_LAST_HASH: uat測試版號)
 
 push = True  # 將結果推倒jira, 預設請給予 True
 

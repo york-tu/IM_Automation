@@ -24,7 +24,6 @@ class SearchPageLocator:
     user_result_poster = (By.XPATH, "//p[@class='w-full text-[16rem] text-grand-1 overflow-hidden text-ellipsis whitespace-nowrap']")
     user_result_poster_info = (By.XPATH, "//div[@class='text-[14rem] text-grand-2']")
     user_result_follow_btn = (By.XPATH, "//div[@class='ml-auto text-[14rem] text-white-100 rounded-[4rem] py-[7rem] w-[74rem] bg-primary-500 text-center']")
-
     @staticmethod
     def search_record_index(num):
         locator = (By.XPATH, f"(//p[@class='flex-1 overflow-hidden text-ellipsis'])[{num}]")
@@ -67,6 +66,7 @@ class SearchPage(BasePage):
             self.click(SearchPageLocator.search_btn)
 
     def check_search_poster_result(self, user_nickname):
+        sleep(3)
         assert self.get_text(SearchPageLocator.user_result_poster) == user_nickname
         actual_text = self.get_text(SearchPageLocator.user_result_poster_info)
         assert "个粉丝" in actual_text

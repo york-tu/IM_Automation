@@ -41,6 +41,15 @@ class MessagePageLocator:
     send_confirm_submit = (By.XPATH, "//button[text()='传送']")  # 確認傳送
     chatroom_last_filename = (By.XPATH, "(//div[@class='text-[14px] font-semibold text-grand-1 leading-[20px] mb-[4px]'])[last()]")  #聊天室內最新一則檔案訊息名稱
     reply_file_text = (By.XPATH, "(//div[@class='text-[12px]'])[last()]")  # 聊天室內最後一則檔案訊息的回覆框"原檔案訊息名稱"
+    # ============================= 社群化分享文 =========================================================================
+    chat_share_author_name = (By.XPATH, "(//div[@class='min-w-0 flex-1 truncate font-semibold'])[last()]")  # 最新一則個人頁分享文作者
+    chat_share_post_author_name = (By.XPATH, "(//p[@class='overflow-hidden text-ellipsis whitespace-nowrap text-[12rem] text-white-100'])[last()]")  # 最新一則個人頁分享文作者
+    chat_share_post_1 = (By.XPATH, "(//div[@class='flex-1 flex items-center w-[70rem] justify-center bg-slate-200'])[1]")  # 個人頁分享文第一則貼文縮圖
+    chat_share_post_2 = (By.XPATH, "(//div[@class='flex-1 flex items-center w-[70rem] justify-center bg-slate-200'])[2]")  # 個人頁分享文第一則貼文縮圖
+    chat_share_post_3 = (By.XPATH, "(//div[@class='flex-1 flex items-center w-[70rem] justify-center bg-slate-200'])[3]")  # 個人頁分享文第一則貼文縮圖
+    chat_share_post_thumbnail = (By.XPATH, "(//div[@class='max-w-[80%] flex flex-col rounded-[4rem] overflow-hidden'])[last()]")  # 貼文分享文縮圖
+    chat_share_self_page_message = (By.XPATH, "(//div[@class='py-[8rem] px-[12rem] text-[16rem] text-grand-1 break-all whitespace-pre-wrap'])[last()]")  # 個人頁分享文留言
+    chat_share_post_message = (By.XPATH, "(//p[@class='text-[16rem] text-grand-1 whitespace-pre-wrap break-all px-[10rem] py-[12rem]'])[last()]")  # 貼文分享文留言
     # ============================= 右鍵選單 ============================================================================
     message_menu = (By.XPATH, "//div[@class='flex flex-col w-full rounded-[4rem] overflow-x-hidden menu-list']")
     menu_copy = (By.XPATH, "//div[@class='px-[16rem] py-[12rem] flex items-center justify-center min-h-[48rem] cursor-pointer menu-item']//p[text() = '复制']")
@@ -75,10 +84,10 @@ class MessagePageLocator:
     pin_msg = (By.XPATH, "//p[@class='text-grand-1 m-0 text-[14rem] font-semibold overflow-hidden whitespace-nowrap text-ellipsis']")
     pin_expand_btn = (By.XPATH, "//div[@class='w-[24rem] h-[24rem] arrow']")
     pin_collapse_btn = (By.XPATH, "//div[@class='w-[24rem] h-[24rem] arrow rotate-180']")
-    pin_no_show = (By.XPATH, "//p[text() = '不再显示']")
+    pin_no_show = (By.XPATH, "//p[text()='不再显示']")
 
-    pin_alert_popup = (By.XPATH, "//div[@class='wcr-system-alert']")
-    pin_popup_close = (By.XPATH, "//div[@class='alert__close']")
+    pin_alert_popup = (By.XPATH, "//div[@class='px-[44px] py-[12px]']")
+    pin_popup_close = (By.XPATH, "//button[text()='确认']")
 
     # ============================= 聊天室 > 聊天詳情頁 ===================================================================
 
@@ -324,10 +333,12 @@ class MessagePage(BasePage):
             return False
 
     def message_pin(self, message):
-        self.refresh_browser()
+        # self.refresh_browser()
+        # self.sleep(1)
         self.wait_message_finish()
         if self.is_element_finded(MessagePageLocator.message_locator(message)) is True:
             self.long_press(MessagePageLocator.message_locator(message))
+            self.sleep(0.5)
             self.menu_click(MessagePageLocator.menu_pin)
         else:
             return False
@@ -337,7 +348,7 @@ class MessagePage(BasePage):
             self.click(MessagePageLocator.pin_popup_close)
             return False
         else:
-            self.sleep(1)
+            self.sleep(0.5)
             pin_show = self.get_text(MessagePageLocator.pin_first_msg)
             assert pin_show == message, f'公告顯示有誤'
             assert self.get_text(MessagePageLocator.system_message).__contains__('设定一笔讯息为公告'), f'設定置頂公告系統訊息有誤'
@@ -345,7 +356,7 @@ class MessagePage(BasePage):
 
     def pin_full_messages(self):
         message = 'mWeb發訊息TeSt!@#$%'
-        pin_sort = [2, 0, 1, 3, 4]
+        pin_sort = [2, 0, 1, 3, 4, 5]
 
         times = 1
         expected_list = []
@@ -355,9 +366,9 @@ class MessagePage(BasePage):
             if times < 6:
                 assert self.message_pin(text) is True
                 expected_list.append(text)
-            # else:
-            #     assert self.message_pin(text) is False
-            #     break
+            else:
+                assert self.message_pin(text) is False
+                break
             times = times + 1
 
         if not self.is_element_finded(MessagePageLocator.pin_list_show):
@@ -399,3 +410,32 @@ class MessagePage(BasePage):
 
     def check_pin_message(self, message):
         assert self.get_text(MessagePageLocator.pin_first_msg) == message
+
+    def check_chat_share_info(self, content_creator, share_message='', share_main_page=True):
+        sleep(1)
+        if share_main_page:  # 當分享文為個人主頁
+            actual_creator = self.get_text(MessagePageLocator.chat_share_author_name)
+            assert actual_creator == content_creator, f'作者錯誤, 預期:{content_creator}, 實際:{actual_creator}'
+
+            assert self.is_element_finded(MessagePageLocator.chat_share_post_1)
+            assert self.is_element_finded(MessagePageLocator.chat_share_post_2)
+            assert self.is_element_finded(MessagePageLocator.chat_share_post_3)
+
+            if share_message != '':
+                try:
+                    actual_share_message = self.get_text(MessagePageLocator.chat_share_self_page_message)
+                    assert actual_share_message == share_message, f'分享貼文留言與實際留言不同, 預期:{share_message}, 實際:{actual_share_message}'
+                except Exception:
+                    assert False, '分享文沒有含留言'
+        else:  # 當分享文為貼文
+            assert self.is_element_finded(MessagePageLocator.chat_share_post_thumbnail)
+
+            actual_creator = self.get_text(MessagePageLocator.chat_share_author_name)
+            assert actual_creator == content_creator, f'作者錯誤, 預期:{content_creator}, 實際:{actual_creator}'
+
+            if share_message != '':
+                try:
+                    actual_share_message = self.get_text(MessagePageLocator.chat_share_post_message)
+                    assert actual_share_message == share_message, f'分享貼文留言與實際留言不同, 預期:{share_message}, 實際:{actual_share_message}'
+                except Exception:
+                    assert False, '分享文沒有含留言'

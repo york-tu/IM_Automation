@@ -20,55 +20,59 @@ env = 'uat'
 brand = 'gu'  # gu > mee > s365 > chit
 user = 1
 connect_type = 'local'  # 手機連線模式 remote or local
-phone_name = 'IPHONE_32'  # 手機型號 'HUAWEI_26', 'IPHONE_32'
+phone_name = 'IPHONE_40'  # 手機型號 'IPHONE_13 (ios18)', 'IPHONE_73 (ios16.1.1)'
 phone_platform = 'iOS'  # 手機作業系統 (Android, iOS)
-app_version = '5.5.0(107073.116)'  # android: 1.42.0-rc.4 , ios: 4.25.0(99946.116)
+app_version = '5.15.0(111816.97)'  # android: 1.42.0-rc.4 , ios: 4.25.0(99946.116)
+account_type = 'phone'  # 帳號類型: mail, phone...
 specific_os_version = []  # 指定OS版本, ['10','11','8']
-push = True  # 將結果推倒jira, 預設請給予 True
+push = False  # 將結果推倒jira, 預設請給予 True
 
-personal_settings_regression_list = [
-    AppTestCase("test_login"),
-    AppTestCase("test_version_check"),
-    AppTestCase("test_into_gallery"),
-    AppTestCase("test_into_tread"),
-    AppTestCase("test_into_member"),
-    AppTestCase("test_into_friend"),
-    AppTestCase("test_change_nickname_and_instructions"),
-    AppTestCase("test_notify_switch"),
-    AppTestCase("test_detail_switch"),
-    AppTestCase("test_voice_switch"),
-    AppTestCase("test_vibration_switch"),
-    AppTestCase("test_about_terms"),
-    AppTestCase("test_change_password"),
-    AppTestCase("test_account_info"),
+one_on_one_chat_regression_list = [
+    # AppTestCase("test_login"),
+    # AppTestCase("test_version_check"),
+    # AppTestCase("test_into_member"),
+    # AppTestCase("test_into_friend"),
+    # AppTestCase("test_change_nickname_and_instructions"),
+    # AppTestCase("test_notify_switch"),
+    # AppTestCase("test_detail_switch"),
+    # AppTestCase("test_voice_switch"),
+    # AppTestCase("test_vibration_switch"),
+    # AppTestCase("test_about_terms"),
+    # AppTestCase("test_change_password"),
+    # AppTestCase("test_account_info"),
+    # AppTestCase("test_add_friend"),
+    # AppTestCase("test_add_myself"),
+    # AppTestCase("test_friend_remark"),
+    # AppTestCase("test_block_friend"),
+    # AppTestCase("test_block_setting"),
+    # AppTestCase("test_unblock_friend"),
+    # AppTestCase("test_share_message"),
+    # AppTestCase("test_send_message"),
+    # AppTestCase("test_message_copy"),
+    # AppTestCase("test_message_reply"),
+    # AppTestCase("test_message_delete"),
+    # AppTestCase("test_message_revoke"),
+    # AppTestCase("test_message_reply_delete"),
+    # AppTestCase("test_message_reply_revoke"),
+    # AppTestCase("test_message_pin"),
+    # AppTestCase("test_message_pin_reply"),
+    # AppTestCase("test_message_pin_delete"),
+    # AppTestCase("test_message_pin_revoke"),
+    # AppTestCase("test_message_emoji"),
+    # AppTestCase('test_send_voice_message'),
+    # AppTestCase('test_voice_message_reply'),
+    # AppTestCase('test_voice_message_delete'),
+    # AppTestCase('test_voice_message_revoke'),
+    # AppTestCase('test_send_file_message'),
+    # AppTestCase('test_file_message_reply'),
+    # AppTestCase('test_file_message_delete'),
+    # AppTestCase('test_file_message_revoke'),
+    # AppTestCase("test_delete_friend"),
+    # AppTestCase("test_logout"),
 ]
-
-friend_regression_list = [
-    AppTestCase("test_add_friend"),
-    AppTestCase("test_add_myself"),
-    AppTestCase("test_friend_remark"),
-    AppTestCase("test_block_friend"),
-    AppTestCase("test_block_setting"),
-    AppTestCase("test_unblock_friend"),
-    AppTestCase("test_share_message"),
-    AppTestCase("test_send_message"),
-    AppTestCase("test_message_copy"),
-    AppTestCase("test_message_reply"),
-    AppTestCase("test_message_delete"),
-    AppTestCase("test_message_revoke"),
-    AppTestCase("test_message_reply_delete"),
-    AppTestCase("test_message_reply_revoke"),
-    AppTestCase("test_message_pin"),
-    AppTestCase("test_message_pin_reply"),
-    AppTestCase("test_message_pin_delete"),
-    AppTestCase("test_message_pin_revoke"),
-    AppTestCase("test_message_emoji"),
-    AppTestCase("test_delete_friend"),
-    AppTestCase("test_logout"),
-]
-
-group_regression_list = [
-    AppTestCase("test_send_message_group"),
+# =========== 群聊相關功能測試 ===========
+group_chat_regression_list = [
+    # AppTestCase("test_send_message_group"),
     # AppTestCase("test_message_copy_group"),
     # AppTestCase("test_message_reply_group"),
     # AppTestCase("test_message_delete_group"),
@@ -77,6 +81,27 @@ group_regression_list = [
     # AppTestCase("test_message_pin_reply_group"),
     # AppTestCase("test_message_pin_delete_group"),
     # AppTestCase("test_message_pin_revoke_group"),
+    # AppTestCase("test_send_voice_message_group"),
+    # AppTestCase('test_voice_message_reply_group'),
+    # AppTestCase('test_voice_message_delete_group'),
+    # AppTestCase('test_voice_message_revoke_group'),
+
+    # AppTestCase('test_send_file_message_group'),
+    # AppTestCase('test_file_message_reply_group'),
+    # AppTestCase('test_file_message_delete_group'),
+    # AppTestCase('test_file_message_revoke_group'),
+    # AppTestCase("test_logout"),
+]
+
+# =========== 發現功能測試 ===========
+discover_regression_list = [
+    AppTestCase("test_discover_floating_icon"),
+    # AppTestCase("test_logout"),
+]
+
+PreTest_list = [
+    # AppTestCase("test_email_input_field_check"),
+    ContextTestCase("test_app_email_registration")
 ]
 
 
@@ -103,6 +128,7 @@ if __name__ == '__main__':
     gl.set_value('PHONE_NAME', phone_name)
     gl.set_value('PHONE_PLATFORM', phone_platform)  # 作業系統名稱
     gl.set_value('APP_VERSION', app_version)
+    gl.set_value('ACCOUNT_TYPE', account_type)
     gl.set_value('SPECIFIC_OS_VERSION', specific_os_version)
 
     # for jira config
@@ -112,9 +138,10 @@ if __name__ == '__main__':
 
     # TestCase add
     suite = unittest.TestSuite()
-    # suite.addTests(personal_settings_regression_list)
-    suite.addTests(group_regression_list)
-    # suite.addTests(friend_regression_list)
+    # suite.addTests(one_on_one_chat_regression_list)
+    # suite.addTests(group_chat_regression_list)
+    suite.addTests(discover_regression_list)
+    # suite.addTests(PreTest_list)
 
     # RunningTest
     Utils.unittest_xml(suite)

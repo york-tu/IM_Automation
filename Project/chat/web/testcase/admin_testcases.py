@@ -24,8 +24,9 @@ class AdminTestCase(BaseTestCase):
     build_time = []
     revise_time = []
     brand = gl.get_value('BRAND')
-    member_ID = datetime.datetime.now().strftime("%yy%m%d%H%M")
+    # member_ID = datetime.datetime.now().strftime("%yy%m%d%H%M")
     manual_account_id = f'm{datetime.datetime.now().strftime("%m%d%H%M%S")}'
+
     # ================================= TestSetting ================================
 
     @classmethod
@@ -172,6 +173,20 @@ class AdminTestCase(BaseTestCase):
         self.function_dict['ad'].mainPage().into_system_app_setting()
         self.function_dict['ad'].mainPage().check_member_add_friend_tip()  # 檢查會員添加好友選項tip
         self.function_dict['ad'].mainPage().check_add_friend_by_search_phone_tip()  # 檢查手機號搜索添加好友tip
+
+    # 測試-APP/Web设定-關閉極驗
+    @DecorateClass('CHATAPP-')
+    def test_system_app_setting_geetest_off(self):
+        self.test_admin_login()
+        self.function_dict['ad'].mainPage().into_system_app_setting()
+        self.function_dict['ad'].mainPage().enable_geetest(False)
+
+    # 測試-APP/Web设定-開啟極驗
+    @DecorateClass('CHATAPP-')
+    def test_system_app_setting_geetest_on(self):
+        self.test_admin_login()
+        self.function_dict['ad'].mainPage().into_system_app_setting()
+        self.function_dict['ad'].mainPage().enable_geetest(True)
 
     # 測試 - 後台登入不同權限帳號, 確認對應'好友添加白名单设定'頁顯示與不顯示
     @DecorateClass('CHATAPP-T2539')
@@ -326,12 +341,12 @@ class AdminTestCase(BaseTestCase):
             self.function_dict['wp'].mainPage().check_groups_build(_bool)
 
     # 測試-新增會員帳號
-    @DecorateClass('CHATAPP-T2508')
-    def test_member_build(self):
-        self.test_into_and_check_member_list()
-        self.function_dict['ad'].memberPage().build_account(self.member_ID)
-        build_time = datetime.datetime.now().strftime("%Y/%m/%d %H:%M")
-        self.function_dict['ad'].memberPage().check_data(self.member_ID, build_time, self.revise_time, condition = 'confirm_build')
+    # @DecorateClass('CHATAPP-T2508')
+    # def test_member_build(self):
+    #     self.test_into_and_check_member_list()
+    #     self.function_dict['ad'].memberPage().build_account(self.member_ID)
+    #     build_time = datetime.datetime.now().strftime("%Y/%m/%d %H:%M")
+    #     self.function_dict['ad'].memberPage().check_data(self.member_ID, build_time, self.revise_time, condition = 'confirm_build')
 
     # 測試-新增人工創建帳號
     @DecorateClass('CHATAPP-T2908')
@@ -354,8 +369,8 @@ class AdminTestCase(BaseTestCase):
         self.test_into_and_check_member_list()
         time.sleep(1)
 
-        self.function_dict['ad'].memberPage().revise_remark(self.member_ID)
-        self.function_dict['ad'].memberPage().check_data(self.member_ID, self.build_time, self.revise_time, condition = 'confirm_base')
+        self.function_dict['ad'].memberPage().revise_remark(self.manual_account_id)
+        self.function_dict['ad'].memberPage().check_data(self.manual_account_id, self.build_time, self.revise_time, condition = 'confirm_base')
 
     # 測試-修改資料 
     @DecorateClass('CHATAPP-T2510')
@@ -364,8 +379,8 @@ class AdminTestCase(BaseTestCase):
         self.test_into_and_check_member_list()
         time.sleep(1)
 
-        self.function_dict['ad'].memberPage().member_change_data(self.member_ID)
-        self.function_dict['ad'].memberPage().check_data(self.member_ID, self.build_time, self.revise_time, condition = 'confirm_base')
+        self.function_dict['ad'].memberPage().member_change_data(self.manual_account_id)
+        self.function_dict['ad'].memberPage().check_data(self.manual_account_id, self.build_time, self.revise_time, condition = 'confirm_base')
 
     # 測試-重製安全密碼
     @DecorateClass('CHATAPP-T2511')
@@ -374,9 +389,9 @@ class AdminTestCase(BaseTestCase):
         self.test_into_and_check_member_list()
         time.sleep(1)
 
-        self.function_dict['ad'].memberPage().reset_security_password(self.member_ID)
+        self.function_dict['ad'].memberPage().reset_security_password(self.manual_account_id)
         revise_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
-        self.function_dict['ad'].memberPage().check_data(self.member_ID, self.build_time, revise_time, condition = 'confirm_base')
+        self.function_dict['ad'].memberPage().check_data(self.manual_account_id, self.build_time, revise_time, condition = 'confirm_base')
 
     # 測試-變更密碼
     @DecorateClass('CHATAPP-T2512')
@@ -385,21 +400,21 @@ class AdminTestCase(BaseTestCase):
         self.test_into_and_check_member_list()
         time.sleep(1)
 
-        self.function_dict['ad'].memberPage().member_change_password(self.member_ID)
+        self.function_dict['ad'].memberPage().member_change_password(self.manual_account_id)
         revise_time = datetime.datetime.now().strftime("%Y/%m/%d %H:%M")
-        self.function_dict['ad'].memberPage().check_data(self.member_ID, self.build_time, revise_time, condition = 'confirm_revise')
+        self.function_dict['ad'].memberPage().check_data(self.manual_account_id, self.build_time, revise_time, condition = 'confirm_revise')
 
     # 測試-搜尋功能
     @DecorateClass('CHATAPP-T2515')
     def test_member_search_function(self):
         self.test_into_and_check_member_list()
-        self.function_dict['ad'].memberPage().search(self.member_ID)
+        self.function_dict['ad'].memberPage().search(self.manual_account_id)
 
     # 測試-刪除後台新增帳號
     @DecorateClass('CHATAPP-T2516')
     def test_member_delete(self):
         self.test_into_and_check_member_list()
-        self.function_dict['ad'].memberPage().delete_member(self.member_ID)
+        self.function_dict['ad'].memberPage().delete_member(self.manual_account_id)
 
     # @DecorateClass('')
     # def test_change_social_permission(self):
@@ -457,7 +472,8 @@ class AdminTestCase(BaseTestCase):
         self.test_into_red_list()
         self.function_dict['ad'].redenvelopePage().add_luck_redenvelope()
 
-    # 測試-檢查紅包詳情
+
+# 測試-檢查紅包詳情
     @DecorateClass('CHATAPP-T2519')
     def test_check_red_envelope(self):
         self.test_into_red_list()

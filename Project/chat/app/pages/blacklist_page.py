@@ -27,13 +27,13 @@ class BlackListPageLocator:
         iOS=base.data_collation(type_kind='type', type_name='TextField'),
     )
 
-    black_list_frist = base.check_device(
+    black_nickname = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tv_name'),
         iOS=base.data_collation(type_kind='name', type_name='test1234', num=-1),
     )
 
     black_remark_btn = base.check_device(
-        Android=base.data_collation(type_kind='text', type_name='设定备注'),
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tv_set_note_title'),
         iOS=base.data_collation(type_kind='name', type_name='设定备注'),
     )
 
@@ -51,7 +51,10 @@ class BlackListPageLocator:
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/et_note'),
         iOS=base.data_collation(type_kind='type', type_name='TextView', num=-1),
     )
-
+    chat_detail_note_content = base.check_device(
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tv_note_content'),
+        iOS=base.data_collation(type_kind='', type_name=''),
+    )
     search_clear = base.check_device(
         Android=base.data_collation(type_kind='', type_name=''),
         iOS=base.data_collation(type_kind='name', type_name='清除文本'),
@@ -129,85 +132,69 @@ class BlackListPage(Base):
         self.common.poco_click(BlackListPageLocator.setting_button)
 
     def set_note(self, note):
-        self.common.poco_click(BlackListPageLocator.black_remark_btn)
-
+        self.common.poco_click(BlackListPageLocator.black_remark_btn)  # 黑名單成員 > 聊天詳情頁 > 設定備註
         if self.phone_platform.lower() == 'ios':  # ios part
+            # ========================= 變更描述 =========================
             self.common.poco_click(BlackListPageLocator.note_input)
             self.common.poco_send_text(BlackListPageLocator.note_input, note)
             self.common.poco_click(BlackListPageLocator.remark_submit)
+            assert self.poco(name=f'{note}').exists()  # 確認詳情頁描述出現設定的文字
+            # ========================= 刪除描述 =========================
             self.common.poco_click(BlackListPageLocator.black_note_button)
-            assert self.common.poco_get_attr(BlackListPageLocator.note_input, 'value') == note, f'設定描述失敗'
-
             while not self.poco(name='全选'):
                 self.common.poco_long_click(BlackListPageLocator.note_input)
                 sleep(1)
             self.poco(name='全选').click()
             self.poco(name='delete').click()
-
             self.common.poco_click(BlackListPageLocator.remark_submit)
             self.common.poco_click(BlackListPageLocator.black_remark_btn)
-            assert self.poco(type='StaticText')[-1].attr('value') == '描述最长至300字', f'描述清空失敗'
-
-            self.common.poco_click(BlackListPageLocator.remark_back)
+            assert self.poco(type='StaticText')[-1].attr('value') == '描述最长至300字', f'描述清空失敗'  # 確認描述預設文字
 
         else:  # android part
+            # ========================= 變更描述 =========================
             self.common.poco_send_text(BlackListPageLocator.note_input, note)
             self.common.poco_click(BlackListPageLocator.remark_submit)
+            assert self.common.poco_get_text(BlackListPageLocator.chat_detail_note_content) == note  # 詳情頁描述出現設定文字
+            # ========================= 刪除描述 =========================
             self.common.poco_click(BlackListPageLocator.black_note_button)
-            assert self.common.poco_get_text(BlackListPageLocator.note_input) == note, f'設定描述失敗'
-
             self.common.poco_send_text(BlackListPageLocator.note_input, '')
             self.common.poco_click(BlackListPageLocator.remark_submit)
             self.common.poco_click(BlackListPageLocator.black_remark_btn)
             assert self.common.poco_get_text(BlackListPageLocator.note_input) == '描述最长至300字...', f'描述清空失敗'
-            self.common.poco_click(BlackListPageLocator.remark_back)
 
-    def set_nickname(self):
+        self.common.poco_click(BlackListPageLocator.remark_back)  # 回到詳情頁
+
+    def set_nickname(self, name):
         if self.phone_platform.lower() == 'ios':  # ios part
-            original_set_nick_name = self.poco(type='StaticText')[1].attr('value')
             # ============================= 更改原暱稱 =============================================
-            self.common.poco_click(BlackListPageLocator.black_remark_btn)
+            self.common.poco_click(BlackListPageLocator.black_remark_btn)  # 黑名單成員 > 聊天詳情頁 > 設定備註
             self.common.poco_click(BlackListPageLocator.nickname_input)
             self.common.poco_click(BlackListPageLocator.search_clear)
-            self.common.poco_send_text(BlackListPageLocator.nickname_input, '黑名單_Paradise_天堂')
+            self.common.poco_send_text(BlackListPageLocator.nickname_input, name)
             self.common.poco_click(BlackListPageLocator.remark_submit)
-            self.common.poco_click(BlackListPageLocator.remark_back)
-            aaa = self.poco(type='StaticText')[1].attr('value')
-            assert self.poco(type='StaticText')[1].attr('value') == '黑名單_Paradise_天堂', f'暱稱更換失敗'
-
+            after_modified = self.poco(type='StaticText')[1].attr('value')
+            assert after_modified == name, f'暱稱更換失敗'
             # ============================= 將暱稱刪除, 欄位留空, 使用預設暱稱 ==========================
-            self.common.poco_click(BlackListPageLocator.setting_button)
             self.common.poco_click(BlackListPageLocator.black_remark_btn)
             self.common.poco_click(BlackListPageLocator.nickname_input)
             self.common.poco_click(BlackListPageLocator.search_clear)
             default_nickname = self.poco(type='TextField').attr('value')
             self.common.poco_click(BlackListPageLocator.remark_submit)
-            self.common.poco_click(BlackListPageLocator.remark_back)
-            assert self.poco(type='StaticText')[1].attr('value') == default_nickname, f'暱稱預設失敗'
+            after_modified = self.poco(type='StaticText')[1].attr('value')
+            assert after_modified == default_nickname, f'暱稱預設失敗'
 
-        else:
+        else:  # android part
+            # ============================= 更改原暱稱 =============================================
             self.common.poco_click(BlackListPageLocator.black_remark_btn)
-
-            nick_name = self.common.poco_get_text(BlackListPageLocator.nickname_input)
-            self.common.poco_send_text(BlackListPageLocator.nickname_input, 'Paradise_天堂')
+            self.common.poco_send_text(BlackListPageLocator.nickname_input, name)
             self.common.poco_click(BlackListPageLocator.remark_submit)
+            assert self.common.poco_get_text(BlackListPageLocator.black_nickname) == name, f'暱稱更換失敗'
+            # ============================= 將暱稱刪除, 欄位留空, 使用預設暱稱 ==========================
             self.common.poco_click(BlackListPageLocator.black_remark_btn)
-            assert self.common.poco_get_text(BlackListPageLocator.nickname_input) == 'Paradise_天堂', f'暱稱更換失敗'
-
-            self.common.poco_long_click(BlackListPageLocator.nickname_input)
-            self.poco(name='全选').click()
-            self.poco(name='剪切').click()
-
-            # self.common.poco_send_text(BlackListPageLocator.nickname_input, '')
+            self.common.poco_send_text(BlackListPageLocator.nickname_input, '')
             default_nickname = self.common.poco_get_text(BlackListPageLocator.nickname_input)
             self.common.poco_click(BlackListPageLocator.remark_submit)
-            self.common.poco_click(BlackListPageLocator.black_remark_btn)
-            assert self.common.poco_get_text(BlackListPageLocator.nickname_input) == default_nickname, f'暱稱預設失敗'
-
-            self.common.poco_send_text(BlackListPageLocator.nickname_input, nick_name)
-            self.common.poco_click(BlackListPageLocator.remark_submit)
-            self.common.poco_click(BlackListPageLocator.black_remark_btn)
-            assert self.common.poco_get_text(BlackListPageLocator.nickname_input) == nick_name, f'暱稱更換失敗'
+            assert self.common.poco_get_text(BlackListPageLocator.black_nickname) == default_nickname, f'暱稱更換失敗'
 
     def impeach_friend(self):
         self.common.poco_click(BlackListPageLocator.impeach_button)
@@ -220,13 +207,13 @@ class BlackListPage(Base):
             self.common.poco_send_text(BlackListPageLocator.black_seach_input, name)
             self.common.sleep(1)
             assert not self.common.poco_exists(BlackListPageLocator.search_empty), f'找不到任何黑名單成員'
-            self.common.poco_click(BlackListPageLocator.black_list_frist)
+            self.common.poco_click(BlackListPageLocator.black_nickname)
 
         else:
             self.common.poco_send_text(BlackListPageLocator.black_seach_input, name)
             self.common.sleep(1)
-            assert self.common.poco_get_text(BlackListPageLocator.black_list_frist) == name, f'找不到任何黑名單成員'
-            self.common.poco_click(BlackListPageLocator.black_list_frist)
+            assert self.common.poco_get_text(BlackListPageLocator.black_nickname) == name, f'找不到任何黑名單成員'
+            self.common.poco_click(BlackListPageLocator.black_nickname)
 
     def unblock_friend(self):
         if self.phone_platform.lower() == 'ios':

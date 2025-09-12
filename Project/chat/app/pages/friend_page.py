@@ -86,7 +86,7 @@ class FriendPageLocator:
     )
 
     friend_remark_btn = base.check_device(
-        Android=base.data_collation(type_kind='text', type_name='设定备注'),
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tv_set_note_title'),
         iOS=base.data_collation(type_kind='name', type_name='设定备注'),
     )
 
@@ -252,35 +252,43 @@ class FriendPage(Base):
                 assert self.common.poco_get_text(FriendPageLocator.team_list_frist).__contains__(name), f'找不到任何結果'
                 self.common.poco_click(FriendPageLocator.team_list_frist)
 
-    def add_myself(self, number, nation):
-        if gl.get_value('ENV').lower() == 'uat':
-            self_id = "gubot03"
-        else:
-            self_id = "gutest001"
+    def add_myself(self, phone_number_mail_id, nation='CN', account_type='phone'):
 
-        full_number = ''
-
-        if nation == "TW":
-            full_number = '886' + str(number)
-        elif nation == "CN":
-            full_number = '86' + str(number)
-        elif nation == "JP":
-            full_number = '81' + str(number)
-        if self.common.poco_exists(FriendPageLocator.add_button):
-            self.common.poco_click(FriendPageLocator.add_button)
-            self.wait_loading_finish()
-        if self.common.poco_exists(FriendPageLocator.add_friend_input):
-            if self.phone_platform.lower() == 'android':
-                self.common.poco_send_text(FriendPageLocator.add_friend_input, full_number)
-                self.common.poco_click(FriendPageLocator.add_friend_search)
+        if account_type == 'phone':
+            if gl.get_value('ENV').lower() == 'uat':
+                self_id = "gubot03"
             else:
-                self.common.poco_click(FriendPageLocator.add_friend_input)
-                self.common.poco_send_text(FriendPageLocator.add_friend_input, self_id)
+                self_id = "gutest001"
+            full_number = ''
+            if nation == "TW":
+                full_number = '886' + str(phone_number_mail_id)
+            elif nation == "CN":
+                full_number = '86' + str(phone_number_mail_id)
+            elif nation == "JP":
+                full_number = '81' + str(phone_number_mail_id)
+            if self.common.poco_exists(FriendPageLocator.add_button):
+                self.common.poco_click(FriendPageLocator.add_button)
+                self.wait_loading_finish()
+            if self.common.poco_exists(FriendPageLocator.add_friend_input):
+                if self.phone_platform.lower() == 'android':
+                    self.common.poco_send_text(FriendPageLocator.add_friend_input, full_number)
+                    self.common.poco_click(FriendPageLocator.add_friend_search)
+                else:
+                    self.common.poco_click(FriendPageLocator.add_friend_input)
+                    self.common.poco_send_text(FriendPageLocator.add_friend_input, self_id)
+                    self.common.poco_click(FriendPageLocator.add_friend_search)
+
+        elif account_type == 'mail':
+            if self.common.poco_exists(FriendPageLocator.add_button):
+                self.common.poco_click(FriendPageLocator.add_button)
+            if self.common.poco_exists(FriendPageLocator.add_friend_input):
+                self.common.poco_send_text(FriendPageLocator.add_friend_input, phone_number_mail_id)
                 self.common.poco_click(FriendPageLocator.add_friend_search)
+
         assert self.common.poco_exists(FriendPageLocator.add_myself_popup), f'未顯示增加自己好友錯誤彈窗'
         self.common.poco_click(FriendPageLocator.add_myself_button)
 
-    def search_clear(self, number):
+    def search_clear(self, id):
         self.common.poco_click(FriendPageLocator.add_button)
 
         if self.phone_platform.lower() == 'ios':
@@ -291,7 +299,7 @@ class FriendPage(Base):
             assert '我的 IM ID：' in default_text, f'新增好友頁未清空'
 
         else:
-            self.common.poco_send_text(FriendPageLocator.add_friend_input, number)
+            self.common.poco_send_text(FriendPageLocator.add_friend_input, id)
             assert self.common.poco_exists(FriendPageLocator.add_friend_search), f'未顯示搜查按鍵'
             self.common.poco_click(FriendPageLocator.search_clear)
 
@@ -331,7 +339,7 @@ class FriendPage(Base):
 
             self.common.poco_click(FriendPageLocator.remark_back)
 
-    def set_nickname(self):
+    def set_nickname(self, name):
         if self.phone_platform.lower() == 'ios':  # ios part
             original_set_nick_name = self.poco(type='StaticText')[1].attr('value')
 
@@ -340,9 +348,9 @@ class FriendPage(Base):
             self.common.poco_click(FriendPageLocator.nickname_input)
             self.common.poco_click(FriendPageLocator.search_clear)
             self.common.poco_click(FriendPageLocator.nickname_input)
-            self.common.poco_send_text(FriendPageLocator.nickname_input, 'tengyuntech_騰雲科技')
+            self.common.poco_send_text(FriendPageLocator.nickname_input, name)
             self.common.poco_click(FriendPageLocator.remark_submit)
-            assert self.poco(type='StaticText')[1].attr('value') == 'tengyuntech_騰雲科技', f'暱稱更換失敗'
+            assert self.poco(type='StaticText')[1].attr('value') == name, f'暱稱更換失敗'
 
             # ============================= 將暱稱刪除, 欄位留空, 使用預設暱稱 ==========================
             self.common.poco_click(FriendPageLocator.friend_remark_btn)
@@ -357,9 +365,9 @@ class FriendPage(Base):
 
             # ============================= 更改原暱稱 =============================================
             self.common.poco_click(FriendPageLocator.friend_remark_btn)
-            self.common.poco_send_text(FriendPageLocator.nickname_input, 'tengyuntech_騰雲科技')
+            self.common.poco_send_text(FriendPageLocator.nickname_input, name)
             self.common.poco_click(FriendPageLocator.remark_submit)
-            assert self.common.poco_get_text(FriendPageLocator.friend_nickname) == 'tengyuntech_騰雲科技', f'暱稱更換失敗'
+            assert self.common.poco_get_text(FriendPageLocator.friend_nickname) == name, f'暱稱更換失敗'
 
             # ============================= 將暱稱刪除, 欄位留空, 使用預設暱稱 ==========================
             self.common.poco_click(FriendPageLocator.friend_remark_btn)

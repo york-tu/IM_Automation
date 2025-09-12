@@ -2,7 +2,6 @@ from time import sleep
 
 from selenium.webdriver.common.by import By
 from Project.chat.web.pages.wap.wap_basepage import BasePage
-from Project.chat.web.pages.wap.wap_loginpage import LoginPageLocator
 
 import os, random, re
 
@@ -10,6 +9,9 @@ import os, random, re
 class PersonalSettingPageLocator:
     # ============================= 導航欄 ==============================================================================
     mainPage_button = (By.XPATH, "//a[@href='/my-page']")  # 導航欄-主頁
+    guest_mode_mainPage_button = (By.XPATH, "(//div[@class='flex flex-col items-center py-[8rem]'])[last()]")  # 導航欄-訪客模式"主頁"鍵
+    discover_button = (By.XPATH, "//a[@href='/discover']")  # 導航欄-發現
+
     # ============================= 主頁 > 個人主頁 ======================================================================
     edit_profile_btn = (By.XPATH, "//button[@class=' bg-gray-100 py-[10rem] px-[20rem] rounded-[4rem] text-[15rem] font-semibold' and text()=' 编辑主页 ']")  # 個人主頁-編輯主頁鍵
     share_profile_btn = (By.XPATH, "//button[@class=' bg-gray-100 py-[10rem] px-[20rem] rounded-[4rem] text-[15rem] font-semibold' and text()=' 分享主页 ']")  # 個人主頁-分享主頁鍵
@@ -50,8 +52,8 @@ class PersonalSettingPageLocator:
     version_num = (By.XPATH, '//div[contains(@class, "flex items-center justify-between")]/p[@class="text-[14rem]"]')
     service_btn = (By.XPATH, "//p[text()='服务条款']")  # 服務條款
     privacy_btn = (By.XPATH, "//p[text()='隐私权政策']")  # 隱私權政策
-    page_title = (By.XPATH,'//*[@id="app"]/div/div[11]/div/div[2]/div')
-    back_btn = (By.XPATH, '//*[@id="app"]/div/div[11]/div/div[1]/i')  # 返回鍵
+    page_title = (By.XPATH,'//*[@id="app"]/div[1]/div[12]/div/div[2]/div')
+    back_btn = (By.XPATH, '//*[@id="app"]/div/div[12]/div/div[1]/i')
 
 
 class PersonalSettingPage(BasePage):
@@ -98,7 +100,9 @@ class PersonalSettingPage(BasePage):
         if self.is_element_finded(PersonalSettingPageLocator.logout_confirm_btn):
             self.click(PersonalSettingPageLocator.logout_confirm_btn)
         self.wait_loading_finish()
-        assert self.is_element_finded(LoginPageLocator.login_title)
+        assert self.is_element_finded(PersonalSettingPageLocator.guest_mode_mainPage_button)
+        assert not self.is_element_finded(PersonalSettingPageLocator.discover_button)
+
 
     # ==================================== 主頁-個人頁-黑名單 ==========================================================
     def into_blocklist_page(self):
@@ -111,6 +115,7 @@ class PersonalSettingPage(BasePage):
         self.type(PersonalSettingPageLocator.blocklist_search_input, name)
         assert self.get_text(PersonalSettingPageLocator.blocklist_search_first) == name, f'找不到黑名單成員'
         self.click(PersonalSettingPageLocator.blocklist_search_first)
+        sleep(1)
         assert self.is_element_finded(PersonalSettingPageLocator.friend_block_page), f'未進到黑名單成員頁'
 
     def unblock_friend(self):

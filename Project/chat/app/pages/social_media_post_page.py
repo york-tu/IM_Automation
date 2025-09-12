@@ -160,14 +160,14 @@ class SocialMediaPostPage(Base):
 
     def select_media(self, media_index, media_type='photo'):
         self.common.poco_click(SocialMediaPostPageLocator.post_media_btn)
-        sleep(1)
         self.common.poco_click(SocialMediaPostPageLocator.album_btn)
         sleep(3)
         if self.common.poco_wait_exists(SocialMediaPostPageLocator.select_media_type_folder):
             self._select_media_folder(media_type)
+            sleep(1)
         self.common.poco_click(
             SocialMediaPostPageLocator.media_select(SocialMediaPostPageLocator.app_package, media_index))
-        sleep(0.5)
+        sleep(1)
         assert self.common.poco_get_text(SocialMediaPostPageLocator.page_title) == '发布', '未進入發布頁'
 
     def _select_media_folder(self, media_type):

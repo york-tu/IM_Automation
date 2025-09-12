@@ -4,61 +4,93 @@ from time import sleep
 
 from selenium.webdriver.common.by import By
 from Project.chat.web.pages.wap.wap_basepage import BasePage
+from Project.chat.web.pages.wap.wap_main_personal_settings import PersonalSettingPage
 from Project.chat.web.pages.wap.wap_mainpage import MainPage, MainPageLocator
 import os,random, re
+import pandas as pd
 
 
 class LoginPageLocator:
-    # 註冊鈕
+    # 註冊
     register_btn = (By.XPATH, "//span[text()='注册']")
+    next_btn = (By.XPATH, "//span[text()='下一步']")
+    input_code = (By.XPATH, "//input[@placeholder='请输入验证码']")
+    input_code_next_btn = (By.XPATH, "//button[@class='el-button el-button--primary w-full h-[48rem] text-[16rem]']")
+    input_account_id = (By.XPATH, "//input[@placeholder='填写帐号']")
+    input_pw = (By.XPATH, "//input[@placeholder='设定密码']")
+    input_confirm_pw = (By.XPATH, "//input[@placeholder='再次设定密码']")
+    input_nickname = (By.XPATH, "//input[@placeholder='填写昵称']")
+    skip_thumbnail = (By.XPATH, "//p[text()='略过']")
     # 登入鈕
     login_btn = (By.XPATH, "//span[text()='登录']")
     # ========== 登入頁 =================================
     # 登入輸入欄位
-    login_title = (By.XPATH, "//div[text()='手机号登录']")
+    # login_title = (By.XPATH, "//div[text()='手机号登录']")
     login_account_input = (By.XPATH, "//input[@placeholder='请填写手机号码']")
+    login_email_input = (By.XPATH, "//input[@placeholder='请填写电子邮件']")
     login_password_input = (By.XPATH, "//input[@placeholder='请填写密码']")
-    login = (By.XPATH, "//span[text()='登录']")
 
+    login = (By.XPATH, "//span[text()='登录']")
+    login_btn_enable = (By.XPATH, "//button[@class='el-button el-button--primary w-full h-[48rem] text-[16rem]']")
+    login_btn_disable = (By.XPATH, "//button[@class='el-button el-button--primary is-disabled w-full h-[48rem] text-[16rem]']")
+    email_filed_success = (By.XPATH, "//div[@class='el-form-item is-success is-required asterisk-left el-form-item--label-right']")
+    email_field_error = (By.XPATH, "//div[@class='el-form-item is-error is-required asterisk-left el-form-item--label-right']")
     # 錯誤訊息
     alert_message = (By.XPATH, "//span[@class='el-alert__title']")
     
     # login彈窗
     model_title = (By.XPATH, "//p[@class='text-[16rem] font-bold flex flex-col items-center relative']")
     model_btn = (By.XPATH, "//button[@class='btn btn-primary btn-md']")
-    
+
+    # 新登入頁
+    new_login_page_welcome_description = (By.XPATH, "//div[@class='text-[16rem] font-semibold mt-[16rem] text-grand-1']")
+    new_login_page_use_cellphone_btn = (By.XPATH, "//button[text()=' 使用手机号继续']")
+    new_login_page_use_email_btn = (By.XPATH, "//button[text()=' 使用电子邮箱继续']")
+    new_login_page_agreement_hint = (By.XPATH, "//div[@class='text-[12rem] text-grand-1 mt-[24rem] mb-[72rem]']")
+
     # 國家選擇
     nation_select_btn = (By.XPATH, "//span[@class='text-[16rem] flex-1 text-left']")
     nation_search_input = (By.XPATH, "//input[@placeholder='搜索']")
-    nation_search_first = (By.XPATH, "//div[@class='el-dialog__body']")
+    nation_search_first = (By.XPATH, "(//div[@class='el-dialog__body'])[last()]")
     nation_show = (By.XPATH, "(//label[@class='el-form-item__label'])")
 
-    # 登入後 - focus 首頁 & 推薦
-    firstPage_button_selected = (By.XPATH, "//a[contains(@class, 'router-link-active') and @href='/home']")  # 導航欄-首页
-    recommendPage_selected = (By.XPATH, '//a[contains(@class, "router-link-active") and @href="/home/recommend"]')  # 推荐tab
+    # ========== 忘記密碼頁 =================================
+    forget_pw_btn = (By.XPATH, "//div[text()='忘记密码']")
+    verify_code_input = (By.XPATH, "//input[@placeholder='请输入验证码']")
+
+    # 登入後 - 出現發現icon & focus 推薦頁
+    recommendPage_selected = (By.XPATH, "//p[@class='text-[20rem] font-semibold text-neutral-500 text-white-100']")  # focus 推荐tab
+    discover_button = (By.XPATH, "//a[@href='/discover']")  # 導航欄-發現
+    guest_mode_mainPage_button = (By.XPATH, "(//div[@class='flex flex-col items-center py-[8rem]'])[last()]")  # 導航欄-訪客模式"主頁"鍵
 
 
 class LoginPage(BasePage):
+    PASS_email_file_path = r"C:\Users\york_tu\Desktop\email_regex_testcases_PASS.xlsx"
+    FAIL_email_file_path = r"C:\Users\york_tu\Desktop\email_regex_testcases_FAIL.xlsx"
+
     # 回傳登入狀態，已登入回傳True，反之回傳False
     def check_login_status(self):
-        # 檢查畫面上是否有注册鈕
+        # 檢查頁面是否為"訪客模式"首頁(確認無發現鍵)
         self.wait_login_finish()
-        if self.is_element_finded(LoginPageLocator.register_btn) or self.is_element_finded(LoginPageLocator.login_title):
+        if not self.is_element_finded(LoginPageLocator.discover_button):
             return False
         return True
 
     # 登入
-    def login(self, account: str, password: str, nation: str):
+    def login(self, account: str, password: str, nation='CN', login_method='phone'):
         if self.check_login_status() is False:
-            self.sleep(1)
-            if not self.is_element_finded(LoginPageLocator.login_title):
-                self.click(LoginPageLocator.login_btn)
-                self.wait_login_finish()
-                assert self.is_element_finded(LoginPageLocator.login_title), f'進入登入頁面有誤'
+            self.click(LoginPageLocator.guest_mode_mainPage_button)
+            self.check_new_login_page()
 
-            self.select_nation(nation)
-            self.type(LoginPageLocator.login_account_input, account)
-            self.type(LoginPageLocator.login_password_input, password)
+            if login_method == 'phone':
+                self.click(LoginPageLocator.new_login_page_use_cellphone_btn)
+                self.select_nation(nation)
+                self.type(LoginPageLocator.login_account_input, account)
+                self.type(LoginPageLocator.login_password_input, password)
+            else:  # 透過email登入
+                self.click(LoginPageLocator.new_login_page_use_email_btn)
+                self.type(LoginPageLocator.login_email_input, account)
+                self.type(LoginPageLocator.login_password_input, password)
 
             if self.is_element_finded(LoginPageLocator.login):
                 self.click(LoginPageLocator.login)
@@ -68,13 +100,21 @@ class LoginPage(BasePage):
                 raise EOFError(f'登入失敗-{error_message}')
 
             sleep(3)
-            assert self.is_element_finded(LoginPageLocator.firstPage_button_selected)
-            assert self.is_element_finded(LoginPageLocator.recommendPage_selected)
+            assert self.is_element_finded(LoginPageLocator.discover_button)
+            # assert self.is_element_finded(LoginPageLocator.recommendPage_selected)
         else:
             pass
 
+    def check_new_login_page(self):
+        sleep(1)
+        welcome_description = self.get_text(LoginPageLocator.new_login_page_welcome_description)
+        assert ('欢迎来到' in welcome_description) and ('股聊' in welcome_description)
+        agreement_hint = self.get_text(LoginPageLocator.new_login_page_agreement_hint)
+        assert agreement_hint == '如果您继续操作，即表示您同意《服务条款》并确认已阅读《隐私权政策》。'
+
     # 國家選擇
     def select_nation(self, nation):
+        sleep(1)
         nation_show = self.get_text(LoginPageLocator.nation_show).strip("+")
         
         if nation == 'CN':
@@ -84,7 +124,8 @@ class LoginPage(BasePage):
                 self.click(LoginPageLocator.nation_select_btn)
                 self.type(LoginPageLocator.nation_search_input,'86')
                 self.click(LoginPageLocator.nation_search_first)
-                assert self.get_text(LoginPageLocator.nation_show).strip("+") == '86'
+                nation_show = self.get_text(LoginPageLocator.nation_show)
+                assert nation_show.strip("+") == '86'
         elif nation == 'TW':
             if nation_show == '886':
                 pass
@@ -101,4 +142,98 @@ class LoginPage(BasePage):
                 self.type(LoginPageLocator.nation_search_input,'81')
                 self.click(LoginPageLocator.nation_search_first)
                 assert self.get_text(LoginPageLocator.nation_show).strip("+") == '81'
-    
+
+    def register_by_email(self, account, email, pw):
+        self.click(LoginPageLocator.guest_mode_mainPage_button)
+        self.check_new_login_page()
+        self.click(LoginPageLocator.new_login_page_use_email_btn)  # email登入
+        self.wait_loading_finish()
+        self.click(LoginPageLocator.register_btn)  # 註冊鍵
+        self.type(LoginPageLocator.login_email_input, email)  # 輸入email
+        self.click(LoginPageLocator.next_btn)
+        sleep(15)
+        code = self.get_verification_code_from_mail()  # 獲得驗證碼
+        self.type(LoginPageLocator.input_code, code)  # 輸入驗證碼
+        self.click(LoginPageLocator.next_btn)
+        self.wait_loading_finish()
+        # 資料填寫頁
+        self.type(LoginPageLocator.input_account_id, account)
+        self.type(LoginPageLocator.input_pw, pw)
+        self.type(LoginPageLocator.input_confirm_pw, pw)
+        self.type(LoginPageLocator.input_nickname, account)
+        self.click(LoginPageLocator.register_btn)
+        self.wait_loading_finish()
+
+    # 登入頁email欄位檢核
+    def email_field_check_in_login(self):
+        self.click(LoginPageLocator.guest_mode_mainPage_button)
+        sleep(1)
+        self.click(LoginPageLocator.new_login_page_use_email_btn)
+        self.type(LoginPageLocator.login_password_input, '000111abc')
+
+        df1 = pd.read_excel(self.FAIL_email_file_path, header=None)
+        for idx, row in df1.iterrows():
+            email = str(row[0]).strip()
+            self.type(LoginPageLocator.login_email_input, email)
+            sleep(0.25)
+            assert self.is_element_displayed(LoginPageLocator.email_field_error)
+            assert self.is_element_displayed(LoginPageLocator.login_btn_disable)
+
+        df2 = pd.read_excel(self.PASS_email_file_path, header=None)
+        for idx, row in df2.iterrows():
+            email = str(row[0]).strip()
+            self.type(LoginPageLocator.login_email_input, email)
+            sleep(0.25)
+            assert self.is_element_displayed(LoginPageLocator.email_filed_success)
+            assert self.is_element_displayed(LoginPageLocator.login_btn_enable)
+
+        self.refresh_browser()
+
+    # 註冊頁email欄位檢核
+    def email_field_check_in_registration(self):
+        self.click(LoginPageLocator.guest_mode_mainPage_button)
+        sleep(1)
+        self.click(LoginPageLocator.new_login_page_use_email_btn)
+        self.click(LoginPageLocator.register_btn)  # 註冊鍵
+
+        df1 = pd.read_excel(self.FAIL_email_file_path, header=None)
+        for idx, row in df1.iterrows():
+            email = str(row[0]).strip()
+            self.type(LoginPageLocator.login_email_input, email)
+            sleep(0.25)
+            assert self.is_element_displayed(LoginPageLocator.email_field_error)
+            assert self.is_element_displayed(LoginPageLocator.login_btn_disable)
+
+        df2 = pd.read_excel(self.PASS_email_file_path, header=None)
+        for idx, row in df2.iterrows():
+            email = str(row[0]).strip()
+            self.type(LoginPageLocator.login_email_input, email)
+            sleep(0.25)
+            assert self.is_element_displayed(LoginPageLocator.email_filed_success)
+            assert self.is_element_displayed(LoginPageLocator.login_btn_enable)
+        self.refresh_browser()
+
+    # 忘記密碼頁email欄位檢核
+    def email_field_check_in_forget_pw(self):
+        self.click(LoginPageLocator.guest_mode_mainPage_button)
+        sleep(1)
+        self.click(LoginPageLocator.new_login_page_use_email_btn)
+        self.click(LoginPageLocator.forget_pw_btn)  # 忘記密碼鍵
+        sleep(1)
+        self.type(LoginPageLocator.verify_code_input, '000111')
+
+        df1 = pd.read_excel(self.FAIL_email_file_path, header=None)
+        for idx, row in df1.iterrows():
+            email = str(row[0]).strip()
+            self.type(LoginPageLocator.login_email_input, email)
+            sleep(0.25)
+            assert self.is_element_displayed(LoginPageLocator.email_field_error)
+            assert self.is_element_displayed(LoginPageLocator.login_btn_disable)
+
+        df2 = pd.read_excel(self.PASS_email_file_path, header=None)
+        for idx, row in df2.iterrows():
+            email = str(row[0]).strip()
+            self.type(LoginPageLocator.login_email_input, email)
+            sleep(0.25)
+            assert self.is_element_displayed(LoginPageLocator.email_filed_success)
+            assert self.is_element_displayed(LoginPageLocator.login_btn_enable)

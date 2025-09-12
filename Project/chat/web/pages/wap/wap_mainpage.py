@@ -28,11 +28,12 @@ class MainPageLocator:
     main_page_fans_counts = (By.XPATH, "(//div[@class='text-[20rem] font-semibold'])[2]")
     main_page_thumb_up_counts = (By.XPATH, "(//div[@class='text-[20rem] font-semibold'])[3]")
     edit_profile_btn = (By.XPATH, "//button[@class=' bg-gray-100 py-[10rem] px-[20rem] rounded-[4rem] text-[15rem] font-semibold' and text()='编辑主页']")  # 個人主頁-編輯主頁鍵
-    share_profile_btn = (By.XPATH, "//button[@class=' bg-gray-100 py-[10rem] px-[20rem] rounded-[4rem] text-[15rem] font-semibold' and text()='分享主页']")  # 個人主頁-分享主頁鍵
+    share_self_profile_btn = (By.XPATH, "//button[@class=' bg-gray-100 py-[10rem] px-[20rem] rounded-[4rem] text-[15rem] font-semibold' and text()='分享主页']")  # 個人主頁-分享主頁鍵
     clear_btn = (By.XPATH, "//i[@class='van-badge__wrapper van-icon van-icon-clear van-field__clear']")
     input_nickname = (By.XPATH, "//input[@placeholder='填写昵称']")  # 編輯主頁-暱稱
     input_descriptions = (By.XPATH, "//textarea[@placeholder='请输入个人简介']")  # 編輯主頁-個人簡介
     save_btn = (By.XPATH, "//span[text()='保存']")
+
     # ============================= 主頁 > 個人主頁 > 關注列表 =============================================================
     followed_list = (By.XPATH, "(//span[@class='van-tab__text van-tab__text--ellipsis'])[1]")  # 已關注列表
     fans_list = (By.XPATH, "(//span[@class='van-tab__text van-tab__text--ellipsis'])[2]")  # 粉絲列表
@@ -44,12 +45,30 @@ class MainPageLocator:
     # ============================= 主頁 > 他人主頁 ======================================================================
     following_btn = (By.XPATH, '//button[.//div[text()="关注"]]')  # 關注鍵
     followed_btn = (By.XPATH, '//button[.//div[text()="已关注"]]')  # 已關注鍵
+    share_others_profile_btn = (By.XPATH, "//div[@class='pr-[16rem] flex items-center absolute right-0 cursor-pointer z-10']")  # 他人主頁-分享主頁鍵
     # ============================= 主頁 > 發布 =========================================================================
-    input_post_descriptions = (By.XPATH, "//textarea[@placeholder='撰写说明']")  # 發布頁-撰寫說明
+    input_post_descriptions = (By.ID, "post-introduction")  # 發布頁-撰寫說明
     post_confirm = (By.XPATH, "//span[text()='发布 ']")
     poster = (By.XPATH, "//p[@class='text-white-100 text-[14rem] mb-[12rem] truncate text_shadow']")  # 貼文作者
     post_descriptions = (By.XPATH, "//p[@class='whitespace-pre-wrap max-h-[313rem] line-clamp-2']")  # 貼文內容
-    post_back_btn = (By.XPATH, '//*[@id="app"]/div/svg')  # 貼文>返回鍵
+    post_back_btn = (By.XPATH, '//*[@id="app"]/div/div[1]/div[2]/div/div[2]/div[3]/div/svg')  # 貼文>返回鍵
+    # ============================= 主頁 > 下方貼文 ======================================================================
+    share_self_post_btn = (By.XPATH, "//div[@class='icon-wrapper dotIcon']")  # 個人貼文 > 分享鍵
+    share_other_post_btn = (By.XPATH, "//div[@class='icon-wrapper share']")  # 他人貼文 > 分享鍵
+    first_post = (By.XPATH, "(//div[@class='el-col el-col-8'])[1]")  # 媒體區第一則貼文
+    post_author_name = (By.XPATH, "//p[@class='text-white-100 text-[14rem] mb-[12rem] truncate text_shadow']")  # 貼文作者
+    post_description = (By.XPATH, "//p[@class='whitespace-pre-wrap max-h-[313rem] line-clamp-2']")  # 貼文描述
+    # ============================= 發送給彈窗 ===========================================================================
+    share_popup_title = (By.XPATH, "//div[@class='van-action-sheet__header']")  # 發送給彈窗標題
+    share_close_btn = (By.XPATH, "//i[@class='van-badge__wrapper van-icon van-icon-cross van-action-sheet__close van-haptics-feedback']")  # x關閉鍵
+    share_more_btn = (By.XPATH, '//div[text()="更多"]')  # 發送給彈窗 > 更多鍵
+    share_search_column = (By.XPATH, "//input[@placeholder='搜索']")  # 發送給彈窗 > 更多 > 搜索框
+    share_list_first = (By.XPATH, "(//div[@class='flex flex-1 min-w-0 ml-[10px] border-b-[1px] h-[40px] items-center'])[1]")  # 發送給彈窗 > 更多 > 列表第一位
+    share_input_message = (By.XPATH, "//textarea[@placeholder='有什么想和朋友说的...']")  # 分享訊息輸入框
+    share_send_btn = (By.XPATH, '(//div[text()="发送"])[last()]')  # 發送鍵
+
+    # ============================= toast ===========================================================================
+    toast_msg = (By.XPATH, "(//p[@class='el-message__content'])[last()]")
 
 
 class MainPage(BasePage):
@@ -63,7 +82,7 @@ class MainPage(BasePage):
     def into_main_page(self):
         self.click(MainPageLocator.mainPage_button)
         self.wait_loading_finish()
-        assert self.is_element_finded(MainPageLocator.share_profile_btn)
+        assert self.is_element_finded(MainPageLocator.share_self_profile_btn)
         assert self.is_element_finded(MainPageLocator.edit_profile_btn)
 
     def get_nickname(self):
@@ -215,8 +234,46 @@ class MainPage(BasePage):
             pyautogui.click(location)
             self.wait_loading_finish()
 
+    # =========================== 發送給 ========================================
+    def into_share_to_window(self, share_type=0):  # 0=self_main_page, 1=other_main_page, 2=self_post,3=other_post
+        if share_type == 0:
+            self.click(MainPageLocator.share_self_profile_btn)
+        elif share_type == 1:
+            self.click(MainPageLocator.share_others_profile_btn)
+        elif share_type == 2:
+            self.click(MainPageLocator.share_self_post_btn)
+        elif share_type == 3:
+            self.click(MainPageLocator.share_other_post_btn)
+        sleep(1)
+        assert self.get_text(MainPageLocator.share_popup_title) == '发送给', '分享彈窗錯誤'
 
+    def share_to_group(self, share_target_group, share_message='', share_main_page=True):
+        sleep(1)
+        self.click(MainPageLocator.share_more_btn)
+        sleep(1)
+        self.type(MainPageLocator.share_search_column, share_target_group)
+        self.click(MainPageLocator.share_list_first)
+        sleep(1)
+        assert self.is_element_finded(MainPageLocator.share_input_message), f'未發現留言欄位'
+        self.type(MainPageLocator.share_input_message, share_message)
+        self.click(MainPageLocator.share_send_btn)
+        self.wait_visibility(MainPageLocator.toast_msg)
+        assert self.get_text(MainPageLocator.toast_msg) == '分享成功'
+        self.refresh_browser()
+        # if not share_main_page:
+            # button_img_path = DIR_NAME + '\\element_icon\\post_back_btn.jpg'
+            # location = pyautogui.locateCenterOnScreen(button_img_path, confidence=0.8)
+            # pyautogui.click(location)
 
+    def into_first_post(self, user_nickname=None, instructions=None):
+        """進入第一篇帖子並檢查作者名稱和媒體說明"""
+        self.click(MainPageLocator.first_post)
+        if user_nickname and instructions:
+            self._check_post_author_and_content(user_nickname, instructions)
 
-
-
+    def _check_post_author_and_content(self, user_nickname, instructions):
+        """檢查創作者暱稱和媒體說明是否正確"""
+        current_post_author_name = self.get_text(MainPageLocator.post_author_name)
+        current_post_description = self.get_text(MainPageLocator.post_description)
+        assert current_post_author_name == user_nickname, '創作者暱稱錯誤'
+        assert current_post_description == instructions, f'媒體說明有誤, 預期:{instructions},實際:{current_post_description}'
