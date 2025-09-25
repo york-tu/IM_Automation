@@ -159,6 +159,7 @@ class MainPageLocator:
     add_manual_withdraw = (By.XPATH, "//span[text()='新增人工提出']")  # "新增人工提出"鍵
     # add_manual_withdraw_title = (By.XPATH, '//div[text()="新增人工提出"]')  # 新增人工提出視窗標題
     manual_withdraw_account_ID = (By.XPATH, '//input[@placeholder="请输入会员帐号"]')  # 新增人工提出 - 會員帳號
+    manual_withdraw_search = (By.XPATH, "//button[@class='el-button el-button--primary el-button--small search-button']")  # "搜寻"鍵
     manual_withdraw_item = (By.XPATH, '//label[text()="提出项目"]/..//input')  # 新增人工提出- 提出項目下拉選單
     manual_withdraw_item_select = (By.XPATH, '//div[@aria-hidden="false"]//span[text()="红包误存"]')  # 新增人工提出 - 提出項目 - 红包误存积分
     withdraw_amount = (By.XPATH, "//label[text()='提出积分']/..//input[@placeholder='请输入提出积分']")  # 新增人工提出 - 提出積分
@@ -517,7 +518,7 @@ class MainPage(BasePage):
         assert self.get_text(MainPageLocator.detail_list_id) == target_id, f"會員帳號ID有誤"
         assert self.get_text(MainPageLocator.detail_list_deposit_type) == '检举奖金', f"存入類型有誤"
         assert self.get_text(MainPageLocator.detail_list_deposit_status) == '成功', f"存入狀態有誤"
-        assert self.get_text(MainPageLocator.detail_list_deposit_amount) == deposit_amount, f"存入積分有誤"
+        assert self.get_text(MainPageLocator.detail_list_deposit_amount) == f'{deposit_amount} (0x)', f"存入積分有誤"
 
     def manual_add_system_notification(self, target_id, deposit_amount, system_message, deposit_item):
         self.click(MainPageLocator.add_manual_deposit)
@@ -550,6 +551,7 @@ class MainPage(BasePage):
     def manual_add_withdraw(self, target_id, withdraw_amount):
         self.click(MainPageLocator.add_manual_withdraw)
         self.type(MainPageLocator.manual_withdraw_account_ID, target_id)
+        self.click(MainPageLocator.manual_withdraw_search)
         self.click(MainPageLocator.manual_withdraw_item)
         self.click(MainPageLocator.manual_withdraw_item_select)
         self.type(MainPageLocator.withdraw_amount, withdraw_amount)
@@ -558,7 +560,7 @@ class MainPage(BasePage):
         assert self.get_text(MainPageLocator.detail_list_id) == target_id, f"會員帳號ID有誤"
         assert self.get_text(MainPageLocator.detail_list_deposit_type) == '红包误存', f"提出類型有誤"
         assert self.get_text(MainPageLocator.detail_list_deposit_status) == '成功', f"存入狀態有誤"
-        assert self.get_text(MainPageLocator.detail_list_deposit_amount) == withdraw_amount, f"積分提出有誤"
+        assert self.get_text(MainPageLocator.detail_list_deposit_amount) == f'{withdraw_amount} (0x)', f"積分提出有誤"
 
     def into_red_water(self):
         self.wait_loading_finish()

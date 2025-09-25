@@ -31,8 +31,8 @@ class PersonalSettingPageLocator:
     # -------------------- 修改密碼彈窗 --------------------
     change_pwd_btn = (By.XPATH, "//p[text()='更改密码']")
     change_pwd_old_input = (By.XPATH, "//input[@placeholder='请填写旧密码']")
-    change_pwd_new_input = (By.XPATH, "//input[@placeholder='请填写新的密码']")
-    change_pwd_new_check_input = (By.XPATH, "//input[@placeholder='请再次填写新的密码']")
+    change_pwd_new_input = (By.XPATH, "//input[@placeholder='请填写新密码']")
+    change_pwd_new_check_input = (By.XPATH, "//input[@placeholder='请再次填写新密码']")
     change_pwd_submit = (By.XPATH, "//span[text()='完成']")
     popup_dialog = (By.XPATH, "//div[@class='neutral-50 relative rounded-[8rem] max-h-[90%] flex-col m-auto max-w-[360rem] p-[40rem] w-full']")
     popup_dialog_title = (By.XPATH, "//p[@class='text-[20rem] font-600 break-all grand-1']")

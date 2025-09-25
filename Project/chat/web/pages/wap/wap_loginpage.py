@@ -27,7 +27,7 @@ class LoginPageLocator:
     # 登入輸入欄位
     # login_title = (By.XPATH, "//div[text()='手机号登录']")
     login_account_input = (By.XPATH, "//input[@placeholder='请填写手机号码']")
-    login_email_input = (By.XPATH, "//input[@placeholder='请填写电子邮件']")
+    login_email_input = (By.XPATH, "//input[@placeholder='请填写电子邮箱']")
     login_password_input = (By.XPATH, "//input[@placeholder='请填写密码']")
 
     login = (By.XPATH, "//span[text()='登录']")

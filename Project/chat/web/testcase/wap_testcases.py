@@ -825,7 +825,7 @@ class WapTestCase(BaseTestCase):
         self.function_dict['wap'].wapMessagePage().check_chat_share_info(poster, share_message, share_main_page=False)
 
     # email註冊帳號 > 登出 > 登入 > 登出
-    @DecorateClass('CHATAPP-T')
+    @DecorateClass('CHATAPP-T3317')
     def test_mWeb_email_registration(self):
         email = 'qa5@tengyuntech.com'
         pw = "000111abc"

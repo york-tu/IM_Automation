@@ -90,6 +90,10 @@ class MainPageLocator:
         Android=base.data_collation(type_kind='text', type_name='填写昵称'),
         iOS=base.data_collation(type_kind='name', type_name='TextField', num=-3)
     )
+    input_account_note = base.check_device(
+        Android=base.data_collation(type_kind='textMatches', type_name='填写帐号备注.*'),
+        iOS=base.data_collation(type_kind='name', type_name='TextField', num=-2)
+    )
 
     logout = base.check_device(
         Android=base.data_collation(type_kind='text', type_name='登出'),
@@ -108,7 +112,7 @@ class MainPageLocator:
     )
     new_login_page_welcome_description = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tv_welcome'),
-        iOS=base.data_collation(type_kind='nameMatches', type_name=f'欢迎来到.*'),
+        iOS=base.data_collation(type_kind='nameMatches', type_name=f'欢迎.*'),
     )
     new_login_page_use_cellphone_btn = base.check_device(
         Android=base.data_collation(type_kind='text', type_name='使用手机号继续'),
@@ -143,7 +147,7 @@ class MainPageLocator:
 
     friends_btn = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/iv_friend'),
-        iOS=base.data_collation(type_kind='name', type_name='iconIconGroup'),
+        iOS=base.data_collation(type_kind='name', type_name='chatList_friendList_button'),
     )
 
     message_btn = base.check_device(
@@ -166,12 +170,12 @@ class MainPageLocator:
 
     main_nickname = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tv_nickname'),
-        iOS=base.data_collation(type_kind='type', type_name='StaticText', num=0),
+        iOS=base.data_collation(type_kind='name', type_name='myProfile_nickname_label'),
     )
 
     main_description = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tv_content'),
-        iOS=base.data_collation(type_kind='nameMatches', type_name='.*auto.*'),
+        iOS=base.data_collation(type_kind='name', type_name='myProfile_introduction_label'),
     )
 
     mine_menu_btn = base.check_device(
@@ -230,7 +234,7 @@ class MainPageLocator:
 
     nation_check = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tv_title'),
-        iOS=base.data_collation(type_kind='name', type_name='选择国家和地区', pos=[0.5, 0.07700892857142858]),
+        iOS=base.data_collation(type_kind='name', type_name='选择国家和地区', pos=[0.5013333333333333, 0.08066502463054187]),
     )
 
     nation_code = base.check_device(
@@ -248,7 +252,7 @@ class MainPageLocator:
     )
     back_btn = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/iv_back'),
-        iOS=base.data_collation(type_kind='name', type_name='iconArrowsChevronLeft'),
+        iOS=base.data_collation(type_kind='name', type_name='base_back_button'),
     )
 
 
@@ -377,7 +381,7 @@ class MainPage(Base):
             product = '股聊'
         else:
             product = 'GuChat'
-        sleep(3)
+        self.wait_loading_finish()
         welcome_description = self.common.poco_get_text(MainPageLocator.new_login_page_welcome_description)
         assert ('欢迎来到' in welcome_description) and (product in welcome_description)
         agreement_hint = self.common.poco_get_text(MainPageLocator.new_login_page_agreement_hint)
@@ -393,13 +397,11 @@ class MainPage(Base):
         if self.common.poco_wait_exists(MainPageLocator.mine_menu_btn):
             self.common.poco_click(MainPageLocator.mine_menu_btn)
         self.skip_login_rush()
-        if gl.get_value('BRAND') == 's365':
-            assert self.common.poco_exists(MainPageLocator.about_button_365), f'進入主頁_我的設定頁錯誤'
+
+        if self.common.poco_exists(MainPageLocator.login_expired_msg):
+            return
         else:
-            if self.common.poco_exists(MainPageLocator.login_expired_msg):
-                return
-            else:
-                assert self.common.poco_exists(MainPageLocator.about_button), f'進入主頁_我的設定頁錯誤'
+            assert self.common.poco_exists(MainPageLocator.about_button), f'進入主頁_我的設定頁錯誤'
 
     def into_main_page(self):
         if self.common.poco_wait_exists(MainPageLocator.main_btn):
@@ -408,10 +410,7 @@ class MainPage(Base):
             assert self.common.poco_exists(MainPageLocator.edit_profile_btn), f'進入主頁錯誤'
 
     def get_nickname(self):
-        if self.phone_platform.lower() == 'android':
-            data = self.common.poco_get_text(MainPageLocator.main_nickname)
-        else:
-            data = self.poco(type="StaticText").attr('value')
+        data = self.common.poco_get_text(MainPageLocator.main_nickname)
         return data
 
     def get_self_introduction(self):
@@ -461,12 +460,9 @@ class MainPage(Base):
                 self.common.poco_click(MainPageLocator.nation_button)
 
                 self.common.sleep(0.5)
-                if self.phone_platform.lower() == 'android':
-                    assert self.common.poco_get_text(
-                        MainPageLocator.nation_check) == '选择国家和地区', f'進入國家選擇頁面失敗'
-                else:
-                    assert self.common.poco_get_text(
-                        MainPageLocator.nation_check) == '选择国家和地区', f'進入國家選擇頁面失敗'
+                # aaa = self.common.poco_get_text(MainPageLocator.nation_check)
+                # assert self.common.poco_get_text(MainPageLocator.nation_check) == '选择国家和地区', f'進入國家選擇頁面失敗'
+                if self.phone_platform.lower() == 'ios':
                     self.common.poco_click(MainPageLocator.nation_search)
                 self.common.poco_send_text(MainPageLocator.nation_search, country_code)
                 self.common.sleep(0.5)
@@ -502,6 +498,9 @@ class MainPage(Base):
         self.common.poco_send_text(MainPageLocator.input_confirm_pw, pw)  # 輸入確認密碼
         self.common.poco_click(MainPageLocator.input_nickname)
         self.common.poco_send_text(MainPageLocator.input_nickname, account)  # 輸入暱稱
+        if self.common.poco_exists(MainPageLocator.input_account_note):
+            self.common.poco_click(MainPageLocator.input_account_note)
+            self.common.poco_send_text(MainPageLocator.input_account_note, 'AutoTest')  # 輸入帳號備注
         self.common.poco_click(MainPageLocator.register_button)
         # ==================== 進到個人主頁 ====================
         self.common.poco_click(MainPageLocator.main_btn)

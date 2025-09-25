@@ -85,7 +85,7 @@ class MemberPageLocator:
 
     # 設定備註
     remark_title = (By.XPATH, '//span[text() ="备注文案"]') 
-    remark_textarea = (By.XPATH, '//textarea[@class="el-textarea__inner"and@style="resize: none; min-height: 75px; height: 75px;"]')
+    remark_textarea = (By.XPATH, '//textarea[@class="el-textarea__inner"and@style="resize: none; min-height: 369px; height: 369px;"]')
     remark_btn = (By.XPATH, '//div[@class="cell"]//i[@class="el-icon-edit edit-button"]')
 
     # 兌換綁定

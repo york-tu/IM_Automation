@@ -402,8 +402,22 @@ class AdminChatPage(AdminBasePage):
         a=mes_dict['name'] = ran_data[0]
         b=mes_dict['time'] = ran_data[1][:5]
         c=mes_dict['text'] = ran_data[2]
-        
-        random_mes = random.choice(mes_dict['text'])        # 隨機從text中抽一個字
+
+        # ==================== 改良2 ====================
+        mes_list = mes_dict['text']
+        # 定義要過濾的標點 + 空白字元
+        exclude = set(string.punctuation + "！？。；，、 \t\n\r")
+        # 把所有句子打散成單字，過濾掉標點與空白
+        filtered_list = [ch for sentence in mes_list for ch in sentence if ch not in exclude]
+        # 隨機挑一個字
+        random_mes = random.choice(filtered_list) if filtered_list else ""
+        # ==================== 改良1 ====================
+        # filtered_list = [ch for ch in mes_list if ch not in string.punctuation + "！？。；，、"]
+        # random_mes = random.choice(filtered_list)
+        # ==================== 原寫法 ====================
+        # random_mes = random.choice(mes_dict['text'])        # 隨機從text中抽一個字
+        # =============================================================================================================
+
         # print(random_mes)
         self.type(ChatLocator.search_input, random_mes)
         self.sleep(2)

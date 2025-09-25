@@ -77,7 +77,8 @@ class IntegralPage(BasePage):
         assert self.get_text(IntegralPageLocator.exchange_source) == operate_type, f'媒介有誤, 預期: {operate_type}, 實際: {self.get_text(IntegralPageLocator.exchange_source)}'
         assert self.get_text(IntegralPageLocator.exchange_state) == '成功', f'存入/提出狀態有誤'
         if operate_time is not None:
-            assert self.get_text(IntegralPageLocator.exchange_time) == operate_time, f'存入/提出日期有誤'
+            actual = self.get_text(IntegralPageLocator.exchange_time)
+            assert actual == operate_time, f'存入/提出日期有誤, 預期:{operate_time},實際:{actual}'
         current_total_integral_amount = self.get_text(IntegralPageLocator.integral_amount)
         assert round(float(remain_integral_amount_before) + float(exchange_integral), 2) == round(float(current_total_integral_amount), 2), f'總積分有誤, 前{remain_integral_amount_before}+後{exchange_integral}=預期{current_total_integral_amount}'
         return current_total_integral_amount  # return 目前總積分

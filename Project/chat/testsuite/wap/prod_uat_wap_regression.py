@@ -14,11 +14,11 @@ sys.path.append(root_path)
 
 
 # Test Setting
-env = 'uat'  # uat, prod
+env = 'prod'  # uat, prod
 brand = 'gu'
 user = 1
 test_type = 'wap'
-wap_version = '2.6.0'
+wap_version = '2.7.0'
 os_version = 'Win11'  # 作業系統
 account_type = 'phone'  # 帳號類型: mail, phone...
 
@@ -84,13 +84,16 @@ social_regression_list = [
     WapTestCase("test_social_post_photo"),  # 測試-發布圖片
     WapTestCase('test_social_post_video'),  # 測試-發布影片
     WapTestCase('test_social_search'),  # 測試-搜索視頻&用戶
+
+    WapTestCase('test_wap_logout'),
     WapTestCase('test_social_follow_unfollow'),  # 測試-關注&取消關注
     WapTestCase('test_social_share_self_main_page'),  # 測試-分享自己主頁
     WapTestCase('test_social_share_self_post'),  # 測試-分享自己貼文
 ]
 combination_regression_list = [
-    # WapTestCase("test_mWeb_email_registration"),  # 測試-email註冊 (後台需先關閉極驗)
-    WapTestCase("test_mWeb_email_field_check")
+    WapTestCase('test_wap_logout'),
+    WapTestCase("test_mWeb_email_registration"),  # 測試-email註冊 (後台需先關閉極驗)
+    # WapTestCase("test_mWeb_email_field_check")
 ]
 
 
@@ -125,10 +128,10 @@ if __name__ == "__main__":
     gl.set_value('PUSH', push)
 
     # TestCase add
-    # suite.addTests(wap_regression_list)
+    suite.addTests(wap_regression_list)
     # ===================== UAT Only ========================
     # suite.addTests(social_regression_list)
-    suite.addTests(combination_regression_list)
+    # suite.addTests(combination_regression_list)
 
     # RunningTest
     Utils.unittest_xml(suite)

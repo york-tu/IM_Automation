@@ -40,8 +40,7 @@ class SharePage(Base):
         if self.common.poco_exists(SharePageLocator.share_text):
 
             if self.phone_platform.lower() == 'ios':  # iOS part
-                message = self.common.poco_get_text(SharePageLocator.share_text)
-                # message = self.poco(type='Other')[29].attr('name')
+                message = self.poco(type='NavigationBar')[1].attr('name')
                 share_list = message.split('\n')
                 name = self.get_brand_name()
 
@@ -75,8 +74,6 @@ class SharePage(Base):
             name = '股聊'
         elif SharePageLocator.brand == 'mee':
             name = '覓聊'
-        elif SharePageLocator.brand == 's365':
-            name = '365'
         elif SharePageLocator.brand == 'chit':
             name = '趣聊'
         return name

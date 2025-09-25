@@ -1,7 +1,7 @@
 import os, sys, yaml
 root_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append(root_path)
-from Project.lottery.configs.setting import Setting
+# from Project.lottery.configs.setting import Setting
 import common.utils.globalvar as gl
 
 class BaseKey:

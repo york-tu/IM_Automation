@@ -27,61 +27,61 @@ connect_type = 'local'  # 手機連線模式 remote or local
 # ======================== [Android] ========================================
 phone_name = 'HUAWEI_26'
 phone_platform = 'Android'
-app_version = '2.14.0-rc.7'
+app_version = '2.15.0-rc.4'
 account_type = 'phone'  # 帳號類型: mail, phone...
 # =================================================================================================
 specific_os_version = []  # 指定OS版本, ['10','11','8']
-push = False  # 將結果推倒jira, 預設請給予 True
+push = True  # 將結果推倒jira, 預設請給予 True
 
 # =========== 私聊相關功能測試 ===========
 one_on_one_chat_regression_list = [
-    # AppTestCase("test_login"),
-    # AppTestCase("test_version_check"),
-    # AppTestCase("test_into_member"),
-    # AppTestCase("test_into_friend"),
-    # AppTestCase("test_change_nickname_and_instructions"),
-    # AppTestCase("test_notify_switch"),
-    # AppTestCase("test_detail_switch"),
-    # AppTestCase("test_voice_switch"),
-    # AppTestCase("test_vibration_switch"),
-    # AppTestCase("test_about_terms"),
-    # AppTestCase("test_change_password"),
-    # AppTestCase("test_account_info"),
-    # AppTestCase("test_free_up_space"),
-    #
-    # AppTestCase("test_add_friend"),
-    # AppTestCase("test_add_myself"),
-    # AppTestCase("test_friend_remark"),
-    # AppTestCase("test_block_friend"),
-    # AppTestCase("test_block_setting"),
-    # AppTestCase("test_unblock_friend"),
-    # AppTestCase("test_share_message"),
-    #
-    # AppTestCase("test_send_message"),
-    # AppTestCase("test_message_copy"),
-    # AppTestCase("test_message_reply"),
-    # AppTestCase("test_message_delete"),
+    AppTestCase("test_login"),
+    AppTestCase("test_version_check"),
+    AppTestCase("test_into_member"),
+    AppTestCase("test_into_friend"),
+    AppTestCase("test_change_nickname_and_instructions"),
+    AppTestCase("test_notify_switch"),
+    AppTestCase("test_detail_switch"),
+    AppTestCase("test_voice_switch"),
+    AppTestCase("test_vibration_switch"),
+    AppTestCase("test_about_terms"),
+    AppTestCase("test_change_password"),
+    AppTestCase("test_account_info"),
+    AppTestCase("test_free_up_space"),
+
+    AppTestCase("test_add_friend"),
+    AppTestCase("test_add_myself"),
+    AppTestCase("test_friend_remark"),
+    AppTestCase("test_block_friend"),
+    AppTestCase("test_block_setting"),
+    AppTestCase("test_unblock_friend"),
+    AppTestCase("test_share_message"),
+
+    AppTestCase("test_send_message"),
+    AppTestCase("test_message_copy"),
+    AppTestCase("test_message_reply"),
+    AppTestCase("test_message_delete"),
     AppTestCase("test_message_revoke"),
-    # AppTestCase("test_message_reply_delete"),
-    # AppTestCase("test_message_reply_revoke"),
-    # AppTestCase("test_message_pin"),
-    # AppTestCase("test_message_pin_reply"),
-    # AppTestCase("test_message_pin_delete"),
-    # AppTestCase("test_message_pin_revoke"),
-    # AppTestCase("test_message_emoji"),
-    #
-    # AppTestCase('test_send_voice_message'),
-    # AppTestCase('test_voice_message_reply'),
-    # AppTestCase('test_voice_message_delete'),
-    # AppTestCase('test_voice_message_revoke'),
-    #
-    # AppTestCase('test_send_file_message'),
-    # AppTestCase('test_file_message_reply'),
-    # AppTestCase('test_file_message_delete'),
-    # AppTestCase('test_file_message_revoke'),
-    #
-    # AppTestCase("test_delete_friend"),
-    # AppTestCase("test_logout"),
+    AppTestCase("test_message_reply_delete"),
+    AppTestCase("test_message_reply_revoke"),
+    AppTestCase("test_message_pin"),
+    AppTestCase("test_message_pin_reply"),
+    AppTestCase("test_message_pin_delete"),
+    AppTestCase("test_message_pin_revoke"),
+    AppTestCase("test_message_emoji"),
+
+    AppTestCase('test_send_voice_message'),
+    AppTestCase('test_voice_message_reply'),
+    AppTestCase('test_voice_message_delete'),
+    AppTestCase('test_voice_message_revoke'),
+
+    AppTestCase('test_send_file_message'),
+    AppTestCase('test_file_message_reply'),
+    AppTestCase('test_file_message_delete'),
+    AppTestCase('test_file_message_revoke'),
+
+    AppTestCase("test_delete_friend"),
+    AppTestCase("test_logout"),
 ]
 
 # =========== 群聊相關功能測試 ===========
@@ -140,6 +140,7 @@ social_features_regression_list = [
 
     AppTestCase("test_social_follow_unfollow"),  # 關注/取消關注
     AppTestCase("test_social_post_add_like_collect"),  # 貼文點贊收藏
+
     AppTestCase("test_social_self_post_add_comments_reply_like"),  # 自己貼文評論上留言回覆點贊
     AppTestCase("test_social_other_post_add_comments_reply"),  # 他人貼文評論上留言回覆
 
@@ -160,8 +161,8 @@ social_features_regression_list = [
     ContextTestCase("test_post_URL_when_post_permission_change"),  # 後台切換貼文評論超連結開關 > 前台確認評論留言URL
 ]
 combination_regression_list = [
-    # ContextTestCase("test_app_email_registration"),  # 測試-email註冊 (後台需先關閉極驗)
-    AppTestCase('test_email_input_field_check'),  # 測試-email欄位檢核
+    ContextTestCase("test_app_email_registration"),  # 測試-email註冊 (後台需先關閉極驗)
+    # AppTestCase('test_email_input_field_check'),  # 測試-email欄位檢核
 ]
 
 
@@ -199,11 +200,11 @@ if __name__ == '__main__':
     # TestCase add
     suite = unittest.TestSuite()
     suite.addTests(one_on_one_chat_regression_list)
-    # suite.addTests(group_chat_regression_list)
-    # suite.addTests(discover_regression_list)
-    # suite.addTests(grab_red_envelop_regression_list)
-    # suite.addTests(social_features_regression_list)
-    # suite.addTests(combination_regression_list)
+    suite.addTests(group_chat_regression_list)
+    suite.addTests(discover_regression_list)
+    suite.addTests(grab_red_envelop_regression_list)
+    suite.addTests(social_features_regression_list)
+    suite.addTests(combination_regression_list)
 
     # RunningTest
     Utils.unittest_xml(suite)

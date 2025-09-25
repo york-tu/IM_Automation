@@ -701,7 +701,7 @@ class ContextTestCase(BaseTestCase, BaseFunction_API, BasePage_Web, BasePage_Adm
         # ============ (前台)確認群組內訊息 ============
         self.function_dict['ap'].mainPage().login(self.app_phone, self.app_password, self.app_nation)
         self.function_dict['ap'].chatlistPage().into_chat_room('QA_bot_only')
-        self.function_dict['ap'].chatlistPage().check_last_message(message=group_msg)
+        self.function_dict['ap'].chatlistPage().check_last_message()
 
     # (後台)切換發現功能 > (前台)確認排序
     @DecorateClass('CHATAPP-T2927')

@@ -12,7 +12,7 @@ import common.utils.globalvar as gl
 import stf_api.stf as stf
 import stf_api.stf_utils as stf_utils
 from configs.app.setting import Setting as Setting_Phone
-from Project.lottery.configs.setting import Setting
+# from Project.lottery.configs.setting import Setting
 from jira.module.base_module import UnittestModule
 
 class AppDriver(UnittestModule):
@@ -60,6 +60,8 @@ class AppDriver(UnittestModule):
     def airtest_connect_phone(self):
         self.phone_name = gl.get_value('PHONE_NAME')
         self.connect_type = gl.get_value('CONNECT_TYPE')
+        self.poco = None
+        self.wda_service = None
         # 取得Airtest格式的手機連線link
         self.connection = Setting_Phone().get_phone_connect_link(self.phone_name, gl.get_value('PHONE_REMOTE_IP'), self.connect_type)
 
@@ -82,9 +84,11 @@ class AppDriver(UnittestModule):
 
         if gl.get_value("PHONE_PLATFORM") == 'iOS':
             if not cli_setup():
-                auto_setup(__file__, logdir=True, devices=[self.connection,])
-            poco = iosPoco()
-            wda_service = wda.Client(self.connection.split('///')[-1])    
-            parameter = (poco, wda_service)
+                auto_setup(__file__, logdir=False, devices=[self.connection,])
+            if not self.poco:
+                self.poco = iosPoco()
+            if not self.wda_service:
+                self.wda_service = wda.Client(self.connection.split('///')[-1])
+            parameter = (self.poco, self.wda_service)
             
         return parameter

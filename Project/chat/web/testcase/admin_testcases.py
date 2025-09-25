@@ -7,9 +7,10 @@ import time
 from Project.chat.web.pages.pages import WebPages, AdminPages
 from Project.chat.web.testcase.base_testcase import BaseTestCase
 
-from Project.lottery.web.Utils_folder.screenshot import ScreenShot
+# from Project.lottery.web.Utils_folder.screenshot import ScreenShot
 import common.utils.globalvar as gl
 import driver.web_driver as web_dr
+from common.utils.screenshot import ScreenShot
 from common.web.decorator import DecorateClass
 
 

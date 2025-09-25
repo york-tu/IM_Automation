@@ -277,7 +277,7 @@ class AppTestCase(BaseTestCase, BaseFunction_API):
         self.function_dict['ap'].freeupspacePage().clear_all_data()
 
     def send_file_to_1v1_chatroom_and_group(self, chatroom, group):
-        self.test_login()
+        # self.test_login()
         self.function_dict['ap'].chatlistPage().into_chat_room(chatroom)
         self.function_dict['ap'].chatroomPage().send_file_message(1)
         self.function_dict['ap'].chatlistPage().back_to_checklist()
@@ -319,7 +319,7 @@ class AppTestCase(BaseTestCase, BaseFunction_API):
         self.test_login()
 
         self.function_dict['ap'].mainPage().into_friend_page()
-        self.function_dict['ap'].friendPage().search_new_friend(self.operate_account)
+        self.function_dict['ap'].friendPage().search_friend(self.operate_account)
         self.function_dict['ap'].friendPage().set_note('IM自動化測試')
         self.function_dict['ap'].friendPage().set_nickname('tengyuntech_騰雲科技')
 
@@ -366,7 +366,7 @@ class AppTestCase(BaseTestCase, BaseFunction_API):
     @DecorateClass('CHATAPP-T1878')
     # 分享聊天至聊天室
     def test_share_message(self):
-        # self.test_login()
+        self.test_login()
 
         self.function_dict['ap'].mainPage().into_main_setting_page()
         self.function_dict['ap'].memberPage().into_share()
@@ -388,7 +388,7 @@ class AppTestCase(BaseTestCase, BaseFunction_API):
         self.function_dict['ap'].chatroomPage().send_text_message()
         self.function_dict['ap'].chatlistPage().check_last_message()
         self.function_dict['ap'].chatroomPage().send_url_message()
-        self.function_dict['ap'].chatlistPage().check_last_message(is_url_msg=True)
+        self.function_dict['ap'].chatlistPage().check_last_message()
 
     @DecorateClass('CHATAPP-T1770')
     # 個人訊息複製
@@ -410,7 +410,7 @@ class AppTestCase(BaseTestCase, BaseFunction_API):
         self.function_dict['ap'].chatlistPage().into_chat_room(self.operate_account)
         self.function_dict['ap'].chatroomPage().send_text_message()
         self.function_dict['ap'].chatroomPage().reply_message(reply_msg)
-        self.function_dict['ap'].chatlistPage().check_last_message()
+        self.function_dict['ap'].chatlistPage().check_last_message(is_reply=True)
 
     @DecorateClass('CHATAPP-T1772')
     # 個人訊息刪除
@@ -431,8 +431,6 @@ class AppTestCase(BaseTestCase, BaseFunction_API):
         revoke_msg = '自动化测试#5'
         self.function_dict['ap'].chatlistPage().into_chat_room(self.operate_account)
         self.function_dict['ap'].chatroomPage().send_text_message()
-        # self.function_dict['ap'].chatroomPage().revoke_message('測試TeSt12345!@#$%测试#3')
-        # self.function_dict['ap'].chatlistPage().check_last_message()
         self.function_dict['ap'].chatroomPage().revoke_message(revoke_msg)
         self.function_dict['ap'].chatlistPage().check_last_message()
 
@@ -470,6 +468,7 @@ class AppTestCase(BaseTestCase, BaseFunction_API):
         self.function_dict['ap'].chatroomPage().revoke_message('撤回用测试訊息', -2)
         self.function_dict['ap'].chatroomPage().check_reply_title('此讯息已被撤回')
 
+
     @DecorateClass('CHATAPP-T1774')
     # 個人訊息設置公告
     def test_message_pin(self):
@@ -478,7 +477,6 @@ class AppTestCase(BaseTestCase, BaseFunction_API):
         self.function_dict['ap'].chatlistPage().into_chat_room(self.operate_account)
         self.function_dict['ap'].chatroomPage().delete_all_pin()
         self.function_dict['ap'].chatroomPage().send_text_message()
-        # self.function_dict['ap'].chatroomPage().copy_message(copy_msg)
         self.function_dict['ap'].chatroomPage().pin_full_messages()
         self.function_dict['ap'].chatroomPage().delete_all_pin()
 
@@ -528,7 +526,7 @@ class AppTestCase(BaseTestCase, BaseFunction_API):
     @DecorateClass('CHATAPP-T3190')
     # 個人-發送語音訊息
     def test_send_voice_message(self):
-        # self.test_login()
+        self.test_login()
 
         voice_length = random.randint(10, 15)
         self.function_dict['ap'].chatlistPage().into_chat_room(self.operate_account)
@@ -545,7 +543,7 @@ class AppTestCase(BaseTestCase, BaseFunction_API):
         self.function_dict['ap'].chatroomPage().send_voice_message(voice_length)
         room_voice_message = self.function_dict['ap'].chatroomPage().get_last_message(is_voice=True)
         self.function_dict['ap'].chatroomPage().reply_voice_message(room_voice_message)
-        self.function_dict['ap'].chatlistPage().check_last_message()
+        self.function_dict['ap'].chatlistPage().check_last_message(is_reply=True)
 
     @DecorateClass('CHATAPP-T3192')
     # 個人-刪除語音訊息
@@ -580,7 +578,7 @@ class AppTestCase(BaseTestCase, BaseFunction_API):
     @DecorateClass('CHATAPP-T3253')
     # 個人-發送檔案訊息
     def test_send_file_message(self):
-        self.test_login()
+        # self.test_login()
         self.function_dict['ap'].chatlistPage().into_chat_room(self.operate_account)
         self.function_dict['ap'].chatroomPage().send_file_message(0)
         self.function_dict['ap'].chatlistPage().check_last_message(message_type='file')
@@ -593,16 +591,16 @@ class AppTestCase(BaseTestCase, BaseFunction_API):
         self.function_dict['ap'].chatroomPage().send_file_message(2)
         room_file_message = self.function_dict['ap'].chatroomPage().get_last_message(is_file=True)
         self.function_dict['ap'].chatroomPage().reply_file_message(room_file_message)
-        self.function_dict['ap'].chatlistPage().check_last_message()
+        self.function_dict['ap'].chatlistPage().check_last_message(is_reply=True)
 
     @DecorateClass('CHATAPP-T3255')
     # 個人-刪除檔案訊息
     def test_file_message_delete(self):
         self.test_login()
         self.function_dict['ap'].chatlistPage().into_chat_room(self.operate_account)
-        self.function_dict['ap'].chatroomPage().send_file_message(4)
+        self.function_dict['ap'].chatroomPage().send_file_message(2)
         room_file_message_1 = self.function_dict['ap'].chatroomPage().get_last_message(is_file=True)
-        self.function_dict['ap'].chatroomPage().send_file_message(6)
+        self.function_dict['ap'].chatroomPage().send_file_message(4)
         room_file_message_2 = self.function_dict['ap'].chatroomPage().get_last_message(is_file=True)
         self.function_dict['ap'].chatroomPage().delete_message(room_file_message_2, room_file_message_1, -1, is_file=True)
         assert room_file_message_1 == self.function_dict['ap'].chatroomPage().get_last_message(is_file=True)
@@ -628,7 +626,8 @@ class AppTestCase(BaseTestCase, BaseFunction_API):
         self.function_dict['ap'].chatroomPage().send_text_message()
         self.function_dict['ap'].chatlistPage().check_last_message()
         self.function_dict['ap'].chatroomPage().send_url_message()
-        self.function_dict['ap'].chatlistPage().check_last_message(is_url_msg=True)
+        self.function_dict['ap'].chatlistPage().check_last_message()
+        self.function_dict['ap'].chatroomPage().group_delete_history()
 
     @DecorateClass('CHATAPP-T1779')
     # 群組訊息複製
@@ -673,6 +672,7 @@ class AppTestCase(BaseTestCase, BaseFunction_API):
         self.function_dict['ap'].chatroomPage().send_text_message()
         self.function_dict['ap'].chatroomPage().revoke_message(revoke_msg)
         self.function_dict['ap'].chatlistPage().check_last_message()
+        self.function_dict['ap'].chatroomPage().group_delete_history()
 
 
     @DecorateClass('CHATAPP-T1783')
@@ -734,6 +734,7 @@ class AppTestCase(BaseTestCase, BaseFunction_API):
         self.function_dict['ap'].chatlistPage().into_chat_room(self.test_group)
         self.function_dict['ap'].chatroomPage().send_voice_message(voice_length)
         self.function_dict['ap'].chatlistPage().check_last_message(message_type='voice')
+        self.function_dict['ap'].chatroomPage().group_delete_history()
 
     @DecorateClass('CHATAPP-T3195')
     # 群組內回覆語音訊息
@@ -782,6 +783,7 @@ class AppTestCase(BaseTestCase, BaseFunction_API):
         self.function_dict['ap'].chatlistPage().into_chat_room(self.test_group)
         self.function_dict['ap'].chatroomPage().send_file_message(4)
         self.function_dict['ap'].chatlistPage().check_last_message(message_type='file')
+        self.function_dict['ap'].chatroomPage().group_delete_history()
 
     @DecorateClass('CHATAPP-T3258')
     # 群組-回覆檔案訊息
@@ -1044,7 +1046,7 @@ class AppTestCase(BaseTestCase, BaseFunction_API):
         if 'mail' in self.account_type.lower():
             self.function_dict['ap'].mainPage().login(self.mail_address, self.mail_password, login_method='mail')
         elif 'phone' in self.account_type.lower():
-            self.function_dict['ap'].mainPage().login(self.app_account, self.app_password, self.app_nation)
+            self.function_dict['ap'].mainPage().login(self.app_phone, self.app_password, self.app_nation)
         # ------------------------------------
         self.function_dict['ap'].socialhomePage().return_to_my_social_page()
         self.function_dict['ap'].socialhomePage().into_followed_list()
@@ -1133,7 +1135,7 @@ class AppTestCase(BaseTestCase, BaseFunction_API):
             self.function_dict['ap'].mainPage().login(self.mail_address, self.mail_password, login_method='mail')
             return self.mail_account
         elif 'phone' in self.account_type.lower():
-            self.function_dict['ap'].mainPage().login(self.app_account, self.app_password, self.app_nation)
+            self.function_dict['ap'].mainPage().login(self.app_phone, self.app_password, self.app_nation)
             return self.app_account
 
     # 他人貼文上評論: 自己留言+回覆 > 他人留言+回覆 > 他人點贊 > 我點贊

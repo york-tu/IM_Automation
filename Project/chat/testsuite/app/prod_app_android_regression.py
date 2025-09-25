@@ -20,7 +20,7 @@ user = 1
 connect_type = 'local'  # 手機連線模式
 phone_name = 'HUAWEI_26'  # 手機型號 'MI10_23' 'Pixel5_31'
 phone_platform = 'Android'  # 手機作業系統
-app_version = '2.14.0'
+app_version = '2.15.0'
 account_type = 'phone'  # 帳號類型: mail, phone...
 specific_os_version = []  # 指定OS版本, ['10','11','8']
 push = True  # 將結果推倒jira, 預設請給予 True
@@ -88,13 +88,11 @@ group_chat_regression_list = [
     AppTestCase('test_file_message_reply_group'),
     AppTestCase('test_file_message_delete_group'),
     AppTestCase('test_file_message_revoke_group'),
-    AppTestCase("test_logout"),
 ]
 
 # =========== 發現功能測試 ===========
 discover_regression_list = [
     AppTestCase("test_discover_floating_icon"),
-    AppTestCase("test_logout"),
 ]
 
 
@@ -132,8 +130,8 @@ if __name__ == '__main__':
     # TestCase add
     suite = unittest.TestSuite()
     suite.addTests(one_on_one_chat_regression_list)
-    # suite.addTests(group_chat_regression_list)
-    # suite.addTests(discover_regression_list)
+    suite.addTests(group_chat_regression_list)
+    suite.addTests(discover_regression_list)
 
     # RunningTest
     Utils.unittest_xml(suite)

@@ -120,7 +120,7 @@ admin_regression_list = [
     AdminTestCase("test_manual_create_account_delete"),  # 測試-刪除人工創建帳號
     AdminTestCase("test_group_delete"),  # 測試-刪除群組
 
-    # ========================= Remove ===============================
+    # ========================= 功能已移除 ===============================
     # AdminTestCase("test_member_build"),  # 測試-新增會員帳號 (無法用於前台登入)
     # AdminTestCase("test_member_delete"),  # 測試-刪除後台建立(無法用於前台登入)會員帳號
 ]

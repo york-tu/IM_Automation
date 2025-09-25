@@ -39,7 +39,7 @@ class FriendsPageLocator:
     chat_detail_nickname = (By.XPATH, '//p[@class="max-w-full my-[16rem] text-[20rem] font-semibold overflow-hidden whitespace-nowrap text-ellipsis text-black-100"]')  # 聊天詳情頁-暱稱
     chat_detail_note = (By.XPATH, '//p[@class="flex-1 min-w-0 ml-[8rem] text-[16rem] font-semibold text-grand-2 line-clamp-2 break-all"]')  # 聊天詳情頁-描述
 
-    profile_btn = (By.XPATH, "//p[text()='个人页']")  # "個人頁"鍵
+    profile_btn = (By.XPATH, "//p[text()='个人页面']")  # "个人页面"鍵
 
     friend_block_button = (By.XPATH, "//p[text()='加入黑名单']/..//span[@class='el-switch__core']")  # 聊天詳情-加入黑名單鍵
     input_block_msg = (By.XPATH, "//div[text()='该用户已被封锁']")  # 聊天室輸入框blocks

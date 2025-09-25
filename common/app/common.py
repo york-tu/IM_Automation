@@ -324,16 +324,17 @@ class Common(object):
 
     def poco_get_text(self, data):
         el = self.poco(data)
-
+        el_text = ''
+        # 取文字
         if self.device.lower() == 'ios':
-            get = 'get_name()'
-        else:
-            get = 'get_text()'
+            el_text = el.attr("label") or el.attr("value") or ""
 
-        if self.action == '':
-            return eval(f'el.{get}')
-        else:
-            return eval(f'el.{self.action}.{get}')
+        if self.device.lower() == 'android':
+            if self.action == '':
+                el_text = eval(f'el.get_text()')
+            else:
+                el_text = eval(f'el.{self.action}.get_text()')
+        return el_text
 
     # def more_poco_get_text(self, type_kind, type_name, action='', num='0'):
     #     el = self.poco(type_kind, type_name)

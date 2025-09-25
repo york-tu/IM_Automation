@@ -49,17 +49,17 @@ class SecurityPageLocator:
 
     password_input_old = base.check_device(
         Android=base.data_collation(type_kind='text', type_name='请填写旧密码'),
-        iOS=base.data_collation(type_kind='name', type_name='SecureTextField', num=0),
+        iOS=base.data_collation(type_kind='name', type_name='changePassword_originalPassword_textfield'),
     )
 
     password_input_new = base.check_device(
         Android=base.data_collation(type_kind='text', type_name='请填写新密码'),
-        iOS=base.data_collation(type_kind='name', type_name='SecureTextField', num=1),
+        iOS=base.data_collation(type_kind='name', type_name='changePassword_newPassword_textfield'),
     )
 
     password_input_check = base.check_device(
         Android=base.data_collation(type_kind='text', type_name='请再次填写新密码'),
-        iOS=base.data_collation(type_kind='name', type_name='SecureTextField', num=2),
+        iOS=base.data_collation(type_kind='name', type_name='changePassword_confirmPassword_textfield'),
     )
 
     submit_button = base.check_device(

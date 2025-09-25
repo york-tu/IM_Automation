@@ -52,11 +52,20 @@ class MessagePageLocator:
     chat_share_post_message = (By.XPATH, "(//p[@class='text-[16rem] text-grand-1 whitespace-pre-wrap break-all px-[10rem] py-[12rem]'])[last()]")  # 貼文分享文留言
     # ============================= 右鍵選單 ============================================================================
     message_menu = (By.XPATH, "//div[@class='flex flex-col w-full rounded-[4rem] overflow-x-hidden menu-list']")
-    menu_copy = (By.XPATH, "//div[@class='px-[16rem] py-[12rem] flex items-center justify-center min-h-[48rem] cursor-pointer menu-item']//p[text() = '复制']")
-    menu_reply = (By.XPATH, "//div[@class='px-[16rem] py-[12rem] flex items-center justify-center min-h-[48rem] cursor-pointer menu-item']//p[text() = '回复']")
-    menu_revoke = (By.XPATH, "//div[@class='px-[16rem] py-[12rem] flex items-center justify-center min-h-[48rem] cursor-pointer menu-item']//p[text() = '撤回']")
-    menu_delete = (By.XPATH, "//div[@class='px-[16rem] py-[12rem] flex items-center justify-center min-h-[48rem] cursor-pointer menu-item']//p[text() = '刪除']")
-    menu_pin = (By.XPATH, "//div[@class='px-[16rem] py-[12rem] flex items-center justify-center min-h-[48rem] cursor-pointer menu-item']//p[text() = '设为公告']")
+    menu_copy = (By.XPATH, "//p[text() = '复制']")
+    menu_reply = (By.XPATH, "//p[text() = '回复']")
+    menu_revoke = (By.XPATH, "//p[text() = '撤回']")
+    menu_delete = (By.XPATH, "//p[text() = '刪除']")
+    menu_pin = (By.XPATH, "//p[text() = '设为公告']")
+    # menu_copy = (By.XPATH,
+    #              "//div[@class='px-[16rem] py-[12rem] flex items-center justify-center min-h-[48rem] cursor-pointer menu-item']//p[text() = '复制']")
+    # menu_reply = (By.XPATH,
+    #               "//div[@class='px-[16rem] py-[12rem] flex items-center justify-center min-h-[48rem] cursor-pointer menu-item']//p[text() = '回复']")
+    # menu_revoke = (By.XPATH,
+    #                "//div[@class='px-[16rem] py-[12rem] flex items-center justify-center min-h-[48rem] cursor-pointer menu-item']//p[text() = '撤回']")
+    # menu_delete = (By.XPATH,
+    #                "//div[@class='px-[16rem] py-[12rem] flex items-center justify-center min-h-[48rem] cursor-pointer menu-item']//p[text() = '刪除']")
+    # menu_pin = (By.XPATH, "//div[@class='px-[16rem] py-[12rem] flex items-center justify-center min-h-[48rem] cursor-pointer menu-item']//p[text() = '设为公告']")
     # -------------------- 二次確認彈窗 --------------------
     confirm_popup = (By.XPATH,"//div[@class='neutral-50 relative rounded-[8rem] max-h-[90%] flex-col m-auto max-w-[360rem] p-[40rem] w-full']")
     confirm_popup_title = (By.XPATH, "(//div[@class='text-center'])[last()-1]")
@@ -101,7 +110,7 @@ class MessagePageLocator:
 
     @staticmethod
     def first_result(text):
-        locator = (By.XPATH, f"(//p[text()='{text}'])[last()]")
+        locator = (By.XPATH, f"(//span[text()='{text}'])[last()]")
         return locator
 
 
