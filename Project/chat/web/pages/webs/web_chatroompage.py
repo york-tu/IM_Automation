@@ -198,6 +198,7 @@ class ChatRoomPageLocator:
 class ChatRoomPage(BasePage):
     def into_setting(self):
         self.click(ChatRoomPageLocator.setting_btn)
+        self.wait_loading_finish()
         assert self.get_text(ChatRoomPageLocator.detail_title).__contains__('详情'), f'進入設定頁面有誤'
 
     def into_group_rule(self):

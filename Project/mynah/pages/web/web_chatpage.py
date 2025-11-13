@@ -67,7 +67,7 @@ class WebChatPage(WebBasePage):
                 self.click(ChatLocator.guest_back)
             self.wait_visibility(ChatLocator.se_lock)
             self.wait_visibility(ChatLocator.guest_confirm_close)
-            self.sleep(1)
+            self.sleep(3)
             self.click(ChatLocator.guest_confirm_close)
         except:
             raise EOFError('前台掛斷對話失敗')

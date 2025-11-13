@@ -18,7 +18,10 @@ class FriendPageLocator:
     friends_btn = (By.XPATH, "//p[text()='好友']/../div[@class='head-icon']")
     friends_show = (By.XPATH, "//div[@class='chat-friend__item -show']//p[text()='好友']")
 
-    room_title = (By.XPATH, "//p[@class='chat-detail__name__text']")
+    room_title = (By.XPATH, "//*[@class='chat-detail__name__text']")
+    system_add_confirm_msg = (By.XPATH, "//*[@class='wcr-system-add-confirm__head__text']")
+    agree_add_btn = (By.XPATH, "//p[text()='同意加入']")
+    add_to_blocklist_btn = (By.XPATH, "//p[text()='加入黑名单']")
 
 
 class FriendPage(BasePage):
@@ -67,5 +70,13 @@ class FriendPage(BasePage):
                     assert self.get_text(FriendPageLocator.search_name).__contains__(name), f'搜尋結果有誤'
                     return True
 
+    def check_notExist(self, name):
+        a1 = self.get_text(FriendPageLocator.room_title)  #
+        assert a1 == name, f'預期:{name}, 實際:{a1}'# 確認聊天室標題為對方暱稱
+        assert self.get_text(FriendPageLocator.system_add_confirm_msg) == '＊请您确认是否要将此人加入好友'
+        assert self.is_element_finded(FriendPageLocator.agree_add_btn)
+        assert self.is_element_finded(FriendPageLocator.add_to_blocklist_btn)
+        # assert self.check_friend(name) is False, f'該好友未正常刪除'
+
     def check_notexist(self, name):
-        assert self.check_friend(name) is False, f'該好友未正常刪除'
+        assert self.check_friend(name) == False ,f'黑名單好友顯示有誤'

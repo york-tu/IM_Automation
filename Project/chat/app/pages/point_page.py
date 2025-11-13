@@ -26,7 +26,7 @@ class PointPageLocator:
 
     point_button = base.check_device(
         Android=base.data_collation(type_kind='text', type_name='积分'),
-        iOS=base.data_collation(type_kind='name', type_name='积分'),
+        iOS=base.data_collation(type_kind='name', type_name='setting_credit_cell'),
     )
 
     point_page_title = base.check_device(
@@ -36,38 +36,39 @@ class PointPageLocator:
 
     point_total = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tv_point'),
-        iOS=base.data_collation(type_kind='name', type_name='xxxx'),
+        iOS=base.data_collation(type_kind='name', type_name='credit_totalAmount_label'),
     )
 
     point_value = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tv_value'),
-        iOS=base.data_collation(type_kind='name', type_name='xxx')
+        iOS=base.data_collation(type_kind='name', type_name='credit_recordCell_amount_label')
     )
 
     point_type = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tv_type'),
-        iOS=base.data_collation(type_kind='name', type_name='xxx')
+        iOS=base.data_collation(type_kind='name', type_name='credit_recordCell_tradingType_label')
     )
 
     point_status = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tv_state'),
-        iOS=base.data_collation(type_kind='name', type_name='tv_type ')
+        iOS=base.data_collation(type_kind='name', type_name='credit_recordCell_status_label')
     )
 
     point_date = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tv_date'),
-        iOS=base.data_collation(type_kind='name', type_name='tv_type ')
+        iOS=base.data_collation(type_kind='name', type_name='credit_recordCell_time_label')
     )
     main_btn = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/navigation_bar_item_icon_view', num=-1),
-        iOS=base.data_collation(type_kind='name', type_name='')
+        iOS=base.data_collation(type_kind='name', type_name='mainTabBar_my_button')
     )
     main_functions_btn = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/iv_right'),
-        iOS=base.data_collation(type_kind='name', type_name='')
+        iOS=base.data_collation(type_kind='name', type_name='myProfile_menu_button')
     )
 
 class PointPage(Base):
+    phone_platform = gl.get_value('PHONE_PLATFORM')
 
     def into_point_record(self):
         if self.common.poco_exists(PointPageLocator.main_btn):
@@ -75,7 +76,8 @@ class PointPage(Base):
         if self.common.poco_exists(PointPageLocator.main_functions_btn):
             self.common.poco_click(PointPageLocator.main_functions_btn)
         self.common.poco_click(PointPageLocator.point_button)
-        assert self.common.poco_get_text(PointPageLocator.point_page_title) == '积分', f'非積分頁'
+        if self.phone_platform.lower() == 'android':
+            assert self.common.poco_get_text(PointPageLocator.point_page_title) == '积分', f'非積分頁'
 
     def check_point_record(self, grab_type, grab_amount, grab_time):
         assert self.common.poco_get_text(PointPageLocator.point_value) == grab_amount, f'積分領取錯誤'

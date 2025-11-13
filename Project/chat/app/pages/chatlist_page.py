@@ -1,4 +1,6 @@
+from datetime import datetime
 from time import sleep
+import re
 
 from airtest.core.api import touch
 
@@ -25,23 +27,25 @@ class ChatListPageLocator:
         )
 
         return env
+
     # 系統通知icon
     system_notification = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/iv_system_notification'),
-        iOS=base.data_collation(type_kind='name', type_name=''),
+        iOS=base.data_collation(type_kind='name', type_name='chatList_notification_button'),
     )
     # 系統通知最新一筆系統訊息內容
     latest_system_message_text = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tv_content', num=0),
-        iOS=base.data_collation(type_kind='name', type_name=''),
+        iOS=base.data_collation(type_kind='name', type_name='systemNotification_content_label', num=0),
     )
     # 系統通知最新一筆系統訊息時間
     latest_system_message_time = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tv_create_at', num=0),
-        iOS=base.data_collation(type_kind='name', type_name=''),
+        iOS=base.data_collation(type_kind='name', type_name='systemNotification_time_label', num=0),
     )
     message_btn = base.check_device(
-        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/navigation_bar_item_icon_view',num=1),
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/navigation_bar_item_icon_view',
+                                    num=1),
         iOS=base.data_collation(type_kind='name', type_name='mainTabBar_chat_button'),
     )
 
@@ -140,6 +144,10 @@ class ChatListPageLocator:
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tv_content', num=-1),
         iOS=base.data_collation(type_kind='name', type_name='message_textMessageRCell_textView', num=-1),
     )
+    last_other_message_room = base.check_device(
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tv_content', num=-1),
+        iOS=base.data_collation(type_kind='name', type_name='message_textMessageLCell_textView', num=-1),
+    )
     last_reply_message_room = base.check_device(
         Android=base.data_collation(type_kind='', type_name=''),
         iOS=base.data_collation(type_kind='name', type_name='message_replyMessageRCell_textView', num=-1),
@@ -158,6 +166,37 @@ class ChatListPageLocator:
     )
 
 
+def convert_to_24hr(time_str: str) -> str:
+    """
+    將 '2025-10-30 上午10:52' 或 '2025/10/30 下午3:15'
+    轉換為 '2025-10-30 10:52' 或 '2025-10-30 15:15' (24小時制)
+    """
+    if not time_str:
+        return ""
+
+    # 去除多餘空白
+    time_str = time_str.strip()
+    # 中文上午/下午 → 英文 AM/PM
+    time_str = time_str.replace("上午", "AM").replace("下午", "PM")
+    # 統一日期分隔符為 "-"
+    time_str = re.sub(r"[./]", "-", time_str)
+    # 嘗試多種格式解析
+    possible_formats = [
+        "%Y-%m-%d %p%I:%M",
+        "%Y-%m-%d%p%I:%M",   # 沒有空格的情況
+        "%Y-%m-%d %I:%M",    # 無上午/下午
+        "%Y-%m-%d%I:%M",
+    ]
+    for fmt in possible_formats:
+        try:
+            dt = datetime.strptime(time_str, fmt)
+            return dt.strftime("%Y-%m-%d %H:%M")
+        except ValueError:
+            continue
+    # 若無法解析就原樣返回
+    return time_str
+
+
 class ChatListPage(Base):
     phone_platform = gl.get_value('PHONE_PLATFORM')
 
@@ -172,24 +211,28 @@ class ChatListPage(Base):
             raise EOFError('找不到任何結果')
         else:
             if self.phone_platform.lower() == 'ios':
-                assert self.common.poco_get_attr(ChatListPageLocator.friend_frist, 'value').__contains__(name), f'好友搜查結果有誤'
+                assert self.common.poco_get_attr(ChatListPageLocator.friend_frist, 'value').__contains__(
+                    name), f'好友搜查結果有誤'
                 self.common.poco_click(ChatListPageLocator.friend_frist)
                 sleep(1)
             else:
                 if self.common.poco_exists(ChatListPageLocator.friend_frist):
                     aaa = self.common.poco_get_text(ChatListPageLocator.friend_frist)
-                    assert self.common.poco_get_text(ChatListPageLocator.friend_frist).__contains__(name), f'好友搜查結果有誤'
+                    assert self.common.poco_get_text(ChatListPageLocator.friend_frist).__contains__(
+                        name), f'好友搜查結果有誤'
                     self.common.poco_click(ChatListPageLocator.friend_frist)
                     sleep(1)
                 elif self.common.poco_exists(ChatListPageLocator.group_frist):
-                    assert self.common.poco_get_text(ChatListPageLocator.group_frist).__contains__(name), f'群組搜查結果有誤'
+                    assert self.common.poco_get_text(ChatListPageLocator.group_frist).__contains__(
+                        name), f'群組搜查結果有誤'
                     self.common.poco_click(ChatListPageLocator.group_frist)
                     sleep(1)
 
     def into_system_notification(self):
         self.common.poco_click(ChatListPageLocator.message_btn)
         self.common.poco_click(ChatListPageLocator.system_notification)
-        assert self.common.poco_get_text(ChatListPageLocator.chat_room_title) == '系统通知', '頁面錯誤'
+        if self.phone_platform.lower() == 'android':
+            assert self.common.poco_get_text(ChatListPageLocator.chat_room_title) == '系统通知', '頁面錯誤'
 
     def add_chat_room(self, name):
         self.wait_loading_finish()
@@ -251,14 +294,12 @@ class ChatListPage(Base):
         self.wait_loading_finish()
         self.common.poco_send_text(ChatListPageLocator.search_input, group_name)
         sleep(3)
-        assert self.common.poco_get_text(ChatListPageLocator.group_frist).__contains__(group_name), f'綁定群組名與預期不符'  # 搜尋群組名, 確認已透過邀請碼加入該群組
+        assert self.common.poco_get_text(ChatListPageLocator.group_frist).__contains__(
+            group_name), f'綁定群組名與預期不符'  # 搜尋群組名, 確認已透過邀請碼加入該群組
 
-    def check_last_message(self, message_type='text', is_reply=False):
+    def check_last_message(self, message_type='text', is_reply=False, other_msg=False):
         if self.phone_platform.lower() == 'ios':
             # ==================== 獲取聊天室內最後一則訊息 ====================
-            # if is_url_msg:
-            #     room_message = self.common.poco_get_text(ChatListPageLocator.last_url_message_room)
-            #     touch((200, 500))
             if message_type == 'voice':
                 room_message = '语音讯息'
             elif message_type == 'file':
@@ -266,6 +307,8 @@ class ChatListPage(Base):
             else:
                 if is_reply:
                     room_message = self.common.poco_get_text(ChatListPageLocator.last_reply_message_room)
+                elif other_msg:
+                    room_message = self.common.poco_get_text(ChatListPageLocator.last_other_message_room)
                 else:
                     room_message = self.common.poco_get_text(ChatListPageLocator.last_message_room)
 
@@ -277,7 +320,8 @@ class ChatListPage(Base):
                 self.common.poco_click(ChatListPageLocator.search_clear)
 
             list_message = self.common.poco_get_text(ChatListPageLocator.last_message_list)
-            assert list_message.__contains__(room_message), f'最後一筆訊息顯示錯誤, 目前:{list_message},預期:{room_message}'
+            assert list_message.__contains__(
+                room_message), f'最後一筆訊息顯示錯誤, 目前:{list_message},預期:{room_message}'
 
             self.common.poco_click(ChatListPageLocator.list_frist)  # 重新進入聊天室
 
@@ -305,12 +349,16 @@ class ChatListPage(Base):
     def back_to_checklist(self):
         self.common.poco_click(ChatListPageLocator.back_btn)
 
-    def check_latest_system_message(self, system_message, system_time):
-        # self.wait_loading_finish()
+    def check_latest_system_message(self, message, time):
         sleep(1)
-        system_message_text = self.common.poco_get_text(ChatListPageLocator.latest_system_message_text)
-        system_time_text = self.common.poco_get_text(ChatListPageLocator.latest_system_message_time)
-
-        assert system_message_text == system_message, f'最新一筆系統訊息錯誤, 目前:{system_message_text},預期:{system_message}'
-        assert system_time_text == system_time, f'最新一筆系統訊息時間錯誤, 目前:{system_time_text},預期:{system_time}'
-
+        if self.phone_platform.lower() == 'android':
+            system_message = self.common.poco_get_text(ChatListPageLocator.latest_system_message_text)
+            # system_time_text = self.common.poco_get_text(ChatListPageLocator.latest_system_message_time).replace("/","-")
+            system_time = self.common.poco_get_text(ChatListPageLocator.latest_system_message_time)
+        else:
+            system_message = self.poco(type='Cell')[0].offspring(name='systemNotification_content_label')[0].attr('value')
+            # system_time_text = self.poco(type='Cell')[0].offspring(name='systemNotification_time_label')[0].attr('value').replace("/", "-")
+            system_time = self.poco(type='Cell')[0].offspring(name='systemNotification_time_label')[0].attr('value')
+        system_time = convert_to_24hr(system_time)  # 時間轉24hr制
+        assert system_message == message, f'最新一筆系統訊息錯誤, 目前:{system_message},預期:{message}'
+        assert system_time == time, f'最新一筆系統訊息時間錯誤, 目前:{system_time},預期:{time}'

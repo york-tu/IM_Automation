@@ -16,7 +16,6 @@ from configs.app.setting import Setting as Setting_Phone
 from jira.module.base_module import UnittestModule
 
 class AppDriver(UnittestModule):
-    
     # stf控制手機
     def stf_connect_phone(self):
         self.phone_name = gl.get_value('PHONE_NAME')
@@ -57,11 +56,13 @@ class AppDriver(UnittestModule):
         print('==========================================\n')
 
     # 注意func執行順序不可倒，要先執行過setting_test_data()
-    def airtest_connect_phone(self):
-        self.phone_name = gl.get_value('PHONE_NAME')
+    def airtest_connect_phone(self, phone_name=None):
+        # self.phone_name = gl.get_value('PHONE_NAME')
+        self.phone_name = phone_name or gl.get_value('PHONE_NAME')
         self.connect_type = gl.get_value('CONNECT_TYPE')
         self.poco = None
         self.wda_service = None
+
         # 取得Airtest格式的手機連線link
         self.connection = Setting_Phone().get_phone_connect_link(self.phone_name, gl.get_value('PHONE_REMOTE_IP'), self.connect_type)
 

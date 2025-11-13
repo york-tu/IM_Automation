@@ -33,7 +33,7 @@ class BlackListPageLocator:
     )
 
     black_remark_btn = base.check_device(
-        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tv_set_note_title'),
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tv_note_add_prompt'),
         iOS=base.data_collation(type_kind='name', type_name='设定备注'),
     )
 
@@ -96,7 +96,7 @@ class BlackListPageLocator:
     )
 
     black_button = base.check_device(
-        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/sw_block'),
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/sw_blacklist'),
         iOS=base.data_collation(type_kind='type', type_name='Switch', num=-1),
     )
 
@@ -119,6 +119,7 @@ class BlackListPageLocator:
         Android=base.data_collation(type_kind='n', type_name=''),
         iOS=base.data_collation(type_kind='name', type_name='聊天详情'),
     )
+
 
 class BlackListPage(Base):
     phone_platform = gl.get_value('PHONE_PLATFORM')
@@ -201,7 +202,7 @@ class BlackListPage(Base):
         self.common.poco_click(BlackListPageLocator.impeach_radio)
         self.common.poco_click(BlackListPageLocator.impeach_agree)
 
-    def search_friend(self, name):
+    def search_friend_from_blackList(self, name):
         if self.phone_platform.lower() == 'ios':
             self.common.poco_click(BlackListPageLocator.black_seach_input)
             self.common.poco_send_text(BlackListPageLocator.black_seach_input, name)
@@ -215,27 +216,33 @@ class BlackListPage(Base):
             assert self.common.poco_get_text(BlackListPageLocator.black_nickname) == name, f'找不到任何黑名單成員'
             self.common.poco_click(BlackListPageLocator.black_nickname)
 
-    def unblock_friend(self):
+    def unblock_friend_from_UserDetail(self):
         if self.phone_platform.lower() == 'ios':
+            # ============================= "取消"加入黑名單 =============================================
             self.common.poco_long_click(BlackListPageLocator.black_button)
             if self.common.poco_exists(BlackListPageLocator.black_popup_message):
                 print('黑名單初始狀態有誤')
-
+            # ============================= "開啟"加入黑名單 =============================================
             self.common.poco_long_click(BlackListPageLocator.black_button)
-            assert self.common.poco_exists(BlackListPageLocator.black_popup_message),f'未跳出黑名單二次確認彈窗'
-
+            assert self.common.poco_exists(BlackListPageLocator.black_popup_message), f'未跳出黑名單二次確認彈窗'
             self.common.poco_click(BlackListPageLocator.black_popup_submit)
-            assert self.common.poco_get_attr(BlackListPageLocator.black_button, 'value') == '1', f'未成功enable黑名單選項'
+            assert self.common.poco_get_attr(BlackListPageLocator.black_button, 'value') == '1', f'加入黑名單失敗'
+            # ============================= "取消"加入黑名單 =============================================
             self.common.poco_long_click(BlackListPageLocator.black_button)
-            assert self.common.poco_get_attr(BlackListPageLocator.black_button,'value') == '0', f'未成功disable黑名單選項'
+            assert self.common.poco_get_attr(BlackListPageLocator.black_button, 'value') == '0', f'取消黑名單失敗'
 
-        else:
+        else:  # android part
+            # ============================= "取消"加入黑名單 =============================================
             self.common.poco_click(BlackListPageLocator.black_button)
             if self.common.poco_exists(BlackListPageLocator.black_popup_message):
                 print('黑名單初始狀態有誤')
-
+            # ============================= "開啟"加入黑名單 =============================================
             self.common.poco_click(BlackListPageLocator.black_button)
-            assert self.common.poco_exists(BlackListPageLocator.black_popup_message)
-
+            assert self.common.poco_exists(BlackListPageLocator.black_popup_message), f'未跳出黑名單二次確認彈窗'
             self.common.poco_click(BlackListPageLocator.black_popup_submit)
+            self.wait_loading_finish()
+            assert self.common.poco_get_attr(BlackListPageLocator.black_button, 'checked'), f'加入黑名單失敗'
+            # ============================= "取消"加入黑名單 =============================================
             self.common.poco_click(BlackListPageLocator.black_button)
+            self.wait_loading_finish()
+            assert not self.common.poco_get_attr(BlackListPageLocator.black_button, 'checked'), f'取消黑名單失敗'

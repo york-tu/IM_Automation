@@ -73,7 +73,7 @@ class IntegralPage(BasePage):
         self.wait_loading_finish()
         exchange_integral = self.get_text(IntegralPageLocator.exchange_integral)
         after_remove_sign_amount = re.sub(r'[+-]', '', exchange_integral)  # 移除數字前+-號
-        assert after_remove_sign_amount == f"{operate_amount}", f'積分有誤'
+        assert after_remove_sign_amount == f"{operate_amount}", f'積分有誤,預期:{operate_amount},實際:{after_remove_sign_amount}'
         assert self.get_text(IntegralPageLocator.exchange_source) == operate_type, f'媒介有誤, 預期: {operate_type}, 實際: {self.get_text(IntegralPageLocator.exchange_source)}'
         assert self.get_text(IntegralPageLocator.exchange_state) == '成功', f'存入/提出狀態有誤'
         if operate_time is not None:

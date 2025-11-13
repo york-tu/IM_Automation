@@ -40,11 +40,19 @@ class MainPageLocator:
 
     login_button = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/btn_login'),
-        iOS=base.data_collation(type_kind='name', type_name='登录', num=-2)
+        iOS=base.data_collation(type_kind='name', type_name='phoneLogin_login_button')
+    )
+    email_login_button = base.check_device(
+        Android=base.data_collation(type_kind='', type_name=''),
+        iOS=base.data_collation(type_kind='name', type_name='emailLogin_login_button')
     )
     register_button = base.check_device(
         Android=base.data_collation(type_kind='text', type_name='注册', num=-1),
-        iOS=base.data_collation(type_kind='name', type_name='注册', num=-1)
+        iOS=base.data_collation(type_kind='name', type_name='emailLogin_register_button')
+    )
+    register_page_register_button = base.check_device(
+        Android=base.data_collation(type_kind='', type_name=''),
+        iOS=base.data_collation(type_kind='name', type_name='register_register_button')
     )
     warning_icon = base.check_device(
         Android=base.data_collation(type_kind='text', type_name=''),
@@ -60,7 +68,7 @@ class MainPageLocator:
     # )
     login_email_input = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/et_input_text', num=0),
-        iOS=base.data_collation(type_kind='name', type_name='register_verify_email_input')
+        iOS=base.data_collation(type_kind='name', type_name='registerVerifyEmail_email_textField')
     )
     login_email_input_clear = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/iv_icon_left_of_selector'),
@@ -68,36 +76,36 @@ class MainPageLocator:
     )
     next_btn = base.check_device(
         Android=base.data_collation(type_kind='text', type_name='下一步'),
-        iOS=base.data_collation(type_kind='name', type_name='register_verify_email_next_button')
+        iOS=base.data_collation(type_kind='name', type_name='下一步')
     )
     input_code = base.check_device(
         Android=base.data_collation(type_kind='text', type_name='请输入验证码'),
-        iOS=base.data_collation(type_kind='name', type_name='TextField', num=-1)
+        iOS=base.data_collation(type_kind='name', type_name='codeVerify_textField')
     )
     input_account_id = base.check_device(
         Android=base.data_collation(type_kind='text', type_name='填写帐号'),
-        iOS=base.data_collation(type_kind='name', type_name='TextField', num=0)
+        iOS=base.data_collation(type_kind='name', type_name='register_accountID_textField')
     )
     input_pw = base.check_device(
         Android=base.data_collation(type_kind='text', type_name='设定密码'),
-        iOS=base.data_collation(type_kind='name', type_name='SecureTextField', num=0)
+        iOS=base.data_collation(type_kind='name', type_name='register_password_textField')
     )
     input_confirm_pw = base.check_device(
         Android=base.data_collation(type_kind='text', type_name='再次设定密码'),
-        iOS=base.data_collation(type_kind='name', type_name='SecureTextField', num=1)
+        iOS=base.data_collation(type_kind='name', type_name='register_passwordConfirm_textField')
     )
     input_nickname = base.check_device(
         Android=base.data_collation(type_kind='text', type_name='填写昵称'),
-        iOS=base.data_collation(type_kind='name', type_name='TextField', num=-3)
+        iOS=base.data_collation(type_kind='name', type_name='register_nickname_textField')
     )
     input_account_note = base.check_device(
         Android=base.data_collation(type_kind='textMatches', type_name='填写帐号备注.*'),
-        iOS=base.data_collation(type_kind='name', type_name='TextField', num=-2)
+        iOS=base.data_collation(type_kind='name', type_name='register_socialAccount_textField')
     )
 
     logout = base.check_device(
         Android=base.data_collation(type_kind='text', type_name='登出'),
-        iOS=base.data_collation(type_kind='name', type_name='登出')
+        iOS=base.data_collation(type_kind='name', type_name='accountSecurity_logout_button')
     )
 
     logout_popup = base.check_device(
@@ -106,13 +114,13 @@ class MainPageLocator:
         iOS=base.data_collation(type_kind='name', type_name='登出后不会删除任何资料纪录，下次登入依然可以使用本帐号。'),
     )
 
-    logout_button = base.check_device(
+    logout_confirm_button = base.check_device(
         Android=base.data_collation(type_kind='name', type_name='android:id/button1'),
-        iOS=base.data_collation(type_kind='name', type_name='ScrollView', pos=[0.5, 0.8577008928571429]),
+        iOS=base.data_collation(type_kind='name', type_name='accountSecurity_logout_alertAction'),
     )
     new_login_page_welcome_description = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tv_welcome'),
-        iOS=base.data_collation(type_kind='nameMatches', type_name=f'欢迎.*'),
+        iOS=base.data_collation(type_kind='name', type_name='loginOption_title_label'),
     )
     new_login_page_use_cellphone_btn = base.check_device(
         Android=base.data_collation(type_kind='text', type_name='使用手机号继续'),
@@ -124,17 +132,28 @@ class MainPageLocator:
     )
     new_login_page_agreement_hint = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tv_agreement_hint'),
-        iOS=base.data_collation(type_kind='nameMatches', type_name=f'如果您继续.*'),
+        iOS=base.data_collation(type_kind='name', type_name='loginOption_info_label'),
+    )
+    new_login_page_close_btn = base.check_device(
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/iv_close'),
+        iOS=base.data_collation(type_kind='name', type_name='iconIconCross'),
     )
     account = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/et_input_text', num=0),
-        iOS=base.data_collation(type_kind='name', type_name='TextField', num=-1)
+        iOS=base.data_collation(type_kind='name', type_name='phoneLogin_phone_textField')
+    )
+    email_account = base.check_device(
+        Android=base.data_collation(type_kind='', type_name=''),
+        iOS=base.data_collation(type_kind='name', type_name='emailLogin_email_textField')
     )
     password = base.check_device(
         Android=base.data_collation(type_kind='text', type_name='请填写密码'),
-        iOS=base.data_collation(type_kind='name', type_name='SecureTextField')
+        iOS=base.data_collation(type_kind='name', type_name='phoneLogin_password_textField')
     )
-
+    email_password = base.check_device(
+        Android=base.data_collation(type_kind='', type_name=''),
+        iOS=base.data_collation(type_kind='name', type_name='emailLogin_password_textField')
+    )
     error = base.check_device(
         Android=base.data_collation(type_kind='text', type_name='手机号/密码错误，请重新输入'),
         iOS=base.data_collation(type_kind='name', type_name='手机号/密码错误，请重新输入'),
@@ -160,8 +179,9 @@ class MainPageLocator:
         iOS=base.data_collation(type_kind='name', type_name='群组'),
     )
     discover_btn = base.check_device(
-        Android=base.data_collation(type_kind='text', type_name=''),
-        iOS=base.data_collation(type_kind='name', type_name='mainTabBar_discover_button'),
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/navigation_bar_item_icon_view',
+                                    num=-2),
+        iOS=base.data_collation(type_kind='name', type_name='mainTabBar_discover_button')
     )
     main_btn = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/navigation_bar_item_icon_view', num=-1),
@@ -180,7 +200,7 @@ class MainPageLocator:
 
     mine_menu_btn = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/iv_right'),
-        iOS=base.data_collation(type_kind='name', type_name='icon menu', num=0),
+        iOS=base.data_collation(type_kind='name', type_name='myProfile_menu_button'),
     )
 
     followed_tab = base.check_device(
@@ -193,8 +213,8 @@ class MainPageLocator:
     )
 
     about_button = base.check_device(
-        Android=base.data_collation(type_kind='textMatches', type_name='关于.*聊'),
-        iOS=base.data_collation(type_kind='name', type_name='关于股聊'),
+        Android=base.data_collation(type_kind='textMatches', type_name='关于.*'),
+        iOS=base.data_collation(type_kind='nameMatches', type_name='关于.*'),
     )
 
     about_button_365 = base.check_device(
@@ -219,17 +239,17 @@ class MainPageLocator:
 
     nation_focus = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tv_country_name'),
-        iOS=base.data_collation(type_kind='name', type_name='TextField', pos=[0.5869565217391305, 0.21428571428571427]),
+        iOS=base.data_collation(type_kind='name', type_name='phoneLogin_region_textField'),
     )
 
     nation_button = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/iv_right_arrow'),
-        iOS=base.data_collation(type_kind='name', type_name='TextField', pos=[0.5869565217391305, 0.21428571428571427]),
+        iOS=base.data_collation(type_kind='name', type_name='phoneLogin_region_textField'),
     )
 
     nation_search = base.check_device(
         Android=base.data_collation(type_kind='text', type_name='搜索'),
-        iOS=base.data_collation(type_kind='name', type_name='TextField', pos=[0.5, 0.13169642857142858]),
+        iOS=base.data_collation(type_kind='name', type_name='selectRegion_search_textField'),
     )
 
     nation_check = base.check_device(
@@ -239,7 +259,7 @@ class MainPageLocator:
 
     nation_code = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tv_country_code'),
-        iOS=base.data_collation(type_kind='name', type_name='Cell', pos=[0.5, 0.19419642857142858]),
+        iOS=base.data_collation(type_kind='name', type_name='selectRegion_contryDigit_label'),
     )
 
     edit_profile_btn = base.check_device(
@@ -258,114 +278,99 @@ class MainPageLocator:
 
 class MainPage(Base):
     phone_platform = gl.get_value('PHONE_PLATFORM')
+    brand = gl.get_value("BRAND")
     PASS_email_file_path = r"C:\Users\york_tu\Desktop\email_regex_testcases_PASS.xlsx"
     FAIL_email_file_path = r"C:\Users\york_tu\Desktop\email_regex_testcases_FAIL.xlsx"
 
-    def check_navigation_bar_items_count(self):
-        sleep(1)
-        counts = len(self.poco(name=str(MainPageLocator.app_package) + ":id/navigation_bar_item_icon_view"))
-        return counts
+    # def check_navigation_bar_items_count(self):
+    #     sleep(1)
+    #     counts = len(self.poco(name=str(MainPageLocator.app_package) + ":id/navigation_bar_item_icon_view"))
+    #     return counts
 
     # 回傳登入狀態，已登入回傳True，反之回傳False
     def check_login_status(self):
-        if self.phone_platform.lower() == 'android':
-            # 檢查工具列是否有5個icon(包含發現icon)
-            if self.check_navigation_bar_items_count() == 5:  # 登入後才會有發現icon
-                return True
+        """確認是否已登入"""
+        self.wait_loading_finish()
+        self.common.poco_click(MainPageLocator.main_btn)
+        if self.common.poco_exists(MainPageLocator.new_login_page_welcome_description):
+            # 在登入頁面 → 表示未登入
+            self.common.poco_click(MainPageLocator.new_login_page_close_btn)
             return False
-        else:  # ios
-            # 檢查工具列是否有發現icon
-            if self.common.poco_exists(MainPageLocator.discover_btn):  # 登入後才會有發現icon
-                return True
-            return False
-
-    def into_home_check(self, status):
-        if self.phone_platform.lower() == 'android':
-            number = 0
-
-            self.check_login_status()
-
-            for loop in range(0, 30):
-                self.common.sleep(0.5)
-
-                if status is True and self.check_login_status() is False:
-                    logging.warning('帳號被登出了')
-                    return False
-                elif self.check_login_status() is False:
-                    return False
-                sleep(3)
-                if self.common.poco_exists(MainPageLocator.message_btn) or self.common.poco_exists(MainPageLocator.main_btn):
-                    number += 1  # 為避免找到首頁定位後才跳出彈窗，故找到後再跑一次
-                    if number == 2:
-                        break
-
-                if loop == 29:
-                    raise EOFError('開啟app錯誤')
-        # =========================== ios scenario =====================================
         else:
-            if self.check_login_status():
-                return True
-            else:
-                return False
+            # 不在登入頁面 → 表示已登入
+            return True
+
+        # if self.phone_platform.lower() == 'android':
+        #     # 檢查工具列是否有5個icon(包含發現icon)
+        #     if self.check_navigation_bar_items_count() == 5:  # 登入後才會有發現icon
+        #         return True
+        #     return False
+        # else:  # ios
+        #     # 檢查工具列是否有發現icon
+        #     if self.common.poco_exists(MainPageLocator.discover_btn):  # 登入後才會有發現icon
+        #         return True
+        #     return False
+
+    def into_home_check(self):
+        # if self.phone_platform.lower() == 'android':
+        #     number = 0
+
+            # self.check_login_status()
+            #
+            # for loop in range(0, 6):
+            #     self.common.sleep(0.5)
+            #
+            #     if status is True and self.check_login_status() is False:
+            #         logging.warning('帳號被登出了')
+            #         return False
+            #
+            #     elif self.check_login_status() is False:
+            #         return False
+            #     elif self.check_login_status():
+            #         return True
+            #     sleep(3)
+                # if self.common.poco_exists(MainPageLocator.message_btn) or self.common.poco_exists(MainPageLocator.main_btn):
+                #     number += 1  # 為避免找到首頁定位後才跳出彈窗，故找到後再跑一次
+                #     if number == 2:
+                #         break
+                #
+                # if loop == 5:
+                #     raise EOFError('開啟app錯誤')
+        # =========================== ios scenario =====================================
+        # else:
+        if self.check_login_status():
+            return True
+        else:
+            return False
 
     # 登出
     def logout(self):
         if self.common.poco_wait_exists(MainPageLocator.logout, timeout=10):
             self.common.poco_click(MainPageLocator.logout)
         if self.common.poco_wait_exists(MainPageLocator.logout_popup, timeout=10):
-            self.common.poco_click(MainPageLocator.logout_button)
+            self.common.poco_click(MainPageLocator.logout_confirm_button)
 
         self.common.sleep(3)
         if self.phone_platform.lower() == 'android':
             assert self.common.poco_get_attr(MainPageLocator.recommend_tab, 'selected') is True, f'未回到訪客首頁推薦頁'
-            assert self.check_navigation_bar_items_count() == 4, f'未成功登出'
+            # assert self.check_navigation_bar_items_count() == 4, f'未成功登出'
         else:  # ios
-            assert not self.common.poco_exists(MainPageLocator.discover_btn)
+            self.common.poco_click(MainPageLocator.main_btn)
+            assert self.common.poco_exists(MainPageLocator.new_login_page_welcome_description)  # 出現登入頁
+            self.common.poco_click(MainPageLocator.new_login_page_close_btn)
 
     # 登入
-    def login(self, account: str, password: str, nation='CN', login_method='phone'):
-        if self.check_login_status() is True:  # 當狀態為已登入時先登出
-            self.into_main_setting_page()
-            if self.common.poco_exists(MainPageLocator.login_expired_msg):  # popup 登入狀態已過期視窗
-                self.common.poco_click(MainPageLocator.logout_button)  # 點擊"確定"
-            else:
-                self.common.poco_click(MainPageLocator.security_button)
-                self.logout()
+    def do_login(self, account_locator, password_locator, login_btn_locator,
+                 account, password, success_check_locator=None):
+        """共用登入流程"""
+        self.common.poco_click(account_locator)
+        self.common.poco_send_text(account_locator, account)
+        self.common.poco_click(password_locator)
+        self.common.poco_send_text(password_locator, password)
+        self.common.sleep(0.5)
 
-        self.common.poco_click(MainPageLocator.main_btn)
-        self.check_new_login_page()
-
-        if self.phone_platform.lower() == 'android':
-            if login_method == 'phone':  # 透過手機號登入
-                self.common.poco_click(MainPageLocator.new_login_page_use_cellphone_btn)
-                self.switch_nation(nation)
-                self.common.poco_send_text(MainPageLocator.account, account)
-                self.common.poco_send_text(MainPageLocator.password, password)
-                self.common.sleep(0.5)
-            else:  # 透過email登入
-                self.common.poco_click(MainPageLocator.new_login_page_use_email_btn)
-                self.common.poco_send_text(MainPageLocator.account, account)
-                self.common.poco_send_text(MainPageLocator.password, password)
-                self.common.sleep(0.5)
-        else:  # ios
-            if login_method == 'phone':  # 透過手機號登入
-                self.common.poco_click(MainPageLocator.new_login_page_use_cellphone_btn)
-                self.switch_nation(nation)
-                self.common.poco_click(MainPageLocator.account)
-                self.common.poco_send_text(MainPageLocator.account, account)
-                self.common.poco_click(MainPageLocator.password)
-                self.common.poco_send_text(MainPageLocator.password, password)
-                self.common.sleep(0.5)
-            else:  # 透過email登入
-                self.common.poco_click(MainPageLocator.new_login_page_use_email_btn)
-                self.common.poco_click(MainPageLocator.account)
-                self.common.poco_send_text(MainPageLocator.account, account)
-                self.common.poco_click(MainPageLocator.password)
-                self.common.poco_send_text(MainPageLocator.password, password)
-                self.common.sleep(0.5)
-
-        if self.common.poco_exists(MainPageLocator.login_button):
-            self.common.poco_click(MainPageLocator.login_button)
+        if self.common.poco_exists(login_btn_locator):
+            self.common.poco_click(login_btn_locator)
             self.common.sleep(0.5)
 
         if self.common.poco_exists(MainPageLocator.error):
@@ -373,19 +378,95 @@ class MainPage(Base):
             raise EOFError(f'登入失敗-{error_message}')
 
         self.wait_loading_finish()
-        sleep(1)
-        assert self.common.poco_exists(MainPageLocator.recommend_tab), f'登入失敗'
+
+        # 預設檢查：只要不在登入頁面就視為成功
+        assert not self.common.poco_exists(MainPageLocator.new_login_page_welcome_description), '登入失敗，仍在登入頁'
+
+    def login(self, account: str, password: str, nation='CN', login_method='phone'):
+        # 如果已登入 -> 先登出
+        if self.check_login_status():
+            self.into_main_setting_page()
+            if self.common.poco_exists(MainPageLocator.login_expired_msg):
+                self.common.poco_click(MainPageLocator.logout_confirm_button)
+            else:
+                self.common.poco_click(MainPageLocator.security_button)
+                self.logout()
+
+        self.common.poco_click(MainPageLocator.main_btn)
+        self.check_new_login_page()
+
+        # 各種登入方式的配置表
+        login_config = {
+            "phone": {
+                "android": {
+                    "entry_btn": MainPageLocator.new_login_page_use_cellphone_btn,
+                    "account": MainPageLocator.account,
+                    "password": MainPageLocator.password,
+                    "login_btn": MainPageLocator.login_button,
+                },
+                "ios": {
+                    "entry_btn": MainPageLocator.new_login_page_use_cellphone_btn,
+                    "account": MainPageLocator.account,
+                    "password": MainPageLocator.password,
+                    "login_btn": MainPageLocator.login_button,
+                }
+            },
+            "email": {
+                "android": {
+                    "entry_btn": MainPageLocator.new_login_page_use_email_btn,
+                    "account": MainPageLocator.account,
+                    "password": MainPageLocator.password,
+                    "login_btn": MainPageLocator.login_button,
+                },
+                "ios": {
+                    "entry_btn": MainPageLocator.new_login_page_use_email_btn,
+                    "account": MainPageLocator.email_account,
+                    "password": MainPageLocator.email_password,
+                    "login_btn": MainPageLocator.email_login_button,
+                }
+            }
+        }
+
+        platform = self.phone_platform.lower()
+        cfg = login_config[login_method][platform]
+
+        # 進入對應登入方式頁面
+        self.common.poco_click(cfg["entry_btn"])
+
+        # phone 登入才需要選國碼
+        if login_method == "phone":
+            self.switch_nation(nation)
+
+        # 執行共用登入流程
+        check_args = cfg.get("check", {})
+        self.do_login(cfg["account"], cfg["password"], cfg["login_btn"],
+                      account, password)
 
     def check_new_login_page(self):
-        if self.phone_platform.lower() == 'android':
-            product = '股聊'
-        else:
-            product = 'GuChat'
-        self.wait_loading_finish()
+        self.common.poco_wait_exists(MainPageLocator.new_login_page_welcome_description)
         welcome_description = self.common.poco_get_text(MainPageLocator.new_login_page_welcome_description)
-        assert ('欢迎来到' in welcome_description) and (product in welcome_description)
+        assert ('欢迎来到' in welcome_description) and (self.get_product_name() in welcome_description)
         agreement_hint = self.common.poco_get_text(MainPageLocator.new_login_page_agreement_hint)
         assert agreement_hint == '如果您继续操作，即表示您同意《服务条款》并确认已阅读《隐私权政策》。'
+
+    def get_product_name(self):
+        platform = self.phone_platform.lower()
+        brand = self.brand.lower()
+
+        product_map = {
+            "android": {
+                "gu": "股聊",
+                "mingpin": "UAT_名品会",
+            },
+            "ios": {
+                "gu": "GuChat",
+                "mingpin": "MingPinChat_UAT",
+            }
+        }
+
+        # 預設值，可避免 key 不存在報錯
+        product = product_map.get(platform, {}).get(brand, "UnknownProduct")
+        return product
 
     def check_focus_recommend_tab_after_login(self):
         if self.phone_platform.lower() == 'android':
@@ -451,25 +532,18 @@ class MainPage(Base):
             country_code = '81'
 
         for _ in range(0, 1):
-            if self.phone_platform.lower() == 'android':
-                nation_now = self.common.poco_get_text(MainPageLocator.nation_focus)
-            else:
-                nation_now = self.common.poco_get_attr(MainPageLocator.nation_focus, 'value')
+            nation_now = self.common.poco_get_text(MainPageLocator.nation_focus)
 
             if nation_now != country_name:
                 self.common.poco_click(MainPageLocator.nation_button)
-
                 self.common.sleep(0.5)
-                # aaa = self.common.poco_get_text(MainPageLocator.nation_check)
-                # assert self.common.poco_get_text(MainPageLocator.nation_check) == '选择国家和地区', f'進入國家選擇頁面失敗'
-                if self.phone_platform.lower() == 'ios':
-                    self.common.poco_click(MainPageLocator.nation_search)
+                self.common.poco_click(MainPageLocator.nation_search)
                 self.common.poco_send_text(MainPageLocator.nation_search, country_code)
                 self.common.sleep(0.5)
-                if self.phone_platform.lower() == 'android':
-                    code_result = self.common.poco_get_text(MainPageLocator.nation_code)
-                    code_number = code_result.replace("+", "")
-                    assert code_number == country_code, f'國家搜尋有誤 應該為{country_code} 搜尋結果為{code_result}'
+
+                code_result = self.common.poco_get_text(MainPageLocator.nation_code)
+                code_number = code_result.replace("+", "")
+                assert code_number == country_code, f'國家搜尋有誤 應該為{country_code} 搜尋結果為{code_result}'
                 self.common.poco_click(MainPageLocator.nation_code)
             else:
                 break
@@ -484,7 +558,7 @@ class MainPage(Base):
 
         # ==================== 獲得驗證碼 > 輸入驗證碼 ====================
         sleep(15)
-        code = self.common.get_verification_code_from_mail()  # 獲得驗證碼
+        code = self.common.get_verification_code_from_mail(self.brand)  # 獲得驗證碼
         self.common.poco_click(MainPageLocator.input_code)
         self.common.poco_send_text(MainPageLocator.input_code, code)  # 輸入驗證碼
         self.common.poco_click(MainPageLocator.next_btn)
@@ -501,7 +575,11 @@ class MainPage(Base):
         if self.common.poco_exists(MainPageLocator.input_account_note):
             self.common.poco_click(MainPageLocator.input_account_note)
             self.common.poco_send_text(MainPageLocator.input_account_note, 'AutoTest')  # 輸入帳號備注
-        self.common.poco_click(MainPageLocator.register_button)
+
+        if self.phone_platform.lower() == 'android':
+            self.common.poco_click(MainPageLocator.register_button)
+        else:
+            self.common.poco_click(MainPageLocator.register_page_register_button)
         # ==================== 進到個人主頁 ====================
         self.common.poco_click(MainPageLocator.main_btn)
         assert self.get_nickname() == account

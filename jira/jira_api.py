@@ -111,7 +111,7 @@ class JiraApi(Common):
             "status": f'{status}',
             "customFields": {
                 "Build Version": f'{gl.get_value("APP_VERSION")}',
-                "Platform": f'{gl.get_value("PHONE_PLATFORM").upper()}',
+                "Platform": f'{gl.get_value("PHONE_NAME").upper()}',
                 "Test Type": f"{gl.get_value('TEST_TYPE').upper()}",
                 "Duration": f"{gl.get_value('Duration')}"
             }

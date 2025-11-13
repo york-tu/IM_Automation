@@ -44,27 +44,27 @@ class SecurityPageLocator:
 
     password_button = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/iv_setting_chevron'),
-        iOS=base.data_collation(type_kind='name', type_name='更改密码'),
+        iOS=base.data_collation(type_kind='name', type_name='accountSecurity_password_cell'),
     )
 
     password_input_old = base.check_device(
         Android=base.data_collation(type_kind='text', type_name='请填写旧密码'),
-        iOS=base.data_collation(type_kind='name', type_name='changePassword_originalPassword_textfield'),
+        iOS=base.data_collation(type_kind='name', type_name='changePassword_originalPassword_textField'),
     )
 
     password_input_new = base.check_device(
         Android=base.data_collation(type_kind='text', type_name='请填写新密码'),
-        iOS=base.data_collation(type_kind='name', type_name='changePassword_newPassword_textfield'),
+        iOS=base.data_collation(type_kind='name', type_name='changePassword_newPassword_textField'),
     )
 
     password_input_check = base.check_device(
         Android=base.data_collation(type_kind='text', type_name='请再次填写新密码'),
-        iOS=base.data_collation(type_kind='name', type_name='changePassword_confirmPassword_textfield'),
+        iOS=base.data_collation(type_kind='name', type_name='changePassword_confirmPassword_textField'),
     )
 
     submit_button = base.check_device(
         Android=base.data_collation(type_kind='text', type_name='完成'),
-        iOS=base.data_collation(type_kind='name', type_name='完成'),
+        iOS=base.data_collation(type_kind='name', type_name='changePassword_submit_button'),
     )
 
 

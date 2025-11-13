@@ -155,7 +155,8 @@ class SocialManagementPage(BasePage):
         self.click(SocialManagementPageLocator.search_btn)
 
         # 驗證媒體審核結果
-        assert self.get_text(SocialManagementPageLocator.data_media_audit_user_ID) == user_id  # 會員帳號
+        data_media_audit_user_ID = self.get_text(SocialManagementPageLocator.data_media_audit_user_ID)
+        assert data_media_audit_user_ID == user_id  # 會員帳號
         current_description = self.get_text(SocialManagementPageLocator.data_media_audit_media_instruction)
         assert current_description == instructions, f'預期:{instructions}, 實際:{current_description}'  # 媒體說明
 

@@ -30,32 +30,37 @@ class SocialMediaPostPageLocator:
     #  主頁 > 發布鍵
     post_media_btn = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/navigation_bar_item_icon_view', num=2),
-        iOS=base.data_collation(type_kind='name', type_name='Button', num=-1),
+        iOS=base.data_collation(type_kind='name', type_name='mainTabBar_newPost_button'),
     )
     # 發布媒體 > 相簿
     album_btn = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/iv_photo'),
-        iOS=base.data_collation(type_kind='name', type_name='Album'),
+        iOS=base.data_collation(type_kind='name', type_name='相簿', num=-1),
     )
     #  發布頁 > 撰寫說明
     writing_instructions = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/et_caption'),
-        iOS=base.data_collation(type_kind='text', type_name='撰写说明'),
+        iOS=base.data_collation(type_kind='name', type_name='snsPublishPost_caption_textView'),
+    )
+    # 華為>隱藏鍵盤鍵
+    hide_keyboard = base.check_device(
+        Android=base.data_collation(type_kind='name', type_name='com.huawei.ohos.inputmethod:id/entry_right_container'),
+        iOS=base.data_collation(type_kind='name', type_name='更多建议'),
     )
     #  發布頁 > 草稿鍵
     draft_btn = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/btn_draft'),
-        iOS=base.data_collation(type_kind='text', type_name='草稿'),
+        iOS=base.data_collation(type_kind='name', type_name='snsPublishPost_saveDraft_button'),
     )
     #  發布頁 > 發布鍵
     post_btn = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/btn_post'),
-        iOS=base.data_collation(type_kind='text', type_name='发布'),
+        iOS=base.data_collation(type_kind='name', type_name='snsPublishPost_publish_button'),
     )
     #  發布頁 > 發布頁標題
     page_title = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tv_title'),
-        iOS=base.data_collation(type_kind='text', type_name='发布'),
+        iOS=base.data_collation(type_kind='name', type_name='发布'),
     )
     back_btn = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/iv_back'),
@@ -96,7 +101,7 @@ class SocialMediaPostPageLocator:
     #  發布頁 > 隱私權設定鍵
     privacy_settings_btn = base.check_device(
         Android=base.data_collation(type_kind='text', type_name='所有人都可以查看这条发布内容'),
-        iOS=base.data_collation(type_kind='name', type_name='所有人都可以查看这条发布内容'),
+        iOS=base.data_collation(type_kind='name', type_name='snsPublishPost_privacySetting_cell'),
     )
     privacy_page_hint = base.check_device(
         Android=base.data_collation(type_kind='text', type_name='谁可以查看这条发布内容'),
@@ -105,22 +110,22 @@ class SocialMediaPostPageLocator:
     #  發布頁 > 隱私權設定 > 所有人
     privacy_everyone_option = base.check_device(
         Android=base.data_collation(type_kind='text', type_name='所有人'),
-        iOS=base.data_collation(type_kind='name', type_name='所有人'),
+        iOS=base.data_collation(type_kind='name', type_name='snsPostAudience_all_view'),
     )
     #  發布頁 > 隱私權設定 > 互關
     privacy_mutual_followers_option = base.check_device(
         Android=base.data_collation(type_kind='text', type_name='互关'),
-        iOS=base.data_collation(type_kind='name', type_name='互关'),
+        iOS=base.data_collation(type_kind='name', type_name='snsPostAudience_mutualFollowers_view'),
     )
     #  發布頁 > 隱私權設定 > 粉絲
     privacy_followers_option = base.check_device(
         Android=base.data_collation(type_kind='text', type_name='粉丝'),
-        iOS=base.data_collation(type_kind='name', type_name='粉丝'),
+        iOS=base.data_collation(type_kind='name', type_name='snsPostAudience_followers_view'),
     )
     #  發布頁 > 隱私權設定 > 僅自己
     privacy_only_self_option = base.check_device(
         Android=base.data_collation(type_kind='text', type_name='仅自己'),
-        iOS=base.data_collation(type_kind='name', type_name='仅自己'),
+        iOS=base.data_collation(type_kind='name', type_name='snsPostAudience_onlyMe_view'),
     )
     close_btn = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/iv_end_icon'),
@@ -134,14 +139,14 @@ class SocialMediaPostPageLocator:
     #  發布頁 > "允許保存至設備"選項"開關"
     allow_save_media_to_local = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/sw_setting', num=-1),
-        iOS=base.data_collation(type_kind='name', type_name='仅自己'),
+        iOS=base.data_collation(type_kind='name', type_name='snsPublishPost_allowSave_switch'),
     )
 
     @staticmethod
     def media_select(app_package, num):
         media_select_path = SocialMediaPostPageLocator.base.check_device(
             Android=SocialMediaPostPageLocator.base.data_collation(type_kind='name', type_name=str(app_package) + ':id/ctv_selected', num=num),
-            iOS=SocialMediaPostPageLocator.base.data_collation(type_kind='name', type_name=''),
+            iOS=SocialMediaPostPageLocator.base.data_collation(type_kind='name', type_name='Button', num=num),
         )
         return media_select_path
 
@@ -165,8 +170,7 @@ class SocialMediaPostPage(Base):
         if self.common.poco_wait_exists(SocialMediaPostPageLocator.select_media_type_folder):
             self._select_media_folder(media_type)
             sleep(1)
-        self.common.poco_click(
-            SocialMediaPostPageLocator.media_select(SocialMediaPostPageLocator.app_package, media_index))
+        self.common.poco_click(SocialMediaPostPageLocator.media_select(SocialMediaPostPageLocator.app_package, media_index))
         sleep(1)
         assert self.common.poco_get_text(SocialMediaPostPageLocator.page_title) == '发布', '未進入發布頁'
 
@@ -206,7 +210,14 @@ class SocialMediaPostPage(Base):
         self.common.poco_click(SocialMediaPostPageLocator.save_btn)
 
     def _write_instructions(self, instructions):
+        self.common.poco_click(SocialMediaPostPageLocator.writing_instructions)
         self.common.poco_send_text(SocialMediaPostPageLocator.writing_instructions, instructions)
+        if self.phone_platform.lower() == 'ios':
+            self.common.poco_wait_exists(SocialMediaPostPageLocator.page_title)
+            self.common.poco_click(SocialMediaPostPageLocator.page_title)
+        else:
+            if self.common.poco_exists(SocialMediaPostPageLocator.hide_keyboard):
+                self.common.poco_click(SocialMediaPostPageLocator.hide_keyboard)
 
     def _set_privacy(self, privacy_index):
         privacy_options = [
@@ -229,13 +240,31 @@ class SocialMediaPostPage(Base):
         if self.common.poco_exists(SocialMediaPostPageLocator.close_btn):
             self.common.poco_click(SocialMediaPostPageLocator.close_btn)
 
-    def _allow_save_to_local(self, save_to_local):
-        assert self.common.poco_exists(SocialMediaPostPageLocator.allow_save_media_to_local_text)
-        current_status = self.common.poco_get_attr(SocialMediaPostPageLocator.allow_save_media_to_local, 'checked')
-        if save_to_local and not current_status:
-            self.common.poco_click(SocialMediaPostPageLocator.allow_save_media_to_local)
-        elif not save_to_local and current_status:
-            self.common.poco_click(SocialMediaPostPageLocator.allow_save_media_to_local)
+    def _allow_save_to_local(self, save_to_local: bool):
+        """控制 '允許保存至設備' 的開關狀態"""
+        locator = SocialMediaPostPageLocator.allow_save_media_to_local
+        assert self.common.poco_exists(SocialMediaPostPageLocator.allow_save_media_to_local_text), '"允許保存至設備" 元件不存在'
 
-        assert self.common.poco_get_attr(SocialMediaPostPageLocator.allow_save_media_to_local,
-                                         'checked') == save_to_local, f'"允許保存至設備"未成功設為{"開啟" if save_to_local else "關閉"}'
+        def get_status():
+            """取得當前開關狀態（回傳 True/False）"""
+            attr = 'value' if self.phone_platform.lower() == 'ios' else 'checked'
+            val = self.common.poco_get_attr(locator, attr)
+            return val in ('1', True)
+
+        current_status = get_status()
+
+        # 若狀態不同，執行切換
+        if current_status != save_to_local:
+            self.common.poco_long_click(locator)
+
+        # 驗證切換後狀態
+        assert get_status() == save_to_local, \
+            f'"允許保存至設備" 未成功設為 {"開啟" if save_to_local else "關閉"}'
+
+    # =================================== ios 發布貼文 # =================================== ios 發布貼文
+    def ios_select_media(self, media_index):
+        self.common.poco_click(SocialMediaPostPageLocator.post_media_btn)
+        self.common.poco_click(SocialMediaPostPageLocator.album_btn)
+        sleep(3)
+        self.common.poco_click(SocialMediaPostPageLocator.media_select(SocialMediaPostPageLocator.app_package, media_index))
+        sleep(1)

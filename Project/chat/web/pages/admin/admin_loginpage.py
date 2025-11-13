@@ -19,15 +19,15 @@ class LoginPageLocator:
 
 class LoginPage(BasePage):
     # 登入動作
-    def login(self, account, passowrd):
+    def login(self, account, password):
         self.wait_loading_finish()
-        if self.is_element_finded(LoginPageLocator.login_check_point) == True:
+        if self.is_element_finded(LoginPageLocator.login_check_point):
             self.click(LoginPageLocator.login_deshboard)
             return
 
-        if self.is_element_finded(LoginPageLocator.login_hide_otp) == True:
+        if self.is_element_finded(LoginPageLocator.login_hide_otp):
             self.type(LoginPageLocator.login_input_account, account)
-            self.type(LoginPageLocator.login_input_password, passowrd)
+            self.type(LoginPageLocator.login_input_password, password)
             self.click(LoginPageLocator.login_btn)
         else:
             print('需要 OTP 驗證 無法測試')

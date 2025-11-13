@@ -68,4 +68,5 @@ class FriendPage(BasePage):
                     return True
     
     def check_notexist(self, name):
-        assert self.check_friend(name) == False ,f'黑名單好友顯示有誤' 
+        assert self.check_friend(name) == False ,f'黑名單好友顯示有誤'
+

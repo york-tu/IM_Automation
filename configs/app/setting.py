@@ -32,9 +32,10 @@ class Setting:
             if phone_platform == 'Android':
                 connection = f'Android:///{conf[phone_name]["udid"]}'
             elif phone_platform == 'iOS':
-                # connection = f'ios:///http+usbmux://{conf[phone_name]["udid"]}'  # 主機端預設位置_ios18
+                connection = f'ios:///http+usbmux://{conf[phone_name]["udid"]}'  # 主機端預設位置_ios18
+                # connection = f'ios:///http://10.200.8.76:{conf[phone_name]["port"]}'  # 主機端預設位置_ios15
+
                 # connection = f'ios:///http://127.0.0.1:{conf[phone_name]["port"]}' # 主機端預設位置
-                connection = f'ios:///http://10.200.8.76:{conf[phone_name]["port"]}'  # 主機端預設位置
                 # connection = f'ios:///http://10.200.8.30:{conf[phone_name]["port"]}'  # 主機端預設位置_ios16.1.1
         return connection
 

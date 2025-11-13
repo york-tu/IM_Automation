@@ -162,7 +162,7 @@ class MainPageLocator:
     manual_withdraw_search = (By.XPATH, "//button[@class='el-button el-button--primary el-button--small search-button']")  # "搜寻"鍵
     manual_withdraw_item = (By.XPATH, '//label[text()="提出项目"]/..//input')  # 新增人工提出- 提出項目下拉選單
     manual_withdraw_item_select = (By.XPATH, '//div[@aria-hidden="false"]//span[text()="红包误存"]')  # 新增人工提出 - 提出項目 - 红包误存积分
-    withdraw_amount = (By.XPATH, "//label[text()='提出积分']/..//input[@placeholder='请输入提出积分']")  # 新增人工提出 - 提出積分
+    withdraw_amount = (By.XPATH, "//input[@placeholder='请输入提出积分']")  # 新增人工提出 - 提出積分
 
     detail_list_id = (By.XPATH, "//table[@class='el-table__body']//tr[1]/td[2]")  # 會員帳號ID
     detail_list_deposit_type = (By.XPATH, "//table[@class='el-table__body']//tr[1]/td[4]")  # 存入類型
@@ -284,7 +284,6 @@ class MainPage(BasePage):
         assert self.is_element_finded(MainPageLocator.register_with_social_account), "沒有顯示'品牌帳號'選項"
         assert self.is_element_finded(MainPageLocator.geetest), "沒有顯示'極驗'選項"
         assert self.is_element_finded(MainPageLocator.user_contact_whitelist), "沒有顯示'會会员添加好友'選項"
-        assert self.is_element_finded(MainPageLocator.add_friend_by_search_phone), "沒有顯示'手机号搜索添加好友'選項"
 
     def enable_geetest(self, enable=True):
         if enable:
@@ -302,8 +301,8 @@ class MainPage(BasePage):
         aaa = self.get_text(MainPageLocator.member_add_friend_tip)
         assert self.get_text(MainPageLocator.member_add_friend_tip) == '＊全局设定会员能否主动添加好友', '說明文字錯誤或未顯示'
 
-    def check_add_friend_by_search_phone_tip(self):
-        assert self.get_text(MainPageLocator.add_friend_by_search_phone_tip) == '＊是否开放透过手机号搜索添加好友', '說明文字錯誤或未顯示'
+    # def check_add_friend_by_search_phone_tip(self):
+    #     assert self.get_text(MainPageLocator.add_friend_by_search_phone_tip) == '＊是否开放透过手机号搜索添加好友', '說明文字錯誤或未顯示'
 
     def enable_member_add_friend_setting(self):
         self.wait_loading_finish()

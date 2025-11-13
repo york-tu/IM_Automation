@@ -57,16 +57,16 @@ class MemberPageLocator:
 
     share_button = base.check_device(
         Android=base.data_collation(type_kind='text', type_name='分享'),
-        iOS=base.data_collation(type_kind='name', type_name='分享'),
+        iOS=base.data_collation(type_kind='name', type_name='setting_share_cell'),
     )
 
     share_check = base.check_device(
         Android=base.data_collation(type_kind='text', type_name='复制'),
-        iOS=base.data_collation(type_kind='name', type_name='拷贝'),
+        iOS=base.data_collation(type_kind='name', type_name='titleLabel', num=0),
     )
 
     about_button = base.check_device(
-        Android=base.data_collation(type_kind='textMatches', type_name='关于.*聊'),
+        Android=base.data_collation(type_kind='textMatches', type_name='关于.*'),
         iOS=base.data_collation(type_kind='name', type_name='setting_aboutApp_cell'),
     )
 
@@ -135,15 +135,17 @@ class MemberPageLocator:
     )
     toast_wordings = base.check_device(
         Android=base.data_collation(type_kind='textMatches', type_name='请勿包含.*'),
-        iOS=base.data_collation(type_kind='', type_name=''),
+        iOS=base.data_collation(type_kind='nameMatches', type_name='请勿包含.*'),
     )
     toast_confirm_btn = base.check_device(
         Android=base.data_collation(type_kind='text', type_name='确定'),
-        iOS=base.data_collation(type_kind='', type_name=''),
+        iOS=base.data_collation(type_kind='name', type_name='确定'),
     )
+
 
 class MemberPage(Base):
     phone_platform = gl.get_value('PHONE_PLATFORM')
+    phone_name = gl.get_value('PHONE_NAME')
 
     def into_edit(self):
         if self.common.poco_wait_exists(MemberPageLocator.edit_profile_btn):
@@ -168,7 +170,11 @@ class MemberPage(Base):
     def into_share(self):
         if self.common.poco_wait_exists(MemberPageLocator.share_button):
             self.common.poco_click(MemberPageLocator.share_button)
-        assert self.common.poco_wait_exists(MemberPageLocator.share_check), f'進入分享頁面錯誤'
+        self.wait_loading_finish()
+        if self.phone_name == 'IPHONE_13':
+            assert self.common.poco_get_attr(MemberPageLocator.share_check, 'value') == '拷贝'
+        else:
+            assert self.common.poco_wait_exists(MemberPageLocator.share_check), f'進入分享頁面錯誤'
 
     def into_about(self):
         if self.common.poco_wait_exists(MemberPageLocator.about_button):
@@ -211,24 +217,19 @@ class MemberPage(Base):
             self.common.poco_send_text(MemberPageLocator.self_introduction_input, text)
             self.common.poco_click(MemberPageLocator.save_btn)
         else:
-            self.common.poco_long_click(MemberPageLocator.self_introduction_input)  # 個人簡介欄位長按
+            while not self.poco(name='全选').exists():
+                self.common.poco_long_click(MemberPageLocator.self_introduction_input)  # 個人簡介欄位長按
             self.poco(name='全选').click()
             self.common.poco_send_text(MemberPageLocator.self_introduction_input, text)
             self.common.poco_click(MemberPageLocator.user_id_title)
             self.common.poco_click(MemberPageLocator.save_btn)
-
+        self.wait_loading_finish()
         main_description = self.common.poco_get_text(MainPageLocator.main_description)
         assert main_description == text, f'個人主頁_個人簡介顯示錯誤, 預期{text},實際{main_description}'
         self.common.poco_click(MemberPageLocator.edit_profile_btn)
 
     def input_block_words_then_check_toast(self, block_words):
-        self.common.poco_click(MemberPageLocator.self_introduction_input)  # 點 個人簡介欄位
-        for _ in range(3):
-            self.common.poco_long_click(MemberPageLocator.self_introduction_input)  # 在暱稱頁面 > 點[x]清除欄位
-            sleep(1)
-
         if self.phone_platform == 'Android':
-            self.poco(text='全选').click()
             self.common.poco_send_text(MemberPageLocator.self_introduction_input, block_words)
             self.common.poco_click(MemberPageLocator.save_btn)
             actual_wordings = self.common.poco_get_text(MemberPageLocator.toast_wordings)
@@ -236,6 +237,31 @@ class MemberPage(Base):
             self.common.poco_click(MemberPageLocator.toast_confirm_btn)
             self.wait_loading_finish()
             self.common.poco_click(MemberPageLocator.back_btn)
+        else:
+            self.common.poco_long_click(MemberPageLocator.self_introduction_input)  # 個人簡介欄位長按
+            self.poco(name='全选').click()
+            self.common.poco_send_text(MemberPageLocator.self_introduction_input, block_words)
+            self.common.poco_click(MemberPageLocator.user_id_title)
+            self.common.poco_click(MemberPageLocator.save_btn)
+            actual_wordings = self.common.poco_get_text(MemberPageLocator.toast_wordings)
+            assert actual_wordings == f'请勿包含{block_words}', '錯誤訊息有誤'
+            self.common.poco_click(MemberPageLocator.toast_confirm_btn)
+            self.wait_loading_finish()
+            self.common.poco_click(MemberPageLocator.back_btn)
 
+        # self.common.poco_click(MemberPageLocator.self_introduction_input)  # 點 個人簡介欄位
+        # for _ in range(3):
+        #     self.common.poco_long_click(MemberPageLocator.self_introduction_input)  # 欄位上長按 >>> 出現選單
+        #     sleep(1)
+        #
+        # if self.phone_platform == 'Android':
+        #     self.poco(text='全选').click()
+        #     self.common.poco_send_text(MemberPageLocator.self_introduction_input, block_words)
+        #     self.common.poco_click(MemberPageLocator.save_btn)
+        #     actual_wordings = self.common.poco_get_text(MemberPageLocator.toast_wordings)
+        #     assert actual_wordings == f'请勿包含{block_words}', '錯誤訊息有誤'
+        #     self.common.poco_click(MemberPageLocator.toast_confirm_btn)
+        #     self.wait_loading_finish()
+        #     self.common.poco_click(MemberPageLocator.back_btn)
 
 

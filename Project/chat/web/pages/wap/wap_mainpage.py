@@ -2,6 +2,7 @@ from time import sleep
 from selenium.webdriver.common.by import By
 from Project.chat.web.pages.wap.wap_basepage import BasePage
 from Project.chat.web.pages.webs.web_loginpage import LoginPageLocator
+import common.utils.globalvar as gl
 import os, random, re, sys
 DIR_NAME = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 sys.path.append(DIR_NAME)
@@ -24,33 +25,36 @@ class MainPageLocator:
     # ============================= 主頁 > 個人主頁 ======================================================================
     nickname = (By.XPATH, '//*[@id="app"]/div[1]/div[1]/header/h1')  # 個人主頁-暱稱
     descriptions = (By.XPATH, '//*[@id="app"]/div/div[1]/div[1]/div[2]')  # 個人主頁-說明文字
-    main_page_followed_counts = (By.XPATH, "(//div[@class='text-[20rem] font-semibold'])[1]")
-    main_page_fans_counts = (By.XPATH, "(//div[@class='text-[20rem] font-semibold'])[2]")
-    main_page_thumb_up_counts = (By.XPATH, "(//div[@class='text-[20rem] font-semibold'])[3]")
-    edit_profile_btn = (By.XPATH, "//button[@class=' bg-gray-100 py-[10rem] px-[20rem] rounded-[4rem] text-[15rem] font-semibold' and text()='编辑主页']")  # 個人主頁-編輯主頁鍵
-    share_self_profile_btn = (By.XPATH, "//button[@class=' bg-gray-100 py-[10rem] px-[20rem] rounded-[4rem] text-[15rem] font-semibold' and text()='分享主页']")  # 個人主頁-分享主頁鍵
+    main_page_followed_counts = (By.XPATH, "(//div[@class='text-[20rem] font-semibold text-neutral-800'])[1]")
+    main_page_fans_counts = (By.XPATH, "(//div[@class='text-[20rem] font-semibold text-neutral-800'])[2]")
+    main_page_thumb_up_counts = (By.XPATH, "(//div[@class='text-[20rem] font-semibold text-neutral-800'])[3]")
+    edit_profile_btn = (By.XPATH, "//button[text()='编辑主页']")  # 個人主頁-編輯主頁鍵
+    share_self_profile_btn = (By.XPATH, "//button[text()='分享主页']")  # 個人主頁-分享主頁鍵
     clear_btn = (By.XPATH, "//i[@class='van-badge__wrapper van-icon van-icon-clear van-field__clear']")
     input_nickname = (By.XPATH, "//input[@placeholder='填写昵称']")  # 編輯主頁-暱稱
     input_descriptions = (By.XPATH, "//textarea[@placeholder='请输入个人简介']")  # 編輯主頁-個人簡介
-    save_btn = (By.XPATH, "//span[text()='保存']")
+    save_btn = (By.XPATH, "//button[text()='保存']")
 
     # ============================= 主頁 > 個人主頁 > 關注列表 =============================================================
     followed_list = (By.XPATH, "(//span[@class='van-tab__text van-tab__text--ellipsis'])[1]")  # 已關注列表
     fans_list = (By.XPATH, "(//span[@class='van-tab__text van-tab__text--ellipsis'])[2]")  # 粉絲列表
-    list_first_member = (By.XPATH, "(//div[@class='grow px-[8rem] truncate w-[200rem]'])[1]")  # 列表第一位成員
+    list_first_member = (By.XPATH, "(//div[@class='grow px-[8rem] truncate w-[200rem] text-grand-1'])[1]")  # 列表第一位成員
     list_first_member_following_btn = (By.XPATH, '(//div[text()="关注"])[last()]')
     list_first_member_followed_btn = (By.XPATH, '(//div[text()="已关注"])[last()]')
     search_user = (By.XPATH, "//input[@placeholder='搜索用户']")  # 搜索用戶
     no_data = (By.XPATH, '//div[text()="目前无会员"]')  # 搜索無資料
     # ============================= 主頁 > 他人主頁 ======================================================================
-    following_btn = (By.XPATH, '//button[.//div[text()="关注"]]')  # 關注鍵
-    followed_btn = (By.XPATH, '//button[.//div[text()="已关注"]]')  # 已關注鍵
+    following_btn = (By.XPATH, '//button[//div[text()="关注"]]')  # 關注鍵
+    followed_btn = (By.XPATH, '//button[//div[text()="已关注"]]')  # 已關注鍵
+    others_main_page_followed_counts = (By.XPATH, "(//div[@class='text-[20rem] font-semibold text-grand-1'])[1]")
+    others_main_page_fans_counts = (By.XPATH, "(//div[@class='text-[20rem] font-semibold text-grand-1'])[2]")
+    others_main_page_thumb_up_counts = (By.XPATH, "(//div[@class='text-[20rem] font-semibold text-grand-1'])[3]")
     share_others_profile_btn = (By.XPATH, "//div[@class='pr-[16rem] flex items-center absolute right-0 cursor-pointer z-10']")  # 他人主頁-分享主頁鍵
     # ============================= 主頁 > 發布 =========================================================================
     input_post_descriptions = (By.ID, "post-introduction")  # 發布頁-撰寫說明
-    post_confirm = (By.XPATH, "//span[text()='发布 ']")
+    post_confirm = (By.XPATH, "//button[text()='发布 ']")
     poster = (By.XPATH, "//p[@class='text-white-100 text-[14rem] mb-[12rem] truncate text_shadow']")  # 貼文作者
-    post_descriptions = (By.XPATH, "//p[@class='whitespace-pre-wrap max-h-[313rem] line-clamp-2']")  # 貼文內容
+    post_descriptions = (By.XPATH, "//div[@class='text-neutral-80 text-[14rem] font-normal']")  # 貼文內容
     post_back_btn = (By.XPATH, '//*[@id="app"]/div/div[1]/div[2]/div/div[2]/div[3]/div/svg')  # 貼文>返回鍵
     # ============================= 主頁 > 下方貼文 ======================================================================
     share_self_post_btn = (By.XPATH, "//div[@class='icon-wrapper dotIcon']")  # 個人貼文 > 分享鍵
@@ -63,7 +67,7 @@ class MainPageLocator:
     share_close_btn = (By.XPATH, "//i[@class='van-badge__wrapper van-icon van-icon-cross van-action-sheet__close van-haptics-feedback']")  # x關閉鍵
     share_more_btn = (By.XPATH, '//div[text()="更多"]')  # 發送給彈窗 > 更多鍵
     share_search_column = (By.XPATH, "//input[@placeholder='搜索']")  # 發送給彈窗 > 更多 > 搜索框
-    share_list_first = (By.XPATH, "(//div[@class='flex flex-1 min-w-0 ml-[10px] border-b-[1px] h-[40px] items-center'])[1]")  # 發送給彈窗 > 更多 > 列表第一位
+    share_list_first = (By.XPATH, "//div[@class='flex items-center h-[60rem] border-b-[1px] border-neutral-0']")  # 發送給彈窗 > 更多 > 列表第一位
     share_input_message = (By.XPATH, "//textarea[@placeholder='有什么想和朋友说的...']")  # 分享訊息輸入框
     share_send_btn = (By.XPATH, '(//div[text()="发送"])[last()]')  # 發送鍵
 
@@ -72,6 +76,8 @@ class MainPageLocator:
 
 
 class MainPage(BasePage):
+    brand = gl.get_value("BRAND")
+
     def return_wap_version(self):  # 查看Web版本號
         self.open_base_url()
         git_version = self.driver.execute_script("return VITE_LAST_HASH;")
@@ -91,7 +97,7 @@ class MainPage(BasePage):
     def get_descriptions(self):
         return self.get_text(MainPageLocator.descriptions)
 
-    def get_social_data(self):
+    def get_self_social_data(self):
         if self.is_element_finded(MainPageLocator.mainPage_button):
             self.click(MainPageLocator.mainPage_button)
             sleep(1)
@@ -99,6 +105,12 @@ class MainPage(BasePage):
         main_page_fans_counts = self.get_text(MainPageLocator.main_page_fans_counts)
         main_page_thumb_up_counts = self.get_text(MainPageLocator.main_page_thumb_up_counts)
         return main_page_followed_counts, main_page_fans_counts, main_page_thumb_up_counts
+
+    def get_others_social_data(self):
+        others_main_page_followed_counts = self.get_text(MainPageLocator.others_main_page_followed_counts)
+        others_main_page_fans_counts = self.get_text(MainPageLocator.others_main_page_fans_counts)
+        others_main_page_thumb_up_counts = self.get_text(MainPageLocator.others_main_page_thumb_up_counts)
+        return others_main_page_followed_counts, others_main_page_fans_counts, others_main_page_thumb_up_counts
 
     def change_nickname(self, new_nickname):
         self.click(MainPageLocator.edit_profile_btn)
@@ -126,6 +138,12 @@ class MainPage(BasePage):
 
     def into_fans_list(self):
         self.click(MainPageLocator.main_page_fans_counts)
+        sleep(1)
+        assert self.get_text(MainPageLocator.followed_list).__contains__('已关注')
+        assert self.get_text(MainPageLocator.fans_list).__contains__('粉丝')
+
+    def into_others_fans_list(self):
+        self.click(MainPageLocator.others_main_page_fans_counts)
         sleep(1)
         assert self.get_text(MainPageLocator.followed_list).__contains__('已关注')
         assert self.get_text(MainPageLocator.fans_list).__contains__('粉丝')
@@ -167,10 +185,10 @@ class MainPage(BasePage):
     # =========================== 他人主頁 =====================================
     def follow_user(self):
         self.wait_loading_finish()
-        original_fans = int(self.get_text(MainPageLocator.main_page_fans_counts))
+        original_fans = int(self.get_text(MainPageLocator.others_main_page_fans_counts))
         self.click(MainPageLocator.following_btn)
-        sleep(1)
-        after_fans = int(self.get_text(MainPageLocator.main_page_fans_counts))
+        sleep(3)
+        after_fans = int(self.get_text(MainPageLocator.others_main_page_fans_counts))
         assert after_fans == original_fans + 1, f'粉絲數錯誤, 實際:{after_fans}, 預期為{original_fans}+1'
         assert self.is_element_finded(MainPageLocator.followed_btn) is True
         return after_fans
@@ -228,8 +246,13 @@ class MainPage(BasePage):
         self.wait_loading_finish()
 
     def back_to_previous_page(self, counts=1):
-        for i in range(counts):
+        button_img_path = ''
+        if self.brand.lower() == "gu":
             button_img_path = DIR_NAME + '\\element_icon\\back.jpg'
+        elif self.brand.lower() == "mingpin":
+            button_img_path = DIR_NAME + '\\element_icon\\back_mingpin.jpg'
+
+        for i in range(counts):
             location = pyautogui.locateCenterOnScreen(button_img_path, confidence=0.8)
             pyautogui.click(location)
             self.wait_loading_finish()

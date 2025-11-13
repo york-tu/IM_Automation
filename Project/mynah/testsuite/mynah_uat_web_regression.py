@@ -14,9 +14,10 @@ from jira.config.base_key import BaseKey
 
 # Test Setting
 test_brand = 'bh'  # 前台平台
-user = 4  # 第n組帳號帳號
+user = 5  # 第n組帳號帳號
 test_type = 'web'
 os_version = 'Win11'  # 作業系統
+platform = 'PC'
 push = True  # 將結果推倒jira, 預設請給予 True
 
 # TestCase Setting
@@ -29,12 +30,12 @@ web_testcase_list = [
     # WebTestCases("test_talk_different_site"),
     # WebTestCases("test_talk_different_cs"),
     # WebTestCases("test_talk_more_guest"),
-    # WebTestCases("test_invite_cs"),
-    # WebTestCases("test_disconnect_auto_end"),
-    # WebTestCases("test_visitor_auto_end"),
+    WebTestCases("test_invite_cs"),
+    # WebTestCases("test_disconnect_auto_end"),  # 20mins
+    WebTestCases("test_visitor_auto_end"),  # 20mins
     # WebTestCases("test_send_img"),
     # WebTestCases("test_channel_account"),
-    WebTestCases("test_search_group_message"),
+    # WebTestCases("test_search_group_message"),
     # WebTestCases("test_history_check"),
     # WebTestCases("test_promotion_ad"),
     # WebTestCases("test_score_statistics"),
@@ -67,6 +68,7 @@ if __name__ == "__main__":
     gl.set_value('USER', int(user))
     gl.set_value('TEST_TYPE', test_type)  # 測試環境
     gl.set_value('PHONE_PLATFORM', test_brand)  # 前台品牌
+    gl.set_value('PHONE_NAME', platform)
 
     # for jira config
     BaseKey().get_jira_data()

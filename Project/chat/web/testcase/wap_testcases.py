@@ -42,6 +42,12 @@ class WapTestCase(BaseTestCase):
         current_wap_version = cls.function_dict['wap'].wapMainPage().return_wap_version()  # 獲取web版本號
         gl.set_value('APP_VERSION', current_wap_version)
 
+        brand = gl.get_value('BRAND') or ''
+        cls.brand = brand.strip().lower()
+        if cls.brand == 'mingpin':
+            cls.test_group = 'QA bot only'
+        else:
+            cls.test_group = 'QA_bot_only'
 
     def setUp(self):
         for key, function in self.function_dict.items():
@@ -68,7 +74,7 @@ class WapTestCase(BaseTestCase):
         gl.set_value('IMG_PATH', image_path_list)
 
         end_time = time.time()
-        duration = "{:.3f}".format(end_time - self.start_time)  #測試案例執行所花時間
+        duration = "{:.3f}".format(end_time - self.start_time)  # 測試案例執行所花時間
         gl.set_value('Duration', f'{duration}s')
 
     @classmethod
@@ -92,10 +98,10 @@ class WapTestCase(BaseTestCase):
         cls.function_dict['wap'] = WapPages(cls.driver_list[-1], cls.wait_time, cls.wap_url, cls.skipTest)  # 導入Wap全部頁面
         cls.function_dict['wap'].basePage().hide_windows()
 
-        if not sys.argv[0].__contains__('prod'):
-            cls.driver_list.append(wd.setting_driver(1900, 1000, cls.implicitly_wait_time, is_wap=True))  # 設定ChromeDriver
-            cls.function_dict['ad'] = AdminPages(cls.driver_list[-1], cls.wait_time, cls.admin_url, cls.skipTest)
-            cls.function_dict['ad'].basePage().hide_windows()
+        # if not sys.argv[0].__contains__('prod'):
+        cls.driver_list.append(wd.setting_driver(1900, 1000, cls.implicitly_wait_time, is_wap=False))  # 設定ChromeDriver
+        cls.function_dict['ad'] = AdminPages(cls.driver_list[-1], cls.wait_time, cls.admin_url, cls.skipTest)
+        cls.function_dict['ad'].basePage().hide_windows()
 
     @staticmethod
     def open_url(function, url):
@@ -132,6 +138,13 @@ class WapTestCase(BaseTestCase):
             self.function_dict['wap'].wapLoginPage().login(self.mail_address, self.mail_password, login_method='mail')
         elif 'phone' in self.account_type.lower():
             self.function_dict['wap'].wapLoginPage().login(self.wap_phone, self.wap_password, self.web_nation)
+
+    # ADMIN登入
+    def test_admin_login(self):
+        self.test_all_windows_mini()
+        self.function_dict['ad'].basePage().windows_to_top()  # 切換視窗
+        self.function_dict['ad'].basePage().open_base_url()  # 開啟前台網站
+        self.function_dict['ad'].loginPage().login(self.admin_account, self.admin_password)  # 登入admin
 
     # 登出
     @DecorateClass('CHATAPP-T3206')
@@ -223,12 +236,12 @@ class WapTestCase(BaseTestCase):
         new_friend = self.function_dict['wap'].wapFriendsPage().is_new_friend(self.operate_account)
 
         if not new_friend:
-            self.function_dict['wap'].wapFriendsPage().back_to_message_page()
-            self.function_dict['wap'].wapMessagePage().into_chat_room(self.operate_account)
-            self.function_dict['wap'].wapFriendsPage().delete_friend(self.operate_account)
-            self.function_dict['wap'].wapFriendsPage().into_friend_list()
-            assert self.function_dict['wap'].wapFriendsPage().is_new_friend(self.operate_account) is True
+            self.function_dict['wap'].wapFriendsPage().delete_friend_from_UserDetail(self.operate_account)
+            assert self.function_dict['wap'].wapFriendsPage().is_new_friend(self.operate_account)
+
         self.function_dict['wap'].wapFriendsPage().add_friend(self.operate_account)
+        self.function_dict['wap'].wapFriendsPage().into_friend_list()
+        assert not self.function_dict['wap'].wapFriendsPage().is_new_friend(self.operate_account)
 
     # 好友頁面備註暱稱&描述
     @DecorateClass('CHATAPP-T3284')
@@ -264,12 +277,11 @@ class WapTestCase(BaseTestCase):
         new_friend = self.function_dict['wap'].wapFriendsPage().is_new_friend(self.operate_account)
 
         if new_friend:
-            self.test_add_friend()
-        else:
+            self.function_dict['wap'].wapFriendsPage().add_friend(self.operate_account)
             self.function_dict['wap'].wapFriendsPage().back_to_message_page()
-            self.function_dict['wap'].wapMessagePage().into_chat_room(self.operate_account)
-
-        self.function_dict['wap'].wapFriendsPage().delete_friend(self.operate_account)
+            self.function_dict['wap'].wapFriendsPage().into_friend_list()
+            assert not self.function_dict['wap'].wapFriendsPage().is_new_friend(self.operate_account)
+        self.function_dict['wap'].wapFriendsPage().delete_friend_from_UserDetail(self.operate_account)
 
     # 私聊-發送訊息
     @DecorateClass('CHATAPP-T3221')
@@ -401,11 +413,14 @@ class WapTestCase(BaseTestCase):
         voice_length_2 = random.randint(1, 10)
         self.function_dict['wap'].wapMessagePage().into_chat_room(self.operate_account)
         self.function_dict['wap'].wapMessagePage().send_voice_message(voice_length_1)
-        room_voice_message_1 = self.function_dict['wap'].wapMessagePage().get_chatroom_last_message(message_type='voice')
+        room_voice_message_1 = self.function_dict['wap'].wapMessagePage().get_chatroom_last_message(
+            message_type='voice')
         self.function_dict['wap'].wapMessagePage().send_voice_message(voice_length_2)
-        room_voice_message_2 = self.function_dict['wap'].wapMessagePage().get_chatroom_last_message(message_type='voice')
+        room_voice_message_2 = self.function_dict['wap'].wapMessagePage().get_chatroom_last_message(
+            message_type='voice')
         self.function_dict['wap'].wapMessagePage().message_revoke(room_voice_message_2, message_type='voice')
-        assert room_voice_message_1 == self.function_dict['wap'].wapMessagePage().get_chatroom_last_message(message_type='voice')
+        assert room_voice_message_1 == self.function_dict['wap'].wapMessagePage().get_chatroom_last_message(
+            message_type='voice')
 
     @DecorateClass('CHATAPP-T3265')
     # 個人-發送檔案訊息
@@ -436,7 +451,8 @@ class WapTestCase(BaseTestCase):
         self.function_dict['wap'].wapMessagePage().send_file_message()
         room_file_message_2 = self.function_dict['wap'].wapMessagePage().get_chatroom_last_message(message_type='file')
         self.function_dict['wap'].wapMessagePage().message_revoke(room_file_message_2, message_type='file')
-        assert room_file_message_1 == self.function_dict['wap'].wapMessagePage().get_chatroom_last_message(message_type='file')
+        assert room_file_message_1 == self.function_dict['wap'].wapMessagePage().get_chatroom_last_message(
+            message_type='file')
 
     # 群組-發送文字訊息+超連結
     @DecorateClass('CHATAPP-T3233')
@@ -448,13 +464,12 @@ class WapTestCase(BaseTestCase):
             account = self.wap_account
 
         self.test_wap_login()
-        group = 'QA_bot_only'
-        self.function_dict['wap'].wapMessagePage().into_chat_room(group)
+        self.function_dict['wap'].wapMessagePage().into_chat_room(self.test_group)
         # ======================= 發送"訊息"測試 =================================================
         last_text = self.function_dict['wap'].wapMessagePage().send_text_message()
         self.function_dict['wap'].wapMessagePage().check_chatroom_list_last_message(f'{account}: {last_text}')
         # ======================= 發送"超連結"測試 ===============================================
-        self.function_dict['wap'].wapMessagePage().into_chat_room(group)
+        self.function_dict['wap'].wapMessagePage().into_chat_room(self.test_group)
         last_url = self.function_dict['wap'].wapMessagePage().send_url_message()
         self.function_dict['wap'].wapMessagePage().check_chatroom_list_last_message(f'{account}: {last_url}')
 
@@ -468,8 +483,7 @@ class WapTestCase(BaseTestCase):
             account = self.wap_account
 
         self.test_wap_login()
-        group = 'QA_bot_only'
-        self.function_dict['wap'].wapMessagePage().into_chat_room(group)
+        self.function_dict['wap'].wapMessagePage().into_chat_room(self.test_group)
         self.function_dict['wap'].wapMessagePage().send_text_message()
         self.function_dict['wap'].wapMessagePage().message_copy('mWeb發訊息TeSt!@#$%_4')
         self.function_dict['wap'].wapMessagePage().check_chatroom_list_last_message(f'{account}: mWeb發訊息TeSt!@#$%_4')
@@ -484,10 +498,9 @@ class WapTestCase(BaseTestCase):
             account = self.wap_account
 
         self.test_wap_login()
-        group = 'QA_bot_only'
         original_message = 'mWeb發訊息TeSt!@#$%_2'
         reply_text = 'mWeb群組_回覆訊息Test'
-        self.function_dict['wap'].wapMessagePage().into_chat_room(group)
+        self.function_dict['wap'].wapMessagePage().into_chat_room(self.test_group)
         self.function_dict['wap'].wapMessagePage().send_text_message()
         self.function_dict['wap'].wapMessagePage().message_reply(original_message, reply_text)
         self.function_dict['wap'].wapMessagePage().check_chatroom_list_last_message(f'{account}: {reply_text}')
@@ -502,9 +515,8 @@ class WapTestCase(BaseTestCase):
             account = self.wap_account
 
         self.test_wap_login()
-        group = 'QA_bot_only'
         revoke_message = 'mWeb群組_訊息撤回TeSt!@#$%'
-        self.function_dict['wap'].wapMessagePage().into_chat_room(group)
+        self.function_dict['wap'].wapMessagePage().into_chat_room(self.test_group)
         last_text = self.function_dict['wap'].wapMessagePage().send_text_message()
         self.function_dict['wap'].wapMessagePage().send_message(revoke_message)
         self.function_dict['wap'].wapMessagePage().message_revoke(revoke_message)
@@ -514,10 +526,9 @@ class WapTestCase(BaseTestCase):
     @DecorateClass('CHATAPP-T3240')
     def test_group_message_reply_revoke(self):
         self.test_wap_login()
-        group = 'QA_bot_only'
         reply_original_message = 'mWeb測試用原訊息_群聊_回覆後撤回'
         reply_message = 'mWeb測試:群聊_回覆訊息'
-        self.function_dict['wap'].wapMessagePage().into_chat_room(group)
+        self.function_dict['wap'].wapMessagePage().into_chat_room(self.test_group)
         self.function_dict['wap'].wapMessagePage().send_message(reply_original_message)
         self.function_dict['wap'].wapMessagePage().message_reply(reply_original_message, reply_message)
         self.function_dict['wap'].wapMessagePage().message_revoke(reply_original_message)
@@ -527,10 +538,9 @@ class WapTestCase(BaseTestCase):
     @DecorateClass('CHATAPP-T3241')
     def test_group_message_add_emoji(self):
         self.test_wap_login()
-        group = 'QA_bot_only'
         current_time = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
         emoji_message = f'mWeb_群聊_添加emoji測試_{current_time}'
-        self.function_dict['wap'].wapMessagePage().into_chat_room(group)
+        self.function_dict['wap'].wapMessagePage().into_chat_room(self.test_group)
         self.function_dict['wap'].wapMessagePage().send_message(emoji_message)
         self.function_dict['wap'].wapMessagePage().add_message_emoji(emoji_message)
 
@@ -544,8 +554,7 @@ class WapTestCase(BaseTestCase):
     @DecorateClass('CHATAPP-T3242')
     def test_group_message_pin(self):
         self.test_admin_account_login()
-        group = 'QA_bot_only'
-        self.function_dict['wap'].wapMessagePage().into_chat_room(group)
+        self.function_dict['wap'].wapMessagePage().into_chat_room(self.test_group)
         self.function_dict['wap'].wapMessagePage().delete_all_pin()
         self.function_dict['wap'].wapMessagePage().send_text_message()
         self.function_dict['wap'].wapMessagePage().pin_full_messages()
@@ -555,10 +564,9 @@ class WapTestCase(BaseTestCase):
     @DecorateClass('CHATAPP-T3243')
     def test_group_message_pin_reply(self):
         self.test_wap_login()
-        group = 'QA_bot_only'
         reply_original_message = 'mWeb測試原訊息_群組_回覆後設為公告'
         reply_message = 'mWeb測試:回覆訊息(群組_回覆後設為公告)'
-        self.function_dict['wap'].wapMessagePage().into_chat_room(group)
+        self.function_dict['wap'].wapMessagePage().into_chat_room(self.test_group)
         self.function_dict['wap'].wapMessagePage().delete_all_pin()
         self.function_dict['wap'].wapMessagePage().send_message(reply_original_message)
         self.function_dict['wap'].wapMessagePage().message_reply(reply_original_message, reply_message)
@@ -569,9 +577,8 @@ class WapTestCase(BaseTestCase):
     @DecorateClass('CHATAPP-T3245')
     def test_group_message_pin_revoke(self):
         self.test_wap_login()
-        group = 'QA_bot_only'
         original_message = 'mWeb測試原訊息_群聊_設為公告後撤回'
-        self.function_dict['wap'].wapMessagePage().into_chat_room(group)
+        self.function_dict['wap'].wapMessagePage().into_chat_room(self.test_group)
         self.function_dict['wap'].wapMessagePage().delete_all_pin()
         self.function_dict['wap'].wapMessagePage().send_message(original_message)
         self.function_dict['wap'].wapMessagePage().message_pin(original_message)
@@ -583,7 +590,7 @@ class WapTestCase(BaseTestCase):
     def test_group_send_voice_message(self):
         self.test_wap_login()
         voice_length = random.randint(10, 15)
-        self.function_dict['wap'].wapMessagePage().into_chat_room('QA_bot_only')
+        self.function_dict['wap'].wapMessagePage().into_chat_room(self.test_group)
         self.function_dict['wap'].wapMessagePage().send_voice_message(voice_length)
         self.function_dict['wap'].wapMessagePage().check_chatroom_list_last_message('语音讯息')
 
@@ -593,7 +600,7 @@ class WapTestCase(BaseTestCase):
         self.test_wap_login()
         voice_length = random.randint(10, 15)
         reply_text = 'mWeb_群組_回覆語音訊息Test'
-        self.function_dict['wap'].wapMessagePage().into_chat_room('QA_bot_only')
+        self.function_dict['wap'].wapMessagePage().into_chat_room(self.test_group)
         self.function_dict['wap'].wapMessagePage().send_voice_message(voice_length)
         room_voice_message = self.function_dict['wap'].wapMessagePage().get_chatroom_last_message(message_type='voice')
         self.function_dict['wap'].wapMessagePage().message_reply(room_voice_message, reply_text, message_type='voice')
@@ -605,19 +612,22 @@ class WapTestCase(BaseTestCase):
         self.test_wap_login()
         voice_length_1 = random.randint(10, 15)
         voice_length_2 = random.randint(1, 10)
-        self.function_dict['wap'].wapMessagePage().into_chat_room('QA_bot_only')
+        self.function_dict['wap'].wapMessagePage().into_chat_room(self.test_group)
         self.function_dict['wap'].wapMessagePage().send_voice_message(voice_length_1)
-        room_voice_message_1 = self.function_dict['wap'].wapMessagePage().get_chatroom_last_message(message_type='voice')
+        room_voice_message_1 = self.function_dict['wap'].wapMessagePage().get_chatroom_last_message(
+            message_type='voice')
         self.function_dict['wap'].wapMessagePage().send_voice_message(voice_length_2)
-        room_voice_message_2 = self.function_dict['wap'].wapMessagePage().get_chatroom_last_message(message_type='voice')
+        room_voice_message_2 = self.function_dict['wap'].wapMessagePage().get_chatroom_last_message(
+            message_type='voice')
         self.function_dict['wap'].wapMessagePage().message_revoke(room_voice_message_2, message_type='voice')
-        assert room_voice_message_1 == self.function_dict['wap'].wapMessagePage().get_chatroom_last_message(message_type='voice')
+        assert room_voice_message_1 == self.function_dict['wap'].wapMessagePage().get_chatroom_last_message(
+            message_type='voice')
 
     @DecorateClass('CHATAPP-T3268')
     # 群組-發送檔案訊息
     def test_group_send_file_message(self):
         self.test_wap_login()
-        self.function_dict['wap'].wapMessagePage().into_chat_room('QA_bot_only')
+        self.function_dict['wap'].wapMessagePage().into_chat_room(self.test_group)
         self.function_dict['wap'].wapMessagePage().send_file_message()
         self.function_dict['wap'].wapMessagePage().check_chatroom_list_last_message('档案讯息')
 
@@ -626,7 +636,7 @@ class WapTestCase(BaseTestCase):
     def test_group_file_message_reply(self):
         self.test_wap_login()
         reply_text = 'mWeb_私聊_回覆檔案訊息Test'
-        self.function_dict['wap'].wapMessagePage().into_chat_room('QA_bot_only')
+        self.function_dict['wap'].wapMessagePage().into_chat_room(self.test_group)
         self.function_dict['wap'].wapMessagePage().send_file_message()
         room_file_message = self.function_dict['wap'].wapMessagePage().get_chatroom_last_message(message_type='file')
         self.function_dict['wap'].wapMessagePage().message_reply(room_file_message, reply_text, message_type='file')
@@ -636,7 +646,7 @@ class WapTestCase(BaseTestCase):
     @DecorateClass('CHATAPP-T3270')
     def test_group_file_message_revoke(self):
         self.test_wap_login()
-        self.function_dict['wap'].wapMessagePage().into_chat_room('QA_bot_only')
+        self.function_dict['wap'].wapMessagePage().into_chat_room(self.test_group)
         self.function_dict['wap'].wapMessagePage().send_file_message()
         room_file_message_1 = self.function_dict['wap'].wapMessagePage().get_chatroom_last_message(message_type='file')
         self.function_dict['wap'].wapMessagePage().send_file_message()
@@ -732,24 +742,26 @@ class WapTestCase(BaseTestCase):
     @DecorateClass('CHATAPP-T3288')
     def test_social_follow_unfollow(self):
         self.test_wap_login()
-        origin_follows, origin_fans, origin_thumb_up = self.function_dict['wap'].wapMainPage().get_social_data()  # 取得自己主頁關注數
+        origin_follows, origin_fans, origin_thumb_up = self.function_dict['wap'].wapMainPage().get_self_social_data()  # 取得自己主頁關注數
 
-        self.test_add_friend()  # 新增operator_account (test1234) 為好友
+        self.add_friend_first()  # 新增operator_account (test1234) 為好友
         # ============================ 關注對方 ====================================
         self.function_dict['wap'].wapFriendsPage().into_personal_profile()
         fans_counts_after_followed = self.function_dict['wap'].wapMainPage().follow_user()  # 關注對方 >>> 確認對方粉絲數+1,"已關注"鍵, 回傳對方目前粉絲數
         self.function_dict['wap'].wapFriendsPage().back_to_message_page()
-        after_follows, after_fans, after_thumb_up = self.function_dict['wap'].wapMainPage().get_social_data()  # 取得自己主頁關注數
+        after_follows, after_fans, after_thumb_up = self.function_dict['wap'].wapMainPage().get_self_social_data()  # 取得自己主頁關注數
         assert int(after_follows) == int(origin_follows) + 1  # 確認自己主頁關注數+1
 
         self.function_dict['wap'].wapMainPage().into_followed_list()  # 進入自己主頁關注列表
-        self.function_dict['wap'].wapMainPage().check_followed_list(self.operate_account, after_follows)  # 確認關注列表: 關注數+1, 對方出現在列表上
+        self.function_dict['wap'].wapMainPage().check_followed_list(self.operate_account,
+                                                                    after_follows)  # 確認關注列表: 關注數+1, 對方出現在列表上
         self.function_dict['wap'].wapMainPage().back_to_previous_page()
         # ============================ 取消關注對方 ==================================
         self.function_dict['wap'].wapMainPage().into_followed_list()
-        self.function_dict['wap'].wapMainPage().unfollow_member(self.operate_account, after_follows)  # 取消關注對方 >>> 確認自己關注頁籤數-1, "關注"鍵
+        self.function_dict['wap'].wapMainPage().unfollow_member(self.operate_account,
+                                                                after_follows)  # 取消關注對方 >>> 確認自己關注頁籤數-1, "關注"鍵
         self.function_dict['wap'].wapMainPage().back_to_previous_page()
-        after_unfollows, after_fans, after_thumb_up = self.function_dict['wap'].wapMainPage().get_social_data()  # 取得自己主頁關注數
+        after_unfollows, after_fans, after_thumb_up = self.function_dict['wap'].wapMainPage().get_self_social_data()  # 取得自己主頁關注數
         assert int(after_unfollows) == int(after_follows) - 1  # 確認自己主頁關注數-1
 
         self.function_dict['wap'].wapMainPage().into_followed_list()
@@ -758,14 +770,22 @@ class WapTestCase(BaseTestCase):
         self.function_dict['wap'].wapMainPage().back_to_previous_page()
         self.function_dict['wap'].wapMessagePage().into_chat_room(self.operate_account)
         self.function_dict['wap'].wapFriendsPage().into_personal_profile()
-        follows, fans_after_unfollowed, thumb_up_counts = self.function_dict['wap'].wapMainPage().get_social_data()  # 進入對方主頁, 回傳對方粉絲數
+        follows, fans_after_unfollowed, thumb_up_counts = self.function_dict['wap'].wapMainPage().get_others_social_data()  # 進入對方主頁, 回傳對方粉絲數
         assert int(fans_after_unfollowed) == int(fans_counts_after_followed) - 1  # 對方主頁粉絲數-1
 
-        self.function_dict['wap'].wapMainPage().into_fans_list()  # 進入對方粉絲頁
+        self.function_dict['wap'].wapMainPage().into_others_fans_list()  # 進入對方粉絲頁
         self.function_dict['wap'].wapMainPage().check_fans_list(self.operate_account, fans_after_unfollowed, add_fans=False)  # 確認對方粉絲列表: 對方粉絲數-1, 列表上不出現我
         self.function_dict['wap'].wapFriendsPage().back_to_message_page()
 
         self.test_delete_friend()  # 刪除好友 operator_account (test1234)
+
+    def add_friend_first(self):
+        self.function_dict['wap'].wapFriendsPage().into_friend_list()
+        new_friend = self.function_dict['wap'].wapFriendsPage().is_new_friend(self.operate_account)
+        if not new_friend:
+            self.function_dict['wap'].wapFriendsPage().into_chatroom_from_userDetail()
+        else:
+            self.function_dict['wap'].wapFriendsPage().into_chatroom_from_addToAddressBook()
 
     # 分享自己主頁
     @DecorateClass('CHATAPP-T3295')
@@ -778,12 +798,12 @@ class WapTestCase(BaseTestCase):
             poster = self.wap_account
 
         share_message = f'mWeb_{self.brand}_分享自己({poster})主頁_{current_time}'
-        share_group = 'QA_bot_only'
+
         self.test_wap_login()
         self.function_dict['wap'].wapMainPage().into_main_page()
         self.function_dict['wap'].wapMainPage().into_share_to_window(0)
-        self.function_dict['wap'].wapMainPage().share_to_group(share_group, share_message, share_main_page=True)
-        self.function_dict['wap'].wapMessagePage().into_chat_room(share_group)
+        self.function_dict['wap'].wapMainPage().share_to_group(self.test_group, share_message, share_main_page=True)
+        self.function_dict['wap'].wapMessagePage().into_chat_room(self.test_group)
         # ============================= 自己端確認聊天室內分享文 ====================================
         self.function_dict['wap'].wapMessagePage().check_chat_share_info(poster, share_message, share_main_page=True)
         # ============================= 他人端確認聊天室內分享文 ====================================
@@ -792,8 +812,8 @@ class WapTestCase(BaseTestCase):
 
         self.function_dict['wap'].basePage().open_base_url()  # 開啟wap網頁
         self.function_dict['wap'].wapLoginPage().login(self.web_phone, self.web_password, self.web_nation)
-        self.function_dict['wap'].wapMessagePage().into_chat_room(share_group)
-        self.function_dict['wap'].wapMessagePage().check_chat_share_info(poster, share_message,share_main_page=True)
+        self.function_dict['wap'].wapMessagePage().into_chat_room(self.test_group)
+        self.function_dict['wap'].wapMessagePage().check_chat_share_info(poster, share_message, share_main_page=True)
 
     # 分享自己貼文
     @DecorateClass('CHATAPP-T3296')
@@ -806,13 +826,12 @@ class WapTestCase(BaseTestCase):
             poster = self.wap_account
 
         share_message = f'mWeb_{self.brand}_分享自己({poster})貼文_{current_time}'
-        share_group = 'QA_bot_only'
         self.test_wap_login()
         self.function_dict['wap'].wapMainPage().into_main_page()
         self.function_dict['wap'].wapMainPage().into_first_post()
         self.function_dict['wap'].wapMainPage().into_share_to_window(2)
-        self.function_dict['wap'].wapMainPage().share_to_group(share_group, share_message, share_main_page=False)
-        self.function_dict['wap'].wapMessagePage().into_chat_room(share_group)
+        self.function_dict['wap'].wapMainPage().share_to_group(self.test_group, share_message, share_main_page=False)
+        self.function_dict['wap'].wapMessagePage().into_chat_room(self.test_group)
         # ============================= 自己端確認聊天室內分享文 ====================================
         self.function_dict['wap'].wapMessagePage().check_chat_share_info(poster, share_message, share_main_page=False)
         # ============================= 他人端確認聊天室內分享文 ====================================
@@ -821,7 +840,7 @@ class WapTestCase(BaseTestCase):
 
         self.function_dict['wap'].basePage().open_base_url()  # 開啟wap網頁
         self.function_dict['wap'].wapLoginPage().login(self.web_phone, self.web_password, self.web_nation)
-        self.function_dict['wap'].wapMessagePage().into_chat_room(share_group)
+        self.function_dict['wap'].wapMessagePage().into_chat_room(self.test_group)
         self.function_dict['wap'].wapMessagePage().check_chat_share_info(poster, share_message, share_main_page=False)
 
     # email註冊帳號 > 登出 > 登入 > 登出
@@ -829,8 +848,12 @@ class WapTestCase(BaseTestCase):
     def test_mWeb_email_registration(self):
         email = 'qa5@tengyuntech.com'
         pw = "000111abc"
-        # =============== 後台需先關閉極驗 ================
-        self.test_all_windows_mini()
+        # ============== 後台"關閉"極驗 =======================================================
+        self.test_admin_login()
+        self.function_dict['ad'].mainPage().into_system_app_setting()
+        self.function_dict['ad'].mainPage().enable_geetest(False)
+        # ============== email註冊帳號 =======================================================
+        self.test_wap_logout()
         self.function_dict['wap'].basePage().windows_to_top(full=True)  # 切換視窗
         self.function_dict['wap'].basePage().open_base_url()  # 開啟wap網頁
         self.function_dict['wap'].wapLoginPage().register_by_email(self.mail_account_id, email, pw)
@@ -838,7 +861,14 @@ class WapTestCase(BaseTestCase):
         self.test_wap_logout()
         self.function_dict['wap'].basePage().windows_to_top(full=True)  # 切換視窗
         self.function_dict['wap'].basePage().open_base_url()  # 開啟wap網頁
-        self.function_dict['wap'].wapLoginPage().login(email,pw,login_method='mail')
+        self.function_dict['wap'].wapLoginPage().login(email, pw, login_method='mail')
+        # ============== 後台"開啟"極驗 =======================================================
+        self.test_admin_login()
+        self.function_dict['ad'].mainPage().into_system_app_setting()
+        self.function_dict['ad'].mainPage().enable_geetest(True)
+        # ============== 後台刪除該帳號 ========================================================
+        self.function_dict['ad'].mainPage().into_member_list()
+        self.function_dict['ad'].memberPage().delete_member(self.mail_account_id)
 
     # email欄位檢核確認
     @DecorateClass('CHATAPP-T')
@@ -893,7 +923,6 @@ class WapTestCase(BaseTestCase):
         self.function_dict['wp'].chatlistPage().into_chat_room(self.operate_account)
         self.function_dict['wp'].chatroomPage().send_message(share_url)
         self.function_dict['wp'].chatroomPage().check_url_message(share_url)
-
 
     # 測試-A在與B的聊天室內發送圖片/影片 > B端確認該圖片影片與A端相同
     @DecorateClass('CHATAPP-T2543')
@@ -1047,12 +1076,17 @@ class WapTestCase(BaseTestCase):
         self.function_dict['wp'].integralPage().entry_exchange_page()
         self.function_dict['wp'].integralPage().bind_brand_and_exchange(exchange_address, self.security_code)
         self.function_dict['wp'].mainPage().into_integral_page()
-        remain_integral_amount_after = self.function_dict['wp'].integralPage().exchange_record_check(exchange_amount, operate_type, None, remain_integral_amount_before)
+        remain_integral_amount_after = self.function_dict['wp'].integralPage().exchange_record_check(exchange_amount,
+                                                                                                     operate_type, None,
+                                                                                                     remain_integral_amount_before)
 
         # =========================== 後台確認積分使用紀錄 ================================
         self.test_admin_login()
         self.function_dict['ad'].mainPage().into_integral_record()
-        self.function_dict['ad'].waterRecodePage().check_current_exchange_record(member_ID, None, f'-{str(exchange_amount)}', f'{operate_type}-{brand}', None, remain_integral_amount_after)  # [後台]積分使用紀錄頁確認積分訊息
+        self.function_dict['ad'].waterRecodePage().check_current_exchange_record(member_ID, None,
+                                                                                 f'-{str(exchange_amount)}',
+                                                                                 f'{operate_type}-{brand}', None,
+                                                                                 remain_integral_amount_after)  # [後台]積分使用紀錄頁確認積分訊息
 
         # =========================== 解綁平臺 ===========================================
         self.test_admin_login_to_memberlist()
@@ -1061,7 +1095,8 @@ class WapTestCase(BaseTestCase):
         # =========================== SC平臺端確認積分紀錄 =================================
         self.function_dict['wp'].basePage().switch_home_page()
         after_main_wallet_money = self.function_dict['wp'].brandPage().get_main_wallet_money()
-        self.function_dict['wp'].brandPage().check_deposit_record(before_main_wallet_money, exchange_amount, after_main_wallet_money)
+        self.function_dict['wp'].brandPage().check_deposit_record(before_main_wallet_money, exchange_amount,
+                                                                  after_main_wallet_money)
 
     # 測試-人工存入積分 & 人工提出積分
     @DecorateClass('CHATAPP-T2547')
@@ -1084,7 +1119,10 @@ class WapTestCase(BaseTestCase):
         self.function_dict['wp'].basePage().refresh_browser()
         self.function_dict['wp'].mainPage().open_user_info()
         self.function_dict['wp'].mainPage().into_integral_page()
-        current_total_integral_amount = self.function_dict['wp'].integralPage().exchange_record_check(integral_amount, '人工存入_红包奖励积分', add_deposit_time, remain_integral_amount_deposit_before)  # 前台積分詳情頁確認積分變動紀錄
+        current_total_integral_amount = self.function_dict['wp'].integralPage().exchange_record_check(integral_amount,
+                                                                                                      '人工存入_红包奖励积分',
+                                                                                                      add_deposit_time,
+                                                                                                      remain_integral_amount_deposit_before)  # 前台積分詳情頁確認積分變動紀錄
 
         # =========================== 後台人工提出積分 ======================================
         self.function_dict['ad'].mainPage().into_manual_withdraw()
@@ -1094,7 +1132,9 @@ class WapTestCase(BaseTestCase):
         self.function_dict['wp'].basePage().refresh_browser()
         self.function_dict['wp'].mainPage().open_user_info()
         self.function_dict['wp'].mainPage().into_integral_page()
-        self.function_dict['wp'].integralPage().exchange_record_check(integral_amount, '人工提出_红包误存', add_withdraw_time, current_total_integral_amount)  # 前台積分詳情頁確認積分變動兌換紀錄
+        self.function_dict['wp'].integralPage().exchange_record_check(integral_amount, '人工提出_红包误存',
+                                                                      add_withdraw_time,
+                                                                      current_total_integral_amount)  # 前台積分詳情頁確認積分變動兌換紀錄
 
     # 測試-搶一般紅包
     @DecorateClass('CHATAPP-T2548')
@@ -1104,17 +1144,27 @@ class WapTestCase(BaseTestCase):
         self.function_dict['wp'].mainPage().open_user_info()
         remain_integral_amount_before = self.function_dict['wp'].mainPage().into_integral_page()
         self.function_dict['wp'].chatlistPage().into_chat_room('QA_bot_only')
-        grab_time, grab_amount = self.function_dict['wp'].chatroomPage().grab_red_envelope(red_envelope_type)  # [前台]搶紅包, 回傳紅包時間+金額
-        self.function_dict['wp'].chatroomPage().check_chatroom_system_message(self.web_account, grab_amount)  # 確認聊天室內搶紅包系統訊息
+        grab_time, grab_amount = self.function_dict['wp'].chatroomPage().grab_red_envelope(
+            red_envelope_type)  # [前台]搶紅包, 回傳紅包時間+金額
+        self.function_dict['wp'].chatroomPage().check_chatroom_system_message(self.web_account,
+                                                                              grab_amount)  # 確認聊天室內搶紅包系統訊息
         self.function_dict['wp'].mainPage().open_user_info()
         self.function_dict['wp'].mainPage().into_integral_page()
-        remain_integral_amount = self.function_dict['wp'].integralPage().exchange_record_check(grab_amount, red_envelope_type, grab_time, remain_integral_amount_before)  # [前台]積分詳情頁確認紅包明細, 並回傳目前帳號總積分
+        remain_integral_amount = self.function_dict['wp'].integralPage().exchange_record_check(grab_amount,
+                                                                                               red_envelope_type,
+                                                                                               grab_time,
+                                                                                               remain_integral_amount_before)  # [前台]積分詳情頁確認紅包明細, 並回傳目前帳號總積分
 
         self.test_admin_login()
         self.function_dict['ad'].mainPage().into_red_list()
-        self.function_dict['ad'].redenvelopePage().red_envelope_detail_check(self.web_account, grab_amount, red_envelope_type, grab_time)  # 後台紅包詳情頁確認明細
+        self.function_dict['ad'].redenvelopePage().red_envelope_detail_check(self.web_account, grab_amount,
+                                                                             red_envelope_type,
+                                                                             grab_time)  # 後台紅包詳情頁確認明細
         self.function_dict['ad'].mainPage().into_integral_record()
-        self.function_dict['ad'].waterRecodePage().check_current_exchange_record(self.web_account, grab_time, grab_amount, red_envelope_type, 'QA_bot_only', remain_integral_amount)  # [後台]積分使用紀錄頁確認積分訊息
+        self.function_dict['ad'].waterRecodePage().check_current_exchange_record(self.web_account, grab_time,
+                                                                                 grab_amount, red_envelope_type,
+                                                                                 'QA_bot_only',
+                                                                                 remain_integral_amount)  # [後台]積分使用紀錄頁確認積分訊息
 
     # 測試-搶拚手氣紅包
     @DecorateClass('CHATAPP-T2549')
@@ -1124,17 +1174,27 @@ class WapTestCase(BaseTestCase):
         self.function_dict['wp'].mainPage().open_user_info()
         remain_integral_amount_before = self.function_dict['wp'].mainPage().into_integral_page()
         self.function_dict['wp'].chatlistPage().into_chat_room('QA_bot_only')
-        grab_time, grab_amount = self.function_dict['wp'].chatroomPage().grab_red_envelope(red_envelope_type)  # [前台]搶紅包, 回傳紅包時間+金額
-        self.function_dict['wp'].chatroomPage().check_chatroom_system_message(self.web_account, grab_amount)  # 確認聊天室內搶紅包系統訊息
+        grab_time, grab_amount = self.function_dict['wp'].chatroomPage().grab_red_envelope(
+            red_envelope_type)  # [前台]搶紅包, 回傳紅包時間+金額
+        self.function_dict['wp'].chatroomPage().check_chatroom_system_message(self.web_account,
+                                                                              grab_amount)  # 確認聊天室內搶紅包系統訊息
         self.function_dict['wp'].mainPage().open_user_info()
         self.function_dict['wp'].mainPage().into_integral_page()
-        remain_integral_amount = self.function_dict['wp'].integralPage().exchange_record_check(grab_amount, red_envelope_type, grab_time, remain_integral_amount_before)  # [前台]積分詳情頁確認紅包明細, 並回傳目前帳號總積分
+        remain_integral_amount = self.function_dict['wp'].integralPage().exchange_record_check(grab_amount,
+                                                                                               red_envelope_type,
+                                                                                               grab_time,
+                                                                                               remain_integral_amount_before)  # [前台]積分詳情頁確認紅包明細, 並回傳目前帳號總積分
 
         self.test_admin_login()
         self.function_dict['ad'].mainPage().into_red_list()
-        self.function_dict['ad'].redenvelopePage().red_envelope_detail_check(self.web_account, grab_amount, red_envelope_type, grab_time)  # 後台紅包詳情頁確認明細
+        self.function_dict['ad'].redenvelopePage().red_envelope_detail_check(self.web_account, grab_amount,
+                                                                             red_envelope_type,
+                                                                             grab_time)  # 後台紅包詳情頁確認明細
         self.function_dict['ad'].mainPage().into_integral_record()
-        self.function_dict['ad'].waterRecodePage().check_current_exchange_record(self.web_account, grab_time, grab_amount, red_envelope_type, 'QA_bot_only', remain_integral_amount)  # [後台]積分使用紀錄頁確認積分訊息
+        self.function_dict['ad'].waterRecodePage().check_current_exchange_record(self.web_account, grab_time,
+                                                                                 grab_amount, red_envelope_type,
+                                                                                 'QA_bot_only',
+                                                                                 remain_integral_amount)  # [後台]積分使用紀錄頁確認積分訊息
 
     # 測試-自動領取一般紅包
     @DecorateClass('CHATAPP-T2570')
@@ -1147,16 +1207,21 @@ class WapTestCase(BaseTestCase):
 
         sleep(180)  # 等待系統trigger發送紅包 & 搶紅包機器人執行搶紅包
 
-        name, amount = self.function_dict['wp'].chatroomPage().check_chatroom_system_message(None,None)  # 確認聊天室內紅包系統訊息
+        name, amount = self.function_dict['wp'].chatroomPage().check_chatroom_system_message(None, None)  # 確認聊天室內紅包系統訊息
         self.function_dict['wp'].mainPage().open_user_info()
         self.function_dict['wp'].mainPage().into_integral_page()
-        remain_integral_amount = self.function_dict['wp'].integralPage().exchange_record_check(amount, red_envelope_type, None, remain_integral_amount_before)  # [前台]積分詳情頁確認紅包明細, 並回傳目前帳號總積分
+        remain_integral_amount = self.function_dict['wp'].integralPage().exchange_record_check(amount,
+                                                                                               red_envelope_type, None,
+                                                                                               remain_integral_amount_before)  # [前台]積分詳情頁確認紅包明細, 並回傳目前帳號總積分
 
         self.test_admin_login()
         self.function_dict['ad'].mainPage().into_red_list()
-        self.function_dict['ad'].redenvelopePage().red_envelope_detail_check(self.web_account, amount, red_envelope_type, None)  # 後台紅包詳情頁確認明細
+        self.function_dict['ad'].redenvelopePage().red_envelope_detail_check(self.web_account, amount,
+                                                                             red_envelope_type, None)  # 後台紅包詳情頁確認明細
         self.function_dict['ad'].mainPage().into_integral_record()
-        self.function_dict['ad'].waterRecodePage().check_current_exchange_record(self.web_account, None, amount, red_envelope_type, 'QA_bot_only',remain_integral_amount)  # [後台]積分使用紀錄頁確認積分訊息
+        self.function_dict['ad'].waterRecodePage().check_current_exchange_record(self.web_account, None, amount,
+                                                                                 red_envelope_type, 'QA_bot_only',
+                                                                                 remain_integral_amount)  # [後台]積分使用紀錄頁確認積分訊息
 
     # 測試-搶拚手氣紅包
     @DecorateClass('CHATAPP-T2571')
@@ -1172,13 +1237,18 @@ class WapTestCase(BaseTestCase):
         name, amount = self.function_dict['wp'].chatroomPage().check_chatroom_system_message(None, None)  # 確認聊天室內紅包系統訊息
         self.function_dict['wp'].mainPage().open_user_info()
         self.function_dict['wp'].mainPage().into_integral_page()
-        remain_integral_amount = self.function_dict['wp'].integralPage().exchange_record_check(amount, red_envelope_type, None, remain_integral_amount_before)  # [前台]積分詳情頁確認紅包明細, 並回傳目前帳號總積分
+        remain_integral_amount = self.function_dict['wp'].integralPage().exchange_record_check(amount,
+                                                                                               red_envelope_type, None,
+                                                                                               remain_integral_amount_before)  # [前台]積分詳情頁確認紅包明細, 並回傳目前帳號總積分
 
         self.test_admin_login()
         self.function_dict['ad'].mainPage().into_red_list()
-        self.function_dict['ad'].redenvelopePage().red_envelope_detail_check(self.web_account, amount, red_envelope_type, None)  # 後台紅包詳情頁確認明細
+        self.function_dict['ad'].redenvelopePage().red_envelope_detail_check(self.web_account, amount,
+                                                                             red_envelope_type, None)  # 後台紅包詳情頁確認明細
         self.function_dict['ad'].mainPage().into_integral_record()
-        self.function_dict['ad'].waterRecodePage().check_current_exchange_record(self.web_account, None, amount, red_envelope_type, 'QA_bot_only',remain_integral_amount)  # [後台]積分使用紀錄頁確認積分訊息
+        self.function_dict['ad'].waterRecodePage().check_current_exchange_record(self.web_account, None, amount,
+                                                                                 red_envelope_type, 'QA_bot_only',
+                                                                                 remain_integral_amount)  # [後台]積分使用紀錄頁確認積分訊息
 
     # 測試 - [後台]設定邀請碼權限 > [前台]登入一般成員 & 管理員帳號確認邀請碼分享欄位顯示與否
     @DecorateClass('CHATAPP-T2569')
@@ -1196,7 +1266,9 @@ class WapTestCase(BaseTestCase):
         self.function_dict['wp'].basePage().windows_to_top()  # 切換視窗
         self.function_dict['wp'].basePage().open_base_url()  # 開啟前台網站
         self.function_dict['wp'].loginPage().login(self.web_phone, self.web_password, self.web_nation)  # 登入群組權限"一般成員"用戶
-        self.function_dict['wp'].chatroomPage().check_share_code_visible_when_permission_changed(share_code, group_name, user, permission=1)  # 確認前台可見邀請碼分享欄位
+        self.function_dict['wp'].chatroomPage().check_share_code_visible_when_permission_changed(share_code, group_name,
+                                                                                                 user,
+                                                                                                 permission=1)  # 確認前台可見邀請碼分享欄位
 
         self.test_all_windows_mini()
         self.function_dict['ad'].basePage().windows_to_top()  # 切換視窗
@@ -1204,7 +1276,9 @@ class WapTestCase(BaseTestCase):
 
         self.test_all_windows_mini()
         self.function_dict['wp'].basePage().windows_to_top()  # 切換視窗
-        self.function_dict['wp'].chatroomPage().check_share_code_visible_when_permission_changed(share_code, group_name, user, permission=2)  # 確認前台不可見邀請碼分享欄位
+        self.function_dict['wp'].chatroomPage().check_share_code_visible_when_permission_changed(share_code, group_name,
+                                                                                                 user,
+                                                                                                 permission=2)  # 確認前台不可見邀請碼分享欄位
 
         self.test_all_windows_mini()
         self.function_dict['ad'].basePage().windows_to_top()  # 切換視窗
@@ -1212,7 +1286,9 @@ class WapTestCase(BaseTestCase):
 
         self.test_all_windows_mini()
         self.function_dict['wp'].basePage().windows_to_top()  # 切換視窗
-        self.function_dict['wp'].chatroomPage().check_share_code_visible_when_permission_changed(share_code, group_name, user, permission=3)  # 確認前台不可見邀請碼分享欄位
+        self.function_dict['wp'].chatroomPage().check_share_code_visible_when_permission_changed(share_code, group_name,
+                                                                                                 user,
+                                                                                                 permission=3)  # 確認前台不可見邀請碼分享欄位
 
         # ========================= 群組管理員 =========================
         user = "gubot03"  # 管理員
@@ -1220,7 +1296,9 @@ class WapTestCase(BaseTestCase):
         self.function_dict['wp'].mainPage().into_security_page()
         self.function_dict['wp'].securityPage().logout()
         self.function_dict['wp'].loginPage().login(self.app_phone, self.app_password, self.web_nation)  # 登入群組權限"管理員"用戶
-        self.function_dict['wp'].chatroomPage().check_share_code_visible_when_permission_changed(share_code, group_name, user, permission=3)  # 確認前台可見邀請碼分享欄位
+        self.function_dict['wp'].chatroomPage().check_share_code_visible_when_permission_changed(share_code, group_name,
+                                                                                                 user,
+                                                                                                 permission=3)  # 確認前台可見邀請碼分享欄位
 
         self.test_all_windows_mini()
         self.function_dict['ad'].basePage().windows_to_top()  # 切換視窗
@@ -1230,7 +1308,9 @@ class WapTestCase(BaseTestCase):
 
         self.test_all_windows_mini()
         self.function_dict['wp'].basePage().windows_to_top()  # 切換視窗
-        self.function_dict['wp'].chatroomPage().check_share_code_visible_when_permission_changed(share_code, group_name, user, permission=2)  # 確認前台不可見邀請碼分享欄位
+        self.function_dict['wp'].chatroomPage().check_share_code_visible_when_permission_changed(share_code, group_name,
+                                                                                                 user,
+                                                                                                 permission=2)  # 確認前台不可見邀請碼分享欄位
 
         self.test_all_windows_mini()
         self.function_dict['ad'].basePage().windows_to_top()  # 切換視窗
@@ -1238,13 +1318,11 @@ class WapTestCase(BaseTestCase):
 
         self.test_all_windows_mini()
         self.function_dict['wp'].basePage().windows_to_top()  # 切換視窗
-        self.function_dict['wp'].chatroomPage().check_share_code_visible_when_permission_changed(share_code, group_name, user, permission=1)  # 確認前台可見邀請碼分享欄位
-
-
-
+        self.function_dict['wp'].chatroomPage().check_share_code_visible_when_permission_changed(share_code, group_name,
+                                                                                                 user,
+                                                                                                 permission=1)  # 確認前台可見邀請碼分享欄位
 
     def run(self, result=None):
         gl.set_value('RESULT', result)
         gl.set_value('RESULT_COUNT', re.findall("[0-9]+", str(result)))
         BaseTestCase.run(self, result)  # call superclass run method
-

@@ -2,7 +2,6 @@ import datetime
 import re
 from time import sleep
 
-
 from Project.chat.app.pages.social_sharepage import SocialSharePage
 from common.app.common import Common
 from configs.app.setting import Setting
@@ -27,41 +26,42 @@ class SocialMediaLibraryPageLocator:
         )
 
         return env
+
     # 貼文 > 貼文信息 > 頭像icon
     avatar_icon = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/iv_avatar'),
-        iOS=base.data_collation(type_kind='text', type_name='iv_avatar'),
+        iOS=base.data_collation(type_kind='name', type_name='snsPostFeed_avatar_imageView'),
     )
     # 貼文 > 貼文信息 > 贊icon
     liked_icon = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/iv_liked'),
-        iOS=base.data_collation(type_kind='text', type_name='iv_liked'),
+        iOS=base.data_collation(type_kind='name', type_name='snsPostFeed_heart_button'),
     )
     # 貼文 > 貼文信息 > 贊icon > 贊數
     liked_counts = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tv_liked_count'),
-        iOS=base.data_collation(type_kind='text', type_name=''),
+        iOS=base.data_collation(type_kind='', type_name=''),
     )
     # 貼文 > 貼文信息 > 評論icon
     comment_icon = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/iv_comment'),
-        iOS=base.data_collation(type_kind='text', type_name='iv_message'),
+        iOS=base.data_collation(type_kind='name', type_name='snsPostFeed_comment_button'),
     )
     # 貼文 > 貼文信息 > 收藏icon
     collected_icon = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/iv_collected'),
-        iOS=base.data_collation(type_kind='text', type_name='iv_bookmark'),
+        iOS=base.data_collation(type_kind='name', type_name='snsPostFeed_bookmark_button'),
     )
     # 貼文 > 貼文信息 > 收藏icon > 收藏數
     collected_counts = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tv_collected_count'),
-        iOS=base.data_collation(type_kind='text', type_name='iv_bookmark'),
+        iOS=base.data_collation(type_kind='', type_name=''),
     )
     # ========================================= more設定 ========================================================
     # 貼文 > 貼文信息 > 更多icon
     more_icon = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/iv_shared'),
-        iOS=base.data_collation(type_kind='text', type_name='iv_more'),
+        iOS=base.data_collation(type_kind='name', type_name='snsPostFeed_more_button'),
     )
     # ========================================= 隱私設定 ==============================
     # 貼文 > 貼文信息 > 更多icon > 隱私設定
@@ -72,71 +72,71 @@ class SocialMediaLibraryPageLocator:
     # 更多icon > 隱私設定 > 所有人
     more_privacy_everyone_btn = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/rb_everyone'),
-        iOS=base.data_collation(type_kind='text', type_name='rb_everyone'),
+        iOS=base.data_collation(type_kind='name', type_name='snsPostAudience_all_view'),
     )
     # 更多icon > 隱私設定 > 互關
     more_privacy_mutual_followers_btn = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/rb_mutual_followers'),
-        iOS=base.data_collation(type_kind='text', type_name='rb_mutual_followers'),
+        iOS=base.data_collation(type_kind='name', type_name='snsPostAudience_mutualFollowers_view'),
     )
     # 更多icon > 隱私設定 > 粉絲
     more_privacy_fans_btn = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/rb_followers'),
-        iOS=base.data_collation(type_kind='text', type_name='rb_followers'),
+        iOS=base.data_collation(type_kind='name', type_name='snsPostAudience_followers_view'),
     )
     # 更多icon > 隱私設定 > 僅自己
     more_privacy_self_btn = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/rb_only_self'),
-        iOS=base.data_collation(type_kind='text', type_name='rb_only_self'),
+        iOS=base.data_collation(type_kind='name', type_name='snsPostAudience_onlyMe_view'),
     )
     # 更多icon > 隱私設定 > x鍵
     more_privacy_close_btn = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/iv_end_icon'),
-        iOS=base.data_collation(type_kind='text', type_name='iv_end_icon'),
+        iOS=base.data_collation(type_kind='name', type_name='iconIconCrossBlack'),
     )
 
     # =================================================================================
     # 貼文 > 貼文作者暱稱
     author_name = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tv_author_name'),
-        iOS=base.data_collation(type_kind='text', type_name='tv_author_name'),
+        iOS=base.data_collation(type_kind='name', type_name='snsPostFeed_nickname_label'),
     )
     # 貼文 > 貼文說明文字
     content = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tv_content'),
-        iOS=base.data_collation(type_kind='text', type_name='tv_caption'),
+        iOS=base.data_collation(type_kind='name', type_name='snsPostFeed_caption_textView'),
     )
     # ========================================= 評論 ========================================================
     # "x"鍵
     post_comment_close_btn = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/btn_close'),
-        iOS=base.data_collation(type_kind='text', type_name=''),
+        iOS=base.data_collation(type_kind='name', type_name='snsCommentModal_close_button'),
     )
     # ========================================= 頁籤 > 評論 ==============================
     # 他人的評論頁籤
     post_others_comment_tab = base.check_device(
         Android=base.data_collation(type_kind='textMatches', type_name=f'.* 条评论'),
-        iOS=base.data_collation(type_kind='text', type_name=''),
+        iOS=base.data_collation(type_kind='nameMatches', type_name=f'.* 条评论'),
     )
     # 自己的評論頁籤
     post_comment_tab = base.check_device(
         Android=base.data_collation(type_kind='name', type_name='android.widget.TextView', num=-3),
-        iOS=base.data_collation(type_kind='text', type_name=''),
+        iOS=base.data_collation(type_kind='name', type_name='snsMyComment_contentPage_viewList_button'),
     )
     # 評論輸入欄位
     post_input_comment_column = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tv_preview'),
-        iOS=base.data_collation(type_kind='text', type_name='添加评论'),
+        iOS=base.data_collation(type_kind='name', type_name='snsCommentReply_addComment_textView'),
     )
     # 評論欄位無權限hint
     post_no_comment_permission_hint = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tv_no_comment_permission_hint'),
-        iOS=base.data_collation(type_kind='text', type_name='无权限评论'),
+        iOS=base.data_collation(type_kind='name', type_name='无权限评论'),
     )
     # 留言框內自動帶入的文字
     post_input_comment = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/et_input'),
-        iOS=base.data_collation(type_kind='text', type_name=''),
+        iOS=base.data_collation(type_kind='name', type_name='snsCommentReply_addComment_textView'),
     )
     # 留言 > 全選
     toolbar_menu_text_select_all = base.check_device(
@@ -151,12 +151,12 @@ class SocialMediaLibraryPageLocator:
     # 評論發送鍵
     post_comment_send_btn = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/btn_send'),
-        iOS=base.data_collation(type_kind='text', type_name='添加评论'),
+        iOS=base.data_collation(type_kind='name', type_name='buttonSendArrow'),
     )
     # 最新一筆母留言作者暱稱
     post_recent_comment_commenter = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tv_commenter', num=0),
-        iOS=base.data_collation(type_kind='text', type_name=''),
+        iOS=base.data_collation(type_kind='name', type_name='', num=0),
     )
     # 創作者tag
     post_recent_comment_author = base.check_device(
@@ -166,7 +166,7 @@ class SocialMediaLibraryPageLocator:
     # 最新一筆母留言內容
     post_recent_comment_content = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tv_content', num=0),
-        iOS=base.data_collation(type_kind='text', type_name=''),
+        iOS=base.data_collation(type_kind='name', type_name='snsCommentReply_commentCell_content_label', num=0),
     )
     # 最新一筆母留言的送出時間
     post_recent_comment_add_time = base.check_device(
@@ -176,17 +176,17 @@ class SocialMediaLibraryPageLocator:
     # 最新一筆母留言的回覆鍵
     post_recent_comment_reply_btn = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tv_reply', num=0),
-        iOS=base.data_collation(type_kind='text', type_name=''),
+        iOS=base.data_collation(type_kind='name', type_name='snsCommentReply_commentCell_reply_button', num=0),
     )
     # 最新一筆母留言的贊icon
     post_recent_comment_thumb_up_icon = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/iv_like', num=0),
-        iOS=base.data_collation(type_kind='text', type_name=''),
+        iOS=base.data_collation(type_kind='name', type_name='snsCommentReply_commentCell_like_button', num=0),
     )
     # 最新一筆母留言的贊數
     post_recent_comment_liked_counts = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tv_like_count', num=0),
-        iOS=base.data_collation(type_kind='text', type_name=''),
+        iOS=base.data_collation(type_kind='name', type_name='snsCommentReply_commentCell_like_button', num=0),
     )
     # 最新一筆母留言 > 最新一筆回覆留言作者暱稱
     post_recent_comment_recent_reply_commenter = base.check_device(
@@ -238,7 +238,7 @@ class SocialMediaLibraryPageLocator:
     # 自己評論頁內的"贊頁"
     post_thumb_up_tab = base.check_device(
         Android=base.data_collation(type_kind='name', type_name='android.widget.TextView', num=-2),
-        iOS=base.data_collation(type_kind='text', type_name=''),
+        iOS=base.data_collation(type_kind='name', type_name='snsMyComment_contentPage_likeList_button'),
     )
     # "贊頁"列表第一位成員
     post_thumb_up_tab_first_member_nickname = base.check_device(
@@ -250,23 +250,24 @@ class SocialMediaLibraryPageLocator:
     # 自己評論頁內的"观看次数"頁
     post_views_tab = base.check_device(
         Android=base.data_collation(type_kind='name', type_name='android.widget.TextView', num=-1),
-        iOS=base.data_collation(type_kind='text', type_name=''),
+        iOS=base.data_collation(type_kind='name', type_name='snsMyComment_contentPage_viewList_button'),
     )
     # ========================================= 媒體櫃 ========================================================
     # 第一則媒體
     first_media = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/iv_thumbnail'),
-        iOS=base.data_collation(type_kind='text', type_name='sv_subtitle'),
+        iOS=base.data_collation(type_kind='type', type_name='StaticText', num=2,
+                                parent={'type_kind': 'type', 'type_name': 'Cell', 'name': 'Cell', 'num': 0}),
     )
     # 貼文 > 點回到上一頁
     media_back_btn = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/iv_back'),
-        iOS=base.data_collation(type_kind='text', type_name='sv_subtitle'),
+        iOS=base.data_collation(type_kind='name', type_name='chevron Left shadow'),
     )
     # 他人貼文 > 點回到上一頁
     other_post_back_btn = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/iv_left'),
-        iOS=base.data_collation(type_kind='text', type_name=''),
+        iOS=base.data_collation(type_kind='name', type_name='chevron Left shadow'),
     )
     # ========================================= 公開媒體 ================================
     # 關注狀態icon
@@ -307,17 +308,17 @@ class SocialMediaLibraryPageLocator:
     # 草稿夾
     draft_media_folder = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tv_draft'),
-        iOS=base.data_collation(type_kind='text', type_name='sv_subtitle'),
+        iOS=base.data_collation(type_kind='nameMatches', type_name='草稿: .*'),
     )
     # 草稿夾 > 第一則媒體
     draft_folder_first_media = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/iv_image', num=0),
-        iOS=base.data_collation(type_kind='text', type_name=''),
+        iOS=base.data_collation(type_kind='name', type_name='draftPostFolder_post_cell', num=0),
     )
     # 草稿夾 > 第一則媒體 > 發布時間
     draft_folder_first_media_create_time = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tv_create_time', num=0),
-        iOS=base.data_collation(type_kind='text', type_name=''),
+        iOS=base.data_collation(type_kind='nameMatches', type_name='202.*', num=0),
     )
     draft_folder_select_btn = base.check_device(
         Android=base.data_collation(type_kind='text', type_name='选择'),
@@ -335,7 +336,8 @@ class SocialMediaLibraryPageLocator:
     @staticmethod
     def audience_icon_index(app_package, num):
         audience_icon_index = SocialMediaLibraryPageLocator.base.check_device(
-            Android=SocialMediaLibraryPageLocator.base.data_collation(type_kind='name', type_name=str(app_package) + ':id/iv_audience_icon', num=num),
+            Android=SocialMediaLibraryPageLocator.base.data_collation(type_kind='name', type_name=str(
+                app_package) + ':id/iv_audience_icon', num=num),
             iOS=SocialMediaLibraryPageLocator.base.data_collation(type_kind='name', type_name=''),
         )
         return audience_icon_index
@@ -343,7 +345,9 @@ class SocialMediaLibraryPageLocator:
     @staticmethod
     def public_media_index(app_package, num):
         public_media_index = SocialMediaLibraryPageLocator.base.check_device(
-            Android=SocialMediaLibraryPageLocator.base.data_collation(type_kind='name', type_name=str(app_package) + ':id/iv_thumbnail', num=num),
+            Android=SocialMediaLibraryPageLocator.base.data_collation(type_kind='name',
+                                                                      type_name=str(app_package) + ':id/iv_thumbnail',
+                                                                      num=num),
             iOS=SocialMediaLibraryPageLocator.base.data_collation(type_kind='name', type_name=''),
         )
         return public_media_index
@@ -357,13 +361,28 @@ def post_privacy_select(privacy_index):
     return privacy_type_list[privacy_index]
 
 
+def convert_chinese_time_to_24h(time_string):
+    time_string = time_string.strip()
+    if time_string.startswith("上午"):
+        time_str = time_string.replace("上午", "").strip()
+        t = datetime.datetime.strptime(time_str, "%I:%M").strftime("%H:%M")
+    elif time_string.startswith("下午"):
+        time_str = time_string.replace("下午", "").strip()
+        t_obj = datetime.datetime.strptime(time_str, "%I:%M")
+        if t_obj.hour < 12:
+            t_obj = t_obj.replace(hour=t_obj.hour + 12)
+        t = t_obj.strftime("%H:%M")
+    else:
+        t = datetime.datetime.strptime(time_string, "%H:%M").strftime("%H:%M")
+    return t
+
+
 class SocialMediaLibraryPage(Base):
     phone_platform = gl.get_value('PHONE_PLATFORM')
 
     # ========================================= 貼文相關 ================================================================
-    def check_recent_post_media(self, account, instructions, save_to_local=True, post=True):
+    def check_recent_post_media(self, account, instructions, post=True):
         """檢查最新的帖子媒體，並確認媒體的相關信息"""
-
         if post:
             self._check_avatar_icon(account)
 
@@ -378,7 +397,11 @@ class SocialMediaLibraryPage(Base):
         self.common.poco_click(SocialMediaLibraryPageLocator.avatar_icon)
 
         from Project.chat.app.pages.social_homepage import PersonalSocialPageLocator
-        assert self.common.poco_get_text(PersonalSocialPageLocator.social_page_title) == account, '點擊頭像未進入創作者主頁或主頁錯誤'
+        page_title = self.common.poco_get_text(PersonalSocialPageLocator.social_self_page_title
+                                               if self.common.poco_exists(
+            PersonalSocialPageLocator.social_self_page_title)
+                                               else PersonalSocialPageLocator.social_other_page_title)
+        assert page_title == account, '點擊頭像未進入創作者主頁或主頁錯誤'
         self.common.poco_click(PersonalSocialPageLocator.social_page_back_btn)
 
     def _check_media_icons(self):
@@ -391,6 +414,7 @@ class SocialMediaLibraryPage(Base):
         ]
 
         for icon, error_msg in icons:
+            self.wait_loading_finish()
             assert self.common.poco_exists(icon), error_msg
 
     def _check_post_author_and_content(self, user_nickname, instructions):
@@ -406,7 +430,11 @@ class SocialMediaLibraryPage(Base):
 
     def into_first_post(self, user_nickname=None, instructions=None):
         """進入第一篇帖子並檢查作者名稱和媒體說明"""
-        self.common.poco_click(SocialMediaLibraryPageLocator.first_media)
+        if self.phone_platform.lower() == 'android':
+            self.common.poco_click(SocialMediaLibraryPageLocator.first_media)
+        else:  # ios part
+            self.poco(type='Cell').offspring(type='StaticText')[0].click()  # 無草稿夾下公開媒體區第一則貼文
+
         if user_nickname and instructions:
             self._check_post_author_and_content(user_nickname, instructions)
 
@@ -429,7 +457,8 @@ class SocialMediaLibraryPage(Base):
 
         self.common.poco_click(SocialMediaLibraryPageLocator.first_media)
         assert self.common.poco_get_text(SocialMediaLibraryPageLocator.author_name) == user_nickname, '創作者暱稱錯誤'
-        assert self.common.poco_get_text(SocialMediaLibraryPageLocator.content) == description, f'媒體說明有誤,預期:{description}, 實際:{self.common.poco_get_text(SocialMediaLibraryPageLocator.content)}'
+        assert self.common.poco_get_text(
+            SocialMediaLibraryPageLocator.content) == description, f'媒體說明有誤,預期:{description}, 實際:{self.common.poco_get_text(SocialMediaLibraryPageLocator.content)}'
 
         self.common.poco_click(SocialMediaLibraryPageLocator.more_icon)
         self.common.poco_click(SocialMediaLibraryPageLocator.more_privacy_btn)
@@ -442,13 +471,17 @@ class SocialMediaLibraryPage(Base):
         """檢查指定媒體的隱私設置和內容"""
         # if privacy_index in [1, 2]:  # 隱私設定為: 互關 or 粉絲
         #     self._check_audience_icon(media_index)
-        self.common.poco_click(SocialMediaLibraryPageLocator.public_media_index(SocialMediaLibraryPageLocator.app_package, media_index))  # 點擊指定媒體
+        self.common.poco_click(
+            SocialMediaLibraryPageLocator.public_media_index(SocialMediaLibraryPageLocator.app_package,
+                                                             media_index))  # 點擊指定媒體
         self._check_post_author_and_content(user_nickname, instructions)
         self.common.poco_click(SocialMediaLibraryPageLocator.other_post_back_btn)
 
     def _check_audience_icon(self, media_index):
         """檢查指定媒體是否顯示觀眾(互關/粉絲)icon"""
-        assert self.common.poco_exists(SocialMediaLibraryPageLocator.audience_icon_index(SocialMediaLibraryPageLocator.app_package, media_index)), '媒體未出現觀眾(互關/粉絲)icon'
+        assert self.common.poco_exists(
+            SocialMediaLibraryPageLocator.audience_icon_index(SocialMediaLibraryPageLocator.app_package,
+                                                              media_index)), '媒體未出現觀眾(互關/粉絲)icon'
 
     def post_add_like(self, original_main_liked_counts):
         """為貼文新增贊並確認主頁與貼文的贊數更新"""
@@ -493,7 +526,8 @@ class SocialMediaLibraryPage(Base):
         assert post_thumb_up_tab_counts_after_add_like == post_thumb_up_tab_counts_original + 1, '贊數未正確更新'
 
         self.common.poco_click(SocialMediaLibraryPageLocator.post_thumb_up_tab)  # 點進頁籤>贊
-        assert self.common.poco_get_text(SocialMediaLibraryPageLocator.post_thumb_up_tab_first_member_nickname) == self_nickname
+        assert self.common.poco_get_text(
+            SocialMediaLibraryPageLocator.post_thumb_up_tab_first_member_nickname) == self_nickname
         self.common.poco_click(SocialMediaLibraryPageLocator.post_comment_close_btn)  # 回到貼文畫面
 
     def _get_thumb_up_counts(self):
@@ -526,11 +560,13 @@ class SocialMediaLibraryPage(Base):
 
     def check_my_collected_library_after_add(self, creator_nickname, media_info):
         """確認收藏的媒體資訊"""
-        self._check_my_library_after_action(SocialMediaLibraryPageLocator.library_collected_icon, creator_nickname, media_info)
+        self._check_my_library_after_action(SocialMediaLibraryPageLocator.library_collected_icon, creator_nickname,
+                                            media_info)
 
     def check_my_liked_library_after_add(self, creator_nickname, media_info):
         """確認點贊的媒體資訊"""
-        self._check_my_library_after_action(SocialMediaLibraryPageLocator.library_liked_icon, creator_nickname,media_info)
+        self._check_my_library_after_action(SocialMediaLibraryPageLocator.library_liked_icon, creator_nickname,
+                                            media_info)
 
     def _check_my_library_after_action(self, library_icon, creator_nickname, media_info):
         """檢查我的媒體庫中的資料"""
@@ -562,15 +598,11 @@ class SocialMediaLibraryPage(Base):
     # ========================================= 草稿夾相關 ===============================================================
     def check_draft_folder_exist(self, expect):
         """檢查草稿夾是否存在"""
+        self.wait_loading_finish()
         if expect:
-            # self._swipe_to_draft_folder()
             assert self.common.poco_exists(SocialMediaLibraryPageLocator.draft_media_folder), '草稿夾應該存在'
         else:
             assert not self.common.poco_exists(SocialMediaLibraryPageLocator.draft_media_folder), '草稿夾不應該存在'
-
-    # def _swipe_to_draft_folder(self):
-    #     """滑動到草稿夾位置"""
-    #     self.poco.swipe([0.5, 0.6], [0.5, 0.8], duration=0.1)
 
     def draft_media_counts(self):
         """獲取草稿夾中的媒體數量"""
@@ -598,8 +630,9 @@ class SocialMediaLibraryPage(Base):
 
     def _check_media_creation_time(self, expected_date):
         """確認草稿媒體的創建時間"""
-        assert self.common.poco_get_text(
-            SocialMediaLibraryPageLocator.draft_folder_first_media_create_time) == expected_date, '草稿貼文創建日期不符'
+        media_created_time = self.common.poco_get_text(
+            SocialMediaLibraryPageLocator.draft_folder_first_media_create_time)
+        assert media_created_time == expected_date, '草稿貼文創建日期不符'
 
     def _delete_first_draft_media(self):
         """刪除草稿夾中的第一個媒體"""
@@ -619,9 +652,14 @@ class SocialMediaLibraryPage(Base):
 
     def _check_comment_tabs(self):
         """確認評論頁的頁籤是否正確顯示"""
-        assert '评论' in self.common.poco_get_text(SocialMediaLibraryPageLocator.post_comment_tab), '評論頁籤顯示錯誤'
-        assert '赞' in self.common.poco_get_text(SocialMediaLibraryPageLocator.post_thumb_up_tab), '贊頁籤顯示錯誤'
-        assert '观看次数' in self.common.poco_get_text(SocialMediaLibraryPageLocator.post_views_tab), '觀看次數頁籤顯示錯誤'
+        if self.phone_platform.lower() == 'android':
+            assert '评论' in self.common.poco_get_text(SocialMediaLibraryPageLocator.post_comment_tab), '評論頁籤顯示錯誤'
+            assert '赞' in self.common.poco_get_text(SocialMediaLibraryPageLocator.post_thumb_up_tab), '贊頁籤顯示錯誤'
+            assert '观看次数' in self.common.poco_get_text(SocialMediaLibraryPageLocator.post_views_tab), '觀看次數頁籤顯示錯誤'
+        else:
+            assert self.common.poco_exists(SocialMediaLibraryPageLocator.post_comment_tab), '評論頁籤顯示錯誤'
+            assert self.common.poco_exists(SocialMediaLibraryPageLocator.post_thumb_up_tab), '贊頁籤顯示錯誤'
+            assert self.common.poco_exists(SocialMediaLibraryPageLocator.post_views_tab), '觀看次數頁籤顯示錯誤'
 
     def check_post_recent_comment(self, recent_comment):
         """確認貼文最近的評論內容"""
@@ -671,7 +709,11 @@ class SocialMediaLibraryPage(Base):
 
         self._input_and_send_comment(comment)
         if not post_url and "https" in comment:
-            assert self.common.poco_get_text(SocialMediaLibraryPageLocator.post_input_comment_column) == comment, f'URL留言未保留'
+            if self.phone_platform.lower() == 'android':
+                get_comment_text = self.common.poco_get_text(SocialMediaLibraryPageLocator.post_input_comment_column)
+            else:
+                get_comment_text = self.poco(name='TextView').attr('value')
+            assert get_comment_text == comment, f'URL留言未保留'
         else:
             comment_send_time = self._get_current_time()
             self._verify_comment_details(commenter, comment, comment_send_time)
@@ -683,7 +725,12 @@ class SocialMediaLibraryPage(Base):
     def _get_original_comment_count(self, self_post):
         """獲取原始評論數"""
         if self_post:
-            match = re.search(r'\d+', self.common.poco_get_text(SocialMediaLibraryPageLocator.post_comment_tab))
+            if self.phone_platform.lower() == 'android':
+                tab_text = self.common.poco_get_text(SocialMediaLibraryPageLocator.post_comment_tab)
+            else:
+                tab_text = self.poco(name='snsMyComment_contentPage_commentList_button').offspring(type='StaticText')[
+                    1].attr('value')
+            match = re.search(r'\d+', tab_text)
             return int(match.group())
         return int(self.common.poco_get_text(SocialMediaLibraryPageLocator.post_others_comment_tab).split()[0])
 
@@ -695,9 +742,26 @@ class SocialMediaLibraryPage(Base):
 
     def _verify_comment_details(self, commenter, comment, send_time):
         """驗證評論的詳細資訊"""
-        assert self.common.poco_get_text(SocialMediaLibraryPageLocator.post_recent_comment_commenter) == commenter, f'留言者暱稱顯示錯誤, 預期:{commenter},實際:{self.common.poco_get_text(SocialMediaLibraryPageLocator.post_recent_comment_commenter)}'
-        assert self.common.poco_get_text(SocialMediaLibraryPageLocator.post_recent_comment_content) == comment, '留言內容顯示錯誤'
-        assert self.common.poco_get_text(SocialMediaLibraryPageLocator.post_recent_comment_add_time) == send_time, f'留言時間顯示錯誤, 預期:{send_time}, 實際: {self.common.poco_get_text(SocialMediaLibraryPageLocator.post_recent_comment_add_time)}'
+        if self.phone_platform.lower() == 'android':
+            recent_comment_commenter = self.common.poco_get_text(
+                SocialMediaLibraryPageLocator.post_recent_comment_commenter)
+            recent_comment_content = self.common.poco_get_text(
+                SocialMediaLibraryPageLocator.post_recent_comment_content)
+            recent_comment_add_time = self.common.poco_get_text(
+                SocialMediaLibraryPageLocator.post_recent_comment_add_time)
+        else:
+            recent_comment_commenter = \
+            self.poco(name='snsCommentReply_commentCell_content_label').parent().child(type='StaticText')[0].attr(
+                'value')
+            recent_comment_content = self.common.poco_get_text(
+                SocialMediaLibraryPageLocator.post_recent_comment_content)
+            recent_comment_add_time = \
+            self.poco(name='snsCommentReply_commentCell_content_label').parent().child(type='StaticText')[-1].attr(
+                'value')
+            recent_comment_add_time = convert_chinese_time_to_24h(recent_comment_add_time)
+        assert recent_comment_commenter == commenter, f'留言者暱稱顯示錯誤, 預期:{commenter},實際:{recent_comment_commenter}'
+        assert recent_comment_content == comment, '留言內容顯示錯誤'
+        assert recent_comment_add_time == send_time, f'留言時間顯示錯誤, 預期:{send_time}, 實際: {recent_comment_add_time}'
         assert self.common.poco_exists(SocialMediaLibraryPageLocator.post_recent_comment_reply_btn), '留言未出現回覆鍵'
         assert self.common.poco_exists(SocialMediaLibraryPageLocator.post_recent_comment_thumb_up_icon), '留言未出現點贊icon'
 
@@ -708,8 +772,13 @@ class SocialMediaLibraryPage(Base):
 
     def _verify_creator_label(self, author_locator):
         """驗證創作者標籤是否正確顯示"""
-        assert self.common.poco_exists(author_locator), '創作者標籤未顯示'
-        assert self.common.poco_get_text(author_locator) == '创作者', '創作者標籤顯示錯誤'
+        if self.phone_platform.lower() == 'android':
+            assert self.common.poco_exists(author_locator), '創作者標籤未顯示'
+            assert self.common.poco_get_text(author_locator) == '创作者', '創作者標籤顯示錯誤'
+        else:
+            creator_tag = self.poco(name='snsCommentReply_commentCell_content_label').parent().child(type='StaticText')[
+                1].attr('value')
+            assert creator_tag == '创作者', '創作者標籤顯示錯誤'
 
     def _get_current_time(self):
         """獲取當前時間"""
@@ -723,7 +792,8 @@ class SocialMediaLibraryPage(Base):
         self._verify_reply_target(recent_commenter)
 
         self._clear_and_input_reply(reply_content)
-        self._send_reply_and_verify(replier, reply_content, self_post,SocialMediaLibraryPageLocator.post_recent_comment_recent_reply_commenter)
+        self._send_reply_and_verify(replier, reply_content, self_post,
+                                    SocialMediaLibraryPageLocator.post_recent_comment_recent_reply_commenter)
 
         self._verify_comment_count_updated(original_comment_count, self_post)
         if self_post:
@@ -732,7 +802,8 @@ class SocialMediaLibraryPage(Base):
 
     def _verify_reply_target(self, recent_commenter):
         """驗證回覆目標"""
-        assert self.common.poco_get_text(SocialMediaLibraryPageLocator.post_input_comment).__contains__(f'回复{recent_commenter}'), '留言輸入框內的回覆對象錯誤'
+        assert self.common.poco_get_text(SocialMediaLibraryPageLocator.post_input_comment).__contains__(
+            f'回复{recent_commenter}'), '留言輸入框內的回覆對象錯誤'
 
     def _clear_and_input_reply(self, reply_content):
 
@@ -751,10 +822,14 @@ class SocialMediaLibraryPage(Base):
         self.common.poco_click(SocialMediaLibraryPageLocator.post_comment_send_btn)
         send_time = self._get_current_time()
         assert self.common.poco_get_text(replier_locator) == replier, '母留言的回覆者暱稱顯示錯誤'
-        assert self.common.poco_get_text(SocialMediaLibraryPageLocator.post_recent_comment_recent_reply_comment_content) == reply_content, '母留言的回覆內容顯示錯誤'
-        assert self.common.poco_get_text(SocialMediaLibraryPageLocator.post_recent_comment_recent_reply_add_time) == send_time, f'母留言的回覆時間顯示錯誤, 預期:{send_time},實際:{self.common.poco_get_text(SocialMediaLibraryPageLocator.post_recent_comment_recent_reply_add_time)}'
-        assert self.common.poco_exists(SocialMediaLibraryPageLocator.post_recent_comment_recent_reply_reply_btn), '母留言的回覆未出現回覆鍵'
-        assert self.common.poco_exists(SocialMediaLibraryPageLocator.post_recent_comment_recent_reply_thumb_up_icon), '母留言的回覆未出現點贊icon'
+        assert self.common.poco_get_text(
+            SocialMediaLibraryPageLocator.post_recent_comment_recent_reply_comment_content) == reply_content, '母留言的回覆內容顯示錯誤'
+        assert self.common.poco_get_text(
+            SocialMediaLibraryPageLocator.post_recent_comment_recent_reply_add_time) == send_time, f'母留言的回覆時間顯示錯誤, 預期:{send_time},實際:{self.common.poco_get_text(SocialMediaLibraryPageLocator.post_recent_comment_recent_reply_add_time)}'
+        assert self.common.poco_exists(
+            SocialMediaLibraryPageLocator.post_recent_comment_recent_reply_reply_btn), '母留言的回覆未出現回覆鍵'
+        assert self.common.poco_exists(
+            SocialMediaLibraryPageLocator.post_recent_comment_recent_reply_thumb_up_icon), '母留言的回覆未出現點贊icon'
 
     def post_recent_comment_recent_reply_add_reply(self, recent_comment_recent_replier, sub_replier,
                                                    reply_reply_content, self_post=True):
@@ -765,16 +840,19 @@ class SocialMediaLibraryPage(Base):
         self._verify_reply_target(recent_comment_recent_replier)
 
         self._clear_and_input_reply(reply_reply_content)
-        self._send_reply_and_verify(sub_replier, reply_reply_content, self_post,SocialMediaLibraryPageLocator.post_recent_comment_recent_reply_commenter)
+        self._send_reply_and_verify(sub_replier, reply_reply_content, self_post,
+                                    SocialMediaLibraryPageLocator.post_recent_comment_recent_reply_commenter)
 
         self._verify_reply_chain(sub_replier, recent_comment_recent_replier)
         self._verify_comment_count_updated(original_comment_count, self_post)
 
     def _verify_reply_chain(self, sub_replier, recent_comment_recent_replier):
         """確認回覆鏈中的暱稱和回覆對象"""
-        assert self.common.poco_get_text(SocialMediaLibraryPageLocator.post_recent_comment_recent_reply_commenter) == sub_replier, '回覆者暱稱顯示錯誤'
+        assert self.common.poco_get_text(
+            SocialMediaLibraryPageLocator.post_recent_comment_recent_reply_commenter) == sub_replier, '回覆者暱稱顯示錯誤'
         assert self.common.poco_exists(SocialMediaLibraryPageLocator.reply_to_icon), '未出現回覆鏈中的">"符號'
-        assert self.common.poco_get_text(SocialMediaLibraryPageLocator.reply_to_target_nickname) == recent_comment_recent_replier, '回覆對象顯示錯誤'
+        assert self.common.poco_get_text(
+            SocialMediaLibraryPageLocator.reply_to_target_nickname) == recent_comment_recent_replier, '回覆對象顯示錯誤'
 
     def into_liked_library(self, privacy_self=0):
         self.common.poco_click(SocialMediaLibraryPageLocator.library_liked_icon)
@@ -794,8 +872,15 @@ class SocialMediaLibraryPage(Base):
     def is_post_comment(self, enable=True):
         self.common.poco_click(SocialMediaLibraryPageLocator.comment_icon)
         sleep(2)
-        if enable:
-            assert self.common.poco_get_text(SocialMediaLibraryPageLocator.post_input_comment_column) == '添加评论'
-        else:
-            assert self.common.poco_get_text(SocialMediaLibraryPageLocator.post_no_comment_permission_hint) == '无权限评论'
+        if self.phone_platform.lower() == 'android':
+            if enable:
+                assert self.common.poco_get_text(SocialMediaLibraryPageLocator.post_input_comment_column) == '添加评论'
+            else:
+                assert self.common.poco_get_text(
+                    SocialMediaLibraryPageLocator.post_no_comment_permission_hint) == '无权限评论'
+        else:  # ios part
+            if enable:
+                assert self.common.poco_exists(SocialMediaLibraryPageLocator.post_input_comment_column)
+            else:
+                assert self.common.poco_exists(SocialMediaLibraryPageLocator.post_no_comment_permission_hint)
         self.common.poco_click(SocialMediaLibraryPageLocator.post_comment_close_btn)

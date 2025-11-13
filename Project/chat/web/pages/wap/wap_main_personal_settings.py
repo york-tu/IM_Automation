@@ -1,9 +1,11 @@
 from time import sleep
-
+import common.utils.globalvar as gl
 from selenium.webdriver.common.by import By
 from Project.chat.web.pages.wap.wap_basepage import BasePage
-
-import os, random, re
+import os, random, re, sys
+DIR_NAME = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+sys.path.append(DIR_NAME)
+import pyautogui
 
 
 class PersonalSettingPageLocator:
@@ -18,29 +20,29 @@ class PersonalSettingPageLocator:
     header_title = (By.XPATH, '//div[@class="w-[80%] text-[16rem] font-bold flex flex-col items-center relative"]')  # 頁面標題
 
     # ============================= 主頁 > 個人 > 設定頁 =================================================================
-    function_btn = (By.XPATH, "//div[@class='w-[24rem] h-[24rem] bg-no-repeat bg-center bg-cover menu-icon']")  # 個人主頁-右上角功能鍵
+    function_btn = (By.XPATH, "//div[@class='absolute right-[16rem]']")  # 個人主頁-右上角功能鍵
 
     # =========== 積分頁 =================================================================
     integral_btn = (By.XPATH, "//p[@class='text-[16rem] font-medium flex-1 ml-[8rem]' and text()='积分']")  # 積分
     remain_integral_amount = (By.XPATH, "//p[@class='text-[16rem] mr-[10rem]']")  # 積分數字
 
     # =========== 帳號與安全設定頁 =========================================================
-    security_btn = (By.XPATH, "//p[@class='text-[16rem] font-medium flex-1 ml-[8rem]' and text()='帐号']")  # 帳號
-    logout_btn = (By.XPATH, "//span[text()='登出']")
+    security_btn = (By.XPATH, "//p[text()='帐号']")  # 帳號
+    logout_btn = (By.XPATH, "//button[text()='登出']")
     logout_confirm_btn = (By.XPATH, "//p[@class='text-[14rem] font-medium' and text()='确定']")
     # -------------------- 修改密碼彈窗 --------------------
     change_pwd_btn = (By.XPATH, "//p[text()='更改密码']")
     change_pwd_old_input = (By.XPATH, "//input[@placeholder='请填写旧密码']")
     change_pwd_new_input = (By.XPATH, "//input[@placeholder='请填写新密码']")
     change_pwd_new_check_input = (By.XPATH, "//input[@placeholder='请再次填写新密码']")
-    change_pwd_submit = (By.XPATH, "//span[text()='完成']")
+    change_pwd_submit = (By.XPATH, "//button[text()='完成']")
     popup_dialog = (By.XPATH, "//div[@class='neutral-50 relative rounded-[8rem] max-h-[90%] flex-col m-auto max-w-[360rem] p-[40rem] w-full']")
     popup_dialog_title = (By.XPATH, "//p[@class='text-[20rem] font-600 break-all grand-1']")
-    popup_dialog_confirm = (By.XPATH, "//p[text()='确定']")
+    popup_dialog_confirm = (By.XPATH, "//[text()='确定']")
     # =========== 黑名單頁 ===============================================================
-    blocklist_btn = (By.XPATH, "//p[@class='text-[16rem] font-medium flex-1 ml-[8rem]' and text()='黑名单']")  # 黑名單
+    blocklist_btn = (By.XPATH, "//p[text()='黑名单']")  # 黑名單
     blocklist_search_input = (By.XPATH, "//input[@placeholder='搜索']")  # 黑名單-搜索
-    blocklist_search_first = (By.XPATH, "//div[@class='px-[16rem] py-[12rem] flex items-center h-[60rem] bb-1 bg-white-100']") # 黑名單-第一筆搜索結果
+    blocklist_search_first = (By.XPATH, "//div[@class='px-[16rem] py-[12rem] flex items-center h-[60rem] bb-1 bg-neutral-50']") # 黑名單-第一筆搜索結果
     friend_block_page = (By.XPATH, "//p[text()='已加入黑名单，你将不再收到对方的讯息。']")  # 黑名單成員頁
     block_switch_btn = (By.XPATH, "//span[@class='el-switch__core']")  # 黑名單成員頁-黑名單switch開關
     popup_toast = (By.XPATH, '(//p[@class="el-message__content"])[last()]')  # toast標題
@@ -48,15 +50,17 @@ class PersonalSettingPageLocator:
     share_btn = (By.XPATH, "//p[@class='text-[16rem] font-medium flex-1 ml-[8rem]' and text()='分享']")  # 分享
 
     # =========== 關於股聊頁 ==============================================================
-    about_btn = (By.XPATH, "//p[@class='text-[16rem] font-medium flex-1 ml-[8rem]' and contains(text(),'关于')]")  # 關於股聊
+    about_btn = (By.XPATH, "//p[@class='text-[16rem] font-medium flex-1 ml-[8rem] text-neutral-800' and contains(text(),'关于')]")  # 關於股聊
     version_num = (By.XPATH, '//div[contains(@class, "flex items-center justify-between")]/p[@class="text-[14rem]"]')
     service_btn = (By.XPATH, "//p[text()='服务条款']")  # 服務條款
     privacy_btn = (By.XPATH, "//p[text()='隐私权政策']")  # 隱私權政策
-    page_title = (By.XPATH,'//*[@id="app"]/div[1]/div[12]/div/div[2]/div')
-    back_btn = (By.XPATH, '//*[@id="app"]/div/div[12]/div/div[1]/i')
+    page_title = (By.XPATH,'//*[@id="app"]/div/div[14]/div/div[2]/div')
+    back_btn = (By.XPATH, '//*[@id="app"]/div/div[14]/div/div[1]/i')  # //*[@id="app"]/div/div[14]/div/div[1]/i
 
 
 class PersonalSettingPage(BasePage):
+    brand = gl.get_value("BRAND")
+
     # ==================================== 主頁-個人頁 ===============================================================
     def into_main_setting_page(self):
         if self.is_element_finded(PersonalSettingPageLocator.mainPage_button):
@@ -92,7 +96,7 @@ class PersonalSettingPage(BasePage):
         sleep(1)
         if self.is_element_finded(PersonalSettingPageLocator.popup_dialog):
             assert self.get_text(PersonalSettingPageLocator.popup_dialog_title) == '密码重设成功', f'沒有跳出"密码重设成功"toast'
-        self.click(PersonalSettingPageLocator.popup_dialog_confirm)
+            self.click(PersonalSettingPageLocator.popup_dialog_confirm)
 
     def logout(self):
         if self.is_element_finded(PersonalSettingPageLocator.logout_btn):
@@ -158,11 +162,21 @@ class PersonalSettingPage(BasePage):
         self.wait_loading_finish()
         title = self.get_text(PersonalSettingPageLocator.page_title)
         assert title == '服务条款', f'服务条款頁面顯示錯誤'
-        self.click(PersonalSettingPageLocator.back_btn)
+        self.click_back_btn()
 
     def check_privacy(self):
         self.click(PersonalSettingPageLocator.privacy_btn)
         self.wait_loading_finish()
         title = self.get_text(PersonalSettingPageLocator.page_title)
         assert title == '隐私权政策', f'隱私權政策頁面顯示錯誤'
-        self.click(PersonalSettingPageLocator.back_btn)
+        self.click_back_btn()
+
+    def click_back_btn(self):
+        button_img_path = ''
+        if self.brand.lower() == "gu":
+            button_img_path = DIR_NAME + '\\element_icon\\back.jpg'
+        elif self.brand.lower() == "mingpin":
+            button_img_path = DIR_NAME + '\\element_icon\\back_mingpin.jpg'
+        location = pyautogui.locateCenterOnScreen(button_img_path, confidence=0.8)
+        pyautogui.click(location)
+        self.wait_loading_finish()

@@ -7,6 +7,7 @@ import pyautogui
 import win32clipboard
 from selenium.webdriver.common.by import By
 from Project.chat.web.pages.wap.wap_basepage import BasePage
+import common.utils.globalvar as gl
 DIR_NAME = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 sys.path.append(DIR_NAME)
 
@@ -20,12 +21,12 @@ class MessagePageLocator:
     # first_chatroom = (By.XPATH, '(//div[@class="flex items-center w-full overflow-hidden text-[16rem] font-medium black-text"])[1]')  # 搜尋結果第一則聊天室
 
     # ============================= 聊天室 ==============================================================================
-    chatroom_title = (By.XPATH, '//p[@class="text-[16rem] font-bold flex-1 text-center text-ellipsis overflow-hidden whitespace-nowrap"]')
+    chatroom_title = (By.XPATH, '//div[@class="truncate"]')
     input_message = (By.XPATH, '//div[@placeholder="输入讯息..."]')  # 訊息輸入框
 
     send_btn = (By.XPATH, '//div[@class="btn-send w-[24rem] h-[24rem]"]')  # 發送btn
     chatroom_latest_message = (By.XPATH, '(//div[@class="flex flex-col relative min-w-0"])[last()]')  # 聊天室內最新一則訊息
-    back_btn = (By.XPATH, '//*[@id="app"]/div/div[1]/div[1]/i')  # 返回鍵
+    back_btn = (By.XPATH, '//*[@id="app"]/div[1]/div[1]/div[1]/svg')  # 返回鍵
     chat_list_chatroom_last_message = (By.XPATH, '//div[@class="flex items-center w-full mt-[4rem]"]')  # 聊天列表聊天室最後一則訊息
     system_message = (By.XPATH, "(//div[@class='text-[12rem] font-medium text-grand-2 text-center mx-auto bg-neutral-900 rounded-full px-[12rem] py-[3rem] break-all w-fit mt-[8rem]'])[last()]")
     # ------------------------ 語音訊息 ----------------------------
@@ -42,7 +43,7 @@ class MessagePageLocator:
     chatroom_last_filename = (By.XPATH, "(//div[@class='text-[14px] font-semibold text-grand-1 leading-[20px] mb-[4px]'])[last()]")  #聊天室內最新一則檔案訊息名稱
     reply_file_text = (By.XPATH, "(//div[@class='text-[12px]'])[last()]")  # 聊天室內最後一則檔案訊息的回覆框"原檔案訊息名稱"
     # ============================= 社群化分享文 =========================================================================
-    chat_share_author_name = (By.XPATH, "(//div[@class='min-w-0 flex-1 truncate font-semibold'])[last()]")  # 最新一則個人頁分享文作者
+    chat_share_author_name = (By.XPATH, "(//div[@class='min-w-0 flex-1 truncate font-semibold text-white-100'])[last()]")  # 最新一則個人頁分享文作者
     chat_share_post_author_name = (By.XPATH, "(//p[@class='overflow-hidden text-ellipsis whitespace-nowrap text-[12rem] text-white-100'])[last()]")  # 最新一則個人頁分享文作者
     chat_share_post_1 = (By.XPATH, "(//div[@class='flex-1 flex items-center w-[70rem] justify-center bg-slate-200'])[1]")  # 個人頁分享文第一則貼文縮圖
     chat_share_post_2 = (By.XPATH, "(//div[@class='flex-1 flex items-center w-[70rem] justify-center bg-slate-200'])[2]")  # 個人頁分享文第一則貼文縮圖
@@ -70,14 +71,14 @@ class MessagePageLocator:
     confirm_popup = (By.XPATH,"//div[@class='neutral-50 relative rounded-[8rem] max-h-[90%] flex-col m-auto max-w-[360rem] p-[40rem] w-full']")
     confirm_popup_title = (By.XPATH, "(//div[@class='text-center'])[last()-1]")
     confirm_content = (By.XPATH, "(//div[@class='text-center'])[last()]")
-    confirm_submit = (By.XPATH, "//button[@class='px-[16rem] py-[14rem] h-[48rem] rounded-[4rem] w-full btn-primary']")
+    confirm_submit = (By.XPATH, "//button[@class='px-[16rem] py-[14rem] h-[48rem] rounded-[4rem] w-full gradient-primary bg-primary-500 text-white-100']")
 
     # ============================= 回覆訊息 ============================================================================
     reply_preview_nickname = (By.XPATH, "//div[@class='flex px-[8rem] flex-col overflow-hidden']")  # 輸入框原訊息標題
     # reply_preview_text = (By.XPATH, "//div[@class='flex overflow-hidden items-center']")  # 輸入框原訊息內容
     reply_view_nickname = (By.XPATH, "(//div[@class='flex items-center w-full'])[last()]")  # 聊天室內最後一則訊息的回覆框"原訊息暱稱"
     reply_view_text = (By.XPATH, "(//div[@class='overflow-hidden flex items-center'])[last()]")  # 聊天室內最後一則訊息的回覆框"原訊息內容"
-    reply_voice_text = (By.XPATH, "(//div[@class='text-[--c-08-black-black-33] text-[12px] font-normal'])[last()]") # 聊天室內最後一則語音訊息的回覆框"原語音訊息內容"
+    reply_voice_text = (By.XPATH, "(//div[@class='text-neutral-900-25 text-[12px] font-normal'])[last()]") # 聊天室內最後一則語音訊息的回覆框"原語音訊息內容"
     reply_msg = (By.XPATH, "(//div[@class='px-[8rem] py-[12rem] text-[16rem] text-grand-1 break-all whitespace-pre-wrap'])[last()]")  # 回覆文字
     reply_item_msg = (By.XPATH, "(//div[@class='reply-item__msg'])[last()]")  # 原訊息
 
@@ -115,6 +116,8 @@ class MessagePageLocator:
 
 
 class MessagePage(BasePage):
+    brand = gl.get_value("BRAND")
+
     # =========================== Chat 頁 ======================================
     def into_chat_page(self):
         self.click(MessagePageLocator.message_button)
@@ -127,7 +130,7 @@ class MessagePage(BasePage):
         sleep(1)
         self.click(MessagePageLocator.first_result(room))
         self.wait_loading_finish()
-        room_title = self.get_text(MessagePageLocator.chatroom_title).partition(' ')[0]
+        room_title = self.get_text(MessagePageLocator.chatroom_title).split('\n')[0]
         assert room_title == room, f'預期:{room}, 實際:{room_title}'
 
     def send_text_message(self):
@@ -177,7 +180,12 @@ class MessagePage(BasePage):
                 expect_result = f"00:{length+1}"
         # ----------------------------------------------------
         sleep(length)
-        pyautogui.click(pyautogui.locateCenterOnScreen(DIR_NAME + '\\element_icon\\send.jpg', confidence=0.8))
+        button_img_path = ''
+        if self.brand.lower() == "gu":
+            button_img_path = DIR_NAME + '\\element_icon\\send.jpg'
+        elif self.brand.lower() == "mingpin":
+            button_img_path = DIR_NAME + '\\element_icon\\send_mingpin.jpg'
+        pyautogui.click(pyautogui.locateCenterOnScreen(button_img_path, confidence=0.8))
         sleep(3)
         self.click(MessagePageLocator.close_btn)
         self.wait_loading_finish()
@@ -228,7 +236,16 @@ class MessagePage(BasePage):
         brand = 'gu-chat'
         self.send_message(message_url)
         self.check_url_message(brand)
-        self.click(MessagePageLocator.back_btn)
+
+        button_img_path = ''
+        if self.brand.lower() == "gu":
+            button_img_path = DIR_NAME + '\\element_icon\\back.jpg'
+        elif self.brand.lower() == "mingpin":
+            button_img_path = DIR_NAME + '\\element_icon\\back_mingpin.jpg'
+        location = pyautogui.locateCenterOnScreen(button_img_path, confidence=0.8)
+        pyautogui.click(location)
+
+        self.wait_login_finish()
         return message_url
 
     def check_url_message(self, brand):
@@ -241,9 +258,16 @@ class MessagePage(BasePage):
         self.switch_last_page()
 
     def check_chatroom_list_last_message(self, text):
-        if self.is_element_finded(MessagePageLocator.back_btn):
-            self.click(MessagePageLocator.back_btn)
-        sleep(1)
+        # if self.is_element_finded(MessagePageLocator.back_btn):
+        #     self.click(MessagePageLocator.back_btn)
+        button_img_path = ''
+        if self.brand.lower() == "gu":
+            button_img_path = DIR_NAME + '\\element_icon\\back.jpg'
+        elif self.brand.lower() == "mingpin":
+            button_img_path = DIR_NAME + '\\element_icon\\back_mingpin.jpg'
+        location = pyautogui.locateCenterOnScreen(button_img_path, confidence=0.8)
+        pyautogui.click(location)
+        self.wait_login_finish()
         current_last_message = self.get_text(MessagePageLocator.chat_list_chatroom_last_message)
         assert current_last_message.__contains__(text), f'最後一筆訊息有誤, 預期:{text}, 實際:{current_last_message}'
 
@@ -310,6 +334,7 @@ class MessagePage(BasePage):
     def message_revoke(self, message, pin_revoke=False, message_type='text'):
         self.wait_message_finish()
         if self.is_element_finded(MessagePageLocator.message_locator(message, message_type)) is True:
+            # while not self.is_element_finded(MessagePageLocator.menu_revoke):
             self.long_press(MessagePageLocator.message_locator(message, message_type))
             self.menu_click(MessagePageLocator.menu_revoke)
             sleep(1)

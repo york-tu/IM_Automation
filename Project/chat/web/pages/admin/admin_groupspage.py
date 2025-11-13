@@ -4,7 +4,7 @@ from time import sleep
 from selenium.webdriver.common.by import By
 import os, sys
 from Project.chat.web.pages.admin.admin_basepage import BasePage
-
+import common.utils.globalvar as gl
 
 class GroupsPageLocator:
     # 搜尋欄位
@@ -66,7 +66,6 @@ class GroupsPageLocator:
     add_group_select = (By.XPATH, '//input[@placeholder="请选择建群帐号"]/..//span[@class="el-input__suffix-inner"]')
     add_group_name = (By.XPATH, '//input[@placeholder="请输入群组名称"]')
 
-
     add_group_member = (By.XPATH, '//input[@placeholder="输入会员帐号/昵称搜索"]')
     add_group_member_search_btn = (By.XPATH,'//*[@id="app"]/div/div/div[2]/div/div/div/div[2]/div[6]/div/div[2]/div[1]/div/div/button')
     add_group_member_confirm_add_btn = (By.XPATH,'//*[@id="app"]/div/div/div[2]/div/div/div/div[2]/div[6]/div/div[2]/div[2]/div/div[3]/table/tbody/tr/td[4]/div/i')
@@ -97,7 +96,7 @@ class GroupsPageLocator:
     select_sender_ID = (By.XPATH, '(//label[text()="发布帐号"]/..//input)[last()]')  # 發布帳號
     add_sender = (By.XPATH, '//div[@aria-hidden="false"]//span[text()="gubot01"]')
     select_chatroom = (By.XPATH, '//label[text()="发布聊天室"]/..//input')
-    add_chatroom = (By.XPATH, '//div[@aria-hidden="false"]//span[text()="QA_bot_only"]')
+    # add_chatroom = (By.XPATH, '//div[@aria-hidden="false"]//span[text()="QA_bot_only"]')
     text_radio_btn = (By.XPATH, '(//span[@class="el-radio__inner"])[1]')  # 訊息類型-文字
     group_msg_content = (By.XPATH, '//textarea[@placeholder="请输入讯息内容"]')  # 訊息內容
     group_msg_save = (By.XPATH, '//span[text()="保存"]')  # 保存鍵
@@ -109,7 +108,13 @@ class GroupsPageLocator:
     detail_group_msg_list_msg_send_status = (By.XPATH, "//table[@class='el-table__body']//tr[1]/td[5]")  # 發送狀態
     detail_group_msg_list_msg_fail_group = (By.XPATH, "//table[@class='el-table__body']//tr[1]/td[6]")  # 失敗群組
 
+    @staticmethod
+    def add_chatroom_select(brand):
+        text = "QA bot only" if brand.lower() == "mingpin" else "QA_bot_only"
+        return By.XPATH, f'//div[@aria-hidden="false"]//span[text()="{text}"]'
+
 class GroupsPage(BasePage):
+    brand = gl.get_value("BRAND")
 
     def check_group_list_page(self):
         assert self.is_element_finded(GroupsPageLocator.group_id), f'未出現"群組編號"輸入搜尋欄位'
@@ -120,12 +125,11 @@ class GroupsPage(BasePage):
 
     def groups_delete(self, name):
         self.wait_loading_finish()
-
-        if self.is_element_finded(GroupsPageLocator.group_name):
-            self.type(GroupsPageLocator.group_name, name)
-            self.click(GroupsPageLocator.group_search)
-            assert not self.is_element_finded(GroupsPageLocator.result_empty), f'搜查結果為空'
-
+        self.wait_visibility(GroupsPageLocator.group_name)
+        self.type(GroupsPageLocator.group_name, name)
+        self.click(GroupsPageLocator.group_search)
+        assert not self.is_element_finded(GroupsPageLocator.result_empty), f'搜查結果為空'
+        self.wait_loading_finish()
         group_name = self.get_text(GroupsPageLocator.result_group_name)
         group_owner = (re.search(r'\((.*?)\)', self.get_text(GroupsPageLocator.result_group_owner))).group(1)
 
@@ -212,7 +216,7 @@ class GroupsPage(BasePage):
         self.click(GroupsPageLocator.select_sender_ID)
         self.click(GroupsPageLocator.add_sender)  # Select gubot01
         self.click(GroupsPageLocator.select_chatroom)
-        self.click(GroupsPageLocator.add_chatroom)  # Select QA_bot_only
+        self.click(GroupsPageLocator.add_chatroom_select(self.brand))  # Select QA_bot_only
         self.click(GroupsPageLocator.text_radio_btn)  # Select 文字類型
         self.click(GroupsPageLocator.group_msg_content)
         self.type(GroupsPageLocator.group_msg_content, msg)

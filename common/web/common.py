@@ -448,7 +448,7 @@ class Common(object):
         el = self.find_element(locator)
         return el.location
 
-    def get_verification_code_from_mail(self):
+    def get_verification_code_from_mail(self, brand):
         """
         從 Gmail 收件匣獲取第一封未讀驗證碼郵件並回傳驗證碼
         條件: 寄件人包含 'GuChat' 且主旨包含 'GuChat'
@@ -458,6 +458,11 @@ class Common(object):
 
         account = "york_tu@tengyuntech.com"
         pw = "rhzt lzqi xqnz pdsf"
+        mail_title = ''
+        if brand == 'gu':
+            mail_title = 'GuChat'
+        elif brand == 'mingpin':
+            mail_title = 'MingpinChat'
 
         try:
             # 登入 Gmail
@@ -465,7 +470,7 @@ class Common(object):
             mail.select("inbox")
 
             # 搜尋未讀信件
-            status, data = mail.search(None, '(UNSEEN FROM "GuChat" SUBJECT "GuChat")')
+            status, data = mail.search(None, f'(UNSEEN FROM "{mail_title}" SUBJECT "{mail_title}")')
             mail_ids = data[0].split()
 
             if not mail_ids:

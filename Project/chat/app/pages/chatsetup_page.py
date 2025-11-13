@@ -34,11 +34,15 @@ class ChatSetupPageLocator:
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/btn_options'),
         iOS=base.data_collation(type_kind='name', type_name='搜索')
     )
-
+    detail_title = base.check_device(
+        Android=base.data_collation(type_kind='name', type_name='android.widget.TextView'),
+        iOS=base.data_collation(type_kind='name', type_name='搜索')
+    )
     options_title = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tv_title'),
         iOS=base.data_collation(type_kind='name', type_name='搜索')
     )
+
 
     options_start = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/iv_start_icon'),
@@ -49,7 +53,10 @@ class ChatSetupPageLocator:
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/btn_back'),
         iOS=base.data_collation(type_kind='name', type_name='搜索')
     )
-
+    menu_back = base.check_device(
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/iv_back'),
+        iOS=base.data_collation(type_kind='name', type_name='')
+    )
     options_next = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/btn_next'),
         iOS=base.data_collation(type_kind='name', type_name='搜索')
@@ -191,8 +198,8 @@ class ChatSetupPage(Base):
         if self.common.poco_exists(ChatSetupPageLocator.options_btn):
             self.common.poco_click(ChatSetupPageLocator.options_btn)
 
-            title = self.common.poco_get_text(ChatSetupPageLocator.options_title)
-            assert title[2:] == '详情', f'進入設定頁面有誤'
+            title = self.common.poco_get_text(ChatSetupPageLocator.detail_title)
+            assert title[-2:] == '详情', f'進入設定頁面有誤'
 
     def into_group_member_list(self):
         if self.common.poco_exists(ChatSetupPageLocator.member_count):
@@ -340,6 +347,8 @@ class ChatSetupPage(Base):
                 assert self.common.poco_get_text(ChatRoomPageLocator.message_input_block) == '此群组不允许传送讯息', f'權限開啟後 訊息框未開啟'
 
         self.check_add_user_rule(rule_list[4])
+        if self.common.poco_exists(ChatSetupPageLocator.menu_back):
+            self.common.poco_click(ChatSetupPageLocator.menu_back)
 
     def send_url_message_for_rule_check(self):
         messages = ['https://www.google.com.tw/', 'https://tw.yahoo.com/']
@@ -353,8 +362,11 @@ class ChatSetupPage(Base):
             self.common.poco_send_text(ChatRoomPageLocator.message_input, message)
 
         self.wait_loading_finish()
-        self.common.poco_click(ChatRoomPageLocator.send_message_btn)
 
+        if self.common.poco_exists(ChatRoomPageLocator.send_message_btn):
+            self.common.poco_click(ChatRoomPageLocator.send_message_btn)
+        elif self.common.poco_exists(ChatRoomPageLocator.send_message_btn1):
+            self.common.poco_click(ChatRoomPageLocator.send_message_btn1)
         assert self.common.poco_get_text(ChatRoomPageLocator.last_message_room) == message, f'發送聊天訊息有誤'
 
     def rul_message_for_rule_check(self, message):
@@ -407,7 +419,7 @@ class ChatSetupPage(Base):
         # if rule_list[4] == '1':
         # self.check_friend_add()
 
-        self.common.poco_click(ChatSetupPageLocator.options_start)
+        self.common.poco_click(ChatSetupPageLocator.menu_back)
 
     def member_search(self, name):
         if self.common.poco_exists(ChatSetupPageLocator.member_serch_input):
@@ -444,8 +456,8 @@ class ChatSetupPage(Base):
         if self.common.poco_exists(ChatSetupPageLocator.options_back):
             self.common.poco_click(ChatSetupPageLocator.options_back)
             self.wait_loading_finish()
-        if self.common.poco_get_text(ChatSetupPageLocator.options_title) == "群聊详情":
-            self.common.poco_click(ChatSetupPageLocator.options_start)
+        if self.common.poco_get_text(ChatSetupPageLocator.detail_title) == "群组详情":
+            self.common.poco_click(ChatSetupPageLocator.menu_back)
             self.wait_loading_finish()
         if self.common.poco_exists(ChatSetupPageLocator.options_back):
             self.common.poco_click(ChatSetupPageLocator.options_back)

@@ -7,6 +7,7 @@ import win32clipboard
 from selenium.webdriver.common.by import By
 import os, sys, datetime
 from Project.chat.web.pages.admin.admin_basepage import BasePage
+import common.utils.globalvar as gl
 
 DIR_NAME = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 sys.path.append(DIR_NAME)
@@ -71,7 +72,7 @@ class RedEnvelopePageLocator:
     add_initiate_ID = (By.XPATH, '//label[text()="请选择发布帐号"]/..//input')
     add_initiate_ID_select = (By.XPATH, '//div[@aria-hidden="false"]//span[text()="gubot01"]')
     add_chatroom = (By.XPATH, '//label[text()="请选择发布聊天室"]/..//input[@placeholder="请选择"]')
-    add_chatroom_select = (By.XPATH, '//div[@aria-hidden="false"]//span[text()="QA_bot_only"]')
+    # add_chatroom_select = (By.XPATH, '//div[@aria-hidden="false"]//span[text()="QA_bot_only"]')
 
     add_red_type = (By.XPATH, '//label[text()="红包种类"]/..//input[@placeholder="请选择"]')
     add_red_type_arrow = (By.XPATH, '//label[text()="红包种类"]/..//span[@class="el-input__suffix"]')
@@ -140,6 +141,10 @@ class RedEnvelopePageLocator:
     preview_window_random_max_first = (By.XPATH, "//table[@class='el-table__body']//tr[1]/td[3]")
     preview_window_random_winning_message_first = (By.XPATH, "//table[@class='el-table__body']//tr[1]/td[4]")
 
+    @staticmethod
+    def add_chatroom_select(brand):
+        text = "QA bot only" if brand.lower() == "mingpin" else "QA_bot_only"
+        return By.XPATH, f'//div[@aria-hidden="false"]//span[text()="{text}"]'
 
 def copy_to_clipboard(text, retry=50, delay=2):
     for attempt in range(retry):
@@ -176,7 +181,7 @@ class RedEnvelopePage(BasePage):
             self.click(RedEnvelopePageLocator.add_initiate_ID_select)
             self.click(RedEnvelopePageLocator.add_chatroom)
             self.wait_loading_finish()
-            self.click(RedEnvelopePageLocator.add_chatroom_select)
+            self.click(RedEnvelopePageLocator.add_chatroom_select(gl.get_value("BRAND")))
             self.click(RedEnvelopePageLocator.add_red_package)
             self.type(RedEnvelopePageLocator.add_red_package, '1')
             self.click(RedEnvelopePageLocator.add_red_amount)
@@ -203,7 +208,7 @@ class RedEnvelopePage(BasePage):
             self.click(RedEnvelopePageLocator.add_initiate_ID_select)
             self.click(RedEnvelopePageLocator.add_chatroom)
             sleep(1)
-            self.click(RedEnvelopePageLocator.add_chatroom_select)
+            self.click(RedEnvelopePageLocator.add_chatroom_select(gl.get_value("BRAND")))
             self.click(RedEnvelopePageLocator.add_red_package)
             self.type(RedEnvelopePageLocator.add_red_package, str(random.randint(10,20)))
             self.click(RedEnvelopePageLocator.add_red_amount)
@@ -224,7 +229,7 @@ class RedEnvelopePage(BasePage):
         self.click(RedEnvelopePageLocator.redenvelope_type)  # 紅包種類
         self.click(RedEnvelopePageLocator.add_red_lucky)  # 拚手氣紅包
         self.click(RedEnvelopePageLocator.add_chatroom)  # 選聊天室
-        self.click(RedEnvelopePageLocator.add_chatroom_select)  # 指定QA_bot_only
+        self.click(RedEnvelopePageLocator.add_chatroom_select(gl.get_value("BRAND")))  # 指定QA_bot_only
         self.click(RedEnvelopePageLocator.add_initiate_ID)  # 發布帳號
         self.click(RedEnvelopePageLocator.add_initiate_ID_select)  # 指定gubot01
         sleep(0.5)
@@ -319,7 +324,7 @@ class RedEnvelopePage(BasePage):
             if self.is_element_finded(RedEnvelopePageLocator.luck_delete_btn):
                 self.click(RedEnvelopePageLocator.add_chatroom)
                 sleep(1)
-                self.click(RedEnvelopePageLocator.add_chatroom_select)
+                self.click(RedEnvelopePageLocator.add_chatroom_select(gl.get_value("BRAND")))
                 self.click(RedEnvelopePageLocator.add_initiate_ID)
                 sleep(1)
                 self.click(RedEnvelopePageLocator.add_initiate_ID_select)
@@ -349,7 +354,7 @@ class RedEnvelopePage(BasePage):
             self.click(RedEnvelopePageLocator.add_initiate_ID_select)
             self.click(RedEnvelopePageLocator.add_chatroom)
             self.wait_loading_finish()
-            self.click(RedEnvelopePageLocator.add_chatroom_select)
+            self.click(RedEnvelopePageLocator.add_chatroom_select(gl.get_value("BRAND")))
             self.click(RedEnvelopePageLocator.add_red_package)
             self.type(RedEnvelopePageLocator.add_red_package, '1')
             self.click(RedEnvelopePageLocator.add_red_amount)
@@ -378,7 +383,7 @@ class RedEnvelopePage(BasePage):
                 if self.is_element_finded(RedEnvelopePageLocator.luck_delete_btn):
                     self.click(RedEnvelopePageLocator.add_chatroom)
                     self.wait_loading_finish()
-                    self.click(RedEnvelopePageLocator.add_chatroom_select)
+                    self.click(RedEnvelopePageLocator.add_chatroom_select(gl.get_value("BRAND")))
                     self.click(RedEnvelopePageLocator.add_initiate_ID)
                     self.wait_loading_finish()
                     self.click(RedEnvelopePageLocator.add_initiate_ID_select)
@@ -454,7 +459,7 @@ class RedEnvelopePage(BasePage):
             if self.is_element_finded(RedEnvelopePageLocator.luck_delete_btn):
                 self.click(RedEnvelopePageLocator.add_chatroom)
                 self.wait_loading_finish()
-                self.click(RedEnvelopePageLocator.add_chatroom_select)
+                self.click(RedEnvelopePageLocator.add_chatroom_select(gl.get_value("BRAND")))
                 self.click(RedEnvelopePageLocator.add_initiate_ID)
                 self.wait_loading_finish()
                 self.click(RedEnvelopePageLocator.add_initiate_ID_select)

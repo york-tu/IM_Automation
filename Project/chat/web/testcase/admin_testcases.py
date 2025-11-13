@@ -24,7 +24,6 @@ class AdminTestCase(BaseTestCase):
     driver_list = []
     build_time = []
     revise_time = []
-    brand = gl.get_value('BRAND')
     # member_ID = datetime.datetime.now().strftime("%yy%m%d%H%M")
     manual_account_id = f'm{datetime.datetime.now().strftime("%m%d%H%M%S")}'
 
@@ -36,6 +35,11 @@ class AdminTestCase(BaseTestCase):
         cls.setting_browser()
         admin_version = cls.function_dict['ad'].mainPage().return_admin_version()  # 獲取web版本號
         gl.set_value('APP_VERSION', admin_version)
+
+        # 獲取設定資訊
+        brand = gl.get_value('BRAND')
+        account_type = gl.get_value('ACCOUNT_TYPE')
+        phone_platform = gl.get_value('PHONE_PLATFORM')
 
     def setUp(self):
         for key, function in self.function_dict.items():
@@ -173,7 +177,7 @@ class AdminTestCase(BaseTestCase):
         self.test_admin_login()
         self.function_dict['ad'].mainPage().into_system_app_setting()
         self.function_dict['ad'].mainPage().check_member_add_friend_tip()  # 檢查會員添加好友選項tip
-        self.function_dict['ad'].mainPage().check_add_friend_by_search_phone_tip()  # 檢查手機號搜索添加好友tip
+        # self.function_dict['ad'].mainPage().check_add_friend_by_search_phone_tip()  # 檢查手機號搜索添加好友tip
 
     # 測試-APP/Web设定-關閉極驗
     @DecorateClass('CHATAPP-')

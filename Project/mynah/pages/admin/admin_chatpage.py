@@ -118,7 +118,7 @@ class AdminChatPage(AdminBasePage):
     #確認 後台 是否響鈴 會回傳訪客名稱
     def check_ringing(self):
         try:
-            self.sleep(1)
+            self.sleep(3)
             self.wait_visibility(ChatLocator.phone_call_img)
             return self.find_element(ChatLocator.conversation_account).text
         except:
@@ -185,7 +185,7 @@ class AdminChatPage(AdminBasePage):
             self.wait_visibility(ChatLocator.invite_cs_icon)
             self.click(ChatLocator.invite_cs_icon)
             self.wait_visibility(ChatLocator.choice_cs_span)
-            self.sleep(1)
+            self.sleep(3)
             second_cs = self.get_text(ChatLocator.be_invite_cs)
             self.click(ChatLocator.choice_cs_span)
             self.click(ChatLocator.invite_cs_btn)

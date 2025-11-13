@@ -49,12 +49,18 @@ class SecurityPage(BasePage):
             assert my_id == account, f'帳號顯示有誤'
             assert my_phone == phone, f'手機號碼顯示有誤'
 
-    def change_password(self, old_pwd, new_pwd):
+    def change_password(self, old_pwd, new_pwd, brand):
+        product_name = ''
+        if brand == 'gu':
+            product_name = '股聊'
+        elif brand == 'mingpin':
+            product_name = '名品会'
+
         if self.get_text(SecurityPageLocator.header_title) == '帐号与安全':
             my_id = self.get_text(SecurityPageLocator.security_id)
             self.click(SecurityPageLocator.changepwd_btn)
             self.wait_login_finish()
-            assert self.get_text(SecurityPageLocator.header_title) == '设定股聊密码', f'開啟變更密碼彈窗有誤'
+            assert self.get_text(SecurityPageLocator.header_title) == f'设定{product_name}密码', f'開啟變更密碼彈窗有誤'
             assert self.get_text(SecurityPageLocator.changepwd_id) == my_id, f'重設密碼頁ＩＤ顯示有誤'
             assert self.get_text(SecurityPageLocator.changepwd_note) == '提醒密码必须为8-16位英文+数字', f'重設密碼頁提醒有誤'
 

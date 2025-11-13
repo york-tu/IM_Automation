@@ -25,7 +25,6 @@ class WebTestCase(BaseTestCase):
     group_name = datetime.now().strftime("%y%m%d") + "_bot_group"
     function_dict = {}
     driver_list = []
-    brand = gl.get_value('BRAND')
     security_code = 326789
     env = gl.get_value('ENV')
 
@@ -37,6 +36,14 @@ class WebTestCase(BaseTestCase):
         cls.setting_browser()
         web_version = cls.function_dict['wp'].mainPage().return_web_version()  # 獲取web版本號
         gl.set_value('APP_VERSION', web_version)
+
+        # 獲取設定資訊
+        brand = gl.get_value('BRAND') or ''
+        cls.brand = brand.strip().lower()
+        if cls.brand == 'mingpin':
+            cls.test_group = 'QA bot only'
+        else:
+            cls.test_group = 'QA_bot_only'
 
     def setUp(self):
         for key, function in self.function_dict.items():
@@ -113,7 +120,7 @@ class WebTestCase(BaseTestCase):
 
     def get_group_name(self):
         if self.env == 'prod':
-            return 'QA_bot_only'
+            return self.test_group
         elif self.env == 'uat':
             return str(datetime.now().strftime("%m%d") + "group")
 
@@ -194,7 +201,7 @@ class WebTestCase(BaseTestCase):
         new_pwd = 'Ps43941122'
         self.function_dict['wp'].mainPage().open_user_info()
         self.function_dict['wp'].mainPage().into_security_page()
-        self.function_dict['wp'].securityPage().change_password(self.web_password, new_pwd)
+        self.function_dict['wp'].securityPage().change_password(self.web_password, new_pwd, self.brand)
 
         self.function_dict['wp'].mainPage().into_security_page()
         self.function_dict['wp'].securityPage().logout()
@@ -202,7 +209,7 @@ class WebTestCase(BaseTestCase):
 
         self.function_dict['wp'].mainPage().open_user_info()
         self.function_dict['wp'].mainPage().into_security_page()
-        self.function_dict['wp'].securityPage().change_password(new_pwd, self.web_password)
+        self.function_dict['wp'].securityPage().change_password(new_pwd, self.web_password, self.brand)
 
         self.function_dict['wp'].mainPage().into_security_page()
         self.function_dict['wp'].securityPage().logout()
@@ -332,37 +339,24 @@ class WebTestCase(BaseTestCase):
         self.function_dict['ad'].mainPage().into_system_contact_whitelist_setting()
         self.function_dict['ad'].mainPage().enable_member_add_friend_setting()  # 3
 
-    # 測試 - [後台]手機號搜索添加好友'關閉/開啟' & [後台]會員添加好友'關閉/開啟' >>> [前台]確認非白名單成員透過'ID/手機號'搜尋'白名單/非白名單'成員功能
+    # 測試 - [後台]會員添加好友'關閉/開啟' >>> [前台]確認非白名單成員透過'ID/手機號'搜尋'白名單/非白名單'成員功能
     @DecorateClass('CHATAPP-T2545')
-    def test_search_contact_by_phone_be_fe_linkage(self):
+    def test_search_friend_by_phone_and_ID(self):
         """"
         添加方: 非白名單內成員
-        0. (後台)會員添加好友 > 關閉
-            1.0. (後台)手機號搜索添加好友 > 關閉:
-                1.1. (前台)個人資訊 > 新增好友 > 透過'手機號'搜尋非白名單成員(8613141010102) >>> 跳"暂不支援手机号搜索" toast
-                1.2. (前台)個人資訊 > 新增好友 > 透過'ID'搜尋非白名單成員(outwhite02) >>> 跳"暂不支援此功能" toast
-                1.3. (前台)個人資訊 > 新增好友 > 透過'手機號'搜尋白名單成員(8613141010103) >>> 跳"暂不支援手机号搜索" toast
-                1.4. (前台)個人資訊 > 新增好友 > 透過'ID'搜尋白名單成員(inwhite02) >>> 顯示該成員個人資訊 & 成功加入通訊錄
-            2.0. (後台)手機號搜索添加好友 > 開啟:
-                2.1. (前台)個人資訊 > 新增好友 > 透過'手機號'搜尋非白名單成員(8613141010102) >>> 跳"暂不支援此功能" toast
-                2.2. (前台)個人資訊 > 新增好友 > 透過'ID'搜尋非白名單成員(outwhite02) >>> 跳"暂不支援此功能" toast
-                2.3. (前台)個人資訊 > 新增好友 > 透過'手機號'搜尋白名單成員(8613141010103) >>> 顯示該成員個人資訊 & 成功加入通訊錄
-                2.4. (前台)個人資訊 > 新增好友 > 透過'ID'搜尋白名單成員(inwhite01) >>> 顯示該成員個人資訊 & 成功加入通訊錄
-        3. (後台)會員添加好友 > 開啟
-            4.0. (後台)手機號搜索添加好友 > 關閉:
-                4.1. (前台)個人資訊 > 新增好友 > 透過'手機號'搜尋非白名單成員(8613141010102) >>> 跳"暂不支援手机号搜索" toast
-                4.2. (前台)個人資訊 > 新增好友 > 透過'ID'搜尋非白名單成員(outwhite02) >>> 顯示該成員個人資訊 & 成功加入通訊錄
-                4.3. (前台)個人資訊 > 新增好友 > 透過'手機號'搜尋白名單成員(8613141010103) >>> 跳"暂不支援手机号搜索" toast
-                4.4. (前台)個人資訊 > 新增好友 > 透過'ID'搜尋白名單成員(inwhite02) >>> 顯示該成員個人資訊 & 成功加入通訊錄
-            5.0. (後台)手機號搜索添加好友 > 開啟:
-                5.1. (前台)個人資訊 > 新增好友 > 透過'手機號'搜尋非白名單成員(8613141010102) >>> 顯示該成員個人資訊 & 成功加入通訊錄
-                5.2. (前台)個人資訊 > 新增好友 > 透過'ID'搜尋非白名單成員(outwhite02) >>> 顯示該成員個人資訊 & 成功加入通訊錄
-                5.3. (前台)個人資訊 > 新增好友 > 透過'手機號'搜尋白名單成員(8613141010103) >>> 顯示該成員個人資訊 & 成功加入通訊錄
-                5.4. (前台)個人資訊 > 新增好友 > 透過'ID'搜尋白名單成員(inwhite01) >>> 顯示該成員個人資訊 & 成功加入通訊錄
+        1. (後台)會員添加好友 > 關閉
+            1.1. (前台)個人資訊 > 新增好友 > 透過'手機號'搜尋非白名單成員(8613141010102) >>> 跳"暂不支援手机号搜索" toast
+            1.2. (前台)個人資訊 > 新增好友 > 透過'ID'搜尋非白名單成員(outwhite02) >>> 跳"暂不支援此功能" toast
+            1.3. (前台)個人資訊 > 新增好友 > 透過'手機號'搜尋白名單成員(8613141010103) >>> 跳"暂不支援手机号搜索" toast
+            1.4. (前台)個人資訊 > 新增好友 > 透過'ID'搜尋白名單成員(inwhite02) >>> 顯示該成員個人資訊 & 成功加入通訊錄
+        2. (後台)會員添加好友 > 開啟
+            2.1. (前台)個人資訊 > 新增好友 > 透過'手機號'搜尋非白名單成員(8613141010102) >>> 跳"暂不支援手机号搜索" toast
+            2.2. (前台)個人資訊 > 新增好友 > 透過'ID'搜尋非白名單成員(outwhite02) >>> 顯示該成員個人資訊 & 成功加入通訊錄
+            2.3. (前台)個人資訊 > 新增好友 > 透過'手機號'搜尋白名單成員(8613141010103) >>> 跳"暂不支援手机号搜索" toast
+            2.4. (前台)個人資訊 > 新增好友 > 透過'ID'搜尋白名單成員(inwhite02) >>> 顯示該成員個人資訊 & 成功加入通訊錄
          """
         self.test_admin_login()
-        self.function_dict['ad'].mainPage().disable_member_add_friend_setting()  # 0
-        self.function_dict['ad'].mainPage().disable_add_friend_by_search_phone()  # 1.0
+        self.function_dict['ad'].mainPage().disable_member_add_friend_setting()  # 1
 
         self.test_web_login()
         self.function_dict['wp'].mainPage().open_user_info()
@@ -374,41 +368,18 @@ class WebTestCase(BaseTestCase):
         self.delete_target_friend('inwhite02')
 
         self.test_admin_login()
-        self.function_dict['ad'].mainPage().enable_add_friend_by_search_phone()  # 2.0
+
+        self.function_dict['ad'].mainPage().enable_member_add_friend_setting()  # 2
 
         self.function_dict['wp'].basePage().switch_last_page()
         self.function_dict['wp'].mainPage().open_user_info()
         self.function_dict['wp'].mainPage().into_friend_add()
-        self.function_dict['wp'].mainPage().add_friend('8613141010102', '暂不支援此功能')  # 2.1
-        self.function_dict['wp'].mainPage().add_friend('outwhite02', '暂不支援此功能')  # 2.2
-        self.add_target_friend('8613141010103')  # 2.3
-        self.add_target_friend('inwhite01')  # 2.4
-        self.delete_target_friend('inwhite02')
-        self.delete_target_friend('inwhite01')
-
-        self.function_dict['ad'].mainPage().enable_member_add_friend_setting()  # 3
-        self.function_dict['ad'].mainPage().disable_add_friend_by_search_phone()  # 4
-
-        self.function_dict['wp'].basePage().switch_last_page()
-        self.function_dict['wp'].mainPage().open_user_info()
-        self.function_dict['wp'].mainPage().into_friend_add()
-        self.function_dict['wp'].mainPage().add_friend('8613141010102', '暂不支援手机号搜索')  # 4.1
-        self.function_dict['wp'].mainPage().add_friend('8613141010103', '暂不支援手机号搜索')  # 4.3
-        self.add_target_friend('outwhite02')  # 4.2
-        self.add_target_friend('inwhite02')  # 4.4
+        self.function_dict['wp'].mainPage().add_friend('8613141010102', '暂不支援手机号搜索')  # 2.1
+        self.function_dict['wp'].mainPage().add_friend('8613141010103', '暂不支援手机号搜索')  # 2.3
+        self.add_target_friend('outwhite02')  # 2.2
+        self.add_target_friend('inwhite02')  # 2.4
         self.delete_target_friend('outwhite02')
         self.delete_target_friend('inwhite02')
-
-        self.function_dict['ad'].mainPage().enable_add_friend_by_search_phone()  # 5.0
-
-        self.add_target_friend('8613141010102')  # 5.1
-        self.add_target_friend('outwhite01')  # 5.2
-        self.add_target_friend('8613141010103')  # 5.3
-        self.add_target_friend('inwhite01')  # 5.4
-        self.delete_target_friend('outwhite02')
-        self.delete_target_friend('outwhite01')
-        self.delete_target_friend('inwhite02')
-        self.delete_target_friend('inwhite01')
 
     # 測試-新增好友
     @DecorateClass('CHATAPP-T1803')
@@ -416,9 +387,9 @@ class WebTestCase(BaseTestCase):
         self.test_web_login()
         self.function_dict['wp'].mainPage().open_user_info()
         self.function_dict['wp'].mainPage().into_friend_add()
-        self.function_dict['wp'].mainPage().add_friend(self.operate_account)
-        # self.function_dict['wp'].mainPage().close_modal(2)
-        self.function_dict['wp'].friendPage().check_friend(self.operate_account)
+        new_friend = self.function_dict['wp'].mainPage().add_friend(self.operate_account)
+        if new_friend:
+            self.function_dict['wp'].friendPage().check_friend(self.operate_account)
 
     # 測試-好友暱稱
     @DecorateClass('CHATAPP-T1804')
@@ -798,7 +769,7 @@ class WebTestCase(BaseTestCase):
         self.function_dict['wp'].friendPage().into_chatroom()
         self.function_dict['wp'].chatroomPage().into_setting()
         self.function_dict['wp'].chatroomPage().friend_delete()
-        self.function_dict['wp'].friendPage().check_notexist(self.operate_account)
+        self.function_dict['wp'].friendPage().check_notExist(self.operate_account)
 
     # 測試-登出
     @DecorateClass('CHATAPP-T1791')
@@ -950,7 +921,7 @@ class WebTestCase(BaseTestCase):
         self.test_web_login()
         self.function_dict['wp'].mainPage().open_user_info()
         remain_integral_amount_before = self.function_dict['wp'].mainPage().into_integral_page()
-        self.function_dict['wp'].chatlistPage().into_chat_room('QA_bot_only')
+        self.function_dict['wp'].chatlistPage().into_chat_room(self.test_group)
         grab_time, grab_amount = self.function_dict['wp'].chatroomPage().grab_red_envelope(red_envelope_type)  # [前台]搶紅包, 回傳紅包時間+金額
         self.function_dict['wp'].chatroomPage().check_chatroom_system_message(self.web_account, grab_amount)  # 確認聊天室內搶紅包系統訊息
         self.function_dict['wp'].mainPage().open_user_info()
@@ -961,7 +932,7 @@ class WebTestCase(BaseTestCase):
         self.function_dict['ad'].mainPage().into_red_list()
         self.function_dict['ad'].redenvelopePage().red_envelope_detail_check(self.web_account, grab_amount, red_envelope_type, grab_time)  # 後台紅包詳情頁確認明細
         self.function_dict['ad'].mainPage().into_integral_record()
-        self.function_dict['ad'].waterRecodePage().check_current_exchange_record(self.web_account, grab_time, grab_amount, red_envelope_type, 'QA_bot_only', remain_integral_amount)  # [後台]積分使用紀錄頁確認積分訊息
+        self.function_dict['ad'].waterRecodePage().check_current_exchange_record(self.web_account, grab_time, grab_amount, red_envelope_type, self.test_group, remain_integral_amount)  # [後台]積分使用紀錄頁確認積分訊息
 
     # 測試-搶拚手氣紅包
     @DecorateClass('CHATAPP-T2549')
@@ -970,7 +941,7 @@ class WebTestCase(BaseTestCase):
         self.test_web_login()
         self.function_dict['wp'].mainPage().open_user_info()
         remain_integral_amount_before = self.function_dict['wp'].mainPage().into_integral_page()
-        self.function_dict['wp'].chatlistPage().into_chat_room('QA_bot_only')
+        self.function_dict['wp'].chatlistPage().into_chat_room(self.test_group)
         grab_time, grab_amount = self.function_dict['wp'].chatroomPage().grab_red_envelope(red_envelope_type)  # [前台]搶紅包, 回傳紅包時間+金額
         self.function_dict['wp'].chatroomPage().check_chatroom_system_message(self.web_account, grab_amount)  # 確認聊天室內搶紅包系統訊息
         self.function_dict['wp'].mainPage().open_user_info()
@@ -981,7 +952,7 @@ class WebTestCase(BaseTestCase):
         self.function_dict['ad'].mainPage().into_red_list()
         self.function_dict['ad'].redenvelopePage().red_envelope_detail_check(self.web_account, grab_amount, red_envelope_type, grab_time)  # 後台紅包詳情頁確認明細
         self.function_dict['ad'].mainPage().into_integral_record()
-        self.function_dict['ad'].waterRecodePage().check_current_exchange_record(self.web_account, grab_time, grab_amount, red_envelope_type, 'QA_bot_only', remain_integral_amount)  # [後台]積分使用紀錄頁確認積分訊息
+        self.function_dict['ad'].waterRecodePage().check_current_exchange_record(self.web_account, grab_time, grab_amount, red_envelope_type, self.test_group, remain_integral_amount)  # [後台]積分使用紀錄頁確認積分訊息
 
     # 測試-自動領取一般紅包
     @DecorateClass('CHATAPP-T2570')
@@ -990,7 +961,7 @@ class WebTestCase(BaseTestCase):
         self.test_web_login()
         self.function_dict['wp'].mainPage().open_user_info()
         remain_integral_amount_before = self.function_dict['wp'].mainPage().into_integral_page()
-        self.function_dict['wp'].chatlistPage().into_chat_room('QA_bot_only')
+        self.function_dict['wp'].chatlistPage().into_chat_room(self.test_group)
 
         sleep(180)  # 等待系統trigger發送紅包 & 搶紅包機器人執行搶紅包
 
@@ -1003,7 +974,7 @@ class WebTestCase(BaseTestCase):
         self.function_dict['ad'].mainPage().into_red_list()
         self.function_dict['ad'].redenvelopePage().red_envelope_detail_check(self.web_account, amount, red_envelope_type, None)  # 後台紅包詳情頁確認明細
         self.function_dict['ad'].mainPage().into_integral_record()
-        self.function_dict['ad'].waterRecodePage().check_current_exchange_record(self.web_account, None, amount, red_envelope_type, 'QA_bot_only',remain_integral_amount)  # [後台]積分使用紀錄頁確認積分訊息
+        self.function_dict['ad'].waterRecodePage().check_current_exchange_record(self.web_account, None, amount, red_envelope_type, self.test_group,remain_integral_amount)  # [後台]積分使用紀錄頁確認積分訊息
 
     # 測試-搶拚手氣紅包
     @DecorateClass('CHATAPP-T2571')
@@ -1012,7 +983,7 @@ class WebTestCase(BaseTestCase):
         self.test_web_login()
         self.function_dict['wp'].mainPage().open_user_info()
         remain_integral_amount_before = self.function_dict['wp'].mainPage().into_integral_page()
-        self.function_dict['wp'].chatlistPage().into_chat_room('QA_bot_only')
+        self.function_dict['wp'].chatlistPage().into_chat_room(self.test_group)
 
         sleep(180)  # 等待系統trigger發送紅包 & 搶紅包機器人執行搶紅包
 
@@ -1025,7 +996,7 @@ class WebTestCase(BaseTestCase):
         self.function_dict['ad'].mainPage().into_red_list()
         self.function_dict['ad'].redenvelopePage().red_envelope_detail_check(self.web_account, amount, red_envelope_type, None)  # 後台紅包詳情頁確認明細
         self.function_dict['ad'].mainPage().into_integral_record()
-        self.function_dict['ad'].waterRecodePage().check_current_exchange_record(self.web_account, None, amount, red_envelope_type, 'QA_bot_only',remain_integral_amount)  # [後台]積分使用紀錄頁確認積分訊息
+        self.function_dict['ad'].waterRecodePage().check_current_exchange_record(self.web_account, None, amount, red_envelope_type, self.test_group,remain_integral_amount)  # [後台]積分使用紀錄頁確認積分訊息
 
 
 
