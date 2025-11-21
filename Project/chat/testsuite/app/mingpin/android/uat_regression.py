@@ -17,7 +17,7 @@ logging.getLogger("airtest").setLevel(logging.WARNING)
 
 # Test Setting
 env = 'uat'
-brand = 'mingpin'  # gu > mee > chit > mingpin
+brand = 'mingpin'
 user = 1
 connect_type = 'local'  # 手機連線模式 remote or local
 phone_name = 'HUAWEI_MATE_30_PRO_5G'  # 手機型號

@@ -91,62 +91,62 @@ s1_red_envelope_related_list = [
 
 # ============================================== S2 Test Cases ===================================================
 s2_web_regression_list = [
-    # WebTestCase("test_web_login"),  # 測試-登入  # s1
-    # WebTestCase("test_into_notification"),  # 測試-進入訊息通知
-    # WebTestCase("test_into_security"),  # 測試-進入帳號與安全頁面
-    # WebTestCase("test_into_black"),  # 測試-進入黑名單頁面
-    # WebTestCase("test_into_share"),  # 測試-進入分享頁面
-    # WebTestCase("test_into_about"),  # 測試-進入關於聊天頁面
-    # WebTestCase("test_about_terms"),  # 測試-關於聊天
-    # WebTestCase("test_user_contact_whitelist_be_fe_linkage"),  # 測試-會員添加好友設定前後端連動
-    # WebTestCase("test_contact_whitelist_setting_be_fe_linkage"),  # 測試-好友添加白名單設定前後端連動
+    WebTestCase("test_web_login"),  # 測試-登入  # s1
+    WebTestCase("test_into_notification"),  # 測試-進入訊息通知
+    WebTestCase("test_into_security"),  # 測試-進入帳號與安全頁面
+    WebTestCase("test_into_black"),  # 測試-進入黑名單頁面
+    WebTestCase("test_into_share"),  # 測試-進入分享頁面
+    WebTestCase("test_into_about"),  # 測試-進入關於聊天頁面
+    WebTestCase("test_about_terms"),  # 測試-關於聊天
+    WebTestCase("test_user_contact_whitelist_be_fe_linkage"),  # 測試-會員添加好友設定前後端連動
+    WebTestCase("test_contact_whitelist_setting_be_fe_linkage"),  # 測試-好友添加白名單設定前後端連動
     WebTestCase("test_search_friend_by_phone_and_ID"),  # 測試-透過手機號/ID搜索添加好友
-    # WebTestCase("test_add_friend"),  # 測試-新增好友  # s1
-    # WebTestCase("test_share_url"),  # 測試-分享網址功能
-    # WebTestCase("test_send_media"),  # 測試-個人發送圖片/影片
-    # WebTestCase("test_message_reply_revoke"),  # 測試-個人訊息回覆後撤回
-    # WebTestCase("test_message_emoji"),  # 測試-訊息表情符號
-    # WebTestCase("test_message_pin_reply"),  # 測試-個人訊息設置公告後回覆
-    # WebTestCase("test_message_pin_revoke"),  # 測試-個人訊息設置公告後撤回
-    # WebTestCase("test_groups_build"),  # 測試-建立群組
-    # WebTestCase("test_message_pin_reply_group"),  # 測試-群組訊息設置公告後回覆
-    # WebTestCase("test_message_pin_revoke_group"),  # 測試-群組訊息設置公告後撤回
-    # WebTestCase("test_delete_friend"),  # 測試-刪除好友  # s1
+    WebTestCase("test_add_friend"),  # 測試-新增好友  # s1
+    WebTestCase("test_share_url"),  # 測試-分享網址功能
+    WebTestCase("test_send_media"),  # 測試-個人發送圖片/影片
+    WebTestCase("test_message_reply_revoke"),  # 測試-個人訊息回覆後撤回
+    WebTestCase("test_message_emoji"),  # 測試-訊息表情符號
+    WebTestCase("test_message_pin_reply"),  # 測試-個人訊息設置公告後回覆
+    WebTestCase("test_message_pin_revoke"),  # 測試-個人訊息設置公告後撤回
+    WebTestCase("test_groups_build"),  # 測試-建立群組
+    WebTestCase("test_message_pin_reply_group"),  # 測試-群組訊息設置公告後回覆
+    WebTestCase("test_message_pin_revoke_group"),  # 測試-群組訊息設置公告後撤回
+    WebTestCase("test_delete_friend"),  # 測試-刪除好友  # s1
 ]
 s2_admin_regression_list = [
-    # AdminTestCase("test_add_share_code"),  # 測試 - 後台新增邀請碼 > 刪除邀請碼
-    # WebTestCase("test_share_code_visible_when_permission_change"),  # 測試-後台設定邀請碼權限>前台一般成員&管理員確認邀請碼分享欄位
-    # AdminTestCase("test_into_groups_message"),  # 測試-進入群發消息
-    # AdminTestCase("test_into_system_contact_whitelist_setting"),  # 測試-不同權限帳號下的'好友添加白名单设定'頁顯示與否
-    # AdminTestCase("test_into_discover_and_edit"),  # 測試-發現設定編輯網址+開關切換
-    # AdminTestCase("test_into_record_check_chat_record"),  # 測試-進入聊天纪录並確認紀錄
-    # AdminTestCase("test_into_setting_otp"),  # 測試-進入OTP管理
-    # AdminTestCase("test_into_setting_otp_operation"),  # 測試-進入運營OTP
-    # AdminTestCase("test_into_media_audit"),  # 測試-進入媒体审核
-    # AdminTestCase("test_into_auto_audit"),  # 測試-進入自动审核
-    # AdminTestCase("test_into_block_words"),  # 測試-進入屏蔽字詞
-    # AdminTestCase("test_into_impeach"),  # 測試-進入检举内容
-    # AdminTestCase("test_into_post_data"),  # 測試-進入贴文数据
-    # AdminTestCase("test_into_creator_data"),  # 測試-進入创作者数据
-    # AdminTestCase("test_group_delete"),  # 測試-刪除群組
+    AdminTestCase("test_add_share_code"),  # 測試 - 後台新增邀請碼 > 刪除邀請碼
+    WebTestCase("test_share_code_visible_when_permission_change"),  # 測試-後台設定邀請碼權限>前台一般成員&管理員確認邀請碼分享欄位
+    AdminTestCase("test_into_groups_message"),  # 測試-進入群發消息
+    AdminTestCase("test_into_system_contact_whitelist_setting"),  # 測試-不同權限帳號下的'好友添加白名单设定'頁顯示與否
+    AdminTestCase("test_into_discover_and_edit"),  # 測試-發現設定編輯網址+開關切換
+    AdminTestCase("test_into_record_check_chat_record"),  # 測試-進入聊天纪录並確認紀錄
+    AdminTestCase("test_into_setting_otp"),  # 測試-進入OTP管理
+    AdminTestCase("test_into_setting_otp_operation"),  # 測試-進入運營OTP
+    AdminTestCase("test_into_media_audit"),  # 測試-進入媒体审核
+    AdminTestCase("test_into_auto_audit"),  # 測試-進入自动审核
+    AdminTestCase("test_into_block_words"),  # 測試-進入屏蔽字詞
+    AdminTestCase("test_into_impeach"),  # 測試-進入检举内容
+    AdminTestCase("test_into_post_data"),  # 測試-進入贴文数据
+    AdminTestCase("test_into_creator_data"),  # 測試-進入创作者数据
+    AdminTestCase("test_group_delete"),  # 測試-刪除群組
 ]
 
 s2_red_envelope_related_list = [
-    # AdminTestCase("add_auto_grad_red_envelope"),
-    # WebTestCase("test_auto_grab_red_envelope"),  # 測試-[前台]自動搶一般紅包
-    # AdminTestCase("add_auto_grad_luck_red_envelope_then_check_water_control"),  # 測試-[後台]新增拚手氣紅包並檢查水量
-    # WebTestCase("test_auto_grab_luck_red_envelope"),  # 測試-[前台]自動搶拚手氣紅包
+    AdminTestCase("add_auto_grad_red_envelope"),
+    WebTestCase("test_auto_grab_red_envelope"),  # 測試-[前台]自動搶一般紅包
+    AdminTestCase("add_auto_grad_luck_red_envelope_then_check_water_control"),  # 測試-[後台]新增拚手氣紅包並檢查水量
+    WebTestCase("test_auto_grab_luck_red_envelope"),  # 測試-[前台]自動搶拚手氣紅包
 ]
 brand_not_support_list = [
-    # WebTestCase("test_manual_deposit_and_withdraw"),  # 測試-人工存入&人工提出積分
+    WebTestCase("test_manual_deposit_and_withdraw"),  # 測試-人工存入&人工提出積分
     # ======================積分兌換=====================================
     # ---------- 順付 ---------
-    # WebTestCase("test_exchange_wellpay"),  # 測試-綁定正確的錢包並兌換積分 (順付)
-    # AdminTestCase("test_exchange_success_recode"),   # 測試-順付成功積分紀錄
-    # WebTestCase("test_exchange_wellpay_incorrect"),  # 測試-綁定錯誤的錢包並兌換積分 (順付)
-    # AdminTestCase("test_exchange_fail_recode"),  # 測試-順付返還積分紀錄
+    WebTestCase("test_exchange_wellpay"),  # 測試-綁定正確的錢包並兌換積分 (順付)
+    AdminTestCase("test_exchange_success_recode"),   # 測試-順付成功積分紀錄
+    WebTestCase("test_exchange_wellpay_incorrect"),  # 測試-綁定錯誤的錢包並兌換積分 (順付)
+    AdminTestCase("test_exchange_fail_recode"),  # 測試-順付返還積分紀錄
     # ---------- 平臺 ---------
-    # WebTestCase("test_exchange_brand"),  # 測試-綁定平臺SC,兌換積分,確認兌換紀錄
+    WebTestCase("test_exchange_brand"),  # 測試-綁定平臺SC,兌換積分,確認兌換紀錄
 ]
 
 s1_test_cases = (s1_web_regression_list + s1_admin_regression_list + s1_red_envelope_related_list)
@@ -181,9 +181,9 @@ if __name__ == "__main__":
     gl.set_value('PUSH', push)
 
     # TestCase add
-    # suite.addTests(s1_test_cases)  # total 65*s1
-    suite.addTests(s2_test_cases)  # total 37*s2 + 5*s1
-    # suite.addTests(all_test_cases)  # total 102
+    # suite.addTests(s1_test_cases)  # total 61*s1
+    suite.addTests(s2_test_cases)  # total 37*s2 + 3*s1
+    # suite.addTests(all_test_cases)  # total
 
     # RunningTest
     Utils.unittest_xml(suite)

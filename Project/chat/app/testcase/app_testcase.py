@@ -913,10 +913,22 @@ class AppTestCase(BaseTestCase, BaseFunction_API):
     # 媒體發布_圖片
     def test_social_post_photo(self):
         account = self.login_self_account()
-        media_index = random.randint(-15, -1)
+
+        # ➤ 先決定要取幾個（3~10）
+        count = random.randint(3, 10)
+        # 第一次選：-4 ~ -1
+        first = random.choice(range(-4, 0))
+        # 後續選：-20 ~ -1（不重複），且可以包含 first
+        remaining_pool = list(range(-20, 0))  # -20 到 -1 全部
+        # 後續選取 count - 1 個「不重複」，但 pool 裡有 first 所以可能抽到 first
+        rest = random.sample(remaining_pool, count - 1)
+        # 最終結果，第一個元素必定是首次選取的
+        media_index = [first] + rest
+
         media_type = 'photo'
         # ================= 發布頁設置=====================
-        description = f'👿{self.phone_platform}自動化{self.brand}Test_發布{media_type}👿{media_index}'
+        current_time = datetime.datetime.now().strftime("%H_%M")
+        description = f'👿{self.phone_platform}自動化{self.brand}Test_發布{media_type}_{current_time}👿'
         privacy_index = 0  # 隱私權設定: 所有人
         save_to_local = True  # 儲存至裝置: 開啟
         post = True  # 發布
@@ -957,10 +969,21 @@ class AppTestCase(BaseTestCase, BaseFunction_API):
     def test_social_draft_photo(self):
         self.login_self_account()
 
-        media_index = random.randint(-16, -1)
+        # ➤ 先決定要取幾個（1~5）
+        count = random.randint(1, 3)
+        # 第一次選：-4 ~ -1
+        first = random.choice(range(-4, 0))
+        # 後續選：-20 ~ -1（不重複），且可以包含 first
+        remaining_pool = list(range(-20, 0))  # -20 到 -1 全部
+        # 後續選取 count - 1 個「不重複」，但 pool 裡有 first 所以可能抽到 first
+        rest = random.sample(remaining_pool, count - 1)
+        # 最終結果，第一個元素必定是首次選取的
+        media_index = [first] + rest
+
         media_type = 'photo'
         # ================= 發布頁設置=====================
-        description = f'👿😡😍自動化{self.brand}Test_草稿{media_type}👿😡😍{media_index}'
+        current_time = datetime.datetime.now().strftime("%H_%M")
+        description = f'👿😡😍自動化{self.brand}Test_草稿{media_type}_{current_time}👿😡😍'
         privacy_index = 0  # 隱私權設定: 所有人
         save_to_local = True  # 儲存至裝置: 開啟
         post = False  # 存成草稿
@@ -968,7 +991,10 @@ class AppTestCase(BaseTestCase, BaseFunction_API):
 
         original_draft_counts = self.function_dict['ap'].socialmedialibraryPage().draft_media_counts()
         current_date = datetime.datetime.now().strftime('%Y/%m/%d')
-        self.function_dict['ap'].socialmediapostPage().select_media(media_index, media_type)
+        if self.phone_platform.lower() == 'ios':
+            self.function_dict['ap'].socialmediapostPage().ios_select_media(media_index)
+        else:
+            self.function_dict['ap'].socialmediapostPage().select_media(media_index, media_type)
         self.function_dict['ap'].socialmediapostPage().post_page_setting_and_post(description, privacy_index, media_type, save_to_local, post)  # 發布為草稿
         self.function_dict['ap'].socialmedialibraryPage().check_draft_folder_exist(True)  # 確認草稿夾存在
         self.function_dict['ap'].socialmedialibraryPage().delete_draft_media(original_draft_counts, current_date)  # 刪除該筆草稿
@@ -1052,7 +1078,7 @@ class AppTestCase(BaseTestCase, BaseFunction_API):
     @DecorateClass('CHATAPP-T2776')
     def test_social_follow_unfollow(self):
         self.test_login()
-        self.test_add_friend()  # 新增operator_account (test1234) 為好友
+        self.add_friend_then_into_chatroom()  # 新增operator_account (test1234) 為好友
 
         self.function_dict['ap'].socialhomePage().return_to_my_social_page()
         original_main_page_followed_counts,fans_counts, thumb_up_counts = self.function_dict['ap'].socialhomePage().get_page_all_counts()  # 取得自己主頁關注數
@@ -1088,7 +1114,20 @@ class AppTestCase(BaseTestCase, BaseFunction_API):
         self.function_dict['ap'].socialhomePage().check_fans_list(self.operate_account, fans_counts_after_unfollowed, add_fans=False) # 確認對方粉絲列表: 對方粉絲數-1, 列表上不出現我
 
         self.function_dict['ap'].socialhomePage().return_to_my_social_page()
-        self.test_delete_friend()  #刪除好友 operator_account (test1234)
+        self.delete_friend_via_userDetail()  #刪除好友 operator_account (test1234)
+
+    def add_friend_then_into_chatroom(self):
+        self.function_dict['ap'].mainPage().into_friend_page()
+        new_friend = self.function_dict['ap'].friendPage().is_new_friend(self.operate_account)
+        if not new_friend:
+            self.function_dict['ap'].friendPage().into_chatroom_via_userDetail()
+        else:
+            self.function_dict['ap'].friendPage().into_chatroom_via_addToAddressBook()
+    def delete_friend_via_userDetail(self):
+        self.function_dict['ap'].mainPage().into_friend_page()
+        new_friend = self.function_dict['ap'].friendPage().is_new_friend(self.operate_account)
+        if not new_friend:
+            self.function_dict['ap'].friendPage().delete_friend_from_UserDetail(self.operate_account)
 
     # 貼文點贊+收藏
     @DecorateClass('CHATAPP-T2778')
@@ -1158,9 +1197,10 @@ class AppTestCase(BaseTestCase, BaseFunction_API):
     @DecorateClass('CHATAPP-T2780')
     def test_social_self_post_add_comments_reply_like(self):
 
-        comment = '🍄[我]留言test🍄'
-        reply_comment = '🍊🍉[我]回覆[我]母留言test🍉🍊'
-        reply_reply_comment = '🥦🥪🌭[他人]回覆[我]子留言test🌭🥪🥦'
+        current_time = datetime.datetime.now().strftime("%H:%M")
+        comment = f'🍄[我]留言test_{current_time}🍄'
+        reply_comment = f'🍊🍉[我]回覆[我]母留言test_{current_time}🍉🍊'
+        reply_reply_comment = f'🥦🥪🌭[他人]回覆[我]子留言test_{current_time}🌭🥪🥦'
 
         # ============================ 我(gubot03/gubotmail01) 在 我的第一則公開貼文上"留言" =================================
         self_account = self.login_self_account()

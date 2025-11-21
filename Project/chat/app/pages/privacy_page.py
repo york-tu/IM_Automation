@@ -27,7 +27,7 @@ class PrivacyPageLocator:
     # 功能表 > 隱私
     privacy_button = base.check_device(
         Android=base.data_collation(type_kind='text', type_name='隐私'),
-        iOS=base.data_collation(type_kind='name', type_name='隐私'),
+        iOS=base.data_collation(type_kind='name', type_name='setting_privacy_cell'),
     )
     page_title = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tv_toolbar_title'),
@@ -36,7 +36,7 @@ class PrivacyPageLocator:
     # 功能表 > 隱私 > 按贊貼文
     liked_post_privacy_btn = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/cl_sns_like_post_setting'),
-        iOS=base.data_collation(type_kind='name', type_name='按赞贴文'),
+        iOS=base.data_collation(type_kind='name', type_name='privacySettings_likePostAudience_cell'),
     )
     # 功能表 > 隱私 > 按贊貼文: 目前設定
     current_privacy = base.check_device(
@@ -46,17 +46,17 @@ class PrivacyPageLocator:
     # 功能表 > 隱私 > 按贊貼文 > 所有人
     privacy_all_option = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/rb_everyone'),
-        iOS=base.data_collation(type_kind='name', type_name='所有人'),
+        iOS=base.data_collation(type_kind='name', type_name='updateSnsLikePostAudience_open_view'),
     )
     # 功能表 > 隱私 > 按贊貼文 > 僅自己
     privacy_self_option = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/rb_only_self'),
-        iOS=base.data_collation(type_kind='name', type_name='仅自己'),
+        iOS=base.data_collation(type_kind='name', type_name='updateSnsLikePostAudience_privates_view'),
     )
     # 功能表 > 隱私 > 按贊貼文 > 儲存
     privacy_save_btn = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/btn_save'),
-        iOS=base.data_collation(type_kind='name', type_name='储存'),
+        iOS=base.data_collation(type_kind='name', type_name='updateSnsLikePostAudience_save_button'),
     )
 
 
@@ -80,7 +80,11 @@ class PrivacyPage(Base):
         self.common.poco_click(account_privacy_select(privacy_index))
         option_select = self.common.poco_get_text(account_privacy_select(privacy_index))
         self.common.poco_click(PrivacyPageLocator.privacy_save_btn)
-        privacy_display = self.common.poco_get_text(PrivacyPageLocator.current_privacy)
+
+        if self.phone_platform.lower() == 'android':
+            privacy_display = self.common.poco_get_text(PrivacyPageLocator.current_privacy)
+        else:
+            privacy_display = self.poco(name='privacySettings_likePostAudience_cell').offspring(type='StaticText')[-1].attr('label')
         assert option_select == privacy_display
 
 

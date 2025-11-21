@@ -1,18 +1,14 @@
-import base64
 import sys
+import pyautogui
+import common.utils.globalvar as gl
+import win32clipboard
+import pyperclip
+import os, random, re
+
 from datetime import datetime
 from time import sleep
-
-import pywintypes
-import win32clipboard
-
-import pyperclip
-import requests
 from selenium.webdriver.common.by import By
 from Project.chat.web.pages.webs.web_basepage import BasePage
-import os, random, re
-import pyautogui
-from Project.chat.web.pages.webs.web_integralpage import IntegralPage, IntegralPageLocator
 from Project.chat.web.pages.webs.web_friendpage import FriendPage, FriendPageLocator
 
 DIR_NAME = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
@@ -196,6 +192,7 @@ class ChatRoomPageLocator:
 
 
 class ChatRoomPage(BasePage):
+    brand = gl.get_value("BRAND")
     def into_setting(self):
         self.click(ChatRoomPageLocator.setting_btn)
         self.wait_loading_finish()
@@ -327,40 +324,7 @@ class ChatRoomPage(BasePage):
             actual_chatroom_filename = self.get_text(ChatRoomPageLocator.chatroom_last_filename)
             assert actual_chatroom_filename == random_file, f'檔案名稱錯誤, 預期:{random_file},實際:{actual_chatroom_filename}'
             return random_file
-    # def send_video(self):
-    #     # """
-    #     # 從指定URL下載video並傳送到聊天室
-    #     # """
-    #     # video_url = 'https://sample-videos.com/video321/mp4/720/big_buck_bunny_720p_1mb.mp4'
-    #     # response = requests.get(video_url, verify=True)
-    #     # video_path = os.getcwd() + '\\sample_video.mp4'
-    #     # with open(video_path, 'wb') as f:
-    #     #     f.write(response.content)
-    #
-    #     video_path = DIR_NAME + '\\test_medias\\video (2160p).mp4'
-    #     self.click(ChatRoomPageLocator.add_btn)  # 點擊輸入框旁"+"鍵
-    #     file_name_column = (900, 610)  # 系統檔案選擇視窗內的"檔案名稱"欄位座標
-    #     open_button_position = (1070, 640)  # 系統檔案選擇視窗內的"開啟(O)"鍵座標
-    #     pyautogui.moveTo(file_name_column[0], file_name_column[1], duration=0.5)
-    #     # pyperclip.copy(video_path.replace('\\\\', "\\"))
-    #     # pyperclip.copy(video_path)
-    #     self.copy_to_clipboard(video_path)
-    #     sleep(1)
-    #     pyautogui.hotkey('ctrl', 'v')
-    #     pyautogui.press('enter')
-    #     # ===============================
-    #     # pyautogui.click()
-    #     # pyautogui.hotkey('ctrl', 'v')
-    #     # pyautogui.moveTo(open_button_position[0], open_button_position[1], duration=0.5)
-    #     # pyautogui.click()
-    #     # ===============================
-    #     while True:
-    #         if self.get_last_media_src_link('video').find('https://') == 0:
-    #             break
-    #         else:
-    #             sleep(1)
-    #             continue
-    #     # os.remove(video_path)
+
 
     def copy_to_clipboard(self, text, retry=50, delay=2):
         for attempt in range(retry):
@@ -427,18 +391,29 @@ class ChatRoomPage(BasePage):
 
         self.switch_last_page()
         self.sleep(3)
-        # message = message[message.index('//'):].replace('/', '')
         current_url = self.get_url()
-        if message.__contains__('gu'):
+
+        if self.brand == 'gu':
             assert current_url.__contains__('gu-chat'), f'股聊超連結開啟有誤'
-        elif message.__contains__('meechat'):
+        elif self.brand == 'meechat':
             assert current_url.__contains__('meechattop'), f'覓聊超連結開啟有誤'
-        elif message.__contains__('365'):
-            assert current_url.__contains__('365-chat'), f'365聊超連結開啟有誤'
-        elif message.__contains__('chitchat'):
+        elif self.brand == 'mingpin':
+            assert current_url.__contains__('mingpin-vip'), f'名品會超連結開啟有誤'
+        elif self.brand == 'chitchat':
             assert current_url.__contains__('chitchatswebs'), f'趣聊超連結開啟有誤'
         else:
-            assert current_url.__contains__(message), f'超連結開啟有誤'
+            return False, f'超連結開啟有誤'
+
+        # if message.__contains__('gu'):
+        #     assert current_url.__contains__('gu-chat'), f'股聊超連結開啟有誤'
+        # elif message.__contains__('meechat'):
+        #     assert current_url.__contains__('meechattop'), f'覓聊超連結開啟有誤'
+        # elif message.__contains__('chitchat'):
+        #     assert current_url.__contains__('chitchatswebs'), f'趣聊超連結開啟有誤'
+        # elif
+        #     https: // mingpin - vip.com
+        # else:
+        #     assert current_url.__contains__(message), f'超連結開啟有誤'
 
         self.close_browser()
         self.switch_last_page()

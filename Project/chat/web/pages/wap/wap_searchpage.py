@@ -18,13 +18,13 @@ class SearchPageLocator:
     search_column = (By.XPATH, "//input[@class='text-[16rem] bg-transparent my-[6rem] flex-1 border-none outline-0 text-grand-1']")
     search_btn = (By.XPATH, "//p[text()='搜索']")
     search_clear_btn = (By.XPATH, "//div[@class='cursor-pointer w-[16rem] h-[16rem] cross-icon bg-white-100']")
-    video_result_post_description = (By.XPATH, "//p[@class='text-[16rem] line-clamp-2 mt-[8rem] text-neutral-800']")
+    video_result_post_description = (By.XPATH, "//p[@class='text-[16rem] line-clamp-2 mt-[8rem] text-neutral-800 break-words']")
     video_result_poster = (By.XPATH, "//div[@class='text-[14rem] font-normal text-grand-2 truncate flex-1 min-w-0']")
     video_result_tab = (By.XPATH, "//span[text()='视频']")
     user_result_tab = (By.XPATH, "//span[text()='用户']")
     user_result_poster = (By.XPATH, "//p[@class='w-full text-[16rem] text-grand-1 overflow-hidden text-ellipsis whitespace-nowrap']")
     user_result_poster_info = (By.XPATH, "//div[@class='text-[14rem] text-grand-2']")
-    user_result_follow_btn = (By.XPATH, "//div[@class='ml-auto text-[14rem] text-neutral-80 rounded-[4rem] py-[7rem] w-[74rem] text-center text-grand-1 gradient-primary bg-primary-500']")
+    user_result_follow_btn = (By.XPATH, "//div[@class='ml-auto text-[14rem] text-neutral-80 rounded-[4rem] py-[7rem] w-[74rem] text-center text-white-100 gradient-primary bg-primary-500']")
     @staticmethod
     def search_record_index(num):
         locator = (By.XPATH, f"(//p[@class='flex-1 overflow-hidden text-ellipsis text-neutral-800'])[{num}]")

@@ -28,7 +28,7 @@ class FriendPageLocator:
 
     search_input = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/search_content_et'),
-        iOS=base.data_collation(type_kind='type', type_name='TextField'),
+        iOS=base.data_collation(type_kind='name', type_name='friendList_search_textField'),
     )
 
     search_clear = base.check_device(
@@ -68,7 +68,7 @@ class FriendPageLocator:
 
     add_to_address_book_btn = base.check_device(
         Android=base.data_collation(type_kind='text', type_name='新增至通讯录'),
-        iOS=base.data_collation(type_kind='name', type_name='新增至通讯录'),
+        iOS=base.data_collation(type_kind='name', type_name='userDetail_contact_cell'),
     )
 
     add_friend_submit = base.check_device(
@@ -123,12 +123,12 @@ class FriendPageLocator:
 
     friend_chat_btn = base.check_device(
         Android=base.data_collation(type_kind='text', type_name='传讯息'),
-        iOS=base.data_collation(type_kind='name', type_name='搜索'),
+        iOS=base.data_collation(type_kind='name', type_name='userDetail_greeting_cell'),
     )
 
     friend_first_chat = base.check_device(
         Android=base.data_collation(type_kind='text', type_name='打招呼'),
-        iOS=base.data_collation(type_kind='name', type_name='打招呼'),
+        iOS=base.data_collation(type_kind='name', type_name='userDetail_greeting_cell'),
     )
 
     team_list_button = base.check_device(
@@ -138,7 +138,7 @@ class FriendPageLocator:
 
     team_list_frist = base.check_device(
         Android=base.data_collation(type_kind='text', type_name='群组', action='parent().sibling()[0].child()[1]'),
-        iOS=base.data_collation(type_kind='type', type_name='StaticText', num=2),
+        iOS=base.data_collation(type_kind='name', type_name='friendList_nameCell_roomName_label', num=0),
     )
 
     friend_list_button = base.check_device(
@@ -148,7 +148,7 @@ class FriendPageLocator:
 
     friend_list_frist = base.check_device(
         Android=base.data_collation(type_kind='text', type_name='好友', action='parent().sibling()[0].child()[1]'),
-        iOS=base.data_collation(type_kind='type', type_name='StaticText', num=2),
+        iOS=base.data_collation(type_kind='name', type_name='friendList_nameCell_roomName_label', num=0),
     )
 
     friend_setting_button = base.check_device(
@@ -199,7 +199,7 @@ class FriendPageLocator:
     # ============================== 社群化 ===================================
     personal_social_homepage_btn = base.check_device(
         Android=base.data_collation(type_kind='text', type_name='个人页面'),
-        iOS=base.data_collation(type_kind='name', type_name='个人页面'),
+        iOS=base.data_collation(type_kind='name', type_name='userDetail_profile_cell'),
     )
 
 
@@ -402,6 +402,14 @@ class FriendPage(Base):
         self.common.poco_click(FriendPageLocator.back_btn)
         if self.common.poco_exists(FriendPageLocator.search_clear):
             self.common.poco_click(FriendPageLocator.search_clear)
+
+    def into_chatroom_via_userDetail(self):
+        if self.common.poco_exists(FriendPageLocator.friend_chat_btn):
+            self.common.poco_click(FriendPageLocator.friend_chat_btn)
+
+    def into_chatroom_via_addToAddressBook(self):
+        if self.common.poco_exists(FriendPageLocator.add_to_address_book_btn):
+            self.common.poco_click(FriendPageLocator.add_to_address_book_btn)
 
     def block_friend(self):
         self.wait_loading_finish()

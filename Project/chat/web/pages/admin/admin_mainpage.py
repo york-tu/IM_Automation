@@ -1,7 +1,7 @@
 import random
+import common.utils.globalvar as gl
 from datetime import datetime
 from time import sleep
-
 from selenium.webdriver.common.by import By
 from Project.chat.web.pages.admin.admin_basepage import BasePage
 
@@ -174,6 +174,7 @@ class MainPageLocator:
 
 
 class MainPage(BasePage):
+    brand = gl.get_value("BRAND")
 
     def return_admin_version(self):  # 查看Web版本號
         self.open_base_url()
@@ -480,7 +481,8 @@ class MainPage(BasePage):
     def into_logging(self):
         self.wait_loading_finish()
         self.click(MainPageLocator.menu_log_query)
-        self.click(MainPageLocator.menu_operation_log)
+        if self.brand == 'gu':
+            self.click(MainPageLocator.menu_operation_log)
         self.wait_loading_finish()
         assert self.get_text(MainPageLocator.page_title) == '操作日志', f"進入操作日誌有誤"
 

@@ -51,10 +51,12 @@ class MainPageLocator:
     others_main_page_thumb_up_counts = (By.XPATH, "(//div[@class='text-[20rem] font-semibold text-grand-1'])[3]")
     share_others_profile_btn = (By.XPATH, "//div[@class='pr-[16rem] flex items-center absolute right-0 cursor-pointer z-10']")  # 他人主頁-分享主頁鍵
     # ============================= 主頁 > 發布 =========================================================================
+    post_via_photo = (By.XPATH, '//div[text()="相簿"]')  # 發布 > 相簿
+    post_via_video = (By.XPATH, '//div[text()="视频"]')  # 發布 > 視頻
     input_post_descriptions = (By.ID, "post-introduction")  # 發布頁-撰寫說明
-    post_confirm = (By.XPATH, "//button[text()='发布 ']")
-    poster = (By.XPATH, "//p[@class='text-white-100 text-[14rem] mb-[12rem] truncate text_shadow']")  # 貼文作者
-    post_descriptions = (By.XPATH, "//div[@class='text-neutral-80 text-[14rem] font-normal']")  # 貼文內容
+    post_confirm = (By.XPATH, "//button[text()='发布']")
+    poster = (By.XPATH, "//p[@class='mb-[12rem] truncate text_shadow']")  # 貼文作者
+    post_descriptions = (By.XPATH, "//div[@class='whitespace-pre-wrap max-h-[313rem] break-words line-clamp-2']")  # 貼文內容
     post_back_btn = (By.XPATH, '//*[@id="app"]/div/div[1]/div[2]/div/div[2]/div[3]/div/svg')  # 貼文>返回鍵
     # ============================= 主頁 > 下方貼文 ======================================================================
     share_self_post_btn = (By.XPATH, "//div[@class='icon-wrapper dotIcon']")  # 個人貼文 > 分享鍵
@@ -200,8 +202,10 @@ class MainPage(BasePage):
 
         post_media_folder_path = ''
         if media_type == 'photo':
+            self.click(MainPageLocator.post_via_photo)
             post_media_folder_path = f'{DIR_NAME}\\test_medias\\post_media\\photo'
         elif media_type == 'video':
+            self.click(MainPageLocator.post_via_video)
             post_media_folder_path = f'{DIR_NAME}\\test_medias\\post_media\\video'
 
         medias = [f for f in os.listdir(post_media_folder_path) if os.path.isfile(os.path.join(post_media_folder_path, f))]

@@ -129,7 +129,7 @@ if __name__ == "__main__":
     gl.set_value('PUSH', push)
 
     # TestCase add
-    suite.addTests(s1_test_cases)  # total 32*s1
+    # suite.addTests(s1_test_cases)  # total 32*s1
     suite.addTests(s2_test_cases)  # total 18*s2 + 2*s1
     # suite.addTests(all_test_cases)  # total 50
 

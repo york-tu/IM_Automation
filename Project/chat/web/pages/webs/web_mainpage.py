@@ -92,7 +92,9 @@ class MainPage(BasePage):
 
     def into_black_page(self):
         self.click(MainPageLocator.black_btn)
-        assert self.get_text(MainPageLocator.header_title) == '黑名单', f'進入黑名單頁面有誤'
+        self.wait_loading_finish()
+        current_page_title = self.get_text(MainPageLocator.header_title)
+        assert current_page_title == '黑名单', f'進入黑名單頁面有誤'
 
     def into_share_page(self):
         self.click(MainPageLocator.share_btn)

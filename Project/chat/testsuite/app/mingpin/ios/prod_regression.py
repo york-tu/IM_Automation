@@ -17,7 +17,7 @@ logging.getLogger("airtest").setLevel(logging.WARNING)
 
 # Test Setting
 env = 'prod'
-brand = 'gu'  # gu > mee > chit
+brand = 'mingpin'
 user = 1
 connect_type = 'local'  # 手機連線模式 remote or local
 phone_name = 'IPHONE_15_PRO'  # 手機型號 'IPHONE_15_PRO (ios18.6.2)', 'IPHONE_73 (ios16.1.1)', 'IPHONE_11_PRO (ios15)'

@@ -17,20 +17,20 @@ logging.getLogger("airtest").setLevel(logging.WARNING)
 
 # Test Setting
 env = 'uat'
-brand = 'mingpin'  # gu > mee > chit > mingpin
+brand = 'mingpin'
 user = 1
 connect_type = 'local'  # 手機連線模式 remote or local
 phone_name = 'IPHONE_15_PRO'  # 手機型號 'IPHONE_15_PRO (ios18.6.2)', 'IPHONE_73 (ios16.1.1)', 'IPHONE_11_PRO (ios15)'
 phone_platform = 'iOS'  # 手機作業系統
-app_version = '5.18.0(113330.116)'  # 版本號
+app_version = '5.18.0(113540.116)'  # 版本號
 account_type = 'phone'  # 帳號類型: email, phone...
 # specific_os_version = []  # 指定OS版本, ['10','11','8']
-push = False  # 將結果推倒jira, 預設請給予 True
+push = True  # 將結果推倒jira, 預設請給予 True
 
 # ============================================== S1 Test Cases ===================================================
 # -------------- 私聊相關功能測試 --------------
 s1_personal_chat_regression_list = [
-    AppTestCase("test_login"),
+    # AppTestCase("test_login"),
     # AppTestCase("test_version_check"),
     # AppTestCase("test_into_member"),
     # AppTestCase("test_into_friend"),
@@ -71,8 +71,11 @@ s1_grab_red_envelop_regression_list = [
 ]
 # -------------- 社群相關功能測試 --------------
 s1_social_regression_list = [
-    # AppTestCase("test_social_post_photo"),  # 發布圖片
+    AppTestCase("test_social_post_photo"),  # 發布圖片
     # AppTestCase("test_social_search"),  # 搜索視頻 & 用戶
+    # AppTestCase("test_social_follow_unfollow"),  # 關注/取消關注
+    # AppTestCase("test_social_other_post_add_comments_reply"),  # 他人貼文評論上留言回覆
+    # AppTestCase("test_social_self_post_add_comments_reply_like"),  # 自己貼文評論上留言回覆點贊
     # AppTestCase('test_social_share_self_main_page'),  # 分享"自己主頁"到群組
     # AppTestCase('test_social_share_other_main_page'),  # 分享"他人主頁"到群組
     # AppTestCase('test_social_share_self_post'),  # 分享"自己貼文"到群組
@@ -177,9 +180,9 @@ if __name__ == '__main__':
 
     # TestCase add
     suite = unittest.TestSuite()
-    suite.addTests(s1_test_cases)  # total 38*s1
+    suite.addTests(s1_test_cases)  # total 41*s1
     # suite.addTests(s2_test_cases)  # total 39*s2 + 3*s1
-    # suite.addTests(all_test_cases)  # total 77
+    # suite.addTests(all_test_cases)  # total 80
 
     # RunningTest
     Utils.unittest_xml(suite)

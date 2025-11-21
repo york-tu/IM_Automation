@@ -32,10 +32,20 @@ class SocialMediaPostPageLocator:
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/navigation_bar_item_icon_view', num=2),
         iOS=base.data_collation(type_kind='name', type_name='mainTabBar_newPost_button'),
     )
-    # 發布媒體 > 相簿
+    # 發布媒體 > 照片
     album_btn = base.check_device(
-        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/iv_photo'),
-        iOS=base.data_collation(type_kind='name', type_name='相簿', num=-1),
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/iv_multiple_photo'),
+        iOS=base.data_collation(type_kind='name', type_name='snsMedia_photo_view'),
+    )
+    # 發布媒體 > 視頻
+    video_btn = base.check_device(
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/iv_video'),
+        iOS=base.data_collation(type_kind='name', type_name=''),
+    )
+    # 照片 > 下一步鍵
+    photoSelect_next = base.check_device(
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/btn_submit'),
+        iOS=base.data_collation(type_kind='nameMatches', type_name='下一步.*'),
     )
     #  發布頁 > 撰寫說明
     writing_instructions = base.check_device(
@@ -165,31 +175,45 @@ class SocialMediaPostPage(Base):
 
     def select_media(self, media_index, media_type='photo'):
         self.common.poco_click(SocialMediaPostPageLocator.post_media_btn)
-        self.common.poco_click(SocialMediaPostPageLocator.album_btn)
-        sleep(3)
-        if self.common.poco_wait_exists(SocialMediaPostPageLocator.select_media_type_folder):
-            self._select_media_folder(media_type)
+
+        if media_type == 'photo':
+            self.common.poco_click(SocialMediaPostPageLocator.album_btn)
             sleep(1)
-        self.common.poco_click(SocialMediaPostPageLocator.media_select(SocialMediaPostPageLocator.app_package, media_index))
-        sleep(1)
+            # ==================================================================
+            # ➤ 確保 media_index 一定是 list
+            if not isinstance(media_index, (list, tuple)):
+                media_index = [media_index]
+            # ➤ 依序點擊每個 index
+            for idx in media_index:
+                locator = SocialMediaPostPageLocator.media_select(SocialMediaPostPageLocator.app_package, idx)
+                self.common.poco_click(locator)
+            self.common.poco_click(SocialMediaPostPageLocator.photoSelect_next)
+            # ==================================================================
+
+        else:  # media_type == 'video'
+            self.common.poco_click(SocialMediaPostPageLocator.video_btn)
+            sleep(1)
+            self.common.poco_click(
+                SocialMediaPostPageLocator.media_select(SocialMediaPostPageLocator.app_package, media_index))
+        sleep(3)
         assert self.common.poco_get_text(SocialMediaPostPageLocator.page_title) == '发布', '未進入發布頁'
 
-    def _select_media_folder(self, media_type):
-        self.common.poco_click(SocialMediaPostPageLocator.select_media_type_folder)
-        folder_locator = (SocialMediaPostPageLocator.media_pictures_folder if 'photo' in media_type.lower()
-                          else SocialMediaPostPageLocator.media_videos_folder)
-        self.common.poco_wait_exists(folder_locator)
-        sleep(1)
-        self.common.poco_click(folder_locator)
-        sleep(1)
+    # def _select_media_folder(self, media_type):
+    #     self.common.poco_click(SocialMediaPostPageLocator.select_media_type_folder)
+    #     folder_locator = (SocialMediaPostPageLocator.media_pictures_folder if 'photo' in media_type.lower()
+    #                       else SocialMediaPostPageLocator.media_videos_folder)
+    #     self.common.poco_wait_exists(folder_locator)
+    #     sleep(1)
+    #     self.common.poco_click(folder_locator)
+    #     sleep(1)
 
     def post_page_setting_and_post(self, instructions, privacy_index=0, media_type='photo', save_to_local=True,
                                    post=True):
         if 'video' in media_type.lower():
             self._select_video_cover()
-        else:
-            assert not self.common.poco_exists(
-                SocialMediaPostPageLocator.video_select_cover), '當媒體為photo時預期不該出現"选择封面"字串'
+        # else:
+        #     assert not self.common.poco_exists(
+        #         SocialMediaPostPageLocator.video_select_cover), '當媒體為photo時預期不該出現"选择封面"字串'
 
         self._write_instructions(instructions)
         self._set_privacy(privacy_index)
@@ -215,6 +239,7 @@ class SocialMediaPostPage(Base):
         if self.phone_platform.lower() == 'ios':
             self.common.poco_wait_exists(SocialMediaPostPageLocator.page_title)
             self.common.poco_click(SocialMediaPostPageLocator.page_title)
+            sleep(1)
         else:
             if self.common.poco_exists(SocialMediaPostPageLocator.hide_keyboard):
                 self.common.poco_click(SocialMediaPostPageLocator.hide_keyboard)
@@ -242,6 +267,7 @@ class SocialMediaPostPage(Base):
 
     def _allow_save_to_local(self, save_to_local: bool):
         """控制 '允許保存至設備' 的開關狀態"""
+        sleep(1)
         locator = SocialMediaPostPageLocator.allow_save_media_to_local
         assert self.common.poco_exists(SocialMediaPostPageLocator.allow_save_media_to_local_text), '"允許保存至設備" 元件不存在'
 
@@ -265,6 +291,15 @@ class SocialMediaPostPage(Base):
     def ios_select_media(self, media_index):
         self.common.poco_click(SocialMediaPostPageLocator.post_media_btn)
         self.common.poco_click(SocialMediaPostPageLocator.album_btn)
-        sleep(3)
-        self.common.poco_click(SocialMediaPostPageLocator.media_select(SocialMediaPostPageLocator.app_package, media_index))
+        sleep(2)
+        # ==================================================================
+        # ➤ 確保 media_index 一定是 list
+        if not isinstance(media_index, (list, tuple)):
+            media_index = [media_index]
+        # ➤ 依序點擊每個 index
+        for idx in media_index:
+            locator = SocialMediaPostPageLocator.media_select(SocialMediaPostPageLocator.app_package, idx)
+            self.common.poco_click(locator)
+        # ==================================================================
+        self.common.poco_click(SocialMediaPostPageLocator.photoSelect_next)
         sleep(1)

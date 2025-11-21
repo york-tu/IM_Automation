@@ -45,9 +45,9 @@ class MessagePageLocator:
     # ============================= 社群化分享文 =========================================================================
     chat_share_author_name = (By.XPATH, "(//div[@class='min-w-0 flex-1 truncate font-semibold text-white-100'])[last()]")  # 最新一則個人頁分享文作者
     chat_share_post_author_name = (By.XPATH, "(//p[@class='overflow-hidden text-ellipsis whitespace-nowrap text-[12rem] text-white-100'])[last()]")  # 最新一則個人頁分享文作者
-    chat_share_post_1 = (By.XPATH, "(//div[@class='flex-1 flex items-center w-[70rem] justify-center bg-slate-200'])[1]")  # 個人頁分享文第一則貼文縮圖
-    chat_share_post_2 = (By.XPATH, "(//div[@class='flex-1 flex items-center w-[70rem] justify-center bg-slate-200'])[2]")  # 個人頁分享文第一則貼文縮圖
-    chat_share_post_3 = (By.XPATH, "(//div[@class='flex-1 flex items-center w-[70rem] justify-center bg-slate-200'])[3]")  # 個人頁分享文第一則貼文縮圖
+    chat_share_post_1 = (By.XPATH, "(//div[@class='flex-1 flex items-center w-[70rem] justify-center bg-neutral-100'])[1]")  # 個人頁分享文第一則貼文縮圖
+    chat_share_post_2 = (By.XPATH, "(//div[@class='flex-1 flex items-center w-[70rem] justify-center bg-neutral-100'])[2]")  # 個人頁分享文第一則貼文縮圖
+    chat_share_post_3 = (By.XPATH, "(//div[@class='flex-1 flex items-center w-[70rem] justify-center bg-neutral-100'])[3]")  # 個人頁分享文第一則貼文縮圖
     chat_share_post_thumbnail = (By.XPATH, "(//div[@class='max-w-[80%] flex flex-col rounded-[4rem] overflow-hidden'])[last()]")  # 貼文分享文縮圖
     chat_share_self_page_message = (By.XPATH, "(//div[@class='py-[8rem] px-[12rem] text-[16rem] text-grand-1 break-all whitespace-pre-wrap'])[last()]")  # 個人頁分享文留言
     chat_share_post_message = (By.XPATH, "(//p[@class='text-[16rem] text-grand-1 whitespace-pre-wrap break-all px-[10rem] py-[12rem]'])[last()]")  # 貼文分享文留言
@@ -96,7 +96,7 @@ class MessagePageLocator:
     pin_collapse_btn = (By.XPATH, "//div[@class='w-[24rem] h-[24rem] arrow rotate-180']")
     pin_no_show = (By.XPATH, "//p[text()='不再显示']")
 
-    pin_alert_popup = (By.XPATH, "//div[@class='px-[44px] py-[12px]']")
+    pin_alert_popup = (By.XPATH, "//div[@class='px-[44rem] py-[12rem] text-grand-1']")
     pin_popup_close = (By.XPATH, "//button[text()='确认']")
 
     # ============================= 聊天室 > 聊天詳情頁 ===================================================================

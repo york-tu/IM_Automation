@@ -27,7 +27,7 @@ class PersonalSettingPageLocator:
     remain_integral_amount = (By.XPATH, "//p[@class='text-[16rem] mr-[10rem]']")  # 積分數字
 
     # =========== 帳號與安全設定頁 =========================================================
-    security_btn = (By.XPATH, "//p[text()='帐号']")  # 帳號
+    security_btn = (By.XPATH, "//p[text()='帐号与安全']")  # 帳號
     logout_btn = (By.XPATH, "//button[text()='登出']")
     logout_confirm_btn = (By.XPATH, "//p[@class='text-[14rem] font-medium' and text()='确定']")
     # -------------------- 修改密碼彈窗 --------------------

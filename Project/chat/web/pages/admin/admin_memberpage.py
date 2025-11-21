@@ -24,7 +24,7 @@ class MemberPageLocator:
     # 新增會員帳號
     new_account_btn = (By.XPATH, '//button//span[text()="新增会员帐号"]')
     new_account_title = (By.XPATH, '//div[text()="帐号设定"]')
-    new_account_ID = (By.XPATH, '//input[@placeholder="请填写3-30字且不可包含特殊符号"]')
+    new_account_ID = (By.XPATH, '//input[@placeholder="帐号至少一英文与一数字,长度6-12"]')
     new_account_name = (By.XPATH, '(//input[@placeholder="请填写3-30字且不可包含特殊符号"])[last()]')
     new_account_password = (By.XPATH, '//span[text()="新增会员帐号"]/../..//input[@placeholder="请填写8-16位数英文、数字"]')
     new_account_password_confirm = (By.XPATH, '//span[text()="新增会员帐号"]/../..//input[@placeholder="请再次输入密码"]')

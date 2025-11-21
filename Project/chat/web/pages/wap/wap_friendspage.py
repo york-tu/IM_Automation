@@ -51,11 +51,11 @@ class FriendsPageLocator:
 
     report_button = (By.XPATH, "//p[text()='检举']")  # 聊天詳情頁-檢舉鍵
     report_page_description = (By.XPATH, "//p[text()='请选择检举理由']")  # 檢舉頁-內文
-    report_harassment_content_btn = (By.XPATH, "//p[text()='骚扰内容']")  # 檢舉頁-"骚扰内容"選項
-    report_send_btn = (By.XPATH, "//button[text()='送出']")  # 檢舉頁-送出鍵
+    report_harassment_content_btn = (By.XPATH, "//p[text()='骚扰行为']")  # 檢舉頁-"骚扰内容"選項
+    report_send_btn = (By.XPATH, "//button[text()='同意并传送']")  # 檢舉頁-送出鍵
     popup_toast = (By.XPATH, '//p[@class="el-message__content"]')  # toast標題
 
-    user_detail_setting_delete_btn = (By.XPATH, "//p[text()='删除']")  # 聊天詳情頁-刪除鍵
+    user_detail_setting_delete_btn = (By.XPATH, "(//p[text()='删除'])[last()]")  # 聊天詳情頁-刪除鍵
     delete_confirm_popup = (By.XPATH, "(//div[@class='text-center'])[last()]")  # 刪除二次確認彈窗
     delete_confirm_btn = (By.XPATH, "(//p[text()='删除'])[last()]")  # 刪除二次確認彈窗-刪除鍵
 
@@ -173,6 +173,7 @@ class FriendsPage(BasePage):
     def into_chatroom_from_addToAddressBook(self):
         if self.is_element_finded(FriendsPageLocator.add_to_address_book_btn):
             self.click(FriendsPageLocator.add_to_address_book_btn)
+
     def block_friend(self):
         self.wait_loading_finish()
         self.click(FriendsPageLocator.chatroom_detail)
