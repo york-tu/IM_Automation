@@ -58,7 +58,7 @@ class TreadAndGalleryPage(Base):
     def into_gallery_page(self):
         self.common.poco_click(TreadGalleryPageLocator.gallery_button)
         sleep(5)
-        if self.phone_platform == "Android":
+        if self.phone_platform.lower() == "android":
             assert self.common.poco_exists(TreadGalleryPageLocator.widget_page_pops_up)
         self.common.poco_click(TreadGalleryPageLocator.widget_close_button)
         assert self.common.poco_get_text(TreadGalleryPageLocator.followed_tab) == '已关注', f'未回到上一頁'
@@ -66,7 +66,7 @@ class TreadAndGalleryPage(Base):
     def into_tread_page(self):
         self.common.poco_click(TreadGalleryPageLocator.tread_button)
         sleep(5)
-        if self.phone_platform == "Android":
+        if self.phone_platform.lower() == "android":
             assert self.common.poco_exists(TreadGalleryPageLocator.widget_page_pops_up)
         self.common.poco_click(TreadGalleryPageLocator.widget_close_button)
         assert self.common.poco_get_text(TreadGalleryPageLocator.followed_tab) == '已关注', f'未回到上一頁'

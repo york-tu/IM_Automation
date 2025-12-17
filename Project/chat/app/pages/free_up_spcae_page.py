@@ -113,10 +113,13 @@ class FreeUpSpacePage(Base):
     phone_platform = gl.get_value('PHONE_PLATFORM')
     phone_name = gl.get_value('PHONE_NAME')
     brand = gl.get_value('BRAND')
+
     if brand.lower() == 'mingpin':
         brand_name = 'MingPinChat'
     elif brand.lower() == 'gu':
         brand_name = 'GuChat'
+    elif brand.lower() == 'chit':
+        brand_name = 'ChitChat'
 
     def into_free_up_space(self, product_name):
         self.common.poco_click(FreeUpSpacePageLocator.free_up_space_btn)

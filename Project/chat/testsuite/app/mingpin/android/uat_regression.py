@@ -22,7 +22,7 @@ user = 1
 connect_type = 'local'  # 手機連線模式 remote or local
 phone_name = 'HUAWEI_MATE_30_PRO_5G'  # 手機型號
 phone_platform = 'Android'  # 手機作業系統
-app_version = '2.18.0-rc.2'  # 版本號
+app_version = '2.18.0-rc.7'  # 版本號
 account_type = 'phone'  # 帳號類型: mail, phone...
 push = True  # 將結果推倒jira, 預設請給予 True
 # ============================================== S1 Test Cases ===================================================
@@ -94,7 +94,7 @@ s2_personal_chat_regression_list = [
     AppTestCase("test_voice_switch"),
     AppTestCase("test_vibration_switch"),
     AppTestCase("test_about_terms"),
-    AppTestCase("test_add_friend"),
+    AppTestCase("test_add_friend"),  # s1
     AppTestCase("test_add_myself"),
     AppTestCase("test_block_friend"),
     AppTestCase("test_block_setting"),
@@ -117,8 +117,8 @@ s2_personal_chat_regression_list = [
     AppTestCase('test_file_message_reply'),
     AppTestCase('test_file_message_delete'),
     AppTestCase('test_file_message_revoke'),
-    AppTestCase("test_delete_friend"),
-    AppTestCase("test_logout"),
+    AppTestCase("test_delete_friend"),  # s1
+    AppTestCase("test_logout"),  # s1
 ]
 # -------------- 群聊相關功能測試 --------------
 s2_group_chat_regression_list = [
@@ -133,7 +133,6 @@ s2_group_chat_regression_list = [
     ContextTestCase("test_admin_send_system_notification"),  # 後台發送系統訊息 > 前台確認系統通知
     ContextTestCase("test_admin_send_group_msg"),  # 後台發送群組訊息 > 前台確認群內訊息
 ]
-
 # -------------- 社群相關功能測試 --------------
 s2_social_regression_list = [
     AppTestCase("test_social_change_account_privacy"),  # 切換帳號隱私設定 > 確認他人端觀看"已點贊"媒體區
@@ -149,6 +148,7 @@ s2_social_regression_list = [
 # -------------- 其他功能測試 --------------
 s2_combination_regression_list = [
     ContextTestCase("test_app_email_registration"),  # 測試-email註冊 (後台需先關閉極驗)
+    ContextTestCase("test_app_email_forgetPW"),  # 測試-email登入時忘記密碼 > 重設
 ]
 
 s1_test_cases = (s1_personal_chat_regression_list + s1_group_chat_regression_list + s1_grab_red_envelop_regression_list
@@ -191,8 +191,8 @@ if __name__ == '__main__':
     # TestCase add
     suite = unittest.TestSuite()
     suite.addTests(s1_test_cases)  # total 47*s1
-    # suite.addTests(s2_test_cases)  # total 49*s2 + 3*s1
-    # suite.addTests(all_test_cases)  # total 96
+    suite.addTests(s2_test_cases)  # total 48*s2 + 3*s1
+    # suite.addTests(all_test_cases)  # total 95
 
     # RunningTest
     Utils.unittest_xml(suite)

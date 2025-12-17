@@ -178,7 +178,7 @@ class SocialMediaPostPage(Base):
 
         if media_type == 'photo':
             self.common.poco_click(SocialMediaPostPageLocator.album_btn)
-            sleep(1)
+            sleep(5)
             # ==================================================================
             # ➤ 確保 media_index 一定是 list
             if not isinstance(media_index, (list, tuple)):

@@ -22,28 +22,28 @@ user = 1
 connect_type = 'local'  # 手機連線模式 remote or local
 phone_name = 'IPHONE_15_PRO'  # 手機型號 'IPHONE_15_PRO (ios18.6.2)', 'IPHONE_73 (ios16.1.1)', 'IPHONE_11_PRO (ios15)'
 phone_platform = 'iOS'  # 手機作業系統
-app_version = '5.17.0(113303.116)'  # 版本號
+app_version = '5.18.0(113716.116)'  # 版本號
 account_type = 'phone'  # 帳號類型: email, phone...
 push = True  # 將結果推倒jira, 預設請給予 True
 
-s1_regression_list = [
-    # AppTestCase("test_login"),
-    # AppTestCase("test_version_check"),
-    # AppTestCase("test_change_nickname_and_instructions"),
-    # AppTestCase("test_change_password"),
-    # AppTestCase("test_add_friend"),
-    # AppTestCase("test_friend_remark"),
-    # AppTestCase("test_send_message"),
-    # AppTestCase("test_message_copy"),
-    # AppTestCase("test_message_reply"),
-    # AppTestCase("test_message_delete"),
-    # AppTestCase("test_message_revoke"),
-    # AppTestCase("test_message_pin"),
-    # AppTestCase("test_message_emoji"),
-    # AppTestCase('test_send_voice_message'),
-    # AppTestCase('test_voice_message_reply'),
-    # AppTestCase('test_voice_message_delete'),
-    # AppTestCase('test_voice_message_revoke'),
+Prod_regression_list = [
+    AppTestCase("test_login"),
+    AppTestCase("test_version_check"),
+    AppTestCase("test_change_nickname_and_instructions"),
+    AppTestCase("test_change_password"),
+    AppTestCase("test_add_friend"),
+    AppTestCase("test_friend_remark"),
+    AppTestCase("test_send_message"),
+    AppTestCase("test_message_copy"),
+    AppTestCase("test_message_reply"),
+    AppTestCase("test_message_delete"),
+    AppTestCase("test_message_revoke"),
+    AppTestCase("test_message_pin"),
+    AppTestCase("test_message_emoji"),
+    AppTestCase('test_send_voice_message'),
+    AppTestCase('test_voice_message_reply'),
+    AppTestCase('test_voice_message_delete'),
+    AppTestCase('test_voice_message_revoke'),
     AppTestCase('test_send_file_message'),
     AppTestCase('test_file_message_reply'),
     AppTestCase('test_file_message_delete'),
@@ -66,7 +66,7 @@ s1_regression_list = [
     AppTestCase("test_delete_friend"),
     AppTestCase("test_logout"),
 ]
-
+# ==================================================== Backup ==========================================================
 one_on_one_chat_regression_list = [
     AppTestCase("test_login"),
     AppTestCase("test_version_check"),
@@ -133,8 +133,7 @@ group_chat_regression_list = [
     AppTestCase('test_file_message_revoke_group'),
 
 ]
-
-# =========== 發現功能測試 ===========
+# =========== 發現功能測試 ==============
 discover_regression_list = [
     AppTestCase("test_discover_floating_icon"),  # 確認功能懸浮按鈕與選單
 ]
@@ -172,7 +171,7 @@ if __name__ == '__main__':
 
     # TestCase add
     suite = unittest.TestSuite()
-    suite.addTests(s1_regression_list)  # total 38 cases
+    suite.addTests(Prod_regression_list)  # total 38 cases
 
     # =================== All Test cases ===================
     # suite.addTests(one_on_one_chat_regression_list)

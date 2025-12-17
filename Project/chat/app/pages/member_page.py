@@ -213,7 +213,7 @@ class MemberPage(Base):
         self.common.poco_click(MemberPageLocator.edit_profile_btn)
 
     def change_introduction(self, text):
-        if self.phone_platform == 'Android':
+        if self.phone_platform.lower() == 'android':
             self.common.poco_send_text(MemberPageLocator.self_introduction_input, text)
             self.common.poco_click(MemberPageLocator.save_btn)
         else:
@@ -229,7 +229,7 @@ class MemberPage(Base):
         self.common.poco_click(MemberPageLocator.edit_profile_btn)
 
     def input_block_words_then_check_toast(self, block_words):
-        if self.phone_platform == 'Android':
+        if self.phone_platform.lower() == 'android':
             self.common.poco_send_text(MemberPageLocator.self_introduction_input, block_words)
             self.common.poco_click(MemberPageLocator.save_btn)
             actual_wordings = self.common.poco_get_text(MemberPageLocator.toast_wordings)

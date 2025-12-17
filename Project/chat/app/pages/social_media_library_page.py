@@ -270,7 +270,7 @@ class SocialMediaLibraryPageLocator:
     # ========================================= 媒體櫃 ========================================================
     # 第一則媒體
     first_media = base.check_device(
-        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/iv_thumbnail'),
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/cv_media', num=0),
         iOS=base.data_collation(type_kind='type', type_name='StaticText', num=2,
                                 parent={'type_kind': 'type', 'type_name': 'Cell', 'num': 0}),
     )
@@ -361,7 +361,7 @@ class SocialMediaLibraryPageLocator:
     def public_media_index(app_package, num):
         public_media_index = SocialMediaLibraryPageLocator.base.check_device(
             Android=SocialMediaLibraryPageLocator.base.data_collation(type_kind='name',
-                                                                      type_name=str(app_package) + ':id/iv_thumbnail',
+                                                                      type_name=str(app_package) + ':id/cv_media',
                                                                       num=num),
             iOS=SocialMediaLibraryPageLocator.base.data_collation(type_kind='name', type_name=''),
         )
@@ -823,7 +823,7 @@ class SocialMediaLibraryPage(Base):
 
     def _verify_reply_target(self, recent_commenter):
         """驗證回覆目標"""
-        if self.phone_platform == 'android':
+        if self.phone_platform.lower() == 'android':
             assert self.common.poco_get_text(SocialMediaLibraryPageLocator.post_input_comment).__contains__(
                 f'回复{recent_commenter}'), '留言輸入框內的回覆對象錯誤'
         else:  # ios part
@@ -839,7 +839,7 @@ class SocialMediaLibraryPage(Base):
         self.common.poco_click(SocialMediaLibraryPageLocator.post_comment_send_btn)
         send_time = self._get_current_time()
 
-        if self.phone_platform == 'android':
+        if self.phone_platform.lower() == 'android':
             post_recent_comment_recent_reply_commenter = self.common.poco_get_text(replier_locator)  # 回覆訊息者暱稱
             post_recent_comment_recent_reply_add_time = self.common.poco_get_text(SocialMediaLibraryPageLocator.post_recent_comment_recent_reply_add_time)  # 回覆訊息留言者留言時間
             post_recent_comment_recent_reply_content = self.common.poco_get_text(SocialMediaLibraryPageLocator.post_recent_comment_recent_reply_comment_content)
@@ -877,7 +877,7 @@ class SocialMediaLibraryPage(Base):
 
     def _verify_reply_chain(self, sub_replier, recent_comment_recent_replier):
         """確認回覆鏈中的暱稱和回覆對象"""
-        if self.phone_platform == 'android':
+        if self.phone_platform.lower() == 'android':
             post_recent_comment_recent_reply_commenter = self.common.poco_get_text(SocialMediaLibraryPageLocator.post_recent_comment_recent_reply_commenter)  # 回覆者A (A>B)
             assert self.common.poco_exists(SocialMediaLibraryPageLocator.reply_to_icon), '未出現回覆鏈中的">"符號'
             reply_target_nickname = self.common.poco_get_text(SocialMediaLibraryPageLocator.reply_to_target_nickname)  # 被回覆者B (A>B)

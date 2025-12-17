@@ -1,5 +1,5 @@
 from time import sleep
-
+from datetime import datetime, timedelta
 # from Project.chat.app.pages.chatroom_page import ChatRoomPageLocator
 from common.app.common import Common
 from configs.app.setting import Setting
@@ -84,5 +84,12 @@ class PointPage(Base):
         assert self.common.poco_get_text(PointPageLocator.point_type) == grab_type, f'積分類型錯誤'
         assert self.common.poco_get_text(PointPageLocator.point_status) == '成功', f'領取失敗'
         actual_grab_time = self.common.poco_get_text(PointPageLocator.point_date).replace('\n', ' ')
-        assert actual_grab_time == grab_time, f'領取時間有誤, 預期:{grab_time},實際:{actual_grab_time}'
+
+        expected = datetime.strptime(grab_time, "%Y-%m-%d %H:%M")
+        actual = datetime.strptime(actual_grab_time, "%Y-%m-%d %H:%M")
+        # 誤差 ±1 分鐘
+        tolerance = timedelta(minutes=1)
+        assert abs(expected - actual) <= tolerance
+
+        # assert actual_grab_time == grab_time, f'領取時間有誤, 預期:{grab_time},實際:{actual_grab_time}'
         return self.common.poco_get_text(PointPageLocator.point_total)

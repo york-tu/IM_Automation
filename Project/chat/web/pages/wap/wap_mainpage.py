@@ -51,7 +51,7 @@ class MainPageLocator:
     others_main_page_thumb_up_counts = (By.XPATH, "(//div[@class='text-[20rem] font-semibold text-grand-1'])[3]")
     share_others_profile_btn = (By.XPATH, "//div[@class='pr-[16rem] flex items-center absolute right-0 cursor-pointer z-10']")  # 他人主頁-分享主頁鍵
     # ============================= 主頁 > 發布 =========================================================================
-    post_via_photo = (By.XPATH, '//div[text()="相簿"]')  # 發布 > 相簿
+    post_via_photo = (By.XPATH, '//div[text()="照片"]')  # 發布 > 照片
     post_via_video = (By.XPATH, '//div[text()="视频"]')  # 發布 > 視頻
     input_post_descriptions = (By.ID, "post-introduction")  # 發布頁-撰寫說明
     post_confirm = (By.XPATH, "//button[text()='发布']")

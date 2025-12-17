@@ -58,7 +58,7 @@ class PersonalSocialPageLocator:
     )
     # 個人主頁 > 已關注列表 > 第一位成員
     list_first_member = base.check_device(
-        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tv_nickname'),
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tv_nickname', num=0),
         iOS=base.data_collation(type_kind='name', type_name='authorsFollowStatus_authorCell_name_label'),
     )
     # 個人主頁 > 已關注列表 > 第一位成員 > 關注/已關注鍵
@@ -117,6 +117,10 @@ class PersonalSocialPageLocator:
     )
     detail_page_back_btn = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/iv_back'),
+        iOS=base.data_collation(type_kind='name', type_name='base_back_button'),
+    )
+    chatroom_back_btn = base.check_device(
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/btn_back'),
         iOS=base.data_collation(type_kind='name', type_name='base_back_button'),
     )
     main_page = base.check_device(
@@ -228,8 +232,8 @@ class SocialHomePage(Base):
         if add_follow:
             assert self.common.poco_get_text(PersonalSocialPageLocator.list_first_member) == user_nickname
         else:
-            self.common.poco_send_text(PersonalSocialPageLocator.search_member, user_nickname)
-            sleep(2)
+            # self.common.poco_send_text(PersonalSocialPageLocator.search_member, user_nickname)
+            # sleep(2)
             assert not self.common.poco_get_text(PersonalSocialPageLocator.list_first_member) == user_nickname
         # =============================確認列表第一位關注狀態============================
         if add_follow:
@@ -247,15 +251,22 @@ class SocialHomePage(Base):
             assert not self.common.poco_get_text(PersonalSocialPageLocator.list_first_member) == user_nickname
 
     def return_to_my_social_page(self):
-        if self.common.poco_exists(SocialMediaLibraryPageLocator.media_back_btn):
-            self.common.poco_click(SocialMediaLibraryPageLocator.media_back_btn)  # 貼文上點返回
+        while (self.common.poco_exists(PersonalSocialPageLocator.social_page_back_btn)
+               or self.common.poco_exists(PersonalSocialPageLocator.detail_page_back_btn)
+               or self.common.poco_exists(SocialMediaLibraryPageLocator.media_back_btn)
+               or self.common.poco_exists(PersonalSocialPageLocator.chatroom_back_btn)):
 
-        while self.common.poco_exists(PersonalSocialPageLocator.social_page_back_btn) or self.common.poco_exists(
-                PersonalSocialPageLocator.detail_page_back_btn):
-            if self.common.poco_exists(PersonalSocialPageLocator.social_page_back_btn):
+            if self.common.poco_exists(PersonalSocialPageLocator.social_page_back_btn):  # 他人社群主頁返回建
                 self.common.poco_click(PersonalSocialPageLocator.social_page_back_btn)
-            if self.common.poco_exists(PersonalSocialPageLocator.detail_page_back_btn):
+
+            if self.common.poco_exists(PersonalSocialPageLocator.detail_page_back_btn):  # 詳情頁返回建
                 self.common.poco_click(PersonalSocialPageLocator.detail_page_back_btn)
+
+            if self.common.poco_exists(SocialMediaLibraryPageLocator.media_back_btn):  # 貼文上返回建
+                self.common.poco_click(SocialMediaLibraryPageLocator.media_back_btn)
+
+            if self.common.poco_exists(PersonalSocialPageLocator.chatroom_back_btn):  # 聊天室返回建
+                self.common.poco_click(PersonalSocialPageLocator.chatroom_back_btn)
 
         sleep(0.5)
 

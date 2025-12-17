@@ -10,6 +10,7 @@ from time import sleep
 from selenium.webdriver.common.by import By
 from Project.chat.web.pages.webs.web_basepage import BasePage
 from Project.chat.web.pages.webs.web_friendpage import FriendPage, FriendPageLocator
+from urllib.parse import urlparse
 
 DIR_NAME = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 sys.path.append(DIR_NAME)
@@ -392,17 +393,21 @@ class ChatRoomPage(BasePage):
         self.switch_last_page()
         self.sleep(3)
         current_url = self.get_url()
+        currentURL_domain = urlparse(current_url).netloc
+        message_domain = urlparse(message).netloc
+        assert currentURL_domain == message_domain, f'超連結訊息網頁開啟有誤'
 
-        if self.brand == 'gu':
-            assert current_url.__contains__('gu-chat'), f'股聊超連結開啟有誤'
-        elif self.brand == 'meechat':
-            assert current_url.__contains__('meechattop'), f'覓聊超連結開啟有誤'
-        elif self.brand == 'mingpin':
-            assert current_url.__contains__('mingpin-vip'), f'名品會超連結開啟有誤'
-        elif self.brand == 'chitchat':
-            assert current_url.__contains__('chitchatswebs'), f'趣聊超連結開啟有誤'
-        else:
-            return False, f'超連結開啟有誤'
+
+        # if self.brand == 'gu':
+        #     assert current_url.__contains__('gu-chat'), f'股聊超連結開啟有誤'
+        # elif self.brand == 'meechat':
+        #     assert current_url.__contains__('meechattop'), f'覓聊超連結開啟有誤'
+        # elif self.brand == 'mingpin':
+        #     assert current_url.__contains__('mingpin-vip'), f'名品會超連結開啟有誤, 實際:{current_url}'
+        # elif self.brand == 'chitchat':
+        #     assert current_url.__contains__('chitchatswebs'), f'趣聊超連結開啟有誤'
+        # else:
+        #     return False, f'超連結開啟有誤'
 
         # if message.__contains__('gu'):
         #     assert current_url.__contains__('gu-chat'), f'股聊超連結開啟有誤'

@@ -89,6 +89,7 @@ s1_red_envelope_related_list = [
     WebTestCase("test_grab_luck_red_envelope"),  # 測試-[前台]搶拚手氣紅包
 ]
 
+
 # ============================================== S2 Test Cases ===================================================
 s2_web_regression_list = [
     WebTestCase("test_web_login"),  # 測試-登入  # s1

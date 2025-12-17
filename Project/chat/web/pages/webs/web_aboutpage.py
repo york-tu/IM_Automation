@@ -9,7 +9,7 @@ class AboutPageLocator:
     service_button = (By.XPATH, "//p[text()='服务条款']/..//div[contains(@class,'arrow')]")
     service_check = (By.XPATH, "//div[@class='terms-list__item']/p[1]")
     service_sub_text = (By.XPATH, "//div[@class='terms-list__item']/p[2]")
-    service_page_title = (By.XPATH, "//span[@class='item-title__text-primary']")
+    service_page_title = (By.XPATH, "(//p[@class='item-title'])[1]")
 
     privacy_link = (By.XPATH, "//li[@class='dots-list__item']/a")
     privacy_button = (By.XPATH, "//p[text()='隐私权政策']/..//div[contains(@class,'arrow')]")
@@ -22,7 +22,7 @@ class AboutPage(BasePage):
         self.click(AboutPageLocator.service_button)
         self.switch_last_page()
         self.wait_loading_finish()
-        assert self.get_text(AboutPageLocator.service_page_title) == ' 服务条款'
+        assert self.get_text(AboutPageLocator.service_page_title) == '服务条款'
 
         brand_text = str(brand.capitalize())
         while not self.find_elements(AboutPageLocator.service_sub_text):
@@ -54,7 +54,7 @@ class AboutPage(BasePage):
         self.switch_last_page()
         self.wait_loading_finish()
         assert self.is_element_finded(AboutPageLocator.privacy_check), f'隱私權政策頁面顯示錯誤'
-        assert self.get_text(AboutPageLocator.privacy_page_title) == ' 隐私权政策'
+        assert self.get_text(AboutPageLocator.privacy_page_title) == '隐私权政策'
         
         self.close_browser()
         self.switch_last_page()

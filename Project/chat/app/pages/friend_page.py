@@ -406,10 +406,12 @@ class FriendPage(Base):
     def into_chatroom_via_userDetail(self):
         if self.common.poco_exists(FriendPageLocator.friend_chat_btn):
             self.common.poco_click(FriendPageLocator.friend_chat_btn)
+            sleep(1)
 
     def into_chatroom_via_addToAddressBook(self):
         if self.common.poco_exists(FriendPageLocator.add_to_address_book_btn):
             self.common.poco_click(FriendPageLocator.add_to_address_book_btn)
+            sleep(1)
 
     def block_friend(self):
         self.wait_loading_finish()

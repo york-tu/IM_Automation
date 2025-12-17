@@ -42,9 +42,18 @@ class ChatRoomPageLocator:
         iOS=base.data_collation(type_kind='name', type_name='message_inputText_textView'),
     )
 
+    inputField_longClickMenu_selectAll = base.check_device(
+        Android=base.data_collation(type_kind='', type_name=''),
+        iOS=base.data_collation(type_kind='name', type_name='全选'),
+    )
+    inputField_longClickMenu_cut = base.check_device(
+        Android=base.data_collation(type_kind='', type_name=''),
+        iOS=base.data_collation(type_kind='name', type_name='剪切'),
+    )
+
     message_input_block = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tvInputBlock'),
-        iOS=base.data_collation(type_kind='name', type_name='搜索'),
+        iOS=base.data_collation(type_kind='name', type_name='此群组不允许传送讯息'),
     )
 
     message_input_empty = base.check_device(
@@ -52,16 +61,9 @@ class ChatRoomPageLocator:
         iOS=base.data_collation(type_kind='name', type_name='Aa'),
     )
 
-    brand = (gl.get_value('BRAND') or '').strip().lower()
-    android_id = f"{app_package}:id/btn_send" if brand == 'mingpin' else f"{app_package}:id/iv_send"
     send_message_btn = base.check_device(
-        Android=base.data_collation(type_kind='name', type_name=android_id),
-        iOS=base.data_collation(type_kind='name', type_name='message_inputText_send_button'),
-    )
-
-    send_message_btn1 = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/btn_send'),
-        iOS=base.data_collation(type_kind='name', type_name=''),
+        iOS=base.data_collation(type_kind='name', type_name='message_inputText_send_button'),
     )
 
     retry_send_message_btn = base.check_device(
@@ -179,7 +181,7 @@ class ChatRoomPageLocator:
 
     url_check_point = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=f'com.android.chrome:id/coordinator'),
-        iOS=base.data_collation(type_kind='name', type_name='搜索'),
+        iOS=base.data_collation(type_kind='name', type_name='Safari浏览器'),
     )
 
     author_name = base.check_device(
@@ -268,12 +270,12 @@ class ChatRoomPageLocator:
 
     image_photo = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/iv_photo'),
-        iOS=base.data_collation(type_kind='name', type_name='搜索')
+        iOS=base.data_collation(type_kind='name', type_name='message_attachment_album_button')
     )
 
     image_camera = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/iv_camera'),
-        iOS=base.data_collation(type_kind='name', type_name='搜索')
+        iOS=base.data_collation(type_kind='name', type_name='message_attachment_capture_button')
     )
 
     options_btn = base.check_device(
@@ -384,10 +386,10 @@ class ChatRoomPageLocator:
     def message_locator(message, num=-1):
         message_path = ChatRoomPageLocator.base.check_device(
             Android=ChatRoomPageLocator.base.data_collation(type_kind='text', type_name=message, num=num),
-            iOS=ChatRoomPageLocator.base.data_collation(type_kind='value', type_name=message, num=num),
+            iOS=ChatRoomPageLocator.base.data_collation(type_kind='name', type_name=message, num=num),
         )
-
         return message_path
+
 
     @staticmethod
     def folder_file_index(num=-1):
@@ -462,15 +464,14 @@ class ChatRoomPage(Base):
             self.common.poco_click(ChatRoomPageLocator.send_message_btn)
             if self.common.poco_exists(ChatRoomPageLocator.retry_send_message_btn):
                 self.common.poco_click(ChatRoomPageLocator.retry_send_message_btn)
+            sleep(0.5)
             last_room_msg = self.common.poco_get_text(ChatRoomPageLocator.last_message_room)
             assert last_room_msg == message, f'發送聊天訊息有誤, 預期: {message}, 實際:{last_room_msg}'
 
     def send_text_message(self):
         messages = '自动化测试'
         if self.phone_platform.lower() == 'ios':
-            # self.common.poco_click(ChatRoomPageLocator.message_input)
 
-            # messages = '測試TeSt12345!@#$%测试'
             num = 0
             for _ in range(0, 6):
                 self.send_message(f'{messages}#{num}')
@@ -486,7 +487,6 @@ class ChatRoomPage(Base):
             else:
                 self.common.poco_click(ChatRoomPageLocator.message_input)
 
-            # messages = '測試TeSt12345!@#$%测试'
             num = 0
             for _ in range(0, 6):
                 text = str(messages) + '#' + str(num)
@@ -524,12 +524,8 @@ class ChatRoomPage(Base):
                 self.common.sleep(3)
                 assert self.common.poco_exists(ChatRoomPageLocator.url_check_point), f'超連結沒有出現'
                 self.go_back()
-        # else:
-        #     context_url = self.poco(type='TextView')[-2].attr('name')
-        #     assert context_url.__contains__('https://'), f'超連結沒有出現'
 
     def draft_message(self, message):
-
         if self.common.poco_exists(ChatRoomPageLocator.message_input_empty):
             self.common.poco_click(ChatRoomPageLocator.message_input)
             self.common.poco_send_text(ChatRoomPageLocator.message_input, message)
@@ -541,9 +537,6 @@ class ChatRoomPage(Base):
         self.common.poco_click(ChatRoomPageLocator.menu_copy)  # 複製
 
         self.common.poco_long_click(ChatRoomPageLocator.message_input)
-        # self.common.poco_wait_exists(ChatRoomPageLocator.menu_paste)
-        # self.common.poco_click(ChatRoomPageLocator.menu_paste)  # 貼上
-
         for _ in range(0, 3):
             if self.common.poco_exists(ChatRoomPageLocator.menu_paste):
                 self.common.poco_click(ChatRoomPageLocator.menu_paste)
@@ -591,9 +584,6 @@ class ChatRoomPage(Base):
 
     def reply_voice_message(self, message):
         while not self.common.poco_exists(ChatRoomPageLocator.menu_reply):
-            # if self.phone_platform.lower() == 'ios':
-            #     self.common.poco_long_click(ChatRoomPageLocator.last_voice_message_room)
-            # else:
             self.common.poco_long_click(ChatRoomPageLocator.message_locator(message))
         self.common.poco_click(ChatRoomPageLocator.menu_reply)
 
@@ -621,7 +611,10 @@ class ChatRoomPage(Base):
 
     def reply_file_message(self, message):
         while not self.common.poco_exists(ChatRoomPageLocator.menu_reply):
-            self.common.poco_long_click(ChatRoomPageLocator.message_locator(message))
+            if self.phone_platform.lower() == 'ios':
+                self.common.poco_long_click(ChatRoomPageLocator.last_chatroom_filename)
+            else:
+                self.common.poco_long_click(ChatRoomPageLocator.message_locator(message))
         self.common.poco_click(ChatRoomPageLocator.menu_reply)
 
         title = self.common.poco_get_text(ChatRoomPageLocator.reply_name)
@@ -643,24 +636,18 @@ class ChatRoomPage(Base):
         assert self.common.poco_exists(ChatRoomPageLocator.message_locator(message)), f'回覆原訊息遺失 顯示有誤'
 
     def delete_message(self, message, last_message='', num=-1, is_voice=None, is_file=None, is_reply=False):
-
-        # self.common.poco_long_click(ChatRoomPageLocator.message_locator(message, num))
-        while not self.common.poco_exists(ChatRoomPageLocator.menu_delete):
+        if self.phone_platform.lower() == 'ios':
+            while not self.common.poco_exists(ChatRoomPageLocator.menu_delete):
+                if not is_file:
+                    self.common.poco_long_click(ChatRoomPageLocator.message_locator(message, -1))
+                else:
+                    self.common.poco_long_click(ChatRoomPageLocator.last_chatroom_filename)
+        else:
             self.common.poco_long_click(ChatRoomPageLocator.message_locator(message, num))
+            self.common.poco_wait_exists(ChatRoomPageLocator.menu_delete)
+
         self.common.poco_click(ChatRoomPageLocator.menu_delete)
-
-        # for _ in range(0, 3):
-        #     if self.common.poco_exists(ChatRoomPageLocator.menu_delete):
-        #         self.common.poco_click(ChatRoomPageLocator.menu_delete)
-        #         break
-        #     else:
-        #         if self.phone_platform.lower() == 'ios':
-        #             self.common.poco_long_click(ChatRoomPageLocator.message_locator(message, num))
-        #         else:
-        #             self.common.poco_long_click(ChatRoomPageLocator.message_locator(message, num))
         self.common.poco_click(ChatRoomPageLocator.popup_btn)
-
-        # self.common.poco_wait_disappearance(ChatRoomPageLocator.message_locator(message))
 
         if last_message == '':
             pass
@@ -686,10 +673,13 @@ class ChatRoomPage(Base):
         else:
             return self.common.poco_get_text(ChatRoomPageLocator.last_message_room)
 
-    def revoke_message(self, message, num=-1):
+    def revoke_message(self, message, num=-1, is_file=None):
         if self.phone_platform.lower() == 'ios':
             while not self.common.poco_exists(ChatRoomPageLocator.menu_revoke):
-                self.common.poco_long_click(ChatRoomPageLocator.message_locator(message, num))
+                if not is_file:
+                    self.common.poco_long_click(ChatRoomPageLocator.message_locator(message, -1))
+                else:
+                    self.common.poco_long_click(ChatRoomPageLocator.last_chatroom_filename)
         else:
             self.common.poco_long_click(ChatRoomPageLocator.message_locator(message, num))
             self.common.poco_wait_exists(ChatRoomPageLocator.menu_revoke)
@@ -716,16 +706,8 @@ class ChatRoomPage(Base):
     def pin_message(self, message):
         self.common.poco_click(ChatRoomPageLocator.message_locator(message))
 
-        # for _ in range(0, 5):
-        #     if self.common.poco_exists(ChatRoomPageLocator.menu_pin):
-        #         self.common.poco_click(ChatRoomPageLocator.menu_pin)
-        #         break
-        #     else:
-        #         self.common.poco_long_click(ChatRoomPageLocator.message_locator(message))
-        #         self.common.poco_wait_exists(ChatRoomPageLocator.menu_pin)
         while not self.common.poco_exists(ChatRoomPageLocator.menu_pin):
             self.common.poco_long_click(ChatRoomPageLocator.message_locator(message))
-        # self.common.poco_wait_exists(ChatRoomPageLocator.menu_pin)
         self.common.poco_click(ChatRoomPageLocator.menu_pin)
 
         if self.common.poco_exists(ChatRoomPageLocator.popup_message):
@@ -800,25 +782,15 @@ class ChatRoomPage(Base):
         else:
             assert message == self.common.poco_get_text(ChatRoomPageLocator.pin_messages_label)
 
-
     def get_pin_message(self):
-        # if self.phone_platform.lower() == 'android':
-            messages = []
-            for pin_num in range(0, 5, 1):
-                if self.common.poco_exists(ChatRoomPageLocator.pin_messages_locator(ChatRoomPageLocator.app_package, pin_num)):
-                    message = self.common.poco_get_text(ChatRoomPageLocator.pin_messages_locator(ChatRoomPageLocator.app_package, pin_num))
-                    messages.append(message)
-                else:
-                    break
-            return messages
-        # else:
-        #     messages = []
-        #     if self.poco(type='Other').child(nameMatches='.*测试.*').exists():
-        #         total_pin_nums = len(self.poco(type='Other').child(nameMatches='.*测试.*'))
-        #         for pin_num in range(0, total_pin_nums, 1):
-        #             message = self.poco(type='Other').child(nameMatches='.*测试.*')[pin_num].attr('name')
-        #             messages.append(message)
-        #         return messages
+        messages = []
+        for pin_num in range(0, 5, 1):
+            if self.common.poco_exists(ChatRoomPageLocator.pin_messages_locator(ChatRoomPageLocator.app_package, pin_num)):
+                message = self.common.poco_get_text(ChatRoomPageLocator.pin_messages_locator(ChatRoomPageLocator.app_package, pin_num))
+                messages.append(message)
+            else:
+                break
+        return messages
 
     def share_message(self, _text):
         for _ in range(0, 10):
@@ -937,5 +909,4 @@ class ChatRoomPage(Base):
         self.common.poco_click(ChatRoomPageLocator.options_btn)
         self.common.poco_wait_exists(ChatRoomPageLocator.option_delete_history)
         self.common.poco_click(ChatRoomPageLocator.option_delete_history)  # 刪除對話紀錄
-        # self.common.poco_wait_exists(ChatRoomPageLocator.menu_delete)
         self.common.poco_click(ChatRoomPageLocator.menu_delete)  # 刪除確認

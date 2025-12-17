@@ -37,13 +37,16 @@ class MainPageLocator:
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/parentPanel'),
         iOS=base.data_collation(type_kind='name', type_name='登录状态已过期，请重新登录')
     )
-
+    login_expired_msg_confirm_btn = base.check_device(
+        Android=base.data_collation(type_kind='name', type_name='android:id/button1'),
+        iOS=base.data_collation(type_kind='name', type_name='ScrollView', num=-1)
+    )
     login_button = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/btn_login'),
         iOS=base.data_collation(type_kind='name', type_name='phoneLogin_login_button')
     )
     email_login_button = base.check_device(
-        Android=base.data_collation(type_kind='', type_name=''),
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/btn_login'),
         iOS=base.data_collation(type_kind='name', type_name='emailLogin_login_button')
     )
     register_button = base.check_device(
@@ -78,9 +81,17 @@ class MainPageLocator:
         Android=base.data_collation(type_kind='text', type_name='下一步'),
         iOS=base.data_collation(type_kind='name', type_name='下一步')
     )
+    get_verify_code_btn = base.check_device(
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/btn_get_verification_code'),
+        iOS=base.data_collation(type_kind='name', type_name='forgotPassword_verificationCode_button')
+    )
     input_code = base.check_device(
         Android=base.data_collation(type_kind='text', type_name='请输入验证码'),
         iOS=base.data_collation(type_kind='name', type_name='codeVerify_textField')
+    )
+    forgetPW_input_code = base.check_device(
+        Android=base.data_collation(type_kind='text', type_name='请输入验证码'),
+        iOS=base.data_collation(type_kind='name', type_name='forgotPassword_verificationCode_textField')
     )
     input_account_id = base.check_device(
         Android=base.data_collation(type_kind='text', type_name='填写帐号'),
@@ -114,7 +125,7 @@ class MainPageLocator:
         iOS=base.data_collation(type_kind='name', type_name='登出后不会删除任何资料纪录，下次登入依然可以使用本帐号。'),
     )
 
-    logout_confirm_button = base.check_device(
+    confirm_button = base.check_device(
         Android=base.data_collation(type_kind='name', type_name='android:id/button1'),
         iOS=base.data_collation(type_kind='name', type_name='accountSecurity_logout_alertAction'),
     )
@@ -143,7 +154,7 @@ class MainPageLocator:
         iOS=base.data_collation(type_kind='name', type_name='phoneLogin_phone_textField')
     )
     email_account = base.check_device(
-        Android=base.data_collation(type_kind='', type_name=''),
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/et_input_text', num=0),
         iOS=base.data_collation(type_kind='name', type_name='emailLogin_email_textField')
     )
     password = base.check_device(
@@ -151,9 +162,34 @@ class MainPageLocator:
         iOS=base.data_collation(type_kind='name', type_name='phoneLogin_password_textField')
     )
     email_password = base.check_device(
-        Android=base.data_collation(type_kind='', type_name=''),
+        Android=base.data_collation(type_kind='text', type_name='请填写密码'),
         iOS=base.data_collation(type_kind='name', type_name='emailLogin_password_textField')
     )
+    forgetPW_email_account = base.check_device(
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/et_input_text', num=0),
+        iOS=base.data_collation(type_kind='name', type_name='forgotPassword_email_textField')
+    )
+    forgetPW_btn = base.check_device(
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tv_forget_password'),
+        iOS=base.data_collation(type_kind='name', type_name='emailLogin_forgot_button')
+    )
+    forgetPWPage_newPW = base.check_device(
+        Android=base.data_collation(type_kind='text', type_name='设定新的密码'),
+        iOS=base.data_collation(type_kind='name', type_name='setupNewPassword_password_textField')
+    )
+    forgetPWPage_confirmNewPW = base.check_device(
+        Android=base.data_collation(type_kind='text', type_name='再次设定新的密码'),
+        iOS=base.data_collation(type_kind='name', type_name='setupNewPassword_confirmPassword_textField')
+    )
+    PWReset_btn = base.check_device(
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/btn_reset'),
+        iOS=base.data_collation(type_kind='name', type_name='setupNewPassword_submit_button')
+    )
+    alert_msg = base.check_device(
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/alertTitle'),
+        iOS=base.data_collation(type_kind='name', type_name='密码重设成功')
+    )
+
     error = base.check_device(
         Android=base.data_collation(type_kind='text', type_name='手机号/密码错误，请重新输入'),
         iOS=base.data_collation(type_kind='name', type_name='手机号/密码错误，请重新输入'),
@@ -279,19 +315,19 @@ class MainPageLocator:
 class MainPage(Base):
     phone_platform = gl.get_value('PHONE_PLATFORM')
     brand = gl.get_value("BRAND")
-    PASS_email_file_path = r"C:\Users\york_tu\Desktop\email_regex_testcases_PASS.xlsx"
-    FAIL_email_file_path = r"C:\Users\york_tu\Desktop\email_regex_testcases_FAIL.xlsx"
-
-    # def check_navigation_bar_items_count(self):
-    #     sleep(1)
-    #     counts = len(self.poco(name=str(MainPageLocator.app_package) + ":id/navigation_bar_item_icon_view"))
-    #     return counts
+    env = gl.get_value("ENV")
+    # PASS_email_file_path = r"C:\Users\york_tu\Desktop\email_regex_testcases_PASS.xlsx"
+    # FAIL_email_file_path = r"C:\Users\york_tu\Desktop\email_regex_testcases_FAIL.xlsx"
 
     # 回傳登入狀態，已登入回傳True，反之回傳False
     def check_login_status(self):
         """確認是否已登入"""
         self.wait_loading_finish()
-        self.common.poco_click(MainPageLocator.main_btn)
+        self.common.poco_click(MainPageLocator.message_btn)
+        if self.common.poco_exists(MainPageLocator.login_expired_msg):
+            self.common.poco_click(MainPageLocator.login_expired_msg_confirm_btn)
+            sleep(3)
+            self.common.poco_click(MainPageLocator.message_btn)
         if self.common.poco_exists(MainPageLocator.new_login_page_welcome_description):
             # 在登入頁面 → 表示未登入
             self.common.poco_click(MainPageLocator.new_login_page_close_btn)
@@ -300,44 +336,7 @@ class MainPage(Base):
             # 不在登入頁面 → 表示已登入
             return True
 
-        # if self.phone_platform.lower() == 'android':
-        #     # 檢查工具列是否有5個icon(包含發現icon)
-        #     if self.check_navigation_bar_items_count() == 5:  # 登入後才會有發現icon
-        #         return True
-        #     return False
-        # else:  # ios
-        #     # 檢查工具列是否有發現icon
-        #     if self.common.poco_exists(MainPageLocator.discover_btn):  # 登入後才會有發現icon
-        #         return True
-        #     return False
-
     def into_home_check(self):
-        # if self.phone_platform.lower() == 'android':
-        #     number = 0
-
-            # self.check_login_status()
-            #
-            # for loop in range(0, 6):
-            #     self.common.sleep(0.5)
-            #
-            #     if status is True and self.check_login_status() is False:
-            #         logging.warning('帳號被登出了')
-            #         return False
-            #
-            #     elif self.check_login_status() is False:
-            #         return False
-            #     elif self.check_login_status():
-            #         return True
-            #     sleep(3)
-                # if self.common.poco_exists(MainPageLocator.message_btn) or self.common.poco_exists(MainPageLocator.main_btn):
-                #     number += 1  # 為避免找到首頁定位後才跳出彈窗，故找到後再跑一次
-                #     if number == 2:
-                #         break
-                #
-                # if loop == 5:
-                #     raise EOFError('開啟app錯誤')
-        # =========================== ios scenario =====================================
-        # else:
         if self.check_login_status():
             return True
         else:
@@ -348,12 +347,11 @@ class MainPage(Base):
         if self.common.poco_wait_exists(MainPageLocator.logout, timeout=10):
             self.common.poco_click(MainPageLocator.logout)
         if self.common.poco_wait_exists(MainPageLocator.logout_popup, timeout=10):
-            self.common.poco_click(MainPageLocator.logout_confirm_button)
+            self.common.poco_click(MainPageLocator.confirm_button)
 
         self.common.sleep(3)
         if self.phone_platform.lower() == 'android':
             assert self.common.poco_get_attr(MainPageLocator.recommend_tab, 'selected') is True, f'未回到訪客首頁推薦頁'
-            # assert self.check_navigation_bar_items_count() == 4, f'未成功登出'
         else:  # ios
             self.common.poco_click(MainPageLocator.main_btn)
             assert self.common.poco_exists(MainPageLocator.new_login_page_welcome_description)  # 出現登入頁
@@ -377,7 +375,7 @@ class MainPage(Base):
             error_message = self.common.poco_get_text(MainPageLocator.error)
             raise EOFError(f'登入失敗-{error_message}')
 
-        self.wait_loading_finish()
+        sleep(3)
 
         # 預設檢查：只要不在登入頁面就視為成功
         assert not self.common.poco_exists(MainPageLocator.new_login_page_welcome_description), '登入失敗，仍在登入頁'
@@ -386,11 +384,8 @@ class MainPage(Base):
         # 如果已登入 -> 先登出
         if self.check_login_status():
             self.into_main_setting_page()
-            if self.common.poco_exists(MainPageLocator.login_expired_msg):
-                self.common.poco_click(MainPageLocator.logout_confirm_button)
-            else:
-                self.common.poco_click(MainPageLocator.security_button)
-                self.logout()
+            self.common.poco_click(MainPageLocator.security_button)
+            self.logout()
 
         self.common.poco_click(MainPageLocator.main_btn)
         self.check_new_login_page()
@@ -450,22 +445,18 @@ class MainPage(Base):
         assert agreement_hint == '如果您继续操作，即表示您同意《服务条款》并确认已阅读《隐私权政策》。'
 
     def get_product_name(self):
-        platform = self.phone_platform.lower()
         brand = self.brand.lower()
+        env = self.env.lower()
 
-        product_map = {
-            "android": {
-                "gu": "股聊",
-                "mingpin": "UAT_名品会",
-            },
-            "ios": {
-                "gu": "GuChat",
-                "mingpin": "MingPinChat_UAT",
-            }
+        suffix = "_UAT" if env == 'uat' else ""
+        product_info = {
+            "gu": f"GuChat{suffix}",
+            "mingpin": f"名品会{suffix}",
+            "chit": f"ChitChat{suffix}",
         }
 
         # 預設值，可避免 key 不存在報錯
-        product = product_map.get(platform, {}).get(brand, "UnknownProduct")
+        product = product_info.get(brand, "UnknownProduct")
         return product
 
     def check_focus_recommend_tab_after_login(self):
@@ -513,7 +504,6 @@ class MainPage(Base):
             self.common.poco_click(MainPageLocator.back_btn)
         self.common.poco_wait_exists(MainPageLocator.message_btn)
         self.common.poco_click(MainPageLocator.message_btn)
-        # self.skip_login_rush()
 
         assert self.common.poco_exists(MainPageLocator.chat_list_check), f'進入聊天列表錯誤'
 
@@ -585,117 +575,151 @@ class MainPage(Base):
         assert self.get_nickname() == account
 
     # 登入頁email欄位檢核
-    def input_email_check_in_login(self):
-        if self.phone_platform.lower() == 'android':
-            self.common.poco_click(MainPageLocator.main_btn)
-            self.common.poco_click(MainPageLocator.new_login_page_use_email_btn)
-            self.common.poco_send_text(MainPageLocator.password, '000111abc')
-
-            df1 = pd.read_excel(self.FAIL_email_file_path, header=None)
-            for idx, row in df1.iterrows():
-                email = str(row[0]).strip()
-
-                self.common.poco_send_text(MainPageLocator.login_email_input, email)
-                result = self.common.poco_get_attr(MainPageLocator.login_button, 'enabled')
-                assert result is False, f'輸入:{email} => {result}'
-
-            df2 = pd.read_excel(self.PASS_email_file_path, header=None)
-            for idx, row in df2.iterrows():
-                email = str(row[0]).strip()
-
-                self.common.poco_send_text(MainPageLocator.login_email_input, email)
-                result = self.common.poco_get_attr(MainPageLocator.login_button, 'enabled')
-                assert result is True, f'輸入:{email} => {result}'
-
-            self.common.poco_click(MainPageLocator.fgpws_button)
-
-        else:  # 'ios'
-            self.common.poco_click(MainPageLocator.main_btn)
-            self.common.poco_click(MainPageLocator.new_login_page_use_email_btn)
-            self.common.poco_click(MainPageLocator.password)
-            self.common.poco_send_text(MainPageLocator.password, '000111abc')
-
-            df1 = pd.read_excel(self.FAIL_email_file_path, header=None)
-            for idx, row in df1.iterrows():
-                email = str(row[0]).strip()
-
-                self.common.poco_click(MainPageLocator.login_email_input)
-                self.common.poco_send_text(MainPageLocator.login_email_input, email)
-                self.common.poco_click(MainPageLocator.password)
-
-                result = self.common.poco_get_attr(MainPageLocator.login_button, 'isEnabled')
-                assert result == '0', f'輸入:{email} => {result}, (note:enable=1)'
-                assert self.common.poco_exists(MainPageLocator.warning_icon)
-                self.common.poco_click(MainPageLocator.login_email_input)
-                self.common.poco_click(MainPageLocator.login_email_input_clear)
-
-            df2 = pd.read_excel(self.PASS_email_file_path, header=None)
-            for idx, row in df2.iterrows():
-                email = str(row[0]).strip()
-                self.common.poco_click(MainPageLocator.login_email_input)
-                self.common.poco_send_text(MainPageLocator.login_email_input, email)
-                self.common.poco_click(MainPageLocator.password)
-                result = self.common.poco_get_attr(MainPageLocator.login_button, 'isEnabled')
-                assert result == '1', f'輸入:{email} => {result}, (note:enable=1)'
-                assert not self.common.poco_exists(MainPageLocator.warning_icon)
-                assert self.common.poco_exists(MainPageLocator.checkPASS_icon)
-
-                self.common.poco_click(MainPageLocator.login_email_input)
-                self.common.poco_click(MainPageLocator.login_email_input_clear)
-
-            self.common.poco_click(MainPageLocator.fgpws_button)
+    # def input_email_check_in_login(self):
+    #     if self.phone_platform.lower() == 'android':
+    #         self.common.poco_click(MainPageLocator.main_btn)
+    #         self.common.poco_click(MainPageLocator.new_login_page_use_email_btn)
+    #         self.common.poco_send_text(MainPageLocator.password, '000111abc')
+    #
+    #         df1 = pd.read_excel(self.FAIL_email_file_path, header=None)
+    #         for idx, row in df1.iterrows():
+    #             email = str(row[0]).strip()
+    #
+    #             self.common.poco_send_text(MainPageLocator.login_email_input, email)
+    #             result = self.common.poco_get_attr(MainPageLocator.login_button, 'enabled')
+    #             assert result is False, f'輸入:{email} => {result}'
+    #
+    #         df2 = pd.read_excel(self.PASS_email_file_path, header=None)
+    #         for idx, row in df2.iterrows():
+    #             email = str(row[0]).strip()
+    #
+    #             self.common.poco_send_text(MainPageLocator.login_email_input, email)
+    #             result = self.common.poco_get_attr(MainPageLocator.login_button, 'enabled')
+    #             assert result is True, f'輸入:{email} => {result}'
+    #
+    #         self.common.poco_click(MainPageLocator.fgpws_button)
+    #
+    #     else:  # 'ios'
+    #         self.common.poco_click(MainPageLocator.main_btn)
+    #         self.common.poco_click(MainPageLocator.new_login_page_use_email_btn)
+    #         self.common.poco_click(MainPageLocator.password)
+    #         self.common.poco_send_text(MainPageLocator.password, '000111abc')
+    #
+    #         df1 = pd.read_excel(self.FAIL_email_file_path, header=None)
+    #         for idx, row in df1.iterrows():
+    #             email = str(row[0]).strip()
+    #
+    #             self.common.poco_click(MainPageLocator.login_email_input)
+    #             self.common.poco_send_text(MainPageLocator.login_email_input, email)
+    #             self.common.poco_click(MainPageLocator.password)
+    #
+    #             result = self.common.poco_get_attr(MainPageLocator.login_button, 'isEnabled')
+    #             assert result == '0', f'輸入:{email} => {result}, (note:enable=1)'
+    #             assert self.common.poco_exists(MainPageLocator.warning_icon)
+    #             self.common.poco_click(MainPageLocator.login_email_input)
+    #             self.common.poco_click(MainPageLocator.login_email_input_clear)
+    #
+    #         df2 = pd.read_excel(self.PASS_email_file_path, header=None)
+    #         for idx, row in df2.iterrows():
+    #             email = str(row[0]).strip()
+    #             self.common.poco_click(MainPageLocator.login_email_input)
+    #             self.common.poco_send_text(MainPageLocator.login_email_input, email)
+    #             self.common.poco_click(MainPageLocator.password)
+    #             result = self.common.poco_get_attr(MainPageLocator.login_button, 'isEnabled')
+    #             assert result == '1', f'輸入:{email} => {result}, (note:enable=1)'
+    #             assert not self.common.poco_exists(MainPageLocator.warning_icon)
+    #             assert self.common.poco_exists(MainPageLocator.checkPASS_icon)
+    #
+    #             self.common.poco_click(MainPageLocator.login_email_input)
+    #             self.common.poco_click(MainPageLocator.login_email_input_clear)
+    #
+    #         self.common.poco_click(MainPageLocator.fgpws_button)
 
     # 註冊頁email欄位檢核
-    def input_email_check_in_registration(self):
+    # def input_email_check_in_registration(self):
+    #     if self.phone_platform.lower() == 'android':
+    #         self.common.poco_click(MainPageLocator.new_login_page_use_email_btn)
+    #         self.common.poco_click(MainPageLocator.register_button)
+    #
+    #         df1 = pd.read_excel(self.FAIL_email_file_path, header=None)
+    #         for idx, row in df1.iterrows():
+    #             email = str(row[0]).strip()
+    #
+    #             self.common.poco_send_text(MainPageLocator.login_email_input, email)
+    #             result = self.common.poco_get_attr(MainPageLocator.next_btn, 'enabled')
+    #             assert result is False, f'輸入:{email} => {result}'
+    #
+    #         df2 = pd.read_excel(self.PASS_email_file_path, header=None)
+    #         for idx, row in df2.iterrows():
+    #             email = str(row[0]).strip()
+    #
+    #             self.common.poco_send_text(MainPageLocator.login_email_input, email)
+    #             result = self.common.poco_get_attr(MainPageLocator.next_btn, 'enabled')
+    #             assert result is True, f'輸入:{email} => {result}'
+    #
+    #     else:  # 'ios'
+    #         self.common.poco_click(MainPageLocator.new_login_page_use_email_btn)
+    #         self.common.poco_click(MainPageLocator.register_button)
+    #
+    #         df1 = pd.read_excel(self.FAIL_email_file_path, header=None)
+    #         for idx, row in df1.iterrows():
+    #             email = str(row[0]).strip()
+    #
+    #             self.common.poco_click(MainPageLocator.login_email_input)
+    #             self.common.poco_send_text(MainPageLocator.login_email_input, email)
+    #             self.common.poco_click(MainPageLocator.next_btn)
+    #             result = self.common.poco_get_attr(MainPageLocator.next_btn, 'isEnabled')
+    #             assert result == '0', f'輸入:{email} => {result}, (note:enable=1)'
+    #             assert self.common.poco_exists(MainPageLocator.warning_icon)
+    #             self.common.poco_click(MainPageLocator.login_email_input)
+    #             self.common.poco_click(MainPageLocator.login_email_input_clear)
+    #
+    #         df2 = pd.read_excel(self.PASS_email_file_path, header=None)
+    #         for idx, row in df2.iterrows():
+    #             email = str(row[0]).strip()
+    #
+    #             self.common.poco_click(MainPageLocator.login_email_input)
+    #             self.common.poco_send_text(MainPageLocator.login_email_input, email)
+    #             self.common.poco_click(MainPageLocator.register_button)
+    #             result = self.common.poco_get_attr(MainPageLocator.next_btn, 'isEnabled')
+    #             assert result == '1', f'輸入:{email} => {result}, (note:enable=1)'
+    #             assert not self.common.poco_exists(MainPageLocator.warning_icon)
+    #             assert self.common.poco_exists(MainPageLocator.checkPASS_icon)
+    #             self.common.poco_click(MainPageLocator.login_email_input)
+    #             self.common.poco_click(MainPageLocator.login_email_input_clear)
+
+    # email登入頁 > 忘記密碼
+    def email_forgetPW_resetPW_loginNewPW(self, email, newPW):
+        if self.common.poco_click(MainPageLocator.main_btn):
+            self.common.poco_click(MainPageLocator.main_btn)
+        self.common.poco_click(MainPageLocator.new_login_page_use_email_btn)
+        self.common.poco_click(MainPageLocator.forgetPW_btn)  # 忘記密碼鍵
+        # ==================== 忘記密碼頁 ====================
+        self.common.poco_click(MainPageLocator.forgetPW_email_account)
+        self.common.poco_send_text(MainPageLocator.forgetPW_email_account, email)  # 輸入email
+        self.common.poco_click(MainPageLocator.get_verify_code_btn)  # 獲得驗證碼btn
+        # ==================== 獲得驗證碼 > 輸入驗證碼 ====================
+        sleep(15)
+        code = self.common.get_verification_code_from_mail(self.brand)  # 獲得驗證碼
+        self.common.poco_click(MainPageLocator.forgetPW_input_code)
+        self.common.poco_send_text(MainPageLocator.forgetPW_input_code, code)  # 輸入驗證碼
+        self.common.poco_click(MainPageLocator.next_btn)
+        # ==================== 設定新密碼頁 ====================
+        self.common.poco_click(MainPageLocator.forgetPWPage_newPW)
+        self.common.poco_send_text(MainPageLocator.forgetPWPage_newPW, newPW)  # 設定新密碼
+        self.common.poco_click(MainPageLocator.forgetPWPage_confirmNewPW)
+        self.common.poco_send_text(MainPageLocator.forgetPWPage_confirmNewPW, newPW)  # 再次設定新密碼
+        self.common.poco_click(MainPageLocator.PWReset_btn)  # 重設密碼btn
+        # ==================== 確認密碼設定成功彈窗 ====================
+        assert self.common.poco_exists(MainPageLocator.alert_msg)
         if self.phone_platform.lower() == 'android':
-            # self.common.poco_click(MainPageLocator.main_btn)
-            self.common.poco_click(MainPageLocator.new_login_page_use_email_btn)
-            self.common.poco_click(MainPageLocator.register_button)
-
-            df1 = pd.read_excel(self.FAIL_email_file_path, header=None)
-            for idx, row in df1.iterrows():
-                email = str(row[0]).strip()
-
-                self.common.poco_send_text(MainPageLocator.login_email_input, email)
-                result = self.common.poco_get_attr(MainPageLocator.next_btn, 'enabled')
-                assert result is False, f'輸入:{email} => {result}'
-
-            df2 = pd.read_excel(self.PASS_email_file_path, header=None)
-            for idx, row in df2.iterrows():
-                email = str(row[0]).strip()
-
-                self.common.poco_send_text(MainPageLocator.login_email_input, email)
-                result = self.common.poco_get_attr(MainPageLocator.next_btn, 'enabled')
-                assert result is True, f'輸入:{email} => {result}'
-
-        else:  # 'ios'
-            # self.common.poco_click(MainPageLocator.main_btn)
-            self.common.poco_click(MainPageLocator.new_login_page_use_email_btn)
-            self.common.poco_click(MainPageLocator.register_button)
-
-            df1 = pd.read_excel(self.FAIL_email_file_path, header=None)
-            for idx, row in df1.iterrows():
-                email = str(row[0]).strip()
-
-                self.common.poco_click(MainPageLocator.login_email_input)
-                self.common.poco_send_text(MainPageLocator.login_email_input, email)
-                self.common.poco_click(MainPageLocator.next_btn)
-                result = self.common.poco_get_attr(MainPageLocator.next_btn, 'isEnabled')
-                assert result == '0', f'輸入:{email} => {result}, (note:enable=1)'
-                assert self.common.poco_exists(MainPageLocator.warning_icon)
-                self.common.poco_click(MainPageLocator.login_email_input)
-                self.common.poco_click(MainPageLocator.login_email_input_clear)
-
-            df2 = pd.read_excel(self.PASS_email_file_path, header=None)
-            for idx, row in df2.iterrows():
-                email = str(row[0]).strip()
-
-                self.common.poco_click(MainPageLocator.login_email_input)
-                self.common.poco_send_text(MainPageLocator.login_email_input, email)
-                self.common.poco_click(MainPageLocator.register_button)
-                result = self.common.poco_get_attr(MainPageLocator.next_btn, 'isEnabled')
-                assert result == '1', f'輸入:{email} => {result}, (note:enable=1)'
-                assert not self.common.poco_exists(MainPageLocator.warning_icon)
-                assert self.common.poco_exists(MainPageLocator.checkPASS_icon)
-                self.common.poco_click(MainPageLocator.login_email_input)
-                self.common.poco_click(MainPageLocator.login_email_input_clear)
+            assert self.common.poco_get_text(MainPageLocator.alert_msg) == '密码重设成功'
+            self.common.poco_click(MainPageLocator.confirm_button)
+        else:
+            self.poco(type='ScrollView')[-1].click()
+            self.common.poco_click(MainPageLocator.email_account)
+            self.common.poco_send_text(MainPageLocator.email_account, email)  # 登陸頁輸入email
+        # ==================== 輸入新密碼後登入 ====================
+        self.common.poco_click(MainPageLocator.email_password)
+        self.common.poco_send_text(MainPageLocator.email_password, newPW)
+        self.common.poco_click(MainPageLocator.email_login_button)  # 登陸

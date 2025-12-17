@@ -53,6 +53,7 @@ class Common(object):
         stop_app(package_name)
         start_app(package_name)
 
+
     def clear_app(self, package_name):
         if self.device.lower() == 'android':
             clear_app(package_name)
@@ -411,8 +412,10 @@ class Common(object):
         mail_title = ''
         if brand == 'gu':
             mail_title = 'GuChat'
-        elif brand =='mingpin':
+        elif brand == 'mingpin':
             mail_title = 'MingpinChat'
+        elif brand == 'chit':
+            mail_title = 'ChitChat'
 
         try:
             # 登入 Gmail

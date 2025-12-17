@@ -22,7 +22,7 @@ class BlackListPageLocator:
 
         return env
 
-    black_seach_input = base.check_device(
+    black_search_input = base.check_device(
         Android=base.data_collation(type_kind='text', type_name='搜索'),
         iOS=base.data_collation(type_kind='type', type_name='TextField'),
     )
@@ -204,14 +204,14 @@ class BlackListPage(Base):
 
     def search_friend_from_blackList(self, name):
         if self.phone_platform.lower() == 'ios':
-            self.common.poco_click(BlackListPageLocator.black_seach_input)
-            self.common.poco_send_text(BlackListPageLocator.black_seach_input, name)
+            self.common.poco_click(BlackListPageLocator.black_search_input)
+            self.common.poco_send_text(BlackListPageLocator.black_search_input, name)
             self.common.sleep(1)
             assert not self.common.poco_exists(BlackListPageLocator.search_empty), f'找不到任何黑名單成員'
             self.common.poco_click(BlackListPageLocator.black_nickname)
 
         else:
-            self.common.poco_send_text(BlackListPageLocator.black_seach_input, name)
+            self.common.poco_send_text(BlackListPageLocator.black_search_input, name)
             self.common.sleep(1)
             assert self.common.poco_get_text(BlackListPageLocator.black_nickname) == name, f'找不到任何黑名單成員'
             self.common.poco_click(BlackListPageLocator.black_nickname)

@@ -2,30 +2,31 @@ import os
 import sys
 import unittest
 import logging
+
+root_path = os.path.dirname(
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
+sys.path.append(root_path)
+
 import common.utils.globalvar as gl
 from common.utils.utils import Utils
 from Project.chat.app.testcase.app_testcase import AppTestCase
 from Project.chat.app.testcase.context_testcase import ContextTestCase
 from jira.config.base_key import BaseKey
 
-root_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
-sys.path.append(root_path)
-
 logging.getLogger("airtest").setLevel(logging.WARNING)
 
 # Test Setting
 env = 'prod'
-brand = 'mingpin'
+brand = 'chit'
 user = 1
-connect_type = 'local'  # 手機連線模式
-phone_name = 'HUAWEI_MATE_30_PRO_5G'  # 手機型號
-phone_platform = 'Android'  # 手機作業系統
-app_version = '2.19.0'  # 版本號
-account_type = 'phone'  # 帳號類型: mail, phone...
-# specific_os_version = []  # 指定OS版本, ['10','11','8']
+connect_type = 'local'  # 手機連線模式 remote or local
+phone_name = 'IPHONE_15_PRO'  # 手機型號 'IPHONE_15_PRO (ios18.6.2)', 'IPHONE_73 (ios16.1.1)', 'IPHONE_11_PRO (ios15)'
+phone_platform = 'iOS'  # 手機作業系統
+app_version = '5.18.0(113716.116)'  # 版本號
+account_type = 'phone'  # 帳號類型: email, phone...
 push = True  # 將結果推倒jira, 預設請給予 True
 
-s1_regression_list = [
+Prod_regression_list = [
     AppTestCase("test_login"),
     AppTestCase("test_version_check"),
     AppTestCase("test_change_nickname_and_instructions"),
@@ -61,11 +62,11 @@ s1_regression_list = [
     AppTestCase('test_file_message_reply_group'),
     AppTestCase('test_file_message_delete_group'),
     AppTestCase('test_file_message_revoke_group'),
+    AppTestCase("test_discover_floating_icon"),  # 確認功能懸浮按鈕與選單
     AppTestCase("test_delete_friend"),
     AppTestCase("test_logout"),
 ]
-
-# =========== 私聊相關功能測試 ===========
+# ==================================================== Backup ==========================================================
 one_on_one_chat_regression_list = [
     AppTestCase("test_login"),
     AppTestCase("test_version_check"),
@@ -125,15 +126,16 @@ group_chat_regression_list = [
     AppTestCase('test_voice_message_reply_group'),
     AppTestCase('test_voice_message_delete_group'),
     AppTestCase('test_voice_message_revoke_group'),
+
     AppTestCase('test_send_file_message_group'),
     AppTestCase('test_file_message_reply_group'),
     AppTestCase('test_file_message_delete_group'),
     AppTestCase('test_file_message_revoke_group'),
-]
 
-# =========== 發現功能測試 ===========
+]
+# =========== 發現功能測試 ==============
 discover_regression_list = [
-    AppTestCase("test_discover_floating_icon"),
+    AppTestCase("test_discover_floating_icon"),  # 確認功能懸浮按鈕與選單
 ]
 
 
@@ -152,25 +154,24 @@ if __name__ == '__main__':
         phone_name = data[6]
         specific_os_version = data[7]
         push = bool(data[3])
-        
+
     gl.set_value('ENV', env)
     gl.set_value('BRAND', brand)
     gl.set_value('USER', int(user))
     gl.set_value('CONNECT_TYPE', connect_type)
     gl.set_value('PHONE_NAME', phone_name)
-    gl.set_value('PHONE_PLATFORM', phone_platform) # 作業系統名稱
+    gl.set_value('PHONE_PLATFORM', phone_platform)  # 作業系統名稱
     gl.set_value('APP_VERSION', app_version)
     gl.set_value('ACCOUNT_TYPE', account_type)
-    # gl.set_value('SPECIFIC_OS_VERSION', specific_os_version)
 
     # for jira config
-    gl.set_value('TEST_TYPE', 'app_android')
+    gl.set_value('TEST_TYPE', 'app_ios')  # android: app_android , ios: app_ios
     BaseKey().get_jira_data()
     gl.set_value('PUSH', push)
-    
+
     # TestCase add
     suite = unittest.TestSuite()
-    suite.addTests(s1_regression_list)  # total 37 cases
+    suite.addTests(Prod_regression_list)  # total 38 cases
 
     # =================== All Test cases ===================
     # suite.addTests(one_on_one_chat_regression_list)

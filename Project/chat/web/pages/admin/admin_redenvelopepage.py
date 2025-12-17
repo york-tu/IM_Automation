@@ -114,6 +114,7 @@ class RedEnvelopePageLocator:
 
     luck_add_award = (By.XPATH, "//span[text()='设置下一奖项']")
     luck_now_initial = (By.XPATH, "//span[text()='即刻发布']/..//span[@class='el-checkbox__inner']")
+    luck_expire_time = (By.XPATH, '//label[text()="红包有效时间"]/..//input[@placeholder="选择日期区间"]')
     luck_select_all = (By.XPATH, "//span[text()='全选']")
     luck_delete_btn = (By.XPATH, "//span[text()='删除奖项']")
     luck_award_calculate = (By.XPATH, "//span[text()='奖项计算']")
@@ -173,7 +174,7 @@ class RedEnvelopePage(BasePage):
             start_time = (datetime.datetime.now()+datetime.timedelta(minutes=1)).strftime("%Y-%m-%d %H:%M")
             self.type(RedEnvelopePageLocator.add_red_start_time, start_time)
             self.click(RedEnvelopePageLocator.add_red_end_time)
-            end_time = (datetime.datetime.now()+datetime.timedelta(hours=1)).strftime("%Y-%m-%d %H:%M")
+            end_time = (datetime.datetime.now()+datetime.timedelta(minutes=10)).strftime("%Y-%m-%d %H:%M")
             self.type(RedEnvelopePageLocator.add_red_end_time, end_time)
             self.click(RedEnvelopePageLocator.add_auto_grad_member)
             self.click(RedEnvelopePageLocator.add_initiate_ID)
@@ -202,6 +203,9 @@ class RedEnvelopePage(BasePage):
             self.click(RedEnvelopePageLocator.add_red_start_time)
             start_time = (datetime.datetime.now() + datetime.timedelta(minutes=1)).strftime("%Y-%m-%d %H:%M")
             self.type(RedEnvelopePageLocator.add_red_start_time, start_time)
+            self.click(RedEnvelopePageLocator.add_red_end_time)
+            end_time = (datetime.datetime.now() + datetime.timedelta(minutes=10)).strftime("%Y-%m-%d %H:%M")
+            self.type(RedEnvelopePageLocator.add_red_end_time, end_time)
             self.click(RedEnvelopePageLocator.add_auto_grad_member)
             self.click(RedEnvelopePageLocator.add_initiate_ID)
             sleep(1)
@@ -348,6 +352,9 @@ class RedEnvelopePage(BasePage):
             self.click(RedEnvelopePageLocator.add_red_start_time)
             start_time = (datetime.datetime.now() + datetime.timedelta(minutes=1)).strftime("%Y-%m-%d %H:%M")
             self.type(RedEnvelopePageLocator.add_red_start_time, start_time)
+            self.click(RedEnvelopePageLocator.add_red_end_time)
+            end_time = (datetime.datetime.now() + datetime.timedelta(minutes=10)).strftime("%Y-%m-%d %H:%M")
+            self.type(RedEnvelopePageLocator.add_red_end_time, end_time)
             self.click(RedEnvelopePageLocator.add_auto_grad_member)
             self.click(RedEnvelopePageLocator.add_initiate_ID)
             self.wait_loading_finish()
@@ -392,7 +399,10 @@ class RedEnvelopePage(BasePage):
                     self.click(RedEnvelopePageLocator.add_auto_grad_member)  # 自動領取下拉選單
                     self.click(RedEnvelopePageLocator.add_red_select_member_select)  # 設定自動領取人員為gubot02
                     self.click(RedEnvelopePageLocator.luck_award_high)
-                    self.click(RedEnvelopePageLocator.luck_now_initial)
+                    self.click(RedEnvelopePageLocator.luck_now_initial)  # 即刻發布
+                    self.click(RedEnvelopePageLocator.luck_expire_time)  # 紅包有效時間
+                    expire_time = (datetime.datetime.now() + datetime.timedelta(minutes=10)).strftime("%Y-%m-%d %H:%M")
+                    self.type(RedEnvelopePageLocator.luck_expire_time, expire_time)
                     self.click(RedEnvelopePageLocator.luck_award_calculate)
                     self.wait_loading_finish()
                     result_text = self.get_text(RedEnvelopePageLocator.luck_award_calculate_results)
@@ -410,8 +420,6 @@ class RedEnvelopePage(BasePage):
                         self.refresh_browser()
                         self.wait_loading_finish()
         total_cost = re.search(r"金额\s*([0-9]+(?:\.[0-9]+)?)", result_text).group(1)
-        # total_cost = re.search(r"金額 (\d+\.\d+)", result_text).group(1)
-        # total_cost_format = str(total_cost).rstrip('0').rstrip('.')
         return str(float(total_cost))
 
     def redenvelope_detail(self, wait_time_seconds):
@@ -470,8 +478,14 @@ class RedEnvelopePage(BasePage):
                 self.click(RedEnvelopePageLocator.luck_award_2_member_select)
                 self.click(RedEnvelopePageLocator.luck_add_award)
                 self.click(RedEnvelopePageLocator.luck_award_3_member)
-                self.click(RedEnvelopePageLocator.luck_award_3_member_select)                
-                self.click(RedEnvelopePageLocator.luck_now_initial)
+                self.click(RedEnvelopePageLocator.luck_award_3_member_select)
+
+                self.scroll_to_element(RedEnvelopePageLocator.luck_single_picture)  # 網頁畫面往下滾到單圖位置
+
+                self.click(RedEnvelopePageLocator.luck_now_initial)  # 即刻發布
+                self.click(RedEnvelopePageLocator.luck_expire_time)  # 紅包有效時間
+                expire_time = (datetime.datetime.now() + datetime.timedelta(minutes=10)).strftime("%Y-%m-%d %H:%M")
+                self.type(RedEnvelopePageLocator.luck_expire_time, expire_time)
                 self.click(RedEnvelopePageLocator.luck_award_calculate)
                 self.click(RedEnvelopePageLocator.luck_detail)
                 self.wait_loading_finish()
@@ -487,9 +501,8 @@ class RedEnvelopePage(BasePage):
 
                     self.click(RedEnvelopePageLocator.luck_now_initial)
                     sleep(0.5)
-                    self.click(RedEnvelopePageLocator.luck_now_initial)
+                    self.click(RedEnvelopePageLocator.luck_now_initial)  # 即刻發布
                     self.click(RedEnvelopePageLocator.luck_award_calculate)
-
                     self.click(RedEnvelopePageLocator.add_red_add_btn)
                     self.wait_loading_finish()
                     if self.is_element_finded(RedEnvelopePageLocator.add_red_remind) is True:

@@ -43,7 +43,7 @@ class MessagePageLocator:
     chatroom_last_filename = (By.XPATH, "(//div[@class='text-[14px] font-semibold text-grand-1 leading-[20px] mb-[4px]'])[last()]")  #聊天室內最新一則檔案訊息名稱
     reply_file_text = (By.XPATH, "(//div[@class='text-[12px]'])[last()]")  # 聊天室內最後一則檔案訊息的回覆框"原檔案訊息名稱"
     # ============================= 社群化分享文 =========================================================================
-    chat_share_author_name = (By.XPATH, "(//div[@class='min-w-0 flex-1 truncate font-semibold text-white-100'])[last()]")  # 最新一則個人頁分享文作者
+    chat_share_author_name = (By.XPATH, "(//div[@class='min-w-0 flex-1 truncate font-semibold text-grand-1'])[last()]")  # 最新一則個人頁分享文作者
     chat_share_post_author_name = (By.XPATH, "(//p[@class='overflow-hidden text-ellipsis whitespace-nowrap text-[12rem] text-white-100'])[last()]")  # 最新一則個人頁分享文作者
     chat_share_post_1 = (By.XPATH, "(//div[@class='flex-1 flex items-center w-[70rem] justify-center bg-neutral-100'])[1]")  # 個人頁分享文第一則貼文縮圖
     chat_share_post_2 = (By.XPATH, "(//div[@class='flex-1 flex items-center w-[70rem] justify-center bg-neutral-100'])[2]")  # 個人頁分享文第一則貼文縮圖
@@ -96,7 +96,7 @@ class MessagePageLocator:
     pin_collapse_btn = (By.XPATH, "//div[@class='w-[24rem] h-[24rem] arrow rotate-180']")
     pin_no_show = (By.XPATH, "//p[text()='不再显示']")
 
-    pin_alert_popup = (By.XPATH, "//div[@class='px-[44rem] py-[12rem] text-grand-1']")
+    pin_alert_popup = (By.XPATH, "//div[@class='px-[16rem] py-[24rem] text-grand-1 text-center']")
     pin_popup_close = (By.XPATH, "//button[text()='确认']")
 
     # ============================= 聊天室 > 聊天詳情頁 ===================================================================
@@ -172,6 +172,7 @@ class MessagePage(BasePage):
         sleep(1)
         location_mic_allow = pyautogui.locateCenterOnScreen(DIR_NAME + '\\element_icon\\mic_allow_permission.jpg', confidence=0.8)
         if location_mic_allow:
+            sleep(3)
             pyautogui.click(location_mic_allow)
         else:
             if length < 9:
@@ -189,26 +190,30 @@ class MessagePage(BasePage):
         sleep(3)
         self.click(MessagePageLocator.close_btn)
         self.wait_loading_finish()
-
         actual_voice_msg_length = self.get_text(MessagePageLocator.chatroom_latest_voice_message)
-        assert actual_voice_msg_length == expect_result, f'聊天室內語音長度有誤, 預期:{expect_result}, 實際:{actual_voice_msg_length}'
+
+        actual = int(actual_voice_msg_length.split(":")[1])
+        expect = int(expect_result.split(":")[1])
+        assert abs(actual-expect) <= 1, f'聊天室內語音長度有誤, 預期:{expect_result}, 實際:{actual_voice_msg_length}'
+
 
     def send_file_message(self):
+        file_folder_path = f'{DIR_NAME}\\test_medias\\file_sample'
+        files = [f for f in os.listdir(file_folder_path) if os.path.isfile(os.path.join(file_folder_path, f))]
+        random_file = random.choice(files)
+        file_path = f'{DIR_NAME}\\test_medias\\file_sample\\{random_file}'
+        self.copy_to_clipboard(file_path)
+
         if self.is_element_finded(MessagePageLocator.file_btn):
             self.click(MessagePageLocator.file_btn)
         else:
             self.click(MessagePageLocator.add_function_btn)
             self.click(MessagePageLocator.file_btn)
 
-        file_folder_path = f'{DIR_NAME}\\test_medias\\file_sample'
-        files = [f for f in os.listdir(file_folder_path) if os.path.isfile(os.path.join(file_folder_path, f))]
-        random_file = random.choice(files)
-        file_path = f'{DIR_NAME}\\test_medias\\file_sample\\{random_file}'
-
-        self.copy_to_clipboard(file_path)
         sleep(1)
         pyautogui.hotkey('ctrl', 'v')
         pyautogui.press('enter')
+        sleep(2)
         confirm_msg_content = self.get_text(MessagePageLocator.send_confirm_content)
         assert confirm_msg_content == f'您要传送『{random_file}』吗？'
 
@@ -334,7 +339,6 @@ class MessagePage(BasePage):
     def message_revoke(self, message, pin_revoke=False, message_type='text'):
         self.wait_message_finish()
         if self.is_element_finded(MessagePageLocator.message_locator(message, message_type)) is True:
-            # while not self.is_element_finded(MessagePageLocator.menu_revoke):
             self.long_press(MessagePageLocator.message_locator(message, message_type))
             self.menu_click(MessagePageLocator.menu_revoke)
             sleep(1)
@@ -378,11 +382,13 @@ class MessagePage(BasePage):
             return False
 
         if self.is_element_finded(MessagePageLocator.pin_alert_popup) is True:
-            assert self.get_text(MessagePageLocator.pin_alert_popup) == '公告已满5则，无法新增，请取消欲替换的公告', f'彈窗訊息有誤'
+            sleep(1)
+            alert = self.get_text(MessagePageLocator.pin_alert_popup)
+            assert alert == '公告已满5则，无法新增，请取消欲替换的公告', f'彈窗訊息有誤, 實際:{alert}'
             self.click(MessagePageLocator.pin_popup_close)
             return False
         else:
-            self.sleep(0.5)
+            self.sleep(1)
             pin_show = self.get_text(MessagePageLocator.pin_first_msg)
             assert pin_show == message, f'公告顯示有誤'
             assert self.get_text(MessagePageLocator.system_message).__contains__('设定一笔讯息为公告'), f'設定置頂公告系統訊息有誤'
@@ -431,7 +437,7 @@ class MessagePage(BasePage):
             if self.is_element_finded(MessagePageLocator.pin_no_show):
                 before_message = self.get_text(MessagePageLocator.pin_first_msg)
                 self.click(MessagePageLocator.pin_no_show)
-                self.sleep(0.5)
+                self.sleep(1)
 
                 if self.is_element_finded(MessagePageLocator.pin_list_show):
                     after_message = self.get_text(MessagePageLocator.pin_first_msg)

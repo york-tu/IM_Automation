@@ -130,7 +130,7 @@ class SocialManagementPage(BasePage):
     def _into_sub_social_management_page(self, page_locator, page_title, first_enter=False):
 
         self.click(SocialManagementPageLocator.social_management)
-        if not self.is_element_finded(page_locator):
+        while not self.is_element_finded(page_locator):
             self.click(SocialManagementPageLocator.social_management)
         self.click(page_locator)
         self.wait_loading_finish()

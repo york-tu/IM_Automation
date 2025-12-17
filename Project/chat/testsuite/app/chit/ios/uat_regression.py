@@ -2,29 +2,27 @@ import os
 import sys
 import unittest
 import logging
-
-root_path = os.path.dirname(
-    os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
-sys.path.append(root_path)
-
 import common.utils.globalvar as gl
+
 from common.utils.utils import Utils
 from Project.chat.app.testcase.app_testcase import AppTestCase
 from Project.chat.app.testcase.context_testcase import ContextTestCase
 from jira.config.base_key import BaseKey
 
+root_path = os.path.dirname(
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
+sys.path.append(root_path)
 logging.getLogger("airtest").setLevel(logging.WARNING)
 
 # Test Setting
 env = 'uat'
-brand = 'mingpin'
+brand = 'chit'
 user = 1
 connect_type = 'local'  # 手機連線模式 remote or local
 phone_name = 'IPHONE_15_PRO'  # 手機型號 'IPHONE_15_PRO (ios18.6.2)', 'IPHONE_73 (ios16.1.1)', 'IPHONE_11_PRO (ios15)'
 phone_platform = 'iOS'  # 手機作業系統
-app_version = '5.18.0(113659.116)'  # 版本號
+app_version = '5.18.0(113658.116)'  # 版本號
 account_type = 'phone'  # 帳號類型: email, phone...
-# specific_os_version = []  # 指定OS版本, ['10','11','8']
 push = True  # 將結果推倒jira, 預設請給予 True
 
 # ============================================== S1 Test Cases ===================================================
@@ -175,7 +173,6 @@ if __name__ == '__main__':
     gl.set_value('PHONE_PLATFORM', phone_platform)  # 作業系統名稱
     gl.set_value('APP_VERSION', app_version)
     gl.set_value('ACCOUNT_TYPE', account_type)
-    # gl.set_value('SPECIFIC_OS_VERSION', specific_os_version)
 
     # for jira config
     gl.set_value('TEST_TYPE', 'app_ios')  # android: app_android , ios: app_ios

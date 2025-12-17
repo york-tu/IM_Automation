@@ -1,8 +1,10 @@
 from airtest.core.api import *
+from airtest.core.ios.ios import *
 from common.app.common import Common
 from configs.app.setting import Setting
 from Project.chat.app.pages.xpath.xpath_base import Xpath_Base
 import common.utils.globalvar as gl
+
 class BaseLocator:
     base = Xpath_Base()
     env = gl.get_value('ENV')
@@ -69,6 +71,9 @@ class BaseLocator:
 
 
 class Base(object):
+    phone_platform = gl.get_value("PHONE_PLATFORM")
+    app_package = Setting().get_package_name(gl.get_value("BRAND"), gl.get_value("ENV"))
+
     def __init__(self, poco='', wda_service='', skip_test_method=''):
         self.poco = poco
         self.wda = wda_service
@@ -79,7 +84,11 @@ class Base(object):
         self.common.poco_click(BaseLocator.home)
     
     def go_back(self):
-        self.common.keyevent("BACK")
+        if self.phone_platform.lower() == 'android':
+            self.common.keyevent("BACK")
+        else:
+            self.common.keyevent("home")
+            start_app(self.app_package)
 
     def skip_login_rush(self):
         self.common.sleep(2)

@@ -129,7 +129,8 @@ class MainPageLocator:
     menu_setting_otp_operation = (By.XPATH, "//a[text()=' 运营OTP']")  # 設置 - 運營 OTP
 
     # ------------------------- 操作日志 -------------------------
-    menu_log_query = (By.XPATH, "//span[text()='日志查询']")  # 日志查询
+    menu_log_query_gu = (By.XPATH, "//span[text()='日志查询']")  # 日志查询
+    menu_log_query_mingpin = (By.XPATH, "//a[text()='操作日志']")  # 操作日志
     menu_operation_log = (By.XPATH, "//a[@href='/logging/auditlog']")  # 日志查询 - 操作日誌
 
     # ------------------------- 紅包管理 -------------------------
@@ -480,9 +481,11 @@ class MainPage(BasePage):
 
     def into_logging(self):
         self.wait_loading_finish()
-        self.click(MainPageLocator.menu_log_query)
         if self.brand == 'gu':
+            self.click(MainPageLocator.menu_log_query_gu)
             self.click(MainPageLocator.menu_operation_log)
+        elif self.brand == 'mingpin':
+            self.click(MainPageLocator.menu_log_query_mingpin)
         self.wait_loading_finish()
         assert self.get_text(MainPageLocator.page_title) == '操作日志', f"進入操作日誌有誤"
 

@@ -56,7 +56,7 @@ class LoginPageLocator:
     new_login_page_close_btn = (By.XPATH, "//i[@class='van-badge__wrapper van-icon van-icon-cross van-action-sheet__close van-haptics-feedback']")
 
     # 國家選擇
-    nation_select_btn = (By.XPATH, "//span[@class='text-[16rem] flex-1 text-left']")
+    nation_select_btn = (By.XPATH, "//span[@class='text-[16rem] flex-1 text-left text-grand-1']")
     nation_search_input = (By.XPATH, "//input[@placeholder='搜索']")
     nation_search_first = (By.XPATH, "(//div[@class='el-dialog__body'])[last()]")
     nation_show = (By.XPATH, "(//label[@class='el-form-item__label'])")

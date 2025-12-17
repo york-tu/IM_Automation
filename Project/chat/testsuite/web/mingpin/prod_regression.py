@@ -17,55 +17,55 @@ user = 1
 test_type = 'web'
 os_version = 'Win11'  # 作業系統
 platform = 'PC'  # 測試環境
-web_version = '1.25.0'  # 版本號 (開web console: VITE_APP_VERSION: 正式版號; VITE_LAST_HASH: uat測試版號)
+web_version = '1.26.3'  # 版本號 (開web console: VITE_APP_VERSION: 正式版號; VITE_LAST_HASH: uat測試版號)
 
 push = True  # 將結果推倒jira, 預設請給予 True
 
 web_regression_list = [
-    # WebTestCase("test_send_media"),
-    # WebTestCase("test_web_login"),
-    # WebTestCase("test_into_notification"),
-    # WebTestCase("test_into_security"),
-    # WebTestCase("test_into_black"),
-    # WebTestCase("test_into_share"),
-    # WebTestCase("test_into_about"),
-    # WebTestCase("test_account_info"),
-    # WebTestCase("test_change_password"),
-    # WebTestCase("test_change_nickname"),
-    # WebTestCase("test_notify_switch"),
-    # WebTestCase("test_about_terms"),
+    WebTestCase("test_send_media"),
+    WebTestCase("test_web_login"),
+    WebTestCase("test_into_notification"),
+    WebTestCase("test_into_security"),
+    WebTestCase("test_into_black"),
+    WebTestCase("test_into_share"),
+    WebTestCase("test_into_about"),
+    WebTestCase("test_account_info"),
+    WebTestCase("test_change_password"),
+    WebTestCase("test_change_nickname"),
+    WebTestCase("test_notify_switch"),
+    WebTestCase("test_about_terms"),
     WebTestCase("test_add_friend"),
-    # WebTestCase("test_friend_remark"),
+    WebTestCase("test_friend_remark"),
     WebTestCase("test_block_friend"),
-    # WebTestCase("test_block_setting"),
+    WebTestCase("test_block_setting"),
     WebTestCase("test_unblock_friend"),
 
-    # WebTestCase("test_share_url"),
-    # WebTestCase("test_send_message"),
-    # WebTestCase("test_message_copy"),
-    # WebTestCase("test_message_reply"),
-    # WebTestCase("test_message_revoke"),
-    # WebTestCase("test_message_reply_revoke"),
-    # WebTestCase("test_message_emoji"),
-    # WebTestCase("test_message_pin"),
-    # WebTestCase("test_message_pin_reply"),
-    # WebTestCase("test_message_pin_revoke"),
-    #
-    # WebTestCase("test_send_file_message"),
-    # WebTestCase("test_file_message_reply"),
-    # WebTestCase("test_file_message_revoke"),
-    # WebTestCase("test_send_message_group"),
-    # WebTestCase("test_message_copy_group"),
-    # WebTestCase("test_message_reply_group"),
-    # WebTestCase("test_message_revoke_group"),
-    # WebTestCase("test_message_pin_group"),
-    # WebTestCase("test_message_pin_reply_group"),
-    # WebTestCase("test_message_pin_revoke_group"),
-    # WebTestCase("test_send_file_message_group"),
-    # WebTestCase("test_file_message_reply_group"),
-    # WebTestCase("test_file_message_revoke_group"),
+    WebTestCase("test_share_url"),
+    WebTestCase("test_send_message"),
+    WebTestCase("test_message_copy"),
+    WebTestCase("test_message_reply"),
+    WebTestCase("test_message_revoke"),
+    WebTestCase("test_message_reply_revoke"),
+    WebTestCase("test_message_emoji"),
+    WebTestCase("test_message_pin"),
+    WebTestCase("test_message_pin_reply"),
+    WebTestCase("test_message_pin_revoke"),
+
+    WebTestCase("test_send_file_message"),
+    WebTestCase("test_file_message_reply"),
+    WebTestCase("test_file_message_revoke"),
+    WebTestCase("test_send_message_group"),
+    WebTestCase("test_message_copy_group"),
+    WebTestCase("test_message_reply_group"),
+    WebTestCase("test_message_revoke_group"),
+    WebTestCase("test_message_pin_group"),
+    WebTestCase("test_message_pin_reply_group"),
+    WebTestCase("test_message_pin_revoke_group"),
+    WebTestCase("test_send_file_message_group"),
+    WebTestCase("test_file_message_reply_group"),
+    WebTestCase("test_file_message_revoke_group"),
     WebTestCase("test_delete_friend"),
-    # WebTestCase("test_web_logout"),
+    WebTestCase("test_web_logout"),
 ]
 
 # TestCase frame add
@@ -97,7 +97,7 @@ if __name__ == "__main__":
     gl.set_value('PUSH', push)
     
     # TestCase add
-    suite.addTests(web_regression_list)
+    suite.addTests(web_regression_list)  # total 42 cases
     
     # RunningTest
     Utils.unittest_xml(suite)

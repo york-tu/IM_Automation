@@ -13,18 +13,18 @@ root_path = os.path.dirname(
 sys.path.append(root_path)
 
 # Test Setting
-env = 'uat'  # uat, prod
+env = 'prod'  # uat, prod
 brand = 'gu'
 user = 1
 test_type = 'wap'
-wap_version = '2.9.0'
+wap_version = '2.10.0'
 os_version = 'Win11'  # 作業系統
 platform = 'PC'  # 測試環境
 account_type = 'phone'  # 帳號類型: mail, phone...
 push = True  # 將結果推倒jira, 預設請給予 True
 
 # ============================================== S1 Test Cases ===================================================
-s1_personal_chat_regression_list = [
+s1_personal_chat_case_list = [
     WapTestCase("test_wap_login"),  # 測試-登入
     WapTestCase('test_version_check'),  # 測試-確認版號
     WapTestCase("test_into_member"),  # 測試-進入主頁我的設定頁
@@ -39,23 +39,23 @@ s1_personal_chat_regression_list = [
     WapTestCase('test_1v1_send_voice_message'),  # 測試-私聊-發送語音訊息
     WapTestCase('test_1v1_send_file_message'),  # 測試-私聊-發送檔案訊息
     WapTestCase("test_delete_friend"),  # 測試-刪除好友
-    WapTestCase('test_wap_logout'),  # 測試-登出
 ]
-s1_group_chat_regression_list = [
-    WapTestCase("test_group_send_message"),  # 測試-群組-發送訊息
-    WapTestCase("test_group_message_copy"),  # 測試-群組-訊息複製並發送
-    WapTestCase("test_group_message_reply"),  # 測試-群組-訊息回覆
-    WapTestCase("test_group_message_revoke"),  # 測試-群組-訊息撤回
+s1_group_chat_case_list = [
+    # WapTestCase("test_group_send_message"),  # 測試-群組-發送訊息
+    # WapTestCase("test_group_message_copy"),  # 測試-群組-訊息複製並發送
+    # WapTestCase("test_group_message_reply"),  # 測試-群組-訊息回覆
+    # WapTestCase("test_group_message_revoke"),  # 測試-群組-訊息撤回
     WapTestCase("test_group_message_pin"),  # 測試-群組-設置公告
-    WapTestCase("test_group_send_voice_message"),  # 測試-群組-發送語音訊息
-    WapTestCase('test_group_voice_message_reply'),  # 測試-群組-語音訊息回覆
-    WapTestCase('test_group_voice_message_revoke'),  # 測試-群組-語音訊息撤回
-    WapTestCase('test_group_send_file_message'),  # 測試-群組-發送檔案訊息
-    WapTestCase('test_group_file_message_reply'),  # 測試-群組-檔案訊息回覆
-    WapTestCase('test_group_file_message_revoke'),  # 測試-群組-檔案訊息撤回
+    # WapTestCase("test_group_send_voice_message"),  # 測試-群組-發送語音訊息
+    # WapTestCase('test_group_voice_message_reply'),  # 測試-群組-語音訊息回覆
+    # WapTestCase('test_group_voice_message_revoke'),  # 測試-群組-語音訊息撤回
+    # WapTestCase('test_group_send_file_message'),  # 測試-群組-發送檔案訊息
+    # WapTestCase('test_group_file_message_reply'),  # 測試-群組-檔案訊息回覆
+    # WapTestCase('test_group_file_message_revoke'),  # 測試-群組-檔案訊息撤回
+    # WapTestCase('test_wap_logout'),  # 測試-登出
 ]
 # =========================================== UAT only ===========================================
-s1_social_regression_list = [
+s1_social_case_list = [
     WapTestCase("test_social_post_photo"),  # 測試-發布圖片
     WapTestCase('test_social_post_video'),  # 測試-發布影片
     WapTestCase('test_social_search'),  # 測試-搜索視頻&用戶
@@ -65,7 +65,7 @@ s1_social_regression_list = [
 ]
 
 # ============================================== S2 Test Cases ===================================================
-s2_personal_chat_regression_list = [
+s2_personal_chat_case_list = [
     WapTestCase("test_about_terms"),  # 測試-進入關於股聊-服務條款/隱私權政策
     WapTestCase("test_add_friend"),  # 測試-新增好友  #s1
     WapTestCase('test_1v1_message_copy'),  # 測試-私聊-訊息複製並發送
@@ -82,20 +82,25 @@ s2_personal_chat_regression_list = [
     WapTestCase('test_1v1_file_message_revoke'),  # 測試-私聊-檔案訊息撤回
     WapTestCase("test_delete_friend"),  # 測試-刪除好友  #s1
 ]
-s2_group_chat_regression_list = [
+s2_group_chat_case_list = [
     WapTestCase("test_group_message_reply_revoke"),  # 測試-群組-訊息回覆後撤回
     WapTestCase("test_group_message_add_emoji"),  # 測試-群組-訊息添加表情符號
     WapTestCase("test_group_message_pin_reply"),  # 測試-群組-回覆訊息設為公告
     WapTestCase("test_group_message_pin_revoke"),  # 測試-群組-訊息設置公告後撤回
 ]
 # =========================================== UAT only ===========================================
-s2_combination_regression_list = [
+s2_combination_case_list = [
     WapTestCase("test_mWeb_email_registration"),  # 測試-email註冊
 ]
 
-s1_test_cases = (s1_personal_chat_regression_list + s1_group_chat_regression_list + s1_social_regression_list)
-s2_test_cases = (s2_personal_chat_regression_list + s2_group_chat_regression_list + s2_combination_regression_list)
-all_test_cases = (s1_test_cases + s2_test_cases)
+# ================================================================================================
+# =========================================== UAT ================================================
+s1_test_cases = (s1_personal_chat_case_list + s1_group_chat_case_list + s1_social_case_list)
+s2_test_cases = (s2_personal_chat_case_list + s2_group_chat_case_list + s2_combination_case_list)
+
+# =========================================== Prod ===============================================
+prod_test_cases = (s1_personal_chat_case_list + s1_group_chat_case_list + s2_personal_chat_case_list
+                   + s2_group_chat_case_list)
 
 # TestCase frame add
 suite = unittest.TestSuite()
@@ -129,9 +134,12 @@ if __name__ == "__main__":
     gl.set_value('PUSH', push)
 
     # TestCase add
-    suite.addTests(s1_test_cases)  # total 32*s1
+    # ================== UAT ==================
+    # suite.addTests(s1_test_cases)  # total 32*s1
     # suite.addTests(s2_test_cases)  # total 18*s2 + 2*s1
-    # suite.addTests(all_test_cases)  # total 50
+
+    # ================== Prod ==================
+    suite.addTests(prod_test_cases)  # total 45
 
     # RunningTest
     Utils.unittest_xml(suite)

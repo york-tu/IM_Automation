@@ -433,6 +433,8 @@ class ContextTestCase(BaseTestCase, BaseFunction_API, BasePage_Web, BasePage_Adm
             friend = "meebot03"
         elif self.brand =='mingpin':
             friend = 'mingpinbot01'
+        elif self.brand == 'chit':
+            friend = 'chitbot1000'
 
         # =============== 新增指定成員為好友 ============================
         self.test_app_login()
@@ -796,17 +798,35 @@ class ContextTestCase(BaseTestCase, BaseFunction_API, BasePage_Web, BasePage_Adm
         self.function_dict['ad'].mainPage().into_member_list()
         self.function_dict['ad'].memberPage().delete_member(self.mail_account_id)
 
+    @DecorateClass('CHATAPP-T3352')
+    def test_app_email_forgetPW(self):
+        self.test_admin_login()
+        self.test_logout()
+        newPW = '000111abc'
+        # ============== 後台"關閉"極驗 ======================================================
+        self.function_dict['ad'].mainPage().into_system_app_setting()
+        self.function_dict['ad'].mainPage().enable_geetest(False)
+        # ============== email帳號 > 忘記密碼 ================================================
+        self.function_dict['ap'].mainPage().email_forgetPW_resetPW_loginNewPW(self.mail_address, newPW)
+        # ============== 改回原密碼 ==========================================================
+        self.function_dict['ap'].mainPage().into_main_setting_page()
+        self.function_dict['ap'].memberPage().into_security()
+        self.function_dict['ap'].securityPage().change_password(newPW, self.mail_password)
+        # ============== 後台"開啟"極驗 ======================================================
+        self.function_dict['ad'].mainPage().enable_geetest(True)
+
     # ==================================================================================================================
     def test_app_login(self):
-        if self.unknown_env[0] is True:
-            self.function_dict['ap'].commomPage().skip_test('測試環境不正確')
         if self._login_status[0] is False:
-            self.function_dict['ap'].mainPage().login(self.app_phone, self.app_password, self.app_nation)
+            if 'email' in self.account_type.lower():
+                self.function_dict['ap'].mainPage().login(self.mail_address, self.mail_password, login_method='email')
+            elif 'phone' in self.account_type.lower():
+                self.function_dict['ap'].mainPage().login(self.app_phone, self.app_password, self.app_nation)
             self._login_status[0] = True
             self.function_dict['ap'].mainPage().check_focus_recommend_tab_after_login()
 
     def test_logout(self):
-        if self.function_dict['ap'].mainPage().check_login_status():
+        if self.function_dict['ap'].mainPage().check_login_status() is True:
             self.function_dict['ap'].mainPage().into_main_page()
             self.function_dict['ap'].mainPage().into_main_setting_page()
             self.function_dict['ap'].memberPage().into_security()
@@ -853,9 +873,6 @@ class ContextTestCase(BaseTestCase, BaseFunction_API, BasePage_Web, BasePage_Adm
         BaseTestCase.run(self, result) # call superclass run method
 
 
-
-
-    # ========================================================================
     # ========================================================================
     @DecorateClass('')
     def test_install_apk(self):

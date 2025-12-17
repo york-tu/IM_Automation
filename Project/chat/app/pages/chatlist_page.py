@@ -206,7 +206,7 @@ class ChatListPage(Base):
         if self.common.poco_exists(ChatListPageLocator.search_clear):
             self.common.poco_click(ChatListPageLocator.search_clear)
         self.common.poco_send_text(ChatListPageLocator.search_input, name)
-
+        sleep(3)
         if self.common.poco_exists(ChatListPageLocator.search_empty):
             raise EOFError('找不到任何結果')
         else:
@@ -353,11 +353,9 @@ class ChatListPage(Base):
         sleep(1)
         if self.phone_platform.lower() == 'android':
             system_message = self.common.poco_get_text(ChatListPageLocator.latest_system_message_text)
-            # system_time_text = self.common.poco_get_text(ChatListPageLocator.latest_system_message_time).replace("/","-")
             system_time = self.common.poco_get_text(ChatListPageLocator.latest_system_message_time)
         else:
             system_message = self.poco(type='Cell')[0].offspring(name='systemNotification_content_label')[0].attr('value')
-            # system_time_text = self.poco(type='Cell')[0].offspring(name='systemNotification_time_label')[0].attr('value').replace("/", "-")
             system_time = self.poco(type='Cell')[0].offspring(name='systemNotification_time_label')[0].attr('value')
         system_time = convert_to_24hr(system_time)  # 時間轉24hr制
         assert system_message == message, f'最新一筆系統訊息錯誤, 目前:{system_message},預期:{message}'

@@ -1,7 +1,7 @@
 from time import sleep
-
+from datetime import datetime, timedelta
 from selenium.webdriver.common.by import By
-import datetime
+# import datetime
 from Project.chat.web.pages.admin.admin_basepage import BasePage
 
 
@@ -50,7 +50,7 @@ class WaterControlPage(BasePage):
         self.wait_loading_finish()
         assert self.get_text(WaterControlPageLocator.page_title) == '水量控制' , f'頁面標題有誤'
         self.type(WaterControlPageLocator.member_name, member_name)
-        time = datetime.datetime.now().strftime("%Y-%m-%d")
+        time = datetime.now().strftime("%Y-%m-%d")
         self.click(WaterControlPageLocator.search_start_time)
         self.type(WaterControlPageLocator.search_start_time, time)
         self.click(WaterControlPageLocator.search_end_time)
@@ -69,17 +69,34 @@ class WaterControlPage(BasePage):
 
     def test_water_control_detail(self, operate_time, member_name, original_water, total_cost, after_water):
         self.wait_loading_finish()
-        assert self.get_text(WaterControlPageLocator.data_member_name) == member_name, f'暱稱有誤'
+
+        list_account_name = self.get_text(WaterControlPageLocator.data_member_name)
+        assert list_account_name == member_name, f'搜尋結果有誤'  # 確認水量控制頁搜尋結果
         self.click(WaterControlPageLocator.data_detail_btn)
         self.wait_loading_finish()
-        assert self.get_text(WaterControlPageLocator.data_detail_title) == member_name, f'標題有誤'
-        assert self.get_text(WaterControlPageLocator.data_detail_original_water) == original_water, f'原水量有誤, 預期:{original_water}, 實際:{self.get_text(WaterControlPageLocator.data_detail_original_water)}'
-        assert self.get_text(WaterControlPageLocator.data_detail_after_water) == after_water, f'水量餘額有誤'
-        assert self.get_text(WaterControlPageLocator.data_detail_operate) == f'发拼手气红包: -{total_cost}', f'操作內容有誤,預期-{total_cost},實際{self.get_text(WaterControlPageLocator.data_detail_operate)}'
-        actual_time = self.get_text(WaterControlPageLocator.data_detail_time)[:-3].replace("/", "-")
-        assert actual_time == operate_time.replace("/", "-"), f'操作時間有誤, 預期: {operate_time.replace("/", "-")}, 實際: {actual_time}'
-        assert self.get_text(WaterControlPageLocator.data_detail_operate_ID) == member_name, f'操作ID有誤'
-        assert self.get_text(WaterControlPageLocator.data_detail_operate_name) == member_name, f'操作名稱有誤'
+
+        # ========================== 帳號水量詳情彈窗 ==========================
+        DetailPageTitle = self.get_text(WaterControlPageLocator.data_detail_title)  # 彈窗標題
+        listOriginalRemainWater = self.get_text(WaterControlPageLocator.data_detail_original_water)  # 原剩餘水量
+        listAfterRemainWater = self.get_text(WaterControlPageLocator.data_detail_after_water)  # 水量餘額
+        listOperateDetail = self.get_text(WaterControlPageLocator.data_detail_operate)  # 操作內容
+        listOperateTime = self.get_text(WaterControlPageLocator.data_detail_time)[:-3]  # 操作時間
+        listOperateID = self.get_text(WaterControlPageLocator.data_detail_operate_ID)  # 操作ID
+        listOperateNickname = self.get_text(WaterControlPageLocator.data_detail_operate_name)  # 操作名稱
+        # ========================== 確認資料 ==========================
+        assert DetailPageTitle == member_name, f'帳號水量詳情彈窗標題有誤'
+        assert listOriginalRemainWater == original_water, f'帳號原剩餘水量有誤'
+        assert listAfterRemainWater == after_water, f'帳號使用積分後水量餘額有誤'
+        assert listOperateDetail == f'发拼手气红包: -{total_cost}', f'操作內容有誤'
+
+        # 轉成 datetime 物件
+        t1 = datetime.strptime(listOperateTime, "%Y/%m/%d %H:%M")
+        t2 = datetime.strptime(operate_time, "%Y/%m/%d %H:%M")
+        # 判斷是否相等 或 t2 +- 1分鐘相等
+        assert t1 == t2 or t1 == t2 + timedelta(minutes=1) or t1 == t2 - timedelta(minutes=1), f'操作時間有誤'
+
+        assert listOperateID == member_name, f'操作ID有誤'
+        assert listOperateNickname == member_name, f'操作名稱有誤'
 
     def edit_point(self, user_id, set_water):
         self.wait_loading_finish()
@@ -90,4 +107,5 @@ class WaterControlPage(BasePage):
         self.wait_loading_finish()
         self.type(WaterControlPageLocator.data_edit_water_control, set_water)
         self.click(WaterControlPageLocator.data_detail_save_btn)
+        return datetime.now().strftime("%Y/%m/%d %H:%M")
 

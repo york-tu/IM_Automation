@@ -2,27 +2,26 @@ import os
 import sys
 import unittest
 import logging
-
-root_path = os.path.dirname(
-    os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
-sys.path.append(root_path)
-
 import common.utils.globalvar as gl
+
 from common.utils.utils import Utils
 from Project.chat.app.testcase.app_testcase import AppTestCase
 from Project.chat.app.testcase.context_testcase import ContextTestCase
 from jira.config.base_key import BaseKey
 
+root_path = os.path.dirname(
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
+sys.path.append(root_path)
 logging.getLogger("airtest").setLevel(logging.WARNING)
 
 # Test Setting
 env = 'uat'
-brand = 'gu'
+brand = 'chit'  # gu > chit
 user = 1
 connect_type = 'local'  # 手機連線模式 remote or local
 phone_name = 'IPHONE_15_PRO'  # 手機型號 'IPHONE_15_PRO (ios18.6.2)', 'IPHONE_73 (ios16.1.1)', 'IPHONE_11_PRO (ios15)'
 phone_platform = 'iOS'  # 手機作業系統
-app_version = '5.18.0(113539.116)'  # 版本號
+app_version = '5.19.0(113844.116)'  # 版本號
 account_type = 'phone'  # 帳號類型: email, phone...
 push = True  # 將結果推倒jira, 預設請給予 True
 
@@ -47,6 +46,9 @@ s1_personal_chat_regression_list = [
 ]
 # -------------- 群聊相關功能測試 --------------
 s1_group_chat_regression_list = [
+    ContextTestCase("test_group_remove_admin"),  # 移除 gubot03 管理員權限
+    ContextTestCase("test_group_change_group_rules"),  # 群組成員權限設定
+    ContextTestCase("test_group_add_admin_and_change_admin_rules"),  # 將 gubot03 加為管理員並更改管裡員權限
     AppTestCase("test_send_message_group"),
     AppTestCase("test_message_copy_group"),
     AppTestCase("test_message_reply_group"),
@@ -137,7 +139,8 @@ s2_social_regression_list = [
 ]
 # -------------- 其他功能測試 --------------
 s2_combination_regression_list = [
-    ContextTestCase("test_app_email_registration"),  # 測試-email註冊 (後台需先關閉極驗)
+    # ContextTestCase("test_app_email_registration"),  # 測試-email註冊 (後台需先關閉極驗)
+    # ContextTestCase("test_app_email_forgetPW"),  # 測試-email登入時忘記密碼 > 重設
 ]
 
 s1_test_cases = (s1_personal_chat_regression_list + s1_group_chat_regression_list + s1_grab_red_envelop_regression_list
@@ -178,9 +181,9 @@ if __name__ == '__main__':
 
     # TestCase add
     suite = unittest.TestSuite()
-    suite.addTests(s1_test_cases)  # total 41*s1
-    suite.addTests(s2_test_cases)  # total 39*s2 + 3*s1
-    # suite.addTests(all_test_cases)  # total 80
+    # suite.addTests(s1_test_cases)  # total 44*s1
+    suite.addTests(s2_test_cases)  # total 40*s2 + 3*s1
+    # suite.addTests(all_test_cases)  # total 81
 
     # RunningTest
     Utils.unittest_xml(suite)

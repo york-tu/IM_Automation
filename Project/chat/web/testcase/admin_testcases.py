@@ -511,20 +511,18 @@ class AdminTestCase(BaseTestCase):
         original_water = '99999999.99'
         operator = 'test1234'
         self.test_into_red_water()
-        self.function_dict['ad'].waterControlPage().edit_point(operator, original_water)
+        operateTime = self.function_dict['ad'].waterControlPage().edit_point(operator, original_water)  # 回傳操作時間
         self.function_dict['ad'].mainPage().into_red_list()
-        total_cost = self.function_dict['ad'].redenvelopePage().add_luck_red_envelope_for_auto_grad()
-        operate_time = datetime.datetime.now().strftime("%Y/%m/%d %H:%M")
-        after_water = str(round((float(original_water) - float(total_cost)), 2))
+        total_cost = self.function_dict['ad'].redenvelopePage().add_luck_red_envelope_for_auto_grad()  # 回傳使用金額
+        after_water = str(round((float(original_water) - float(total_cost)), 2))  # 扣除後的金額
         # 測試-水量編輯&使用詳情
-        self.test_water_control(operator, operate_time, original_water, total_cost, after_water)
+        self.test_water_control(operator, operateTime, original_water, total_cost, after_water)
 
     # 測試-水量編輯&使用詳情
     def test_water_control(self, member_name, operate_time, original_water, total_cost, after_water):
         self.test_into_red_water()
         self.function_dict['ad'].waterControlPage().test_point_control_search(member_name)
         self.function_dict['ad'].waterControlPage().test_water_control_detail(operate_time, member_name, original_water, total_cost, after_water)
-
 
     # =================================================================================================================
     # 測試-sample
