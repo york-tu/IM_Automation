@@ -43,7 +43,7 @@ class PersonalSettingPageLocator:
     blocklist_btn = (By.XPATH, "//p[text()='黑名单']")  # 黑名單
     blocklist_search_input = (By.XPATH, "//input[@placeholder='搜索']")  # 黑名單-搜索
     blocklist_search_first = (By.XPATH, "//div[@class='px-[16rem] py-[12rem] flex items-center h-[60rem] bb-1 bg-neutral-50']") # 黑名單-第一筆搜索結果
-    friend_block_page = (By.XPATH, "//p[text()='已加入黑名单，你将不再收到对方的讯息。']")  # 黑名單成員頁
+    friend_block_page = (By.XPATH, "//p[text()='已加入黑名单，你将不再收到对方的讯息。']")  # 用戶詳情-黑名單文字提示
     block_switch_btn = (By.XPATH, "//span[@class='el-switch__core']")  # 黑名單成員頁-黑名單switch開關
     popup_toast = (By.XPATH, '(//p[@class="el-message__content"])[last()]')  # toast標題
     # =========== 分享頁 =================================================================
@@ -56,6 +56,9 @@ class PersonalSettingPageLocator:
     privacy_btn = (By.XPATH, "//p[text()='隐私权政策']")  # 隱私權政策
     page_title = (By.XPATH,'//*[@id="app"]/div/div[14]/div/div[2]/div')
     back_btn = (By.XPATH, '//*[@id="app"]/div/div[14]/div/div[1]/i')  # //*[@id="app"]/div/div[14]/div/div[1]/i
+
+    # =========== 用戶詳情頁 ==============================================================
+    user_detail_setting_delete_btn = (By.XPATH, "(//p[text()='删除'])[last()]")  # 聊天詳情頁-刪除鍵
 
 
 class PersonalSettingPage(BasePage):
@@ -107,7 +110,6 @@ class PersonalSettingPage(BasePage):
         assert self.is_element_finded(PersonalSettingPageLocator.guest_mode_mainPage_button)
         assert not self.is_element_finded(PersonalSettingPageLocator.discover_button)
 
-
     # ==================================== 主頁-個人頁-黑名單 ==========================================================
     def into_blocklist_page(self):
         self.click(PersonalSettingPageLocator.blocklist_btn)
@@ -124,18 +126,19 @@ class PersonalSettingPage(BasePage):
 
     def unblock_friend(self):
         self.click(PersonalSettingPageLocator.block_switch_btn)
-        self.wait_visibility(PersonalSettingPageLocator.popup_toast)
-        assert self.get_text(PersonalSettingPageLocator.popup_toast) == '解除黑名单', f"黑名單鍵初始狀態有誤"
+        # self.wait_visibility(PersonalSettingPageLocator.popup_toast)
+        # assert self.get_text(PersonalSettingPageLocator.popup_toast) == '解除黑名单', f"黑名單鍵初始狀態有誤"
 
-        sleep(5)
-        self.click(PersonalSettingPageLocator.block_switch_btn)
-        self.wait_visibility(PersonalSettingPageLocator.popup_toast)
-        assert self.get_text(PersonalSettingPageLocator.popup_toast) == '设为黑名单', f"黑名單狀態切換有誤, 預期設為黑名單"
-
-        sleep(5)
-        self.click(PersonalSettingPageLocator.block_switch_btn)
-        self.wait_visibility(PersonalSettingPageLocator.popup_toast)
-        assert self.get_text(PersonalSettingPageLocator.popup_toast) == '解除黑名单', f"黑名單狀態切換有誤, 預期解除非名單"
+        sleep(1)
+        # self.click(PersonalSettingPageLocator.block_switch_btn)
+        # self.wait_visibility(PersonalSettingPageLocator.popup_toast)
+        # assert self.get_text(PersonalSettingPageLocator.popup_toast) == '设为黑名单', f"黑名單狀態切換有誤, 預期設為黑名單"
+        assert not self.is_element_finded(PersonalSettingPageLocator.friend_block_page)
+        assert self.is_element_finded(PersonalSettingPageLocator.user_detail_setting_delete_btn)
+        # sleep(5)
+        # self.click(PersonalSettingPageLocator.block_switch_btn)
+        # self.wait_visibility(PersonalSettingPageLocator.popup_toast)
+        # assert self.get_text(PersonalSettingPageLocator.popup_toast) == '解除黑名单', f"黑名單狀態切換有誤, 預期解除非名單"
 
     # ==================================== 主頁-個人頁-分享 ===========================================================
     # def into_share_page(self):

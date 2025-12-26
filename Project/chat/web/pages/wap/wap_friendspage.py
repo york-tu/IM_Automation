@@ -46,6 +46,10 @@ class FriendsPageLocator:
     profile_btn = (By.XPATH, "//p[text()='个人页面']")  # "个人页面"鍵
     send_msg_btn = (By.XPATH, "//p[text()='传讯息']")  # "傳訊息"鍵
     friend_block_button = (By.XPATH, "//p[text()='加入黑名单']/..//span[@class='el-switch__core']")  # 聊天詳情-加入黑名單鍵
+    block_dialog_content = (By.XPATH, '//p[@class="text-[14rem] font-medium break-all neutral-400"]')  # 加入黑名單二次確認彈窗
+    block_confirm_btn = (By.XPATH, "(//p[text()='确定'])[last()]")  # 加入黑名單二次確認彈窗-確定鍵
+    detail_page_block_note = (By.XPATH, "//p[text()='已加入黑名单，你将不再收到对方的讯息。']")  # 用戶詳情-黑名單文字提示
+
     input_block_msg = (By.XPATH, "//div[text()='该用户已被封锁']")  # 聊天室輸入框blocks
     back_to_chatroom = (By.XPATH,'//*[@id="app"]/div/div[1]/div[1]/i/svg')
 
@@ -179,15 +183,19 @@ class FriendsPage(BasePage):
         self.click(FriendsPageLocator.chatroom_detail)
         self.wait_loading_finish()
         self.click(FriendsPageLocator.friend_block_button)
-        self.wait_visibility(FriendsPageLocator.popup_toast)
-        assert self.get_text(FriendsPageLocator.popup_toast) == '设为黑名单', f'加入黑名單未跳通知'
-        button_img_path = ''
-        if self.brand.lower() == "gu":
-            button_img_path = DIR_NAME + '\\element_icon\\back.jpg'
-        elif self.brand.lower() == "mingpin":
-            button_img_path = DIR_NAME + '\\element_icon\\back_mingpin.jpg'
-        location = pyautogui.locateCenterOnScreen(button_img_path, confidence=0.8)
-        pyautogui.click(location)
+        sleep(1)
+        assert self.get_text(FriendsPageLocator.block_dialog_content) == '加入黑名单，你将不再收到对方的讯息，对方也无法查看你。', f'加入黑名單未跳通知'
+        self.click(FriendsPageLocator.block_confirm_btn)
+        sleep(1)
+        assert self.is_element_finded(FriendsPageLocator.detail_page_block_note)
+        # button_img_path = ''
+        # if self.brand.lower() == "gu":
+        #     button_img_path = DIR_NAME + '\\element_icon\\back.jpg'
+        # elif self.brand.lower() == "mingpin":
+        #     button_img_path = DIR_NAME + '\\element_icon\\back_mingpin.jpg'
+        # location = pyautogui.locateCenterOnScreen(button_img_path, confidence=0.8)
+        # pyautogui.click(location)
+        self.refresh_browser()
         self.wait_loading_finish()
         assert self.is_element_finded(FriendsPageLocator.input_block_msg)
 

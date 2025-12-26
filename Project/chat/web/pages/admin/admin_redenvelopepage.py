@@ -363,7 +363,7 @@ class RedEnvelopePage(BasePage):
             self.wait_loading_finish()
             self.click(RedEnvelopePageLocator.add_chatroom_select(gl.get_value("BRAND")))
             self.click(RedEnvelopePageLocator.add_red_package)
-            self.type(RedEnvelopePageLocator.add_red_package, '1')
+            self.type(RedEnvelopePageLocator.add_red_package, '10')
             self.click(RedEnvelopePageLocator.add_red_amount)
             self.type(RedEnvelopePageLocator.add_red_amount, '1')
             self.sleep(1)
@@ -397,7 +397,7 @@ class RedEnvelopePage(BasePage):
                     self.click(RedEnvelopePageLocator.add_red_select_all)
                     self.type(RedEnvelopePageLocator.luck_award_high, '1')
                     self.click(RedEnvelopePageLocator.add_auto_grad_member)  # 自動領取下拉選單
-                    self.click(RedEnvelopePageLocator.add_red_select_member_select)  # 設定自動領取人員為gubot02
+                    self.click(RedEnvelopePageLocator.add_red_select_member_select_first)  # 設定自動領取人員為gubot02
                     self.click(RedEnvelopePageLocator.luck_award_high)
                     self.click(RedEnvelopePageLocator.luck_now_initial)  # 即刻發布
                     self.click(RedEnvelopePageLocator.luck_expire_time)  # 紅包有效時間

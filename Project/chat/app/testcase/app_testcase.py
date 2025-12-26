@@ -428,7 +428,7 @@ class AppTestCase(BaseTestCase, BaseFunction_API):
         self.function_dict['ap'].blacklistPage().unblock_friend_from_UserDetail()
 
     @DecorateClass('CHATAPP-T1878')
-    # 分享聊天至聊天室
+    # 分享訊息至聊天室
     def test_share_message(self):
         self.test_login()
 
@@ -1205,6 +1205,7 @@ class AppTestCase(BaseTestCase, BaseFunction_API):
         recent_reply_after_add_liked_counts = self.function_dict['ap'].socialmedialibraryPage().post_recent_reply_add_like()
         # ============================ 我(gubot03/gubotmail01) 在 我 該則貼文上確認最新留言(母留言)與最新回覆訊息(子留言)的"贊數" ================
         self.function_dict['ap'].socialhomePage().return_to_my_social_page()
+        self.test_logout()
         self.login_self_account()
         self.function_dict['ap'].socialhomePage().return_to_my_social_page()
         self.function_dict['ap'].socialmedialibraryPage().into_first_post()

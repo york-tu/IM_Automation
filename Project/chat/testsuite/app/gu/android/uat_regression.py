@@ -22,7 +22,7 @@ user = 1
 connect_type = 'local'  # 手機連線模式 remote or local
 phone_name = 'HUAWEI_MATE_30_PRO_5G'  # 手機型號
 phone_platform = 'Android'  # 手機作業系統
-app_version = '2.19.0-rc.3'  # 版本號
+app_version = '2.19.0-rc.7'  # 版本號
 account_type = 'phone'  # 帳號類型: mail, phone...
 push = True  # 將結果推倒jira, 預設請給予 True
 # ============================================== S1 Test Cases ===================================================

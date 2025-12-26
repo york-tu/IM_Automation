@@ -47,7 +47,7 @@ class SharePage(Base):
             else:
                 assert share_list[1].__contains__('加强好友间联系！下载免费股聊App，串连好友')
 
-            self.common.poco_click(SharePageLocator.copy_btn)
+            self.poco(name='actionGroupCell')[0].offspring(label='拷贝').click()
             self.wait_loading_finish()
 
             return share_list[1], None

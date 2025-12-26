@@ -560,6 +560,7 @@ class ContextTestCase(BaseTestCase, BaseFunction_API, BasePage_Web, BasePage_Adm
             'ap'].socialmedialibraryPage().get_post_author_and_content()
         assert current_content != description
         self.function_dict['ap'].socialhomePage().return_to_my_social_page()
+        self.test_logout()
         # ================ A進到自己主頁, 確認自己的貼文還在 =================================================================
         self.function_dict['ap'].mainPage().login(self.app_phone, self.app_password, self.app_nation)
         self.function_dict['ap'].socialhomePage().return_to_my_social_page()
@@ -631,6 +632,7 @@ class ContextTestCase(BaseTestCase, BaseFunction_API, BasePage_Web, BasePage_Adm
             self.function_dict['ad'].socialManagementPage().into_auto_audit_page()
             self.function_dict['ad'].socialManagementPage().set_audit_privacy(self.app_account, audit_type)
             instructions = self.media_photo_post(audit_type)
+            self.function_dict['ap'].socialhomePage().return_to_my_social_page()
             self.function_dict['ad'].socialManagementPage().into_media_audit_page()
             self.function_dict['ad'].socialManagementPage().search_audit_result(self.app_account, instructions, audit_type)
 

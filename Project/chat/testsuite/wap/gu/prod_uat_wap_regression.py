@@ -13,11 +13,11 @@ root_path = os.path.dirname(
 sys.path.append(root_path)
 
 # Test Setting
-env = 'prod'  # uat, prod
+env = 'uat'  # uat, prod
 brand = 'gu'
 user = 1
 test_type = 'wap'
-wap_version = '2.10.0'
+wap_version = '2.10.5'
 os_version = 'Win11'  # 作業系統
 platform = 'PC'  # 測試環境
 account_type = 'phone'  # 帳號類型: mail, phone...
@@ -41,18 +41,18 @@ s1_personal_chat_case_list = [
     WapTestCase("test_delete_friend"),  # 測試-刪除好友
 ]
 s1_group_chat_case_list = [
-    # WapTestCase("test_group_send_message"),  # 測試-群組-發送訊息
-    # WapTestCase("test_group_message_copy"),  # 測試-群組-訊息複製並發送
-    # WapTestCase("test_group_message_reply"),  # 測試-群組-訊息回覆
-    # WapTestCase("test_group_message_revoke"),  # 測試-群組-訊息撤回
+    WapTestCase("test_group_send_message"),  # 測試-群組-發送訊息
+    WapTestCase("test_group_message_copy"),  # 測試-群組-訊息複製並發送
+    WapTestCase("test_group_message_reply"),  # 測試-群組-訊息回覆
+    WapTestCase("test_group_message_revoke"),  # 測試-群組-訊息撤回
     WapTestCase("test_group_message_pin"),  # 測試-群組-設置公告
-    # WapTestCase("test_group_send_voice_message"),  # 測試-群組-發送語音訊息
-    # WapTestCase('test_group_voice_message_reply'),  # 測試-群組-語音訊息回覆
-    # WapTestCase('test_group_voice_message_revoke'),  # 測試-群組-語音訊息撤回
-    # WapTestCase('test_group_send_file_message'),  # 測試-群組-發送檔案訊息
-    # WapTestCase('test_group_file_message_reply'),  # 測試-群組-檔案訊息回覆
-    # WapTestCase('test_group_file_message_revoke'),  # 測試-群組-檔案訊息撤回
-    # WapTestCase('test_wap_logout'),  # 測試-登出
+    WapTestCase("test_group_send_voice_message"),  # 測試-群組-發送語音訊息
+    WapTestCase('test_group_voice_message_reply'),  # 測試-群組-語音訊息回覆
+    WapTestCase('test_group_voice_message_revoke'),  # 測試-群組-語音訊息撤回
+    WapTestCase('test_group_send_file_message'),  # 測試-群組-發送檔案訊息
+    WapTestCase('test_group_file_message_reply'),  # 測試-群組-檔案訊息回覆
+    WapTestCase('test_group_file_message_revoke'),  # 測試-群組-檔案訊息撤回
+    WapTestCase('test_wap_logout'),  # 測試-登出
 ]
 # =========================================== UAT only ===========================================
 s1_social_case_list = [
@@ -135,11 +135,11 @@ if __name__ == "__main__":
 
     # TestCase add
     # ================== UAT ==================
-    # suite.addTests(s1_test_cases)  # total 32*s1
+    suite.addTests(s1_test_cases)  # total 32*s1
     # suite.addTests(s2_test_cases)  # total 18*s2 + 2*s1
 
     # ================== Prod ==================
-    suite.addTests(prod_test_cases)  # total 45
+    # suite.addTests(prod_test_cases)  # total 45
 
     # RunningTest
     Utils.unittest_xml(suite)

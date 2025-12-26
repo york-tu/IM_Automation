@@ -289,6 +289,7 @@ class SocialMediaPostPage(Base):
 
     # =================================== ios 發布貼文 # =================================== ios 發布貼文
     def ios_select_media(self, media_index):
+
         self.common.poco_click(SocialMediaPostPageLocator.post_media_btn)
         self.common.poco_click(SocialMediaPostPageLocator.album_btn)
         sleep(2)

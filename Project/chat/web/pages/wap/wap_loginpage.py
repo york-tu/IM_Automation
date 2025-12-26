@@ -72,6 +72,7 @@ class LoginPageLocator:
 
 class LoginPage(BasePage):
     brand = gl.get_value("BRAND")
+    env = gl.get_value("ENV")
     PASS_email_file_path = r"C:\Users\york_tu\Desktop\email_regex_testcases_PASS.xlsx"
     FAIL_email_file_path = r"C:\Users\york_tu\Desktop\email_regex_testcases_FAIL.xlsx"
 
@@ -121,13 +122,26 @@ class LoginPage(BasePage):
         agreement_hint = self.get_text(LoginPageLocator.new_login_page_agreement_hint)
         assert agreement_hint == '如果您继续操作，即表示您同意《服务条款》并确认已阅读《隐私权政策》。'
 
+    # def get_product_name(self):
+    #     brand = self.brand.lower()
+    #     product = ''
+    #     if brand == 'gu':
+    #         product = '股聊'
+    #     elif brand == 'mingpin':
+    #         product = '名品会'
+    #     return product
     def get_product_name(self):
         brand = self.brand.lower()
-        product = ''
-        if brand == 'gu':
-            product = '股聊'
-        elif brand == 'mingpin':
-            product = '名品会'
+        env = self.env.lower()
+
+        suffix = "_UAT" if env == 'uat' else ""
+        product_info = {
+            "gu": f"GuChat{suffix}",
+            "mingpin": f"名品会{suffix}",
+            "chit": f"ChitChat{suffix}",
+        }
+        # 預設值，可避免 key 不存在報錯
+        product = product_info.get(brand, "UnknownProduct")
         return product
 
     # 國家選擇

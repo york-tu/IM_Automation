@@ -55,6 +55,8 @@ class SecurityPage(BasePage):
             product_name = '股聊'
         elif brand == 'mingpin':
             product_name = '名品会'
+        elif brand == 'chit':
+            product_name = '趣聊'
 
         if self.get_text(SecurityPageLocator.header_title) == '帐号与安全':
             my_id = self.get_text(SecurityPageLocator.security_id)
@@ -68,12 +70,12 @@ class SecurityPage(BasePage):
             self.type(SecurityPageLocator.changepwd_new_input, new_pwd)
             self.type(SecurityPageLocator.changepwd_new_check_input, new_pwd)
             
-            if self.is_element_finded(SecurityPageLocator.changepwd_submit) == True:
+            if self.is_element_finded(SecurityPageLocator.changepwd_submit):
                 self.click(SecurityPageLocator.changepwd_submit)
             
             self.sleep(3)
-            if self.is_element_finded(SecurityPageLocator.confirm_popup) == True:
-                assert self.get_text(SecurityPageLocator.confirm_title) == '密码重设成功',f'密碼重設失敗'
+            if self.is_element_finded(SecurityPageLocator.confirm_popup):
+                assert self.get_text(SecurityPageLocator.confirm_title) == '密码重设成功', f'密碼重設失敗'
                 self.click(SecurityPageLocator.confirm_primary)
             
     def logout(self):
@@ -81,11 +83,11 @@ class SecurityPage(BasePage):
             self.wait_loading_finish()
             self.click(SecurityPageLocator.logout_btn)
 
-            if self.is_element_finded(SecurityPageLocator.confirm_popup) == True:
+            if self.is_element_finded(SecurityPageLocator.confirm_popup):
                 assert self.get_text(SecurityPageLocator.confirm_text) == '登出后不会删除任何资料纪录，下次登入依然可以使用本帐号。', f'登出帳號文案有誤'
                 self.click(SecurityPageLocator.confirm_danger)
 
                 self.sleep(1)
-                assert self.is_element_finded(SecurityPageLocator.logout_check) == True, f'登出失敗'
+                assert self.is_element_finded(SecurityPageLocator.logout_check), f'登出失敗'
 
 
