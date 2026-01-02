@@ -22,9 +22,9 @@ user = 1
 connect_type = 'local'  # 手機連線模式 remote or local
 phone_name = 'IPHONE_15_PRO'  # 手機型號 'IPHONE_15_PRO (ios18.6.2)', 'IPHONE_73 (ios16.1.1)', 'IPHONE_11_PRO (ios15)'
 phone_platform = 'iOS'  # 手機作業系統
-app_version = '5.18.0(113716.116)'  # 版本號
+app_version = '5.19.0(114075.116)'  # 版本號
 account_type = 'phone'  # 帳號類型: email, phone...
-push = True  # 將結果推倒jira, 預設請給予 True
+push = False  # 將結果推倒jira, 預設請給予 True
 
 Prod_regression_list = [
     AppTestCase("test_login"),

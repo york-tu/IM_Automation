@@ -21,7 +21,7 @@ user = 1
 connect_type = 'local'  # 手機連線模式 remote or local
 phone_name = 'IPHONE_15_PRO'  # 手機型號 'IPHONE_15_PRO (ios18.6.2)', 'IPHONE_73 (ios16.1.1)', 'IPHONE_11_PRO (ios15)'
 phone_platform = 'iOS'  # 手機作業系統
-app_version = '5.19.0(114056.116)'  # 版本號
+app_version = '5.19.0(114066.116)'  # 版本號
 account_type = 'phone'  # 帳號類型: email, phone...
 push = True  # 將結果推倒jira, 預設請給予 True
 
@@ -132,7 +132,6 @@ s2_discover_regression_list = [
 ]
 # -------------- 社群相關功能測試 --------------
 s2_social_regression_list = [
-
     ContextTestCase("test_block_words_blocks_instructions_input"),  # 後台新增屏蔽字詞 >前台確認個人簡介阻擋屏蔽字輸入
     ContextTestCase("test_post_comment_when_social_permission_change"),  # 後台切換帳號社群權限 > 前台確認評論留言
     ContextTestCase("test_post_URL_when_post_permission_change"),  # 後台切換貼文評論超連結開關 > 前台確認評論留言URL
@@ -140,8 +139,8 @@ s2_social_regression_list = [
 ]
 # -------------- 其他功能測試 --------------
 s2_combination_regression_list = [
-    # ContextTestCase("test_app_email_registration"),  # 測試-email註冊 (後台需先關閉極驗)
-    # ContextTestCase("test_app_email_forgetPW"),  # 測試-email登入時忘記密碼 > 重設
+    ContextTestCase("test_app_email_registration"),  # 測試-email註冊 (後台需先關閉極驗)
+    ContextTestCase("test_app_email_forgetPW"),  # 測試-email登入時忘記密碼 > 重設
 ]
 
 s1_test_cases = (s1_personal_chat_regression_list + s1_group_chat_regression_list + s1_grab_red_envelop_regression_list
@@ -182,8 +181,8 @@ if __name__ == '__main__':
 
     # TestCase add
     suite = unittest.TestSuite()
-    # suite.addTests(s1_test_cases)  # total 44*s1
-    suite.addTests(s2_test_cases)  # total 40*s2 + 3*s1
+    suite.addTests(s1_test_cases)  # total 44*s1
+    # suite.addTests(s2_test_cases)  # total 40*s2 + 3*s1
     # suite.addTests(all_test_cases)  # total 81
 
     # RunningTest

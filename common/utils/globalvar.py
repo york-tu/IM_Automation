@@ -1,5 +1,12 @@
 import traceback
+
+# Initialize the global dictionary at import time so it always exists,
+# even if _init() is never called explicitly.
+_global_dict = {}
+
+
 def _init():
+    """Explicitly (re)initialize the global dictionary."""
     global _global_dict
     _global_dict = {}
 
@@ -13,5 +20,5 @@ def set_value(name, value):
 def get_value(name, def_value=None):
     try:
         return _global_dict[name]
-    except:
+    except KeyError:
         return def_value

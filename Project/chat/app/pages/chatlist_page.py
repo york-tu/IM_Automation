@@ -103,12 +103,12 @@ class ChatListPageLocator:
     )
 
     group_frist = base.check_device(
-        Android=base.data_collation(type_kind='text', type_name='群组', action='parent().sibling()[0].child()[1]'),
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tv_name', num=1),
         iOS=base.data_collation(type_kind='name', type_name='chatList_nameCell_roomName_label'),
     )
 
     friend_frist = base.check_device(
-        Android=base.data_collation(type_kind='text', type_name='好友', action='parent().sibling()[0].child()[1]'),
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tv_name', num=1),
         iOS=base.data_collation(type_kind='name', type_name='chatList_nameCell_roomName_label'),
     )
 

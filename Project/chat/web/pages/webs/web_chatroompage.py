@@ -342,9 +342,10 @@ class ChatRoomPage(BasePage):
         raise Exception('無法複製路徑')
 
     def get_last_media_src_link(self, media_type='img'):
+        from selenium.webdriver.common.by import By
         sleep(5)
         total_elements = self.find_elements(ChatRoomPageLocator.chat_room_total_media)
-        src_value = total_elements[-1].find_element_by_tag_name(media_type).get_attribute("src")
+        src_value = total_elements[-1].find_element(By.TAG_NAME, media_type).get_attribute("src")
         return src_value
 
     def get_random_medias_filename_from_target_folder(self, selected_num, target_folder_path):

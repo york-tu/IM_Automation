@@ -6,9 +6,12 @@ import logging
 
 logging.basicConfig(level=logging.WARNING)
 
+import os
+
 # for linux server
-stf_url = 'http://10.200.6.1:7100'
-auth_token = '5919cbb37a484e12b65cd65fda9d376337c8a219e96e46fb93a2afb545d047c5' # qa_admin@paradise-soft.com.tw
+stf_url = os.getenv('STF_URL', 'http://10.200.6.1:7100')
+# Get STF auth token from environment variable or use default
+auth_token = os.getenv('STF_AUTH_TOKEN', '5919cbb37a484e12b65cd65fda9d376337c8a219e96e46fb93a2afb545d047c5') # qa_admin@paradise-soft.com.tw
 
 # for mac server
 # stf_url = 'http://10.200.202.85:7100'

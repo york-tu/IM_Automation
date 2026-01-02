@@ -78,19 +78,19 @@ class Common(object):
         finally:
             try:
                 self.implicitly_wait(self.sec)
-            except:
+            except Exception:
                 self.implicitly_wait(20)
 
     def is_element_displayed(self, locator):
         self.implicitly_wait(0)
         try:
             return self.find_element(locator).is_displayed()
-        except:
+        except (NoSuchElementException, Exception):
             return False
         finally:
             try:
                 self.implicitly_wait(self.sec)
-            except:
+            except Exception:
                 self.implicitly_wait(20)
     
     def is_element_displayed_by_dom(self, element):
@@ -119,7 +119,7 @@ class Common(object):
         try:
             self.wait.until(EC.visibility_of_element_located(locator))
             return True
-        except:
+        except Exception:
             return False
 
     def wait_invisibility(self, locator):
@@ -157,7 +157,7 @@ class Common(object):
                 el.send_keys(Keys.COMMAND + 'a') # mac
             else:
                 el.send_keys(Keys.CONTROL + 'a') # windows
-        except:
+        except Exception:
             pass
 
         el.send_keys(str(text))
@@ -203,7 +203,7 @@ class Common(object):
                 element.send_keys(Keys.COMMAND + 'a') # mac
             else:
                 element.send_keys(Keys.CONTROL + 'a') # windows
-        except:
+        except Exception:
             pass
 
         element.send_keys(text)
@@ -212,15 +212,15 @@ class Common(object):
         try:
             el = self.find_element(locator)
             el.click()
-        except:
+        except Exception:
             try:
                 self.scroll_to_top()
                 self.sleep(1)
                 el = self.find_element(locator)
                 ActionChains(self.driver).move_to_element(el).perform()
                 el.click()
-            except:
-                raise EOFError('點擊失敗')
+            except Exception as e:
+                raise EOFError(f'點擊失敗: {str(e)}')
 
     def context_click(self, locator):
         try:
@@ -229,8 +229,8 @@ class Common(object):
             
             el = self.find_element(locator)
             ActionChains(self.driver).move_to_element(el).context_click(el).perform()
-        except:
-            raise EOFError('點擊失敗')
+        except Exception as e:
+            raise EOFError(f'點擊失敗: {str(e)}')
 
     def move_mouse(self, locator):
         self.sleep(0.5)
@@ -240,7 +240,7 @@ class Common(object):
     def click_by_dom(self, element):
         try:
             element.click()
-        except:
+        except Exception:
             self.scroll_to_top()
             ActionChains(self.driver).move_to_element(element).perform()
             element.click()
@@ -317,7 +317,7 @@ class Common(object):
         try:
             element = self.find_element(locator)
             return element.text
-        except:
+        except Exception:
             self.scroll_to_top()
             element = self.find_element(locator)
             ActionChains(self.driver).move_to_element(element).perform()
@@ -329,7 +329,7 @@ class Common(object):
         '''
         try:
             return element.text
-        except:
+        except Exception:
             self.scroll_to_top()
             self.sleep(1)
             ActionChains(self.driver).move_to_element(element).perform()
@@ -441,7 +441,8 @@ class Common(object):
 
 
     def set_attribute(self, locator, key, value):
-        xpath = self.driver.find_element_by_xpath(locator[1])
+        from selenium.webdriver.common.by import By
+        xpath = self.driver.find_element(By.XPATH, locator[1])
         self.driver.execute_script(f"arguments[0].setAttribute({key}, {value}", xpath)
 
     def get_location(self, locator):
@@ -453,11 +454,13 @@ class Common(object):
         從 Gmail 收件匣獲取第一封未讀驗證碼郵件並回傳驗證碼
         條件: 寄件人包含 'GuChat' 且主旨包含 'GuChat'
         """
+        import os
         imap_server = "imap.gmail.com"
         mail = imaplib.IMAP4_SSL(imap_server)
 
-        account = "york_tu@tengyuntech.com"
-        pw = "rhzt lzqi xqnz pdsf"
+        # Get credentials from environment variables or use defaults
+        account = os.getenv('GMAIL_ACCOUNT', 'york_tu@tengyuntech.com')
+        pw = os.getenv('GMAIL_PASSWORD', 'rhzt lzqi xqnz pdsf')
         mail_title = ''
         if brand == 'gu':
             mail_title = 'GuChat'

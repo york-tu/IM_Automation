@@ -16,6 +16,7 @@ class JiraApi(Common):
     header = ''
     
     def jira_login(self):
+        import os
         # 登入
         login_url = self.server_url + '/login.jsp'
 
@@ -23,14 +24,18 @@ class JiraApi(Common):
         "Accept": "application/json",
         }
 
+        # Get credentials from environment variables or use defaults
+        username = os.getenv('JIRA_USERNAME', 'qa_admin')
+        password = os.getenv('JIRA_PASSWORD', '1qaz!QAZ')
+        
         payload = {
             'login': 'Log in',
-            'os_username': 'qa_admin',
-            'os_password': '1qaz!QAZ'
+            'os_username': username,
+            'os_password': password
         }
         try:
             response, session = self.login(login_url, data=payload, header=self.headers)
-        except:
+        except Exception:
             response, session = self.login(login_url, data=payload, header=self.headers)
 
         status = response.headers['X-Seraph-LoginReason']
@@ -95,8 +100,11 @@ class JiraApi(Common):
             else:
                 imgs_comment = ''
                 for img_path in img_path_list:
-                    img_path = eval(img_path)['link']
-                    img_comment = f'<img src=\"{img_path}\" style=\"width: 300px;\" class=\"fr-fil fr-dib\">'
+                    # import json
+                    # Parse JSON string safely instead of using eval()
+                    img_data = json.loads(img_path) if isinstance(img_path, str) else img_path
+                    img_link = img_data.get('link', '') if isinstance(img_data, dict) else str(img_path)
+                    img_comment = f'<img src=\"{img_link}\" style=\"width: 300px;\" class=\"fr-fil fr-dib\">'
                     imgs_comment += img_comment
                 comment = f'Result: <span style="color: rgb(184, 49, 47);">{last_comment}</span><br>' + imgs_comment + 'Report:<br>' + comment
 

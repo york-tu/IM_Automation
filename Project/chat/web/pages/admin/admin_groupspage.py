@@ -229,7 +229,7 @@ class GroupsPage(BasePage):
         self.type(GroupsPageLocator.add_group_name, target_group)  # 輸入發布群組
         self.click(GroupsPageLocator.group_search)
         self.wait_loading_finish()
-        sleep(1)
+        sleep(3)
         actual_send_time = self.get_text(GroupsPageLocator.detail_group_msg_list_send_time)
         actual_sender_id = self.get_text(GroupsPageLocator.detail_group_msg_list_sender_id)
         actual_target_group = self.get_text(GroupsPageLocator.detail_group_msg_list_target_group)

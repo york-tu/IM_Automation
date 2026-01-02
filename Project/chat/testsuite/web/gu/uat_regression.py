@@ -18,7 +18,7 @@ user = 1
 test_type = 'web'
 os_version = 'Win11'  # 作業系統
 platform = 'PC'  # 測試環境
-push = True  # 將結果推倒jira, 預設請給予 True
+push = False  # 將結果推倒jira, 預設請給予 True
 # ============================================== S1 Test Cases ===================================================
 s1_web_regression_list = [
     WebTestCase("test_web_login"),  # 測試-登入
@@ -185,9 +185,9 @@ if __name__ == "__main__":
     gl.set_value('PUSH', push)
 
     # TestCase add
-    suite.addTests(s1_test_cases)  # total 65*s1
+    # suite.addTests(s1_test_cases)  # total 65*s1
     # suite.addTests(s2_test_cases)  # total 37*s2 + 5*s1
-    # suite.addTests(all_test_cases)  # total 102
+    suite.addTests(all_test_cases)  # total 102
 
     # RunningTest
     Utils.unittest_xml(suite)

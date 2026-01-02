@@ -38,7 +38,7 @@ class Utils(JiraApi):
 
     @staticmethod
     def unittest_html(unittest, Testcase):
-        from common.utils import HTMLTestRunner_PY3
+        from common.utils import html_test_runner_py3
         basename = os.path.basename(os.path.splitext(sys.argv[0])[0])
         if len(sys.argv) == 1:
             folderpath = os.getcwd() + "/" + 'Test-Reports' + "/" + "Testcase" + "/" + basename + "/" + datetime.datetime.now().strftime(
@@ -63,7 +63,7 @@ class Utils(JiraApi):
         if not os.path.exists(folderpath):
             os.makedirs(folderpath)
         fp = open(report_path, 'wb')
-        runner = HTMLTestRunner_PY3.HTMLTestRunner(stream=fp, title='Regression Test Report', description='')
+        runner = html_test_runner_py3.HTMLTestRunner(stream=fp, title='Regression Test Report', description='')
         runner.run(suite)
         fp.close()
 

@@ -37,9 +37,13 @@ class WebDriver(UnittestModule):
         prefs = {"download.default_directory": f"{path}"}
         self.chrome_option.add_experimental_option("prefs",prefs)
 
+        # Note: ChromeDriverManager deprecated in Selenium 4.x, using direct path
+        # For Selenium 4.x, use: webdriver.Chrome(service=Service(self.chrome_path), options=self.chrome_option)
         if platform.system() == 'Windowssss':  # 'Windows' (chrome目前更新到最新版為試用版，套件無法自動安裝試用版的chromedriver，故跳過此段，直接跑else)
         # 消除WDM的LOG在console顯示
             logging.getLogger('WDM').setLevel(logging.NOTSET)
+            # Deprecated: executable_path and chrome_options in Selenium 4.x
+            # For Selenium 3.x compatibility, keeping as is
             self.driver = webdriver.Chrome(executable_path=ChromeDriverManager().install(), chrome_options=self.chrome_option)
         else:
             self.driver = webdriver.Chrome(executable_path=self.chrome_path, chrome_options=self.chrome_option)

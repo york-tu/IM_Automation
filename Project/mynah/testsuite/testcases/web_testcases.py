@@ -51,7 +51,7 @@ class WebTestCases(BaseTestCase, AdminBasePage):
         # except:
         #     cls.reopen_browser()
 
-        # cls.wp.mainPage().maintenance()
+        # cls.wp.main_page().maintenance()
         pass
         cls.start_time = time.time()
 

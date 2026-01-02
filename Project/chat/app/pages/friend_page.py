@@ -147,7 +147,7 @@ class FriendPageLocator:
     )
 
     friend_list_frist = base.check_device(
-        Android=base.data_collation(type_kind='text', type_name='好友', action='parent().sibling()[0].child()[1]'),
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tv_name', num=-1),
         iOS=base.data_collation(type_kind='name', type_name='friendList_nameCell_roomName_label', num=0),
     )
 
@@ -377,7 +377,8 @@ class FriendPage(Base):
     def add_friend(self, nickname):  # 添加好友並回到聊天列表
         self.common.poco_click(FriendPageLocator.add_to_address_book_btn)
         self.wait_loading_finish()
-        assert self.common.poco_get_text(ChatRoomPageLocator.options_title) == nickname
+        expect = self.common.poco_get_text(ChatRoomPageLocator.options_title)
+        assert expect == nickname, f'預期:{nickname}, 實際:{expect}'
         if self.common.poco_exists(ChatRoomPageLocator.back_btn):
             self.common.poco_click(ChatRoomPageLocator.back_btn)
 

@@ -24,7 +24,7 @@ phone_name = 'HUAWEI_MATE_30_PRO_5G'  # 手機型號
 phone_platform = 'Android'  # 手機作業系統
 app_version = '2.19.0-rc.7'  # 版本號
 account_type = 'phone'  # 帳號類型: mail, phone...
-push = True  # 將結果推倒jira, 預設請給予 True
+push = False  # 將結果推倒jira, 預設請給予 True
 # ============================================== S1 Test Cases ===================================================
 # -------------- 私聊相關功能測試 --------------
 s1_personal_chat_regression_list = [
@@ -160,6 +160,7 @@ s1_test_cases = (s1_personal_chat_regression_list + s1_group_chat_regression_lis
                  + s1_social_regression_list)
 s2_test_cases = (s2_personal_chat_regression_list + s2_group_chat_regression_list + s2_discover_regression_list
                  + s2_social_regression_list + s2_combination_regression_list)
+# s2_test_cases = (s2_personal_chat_regression_list)
 all_test_cases = (s1_test_cases + s2_test_cases)
 
 if __name__ == '__main__':
@@ -195,7 +196,7 @@ if __name__ == '__main__':
 
     # TestCase add
     suite = unittest.TestSuite()
-    # suite.addTests(s1_test_cases)  # total 47*s1
+    suite.addTests(s1_test_cases)  # total 47*s1
     suite.addTests(s2_test_cases)  # total 50*s2 + 3*s1
     # suite.addTests(all_test_cases)  # total 97
 

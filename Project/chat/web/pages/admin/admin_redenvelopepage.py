@@ -396,8 +396,12 @@ class RedEnvelopePage(BasePage):
                     self.click(RedEnvelopePageLocator.add_initiate_ID_select)
                     self.click(RedEnvelopePageLocator.add_red_select_all)
                     self.type(RedEnvelopePageLocator.luck_award_high, '1')
+                    sleep(1)
                     self.click(RedEnvelopePageLocator.add_auto_grad_member)  # 自動領取下拉選單
-                    self.click(RedEnvelopePageLocator.add_red_select_member_select_first)  # 設定自動領取人員為gubot02
+                    if gl.get_value("BRAND") =='chit':
+                        self.click(RedEnvelopePageLocator.add_red_select_member_select_first)  # 設定自動領取人員為gubot02
+                    else:
+                        self.click(RedEnvelopePageLocator.add_red_select_member_select)  # 設定自動領取人員為gubot02
                     self.click(RedEnvelopePageLocator.luck_award_high)
                     self.click(RedEnvelopePageLocator.luck_now_initial)  # 即刻發布
                     self.click(RedEnvelopePageLocator.luck_expire_time)  # 紅包有效時間

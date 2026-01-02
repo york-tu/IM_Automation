@@ -21,7 +21,7 @@ wap_version = '2.10.5'
 os_version = 'Win11'  # 作業系統
 platform = 'PC'  # 測試環境
 account_type = 'phone'  # 帳號類型: mail, phone...
-push = True  # 將結果推倒jira, 預設請給予 True
+push = False  # 將結果推倒jira, 預設請給予 True
 
 # ============================================== S1 Test Cases ===================================================
 s1_personal_chat_case_list = [

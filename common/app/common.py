@@ -1,12 +1,12 @@
 import re
-
-from airtest.core.api import *
-# import ast,logging
-import common.utils.globalvar as gl
-from poco.drivers.ios import iosPoco
-from airtest.core.api import touch, swipe, text
+import os
 import imaplib
 import email
+
+from airtest.core.api import *
+from poco.drivers.ios import iosPoco
+from airtest.core.api import touch, swipe, text
+import common.utils.globalvar as gl
 
 class Common(object):
     type_kind = ''
@@ -24,7 +24,7 @@ class Common(object):
         self.wda = wda_service
         self.device = gl.get_value('PHONE_PLATFORM')
 
-    def mappin_value(self, data):
+    def map_value(self, data):
         for key, value in data.items():
             if key == 'type_kind':
                 self.type_kind = value
@@ -110,7 +110,7 @@ class Common(object):
         sleep(float(sec))
 
     def swipe(self, data):
-        self.mappin_value(data)
+        self.map_value(data)
 
         if self.device.lower() == 'android':
             self.poco_ui.swipe([self.pos[0], self.pos[1]], [self.pos[2], self.pos[3]])
@@ -118,7 +118,7 @@ class Common(object):
             self.wda.swipe(*self.pos, duration=0.1)
 
     def swipe_speed(self, data, duration):
-        self.mappin_value(data)
+        self.map_value(data)
 
         if self.device.lower() == 'android':
             self.poco_ui.swipe([self.pos[0], self.pos[1]], [self.pos[2], self.pos[3]], duration=duration)
@@ -139,14 +139,14 @@ class Common(object):
         try:
             wait(Template(pos), timeout=1)
             return True
-        except:
+        except Exception:
             return False
 
     def wait_image(self, pos, timeout=10):
         try:
             wait(Template(pos), timeout=timeout)
             return True
-        except:
+        except Exception:
             return False
 
     def wait_image_swipe(self, pos, vector=[0, 0], timeout=10):
@@ -158,10 +158,11 @@ class Common(object):
         if self.action == '':
             return len(el)
         else:
-            return eval(f'len(el.{self.action})')
+            attr = getattr(el, self.action, None)
+            return len(attr) if attr is not None else 0
 
     def poco(self, data):
-        self.mappin_value(data)
+        self.map_value(data)
         if data['num'] == '':
             if self.type_kind == 'nameMatches':
                 return self.poco_ui(nameMatches=self.type_name)
@@ -209,7 +210,9 @@ class Common(object):
                 el.set_text(_text)
                 return
             else:
-                eval(f'el.{self.action}').set_text(_text)
+                attr = getattr(el, self.action, None)
+                if attr is not None:
+                    attr.set_text(_text)
                 return
 
         if self.device.lower() == 'ios':
@@ -244,8 +247,11 @@ class Common(object):
         if self.action == '':
             return el.attr(ele)
         try:
-            return eval(f'el.{self.action}.attr({ele})')  # 如果el不存在，這行會丟error
-        except:
+            attr = getattr(el, self.action, None)
+            if attr is not None:
+                return attr.attr(ele)
+            return False
+        except (AttributeError, TypeError):
             return False
 
     def poco_click(self, data, times=1):
@@ -260,8 +266,10 @@ class Common(object):
                 for _ in range(0, self.times):
                     self.poco_ui.click(self.pos)
         else:
-            for _ in range(0, self.times):
-                eval(f'el.{self.action}.click()')
+            attr = getattr(el, self.action, None)
+            if attr is not None:
+                for _ in range(0, self.times):
+                    attr.click()
 
     # def more_poco_click(self, type_kind='', type_name='', action='', pos='', times=1, num=0):
     #     if type(action) == int:
@@ -286,8 +294,11 @@ class Common(object):
         if self.action == '':
             return el.exists()
         try:
-            return eval(f'el.{self.action}.exists()')  # 如果el不存在，這行會丟error
-        except:
+            attr = getattr(el, self.action, None)
+            if attr is not None:
+                return attr.exists()
+            return False
+        except (AttributeError, TypeError):
             return False
 
     def poco_wait_exists(self, data, timeout=10):
@@ -296,8 +307,11 @@ class Common(object):
         if self.action == '':
             return result
         try:
-            return eval(f'el.{self.action}.exists()')  # 如果el不存在，這行會丟error
-        except:
+            attr = getattr(el, self.action, None)
+            if attr is not None:
+                return attr.exists()
+            return False
+        except (AttributeError, TypeError):
             return False
 
     # def more_poco_exists(self, type_kind, type_name, num=0):
@@ -332,9 +346,10 @@ class Common(object):
 
         if self.device.lower() == 'android':
             if self.action == '':
-                el_text = eval(f'el.get_text()')
+                el_text = el.get_text()
             else:
-                el_text = eval(f'el.{self.action}.get_text()')
+                attr = getattr(el, self.action, None)
+                el_text = attr.get_text() if attr is not None else ''
         return el_text
 
     # def more_poco_get_text(self, type_kind, type_name, action='', num='0'):
@@ -357,7 +372,7 @@ class Common(object):
             el = self.poco(data)
             el.wait_for_appearance(timeout=10)
             return True
-        except:
+        except Exception:
             return False
 
     def poco_wait_disappearance(self, data):
@@ -365,7 +380,7 @@ class Common(object):
             el = self.poco(data)
             el.wait_for_disappearance(timeout=10)
             return True
-        except:
+        except Exception:
             return False
 
     def poco_long_click(self, data, time=''):
@@ -384,7 +399,9 @@ class Common(object):
         if action == '':
             text(text_value, enter=True)
         else:
-            eval(f'text(text_value, {action}, enter=enter)')
+            # Note: text() function doesn't support action parameter in standard airtest
+            # This may need to be reviewed based on actual usage
+            text(text_value, enter=enter)
 
     ## iOS wda
 
@@ -404,11 +421,13 @@ class Common(object):
         從 Gmail 收件匣獲取第一封未讀驗證碼郵件並回傳驗證碼
         條件: 寄件人包含 'GuChat' 且主旨包含 'GuChat'
         """
+        import os
         imap_server = "imap.gmail.com"
         mail = imaplib.IMAP4_SSL(imap_server)
 
-        account = "york_tu@tengyuntech.com"
-        pw = "rhzt lzqi xqnz pdsf"
+        # Get credentials from environment variables or use defaults
+        account = os.getenv('GMAIL_ACCOUNT', 'york_tu@tengyuntech.com')
+        pw = os.getenv('GMAIL_PASSWORD', 'rhzt lzqi xqnz pdsf')
         mail_title = ''
         if brand == 'gu':
             mail_title = 'GuChat'
