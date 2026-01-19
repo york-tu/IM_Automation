@@ -1,20 +1,24 @@
 from selenium import webdriver
-import configparser, os, sys, yaml, platform
-import os
-import sys
-import yaml
+import os, sys, platform
+from common.utils.path_utils import PathUtils
+from common.utils.config_loader import ConfigLoader
 
-root_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-sys.path.append(root_path)
+# 使用 PathUtils 添加專案根目錄到 sys.path
+path_utils = PathUtils()
+project_root = str(path_utils.get_project_root())
+if project_root not in sys.path:
+    sys.path.append(project_root)
+
+# 使用 ConfigLoader 載入配置
+config_loader = ConfigLoader()
+
 
 class Setting_Chrome:
-    # conf's path setting
-    testconf_path = 'configs/web/setting_chrome.yml'
+    """Chrome 設定配置類（使用統一的 ConfigLoader）"""
 
     def get_yaml_conf(self):
-        yamlfile = open(os.path.join(root_path, self.testconf_path))
-        ymlconf = yaml.safe_load(yamlfile)
-        return ymlconf
+        """獲取 Chrome 配置（使用 ConfigLoader）"""
+        return config_loader.get_chrome_config()
 
     def get_headless_mode(self, Headless = 1):
         conf = self.get_yaml_conf()
@@ -81,7 +85,10 @@ class Setting_Chrome:
 
         for i in range(0, 2):
             try:
-                chrome_path = os.path.join(root_path, conf['driver_path'][Device]['chrome_path'])
+                # 獲取配置中的相對路徑（如 'driver/driver/chromedriver.exe'）
+                relative_path = conf['driver_path'][Device]['chrome_path']
+                # 使用 PathUtils 獲取完整路徑
+                chrome_path = str(path_utils.get_relative_path(*relative_path.replace('\\', '/').split('/')))
                 break
             except:
                 if i == 1:

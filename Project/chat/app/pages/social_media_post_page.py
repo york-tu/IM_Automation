@@ -7,25 +7,16 @@ from configs.app.setting import Setting
 from Project.chat.app.pages.base_page import Base
 from Project.chat.app.pages.xpath.xpath_base import Xpath_Base
 from Project.chat.app.pages.main_page import MainPageLocator
+from Project.chat.app.pages.locators.base_locator import BaseLocator
 import logging
 import common.utils.globalvar as gl
 
 
-class SocialMediaPostPageLocator:
-    base = Xpath_Base()
-    env = gl.get_value('ENV')
-    brand = gl.get_value('BRAND')
-    app_package = Setting().get_package_name(brand, env)
-
-
-    @staticmethod
-    def env(env):
-        env = SocialMediaPostPageLocator.base.check_device(
-            Android=SocialMediaPostPageLocator.base.data_collation(type_kind='textMatches', type_name=f'{env}.*'),
-            iOS=SocialMediaPostPageLocator.base.data_collation(type_kind='nameMatches', type_name=f'{env}.*')
-        )
-
-        return env
+class SocialMediaPostPageLocator(BaseLocator):
+    """社群媒體發布頁面 Locator，繼承 BaseLocator 以減少重複代碼"""
+    # 明確引用基類屬性，確保 IDE/linter 能正確識別
+    base = BaseLocator.base
+    app_package = BaseLocator.app_package
 
     #  主頁 > 發布鍵
     post_media_btn = base.check_device(
@@ -211,9 +202,6 @@ class SocialMediaPostPage(Base):
                                    post=True):
         if 'video' in media_type.lower():
             self._select_video_cover()
-        # else:
-        #     assert not self.common.poco_exists(
-        #         SocialMediaPostPageLocator.video_select_cover), '當媒體為photo時預期不該出現"选择封面"字串'
 
         self._write_instructions(instructions)
         self._set_privacy(privacy_index)
@@ -226,7 +214,6 @@ class SocialMediaPostPage(Base):
     def _select_video_cover(self):
         assert self.common.poco_get_text(SocialMediaPostPageLocator.video_select_cover) == "选择封面", '未出現"选择封面"字串'
         self.common.poco_click(SocialMediaPostPageLocator.video_select_cover)
-        self.wait_loading_finish()
         sleep(3)
         assert self.common.poco_get_text(
             SocialMediaPostPageLocator.video_select_frame_hint) == '左右滑动，选择最优的封面', '進入封面設定頁or提示訊息有誤'

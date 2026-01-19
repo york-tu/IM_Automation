@@ -4,6 +4,10 @@ from time import sleep
 import pandas as pd
 import pyautogui
 import win32clipboard
+import pywintypes
+from pywinauto import Application, Desktop
+import win32gui
+import win32con
 from selenium.webdriver.common.by import By
 import os, sys, datetime
 from Project.chat.web.pages.admin.admin_basepage import BasePage
@@ -114,12 +118,14 @@ class RedEnvelopePageLocator:
 
     luck_add_award = (By.XPATH, "//span[text()='设置下一奖项']")
     luck_now_initial = (By.XPATH, "//span[text()='即刻发布']/..//span[@class='el-checkbox__inner']")
+    luck_start_time = (By.XPATH, '//label[text()="开始时间"]/..//input[@placeholder="选择日期区间"]')
     luck_expire_time = (By.XPATH, '//label[text()="红包有效时间"]/..//input[@placeholder="选择日期区间"]')
+
     luck_select_all = (By.XPATH, "//span[text()='全选']")
     luck_delete_btn = (By.XPATH, "//span[text()='删除奖项']")
     luck_award_calculate = (By.XPATH, "//span[text()='奖项计算']")
     luck_award_calculate_results = (By.XPATH, '//*[@id="app"]/div/div/div[2]/div/div/div/div[3]/div/div[2]/div')
-    luck_detail = (By.XPATH, "//span[text()='明细']")
+    luck_detail = (By.XPATH, '//*[@id="app"]/div/div/div[2]/div/div/div/div[3]/div/div[3]/button')
 
     luck_single_picture = (By.XPATH, '//label[text()="单图"]/..//span[@class="el-radio__input"]')
     luck_detail_save = (By.XPATH, "//span[text()='储存']")
@@ -147,6 +153,20 @@ class RedEnvelopePageLocator:
         text = "QA bot only" if brand.lower() == "mingpin" else "QA_bot_only"
         return By.XPATH, f'//div[@aria-hidden="false"]//span[text()="{text}"]'
 
+def send_enter_key_to_window(window_handle):
+    """
+    使用 Windows API 直接發送 Enter 鍵消息到窗口，即使在屏幕鎖定時也能工作
+    """
+    try:
+        # 發送 WM_KEYDOWN 和 WM_KEYUP 消息
+        win32gui.PostMessage(window_handle, win32con.WM_KEYDOWN, win32con.VK_RETURN, 0)
+        sleep(0.1)
+        win32gui.PostMessage(window_handle, win32con.WM_KEYUP, win32con.VK_RETURN, 0)
+        return True
+    except Exception as e:
+        return False
+
+
 def copy_to_clipboard(text, retry=50, delay=2):
     for attempt in range(retry):
         try:
@@ -157,9 +177,108 @@ def copy_to_clipboard(text, retry=50, delay=2):
                 return
             finally:
                 win32clipboard.CloseClipboard()
-        except OSError as e:
-            sleep(delay)
+        except (OSError, pywintypes.error) as e:
+            # 當屏幕鎖定時，win32clipboard.OpenClipboard() 會拋出 pywintypes.error (錯誤代碼 5: 存取被拒)
+            # 重試直到成功或達到最大重試次數
+            if attempt < retry - 1:
+                sleep(delay)
+            else:
+                # 最後一次嘗試失敗，拋出更詳細的錯誤信息
+                error_msg = f'無法複製路徑到剪貼板（可能原因：屏幕鎖定或剪貼板被其他程序佔用）。錯誤: {e}'
+                raise Exception(error_msg)
     raise Exception('無法複製路徑')
+
+
+def upload_file_via_dialog(file_path, timeout=10):
+    """
+    使用 pywinauto 直接操作文件對話框，即使在屏幕鎖定時也能工作
+    """
+    try:
+        # 等待文件對話框出現
+        sleep(1)
+
+        # 使用 Desktop 對象來查找窗口（不需要連接特定應用程序）
+        desktop = Desktop(backend="win32")
+        
+        # 查找文件對話框（通常是 "開啟" 或 "Open" 窗口）
+        dialog = None
+        try:
+            dialog = desktop.window(title_re=".*開啟.*|.*Open.*|.*選擇檔案.*|.*選擇文件.*")
+        except:
+            pass
+
+        # 如果找不到，嘗試通過類名查找
+        if not dialog or not dialog.exists():
+            try:
+                dialog = desktop.window(class_name="#32770")  # 標準文件對話框類名
+            except:
+                pass
+
+        if dialog and dialog.exists():
+            # 在文件名輸入框中輸入文件路徑
+            try:
+                edit = dialog.child_window(class_name="Edit", found_index=0)
+                edit.set_text(file_path)
+                sleep(0.5)
+
+                # 點擊「開啟」或「確定」按鈕
+                open_btn = None
+                button_titles = ["開啟", "Open", "確定"]
+                for btn_title in button_titles:
+                    try:
+                        open_btn = dialog.child_window(title=btn_title, control_type="Button")
+                        # 等待按鈕可見
+                        if open_btn.exists():
+                            open_btn.wait('visible', timeout=2)
+                            break
+                        else:
+                            open_btn = None
+                    except Exception as btn_error:
+                        open_btn = None
+                        continue
+
+                # 如果找到按鈕，嘗試點擊；否則直接發送 Enter 鍵
+                if open_btn and open_btn.exists():
+                    try:
+                        # 嘗試多種點擊方法
+                        try:
+                            open_btn.click()
+                        except:
+                            # 如果 click() 失敗，嘗試 invoke()
+                            try:
+                                open_btn.invoke()
+                            except:
+                                # 如果 invoke() 也失敗，嘗試發送 Enter 鍵到對話框
+                                dialog.type_keys('{ENTER}')
+                        return True
+                    except Exception as click_error:
+                        # 如果點擊失敗，嘗試使用 Windows API 發送 Enter 鍵
+                        try:
+                            hwnd = dialog.handle
+                            if send_enter_key_to_window(hwnd):
+                                return True
+                            else:
+                                return False
+                        except Exception as api_error:
+                            return False
+                else:
+                    # 如果找不到按鈕，使用 Windows API 直接發送 Enter 鍵到對話框（這應該總是有效的）
+                    try:
+                        hwnd = dialog.handle
+                        if send_enter_key_to_window(hwnd):
+                            return True
+                        else:
+                            return False
+                    except Exception as enter_error:
+                        return False
+            except Exception as edit_error:
+                return False
+        else:
+            # 如果找不到對話框，回退到原方法
+            return False
+    except Exception as e:
+        # 如果 pywinauto 失敗，回退到原方法
+        return False
 
 
 class RedEnvelopePage(BasePage):
@@ -272,11 +391,19 @@ class RedEnvelopePage(BasePage):
         # ===================== excel檔上傳 =============================
         self.click(RedEnvelopePageLocator.file_import_btn)
         sleep(1)
-        copy_to_clipboard(file_path)
-        sleep(1)
-        pyautogui.hotkey('ctrl', 'v')
-        pyautogui.press('enter')
-        sleep(3)
+        
+        # 嘗試使用 pywinauto 直接操作文件對話框（即使在屏幕鎖定時也能工作）
+        upload_result = upload_file_via_dialog(file_path)
+        
+        if upload_result:
+            sleep(2)  # 等待文件上傳完成
+        else:
+            # 回退到原方法（使用剪貼板和 pyautogui）
+            copy_to_clipboard(file_path)
+            sleep(1)
+            pyautogui.hotkey('ctrl', 'v')
+            pyautogui.press('enter')
+            sleep(3)
         # ===================== 確認預覽視窗 =============================
         preview_window_member_id_first = self.get_text(RedEnvelopePageLocator.preview_window_member_id_first)
         assert excel_member_id_first == preview_window_member_id_first
@@ -298,8 +425,12 @@ class RedEnvelopePage(BasePage):
         sleep(1)
         upload_filename = self.get_text(RedEnvelopePageLocator.upload_filename)
         assert upload_filename == filename
-        # ==================================================================
+        # ====================== 設定當下時間+10分鐘後結束時間 ==============================
         self.click(RedEnvelopePageLocator.luck_now_initial)
+        self.click(RedEnvelopePageLocator.luck_expire_time)
+        end_time = (datetime.datetime.now() + datetime.timedelta(minutes=10)).strftime("%Y-%m-%d %H:%M")
+        self.type(RedEnvelopePageLocator.luck_expire_time, end_time)
+        # ====================================================================
         self.click(RedEnvelopePageLocator.luck_award_calculate)
         sleep(0.5)
         result_text = self.get_text(RedEnvelopePageLocator.luck_award_calculate_results)
@@ -484,33 +615,27 @@ class RedEnvelopePage(BasePage):
                 self.click(RedEnvelopePageLocator.luck_award_3_member)
                 self.click(RedEnvelopePageLocator.luck_award_3_member_select)
 
-                self.scroll_to_element(RedEnvelopePageLocator.luck_single_picture)  # 網頁畫面往下滾到單圖位置
-
                 self.click(RedEnvelopePageLocator.luck_now_initial)  # 即刻發布
-                self.click(RedEnvelopePageLocator.luck_expire_time)  # 紅包有效時間
+                self.click(RedEnvelopePageLocator.luck_expire_time)
                 expire_time = (datetime.datetime.now() + datetime.timedelta(minutes=10)).strftime("%Y-%m-%d %H:%M")
-                self.type(RedEnvelopePageLocator.luck_expire_time, expire_time)
-                self.click(RedEnvelopePageLocator.luck_award_calculate)
-                self.click(RedEnvelopePageLocator.luck_detail)
-                self.wait_loading_finish()
-                if self.is_element_finded(RedEnvelopePageLocator.luck_detail_title) is True:
-                    self.click(RedEnvelopePageLocator.luck_detail_expand)
-                    self.type(RedEnvelopePageLocator.luck_award_1, '0.1')
-                    self.type(RedEnvelopePageLocator.luck_award_2, '0.1')
-                    self.type(RedEnvelopePageLocator.luck_award_3, '0.1')
-                    assert self.get_text(RedEnvelopePageLocator.luck_statement_total_amount) == '0.30', f'總計有誤'
-                    self.click(RedEnvelopePageLocator.luck_detail_save)
-                    self.click(RedEnvelopePageLocator.luck_detail_close)
-                    self.click(RedEnvelopePageLocator.luck_single_picture)
+                self.type(RedEnvelopePageLocator.luck_expire_time, expire_time)  # 紅包有效時間
 
-                    self.click(RedEnvelopePageLocator.luck_now_initial)
-                    sleep(0.5)
-                    self.click(RedEnvelopePageLocator.luck_now_initial)  # 即刻發布
-                    self.click(RedEnvelopePageLocator.luck_award_calculate)
-                    self.click(RedEnvelopePageLocator.add_red_add_btn)
-                    self.wait_loading_finish()
-                    if self.is_element_finded(RedEnvelopePageLocator.add_red_remind) is True:
-                        self.click(RedEnvelopePageLocator.add_red_confirm_btn)
+                self.click(RedEnvelopePageLocator.luck_award_calculate)
+                # ============== 明細頁 =========================
+                self.click(RedEnvelopePageLocator.luck_detail)
+                self.click(RedEnvelopePageLocator.luck_detail_expand)
+                self.type(RedEnvelopePageLocator.luck_award_1, '0.1')
+                self.type(RedEnvelopePageLocator.luck_award_2, '0.1')
+                self.type(RedEnvelopePageLocator.luck_award_3, '0.1')
+                assert self.get_text(RedEnvelopePageLocator.luck_statement_total_amount) == '0.30', f'總計有誤'
+                self.click(RedEnvelopePageLocator.luck_detail_save)
+                self.click(RedEnvelopePageLocator.luck_detail_close)
+                # =============================================
+                self.click(RedEnvelopePageLocator.luck_single_picture)  # 網頁畫面往下滾到單圖位置
+                self.click(RedEnvelopePageLocator.add_red_add_btn)
+                self.wait_loading_finish()
+                if self.is_element_finded(RedEnvelopePageLocator.add_red_remind) is True:
+                    self.click(RedEnvelopePageLocator.add_red_confirm_btn)
 
     def luck_red_envelope_detail(self, wait_time_second):
         self.sleep(wait_time_second)
@@ -583,6 +708,7 @@ class RedEnvelopePage(BasePage):
         assert self.get_text(RedEnvelopePageLocator.detail_red_type_info) == f'红包种类:{grab_type}', f'紅包詳情頁種類錯誤'
         assert self.get_text(RedEnvelopePageLocator.detail_list_ID) == grab_account, f'搶紅包人員有誤, 預期{grab_account}, 實際:{self.get_text(RedEnvelopePageLocator.detail_list_ID)}'
         if grab_time is not None:
-            assert self.get_text(RedEnvelopePageLocator.detail_list_time)[:-3].replace("/", "-") == grab_time.replace("/", "-"), f'搶紅包時間有誤'
+            actual = self.get_text(RedEnvelopePageLocator.detail_list_time)[:-3].replace("/", "-")
+            assert actual == grab_time.replace("/", "-"), f'搶紅包時間有誤, 預期{grab_time.replace("/", "-")}, 實際{actual}'
         assert self.get_text(RedEnvelopePageLocator.detail_list_type) == '已领取', f'紅包領取狀態有誤'
         assert self.get_text(RedEnvelopePageLocator.detail_list_point) == grab_amount, f'獲得積分有誤'

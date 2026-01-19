@@ -1,37 +1,52 @@
-import yaml
 import os, sys, random
 import uuid
-
-root_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-sys.path.append(root_path)
+from common.utils.path_utils import PathUtils
+from common.utils.config_loader import ConfigLoader
 import common.utils.globalvar as gl
+
+# 使用 PathUtils 添加專案根目錄到 sys.path
+path_utils = PathUtils()
+project_root = str(path_utils.get_project_root())
+if project_root not in sys.path:
+    sys.path.append(project_root)
+
+# 使用 ConfigLoader 載入配置
+config_loader = ConfigLoader()
 
 
 class Setting:
     def get_yaml_conf(self):
-        path = os.path.join(root_path, "configs/app/config.yml")
-        with open(path, 'r', encoding='utf-8') as ymlfile:
-            cfg = yaml.load(ymlfile, Loader=yaml.FullLoader)
-        return cfg
+        """獲取 App 通用配置（使用 ConfigLoader）"""
+        return config_loader.get_app_config()
     
     def get_device_conf(self):
-        path = os.path.join(root_path, "configs/app/phone_config.yml")
-        with open(path, 'r', encoding='utf-8') as ymlfile:
-            cfg = yaml.load(ymlfile, Loader=yaml.FullLoader)
-        return cfg
+        """獲取手機配置（使用 ConfigLoader）"""
+        return config_loader.get_phone_config()
 
     def get_phone_connect_link(self, phone_name, ip='', connect_type='local'):
         conf = self.get_device_conf()['Phone_conf']
         phone_platform = gl.get_value('PHONE_PLATFORM')
+        
+        # 檢查是否有動態設置的 WDA 端口（如果端口被占用時自動切換）
+        wda_port = gl.get_value('WDA_PORT')
+        
         if connect_type == 'remote':
             if phone_platform == 'Android':
                 connection = f'Android://127.0.0.1:5037/{ip}'
             elif phone_platform == 'iOS':
-                connection = f'ios:///http://{ip}:{conf[phone_name]["port"]}'
+                # 使用動態端口或配置的端口
+                port = wda_port if wda_port else conf[phone_name].get('port', 8100)
+                connection = f'ios:///http://{ip}:{port}'
         else:
             if phone_platform == 'Android':
                 connection = f'Android:///{conf[phone_name]["udid"]}'
             elif phone_platform == 'iOS':
+                # 使用 usbmux 連接時，端口信息通過環境變數傳遞
+                # 如果設置了動態端口，通過環境變數傳遞給 WDA
+                if wda_port:
+                    import os
+                    os.environ['WDA_PORT'] = str(wda_port)
+                
                 connection = f'ios:///http+usbmux://{conf[phone_name]["udid"]}'  # 主機端預設位置_iPhone15Pro_ios18
                 # connection = f'ios:///http://10.200.8.76:{conf[phone_name]["port"]}'  # 主機端預設位置_ios15
 

@@ -18,7 +18,6 @@ class ChatListPageLocator:
     chat_room_title = (By.XPATH, "//p[@class='chat-detail__name__text']")
     chat_room_last_msg = (By.XPATH, "(//div[@class='wcr-list__msg']//span[1])[last()]")
 
-
     @staticmethod
     def chat_room_locator(text):
         locator = (By.XPATH, f"//div[@class='chat-list']//p[text()='{text}']")

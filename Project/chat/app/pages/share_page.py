@@ -3,22 +3,16 @@ from common.app.common import Common
 from configs.app.setting import Setting
 from Project.chat.app.pages.base_page import Base
 from Project.chat.app.pages.xpath.xpath_base import Xpath_Base
+from Project.chat.app.pages.locators.base_locator import BaseLocator
 import logging
 import common.utils.globalvar as gl
 
 
-class SharePageLocator:
-    base = Xpath_Base()
-
-
-    @staticmethod
-    def env(env):
-        env = SharePageLocator.base.check_device(
-            Android=SharePageLocator.base.data_collation(type_kind='textMatches', type_name=f'{env}.*'),
-            iOS=SharePageLocator.base.data_collation(type_kind='nameMatches', type_name=f'{env}.*')
-        )
-
-        return env
+class SharePageLocator(BaseLocator):
+    """分享頁面 Locator，繼承 BaseLocator 以減少重複代碼"""
+    # 明確引用基類屬性，確保 IDE/linter 能正確識別
+    base = BaseLocator.base
+    app_package = BaseLocator.app_package
 
     copy_btn = base.check_device(
         Android=base.data_collation(type_kind='text', type_name='复制'),

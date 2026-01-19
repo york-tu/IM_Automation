@@ -22,7 +22,7 @@ class SearchPageLocator:
     video_result_poster = (By.XPATH, "//div[@class='text-[14rem] font-normal text-grand-2 truncate flex-1 min-w-0']")
     video_result_tab = (By.XPATH, "//span[text()='视频']")
     user_result_tab = (By.XPATH, "//span[text()='用户']")
-    user_result_poster = (By.XPATH, "//p[@class='w-full text-[16rem] text-grand-1 overflow-hidden text-ellipsis whitespace-nowrap']")
+    user_result_poster = (By.XPATH, "//p[@class='w-full text-[16rem] text-grand-1 overflow-hidden text-ellipsis whitespace-pre']")
     user_result_poster_info = (By.XPATH, "//div[@class='text-[14rem] text-grand-2']")
     user_result_follow_btn = (By.XPATH, "//div[@class='ml-auto text-[14rem] text-neutral-80 rounded-[4rem] py-[7rem] w-[74rem] text-center text-white-100 gradient-primary bg-primary-500']")
     @staticmethod

@@ -232,15 +232,19 @@ class WapTestCase(BaseTestCase):
     @DecorateClass('CHATAPP-T3264')
     def test_add_friend(self):
         self.test_wap_login()
-        self.function_dict['wap'].wap_friends_page().into_friend_list()
+
+        self.function_dict['wap'].wap_message_page().into_chat_page()
+        self.function_dict['wap'].wap_message_page().into_add_friend_page(self.wap_account)
         new_friend = self.function_dict['wap'].wap_friends_page().is_new_friend(self.operate_account)
 
         if not new_friend:
             self.function_dict['wap'].wap_friends_page().delete_friend_from_UserDetail(self.operate_account)
+            self.function_dict['wap'].wap_message_page().into_chat_page()
+            self.function_dict['wap'].wap_message_page().into_add_friend_page(self.wap_account)
             assert self.function_dict['wap'].wap_friends_page().is_new_friend(self.operate_account)
 
         self.function_dict['wap'].wap_friends_page().add_friend(self.operate_account)
-        self.function_dict['wap'].wap_friends_page().into_friend_list()
+        self.function_dict['wap'].wap_message_page().into_add_friend_page(self.wap_account)
         assert not self.function_dict['wap'].wap_friends_page().is_new_friend(self.operate_account)
 
     # 好友頁面備註暱稱&描述
@@ -273,13 +277,16 @@ class WapTestCase(BaseTestCase):
     @DecorateClass('CHATAPP-T3263')
     def test_delete_friend(self):
         self.test_wap_login()
-        self.function_dict['wap'].wap_friends_page().into_friend_list()
+
+        self.function_dict['wap'].wap_message_page().into_chat_page()
+        self.function_dict['wap'].wap_message_page().into_add_friend_page(self.wap_account)
         new_friend = self.function_dict['wap'].wap_friends_page().is_new_friend(self.operate_account)
 
         if new_friend:
             self.function_dict['wap'].wap_friends_page().add_friend(self.operate_account)
             self.function_dict['wap'].wap_friends_page().back_to_message_page()
-            self.function_dict['wap'].wap_friends_page().into_friend_list()
+            self.function_dict['wap'].wap_message_page().into_chat_page()
+            self.function_dict['wap'].wap_message_page().into_add_friend_page(self.wap_account)
             assert not self.function_dict['wap'].wap_friends_page().is_new_friend(self.operate_account)
         self.function_dict['wap'].wap_friends_page().delete_friend_from_UserDetail(self.operate_account)
 
@@ -379,6 +386,7 @@ class WapTestCase(BaseTestCase):
         original_message = 'mWeb測試原訊息_私聊_設為公告後撤回'
         self.function_dict['wap'].wap_message_page().into_chat_room(self.operate_account)
         self.function_dict['wap'].wap_message_page().delete_all_pin()
+        self.function_dict['wap'].wap_message_page().send_text_message()
         self.function_dict['wap'].wap_message_page().send_message(original_message)
         self.function_dict['wap'].wap_message_page().message_pin(original_message)
         self.function_dict['wap'].wap_message_page().message_revoke(original_message, pin_revoke=True)
@@ -780,7 +788,8 @@ class WapTestCase(BaseTestCase):
         self.test_delete_friend()  # 刪除好友 operator_account (test1234)
 
     def add_friend_first(self):
-        self.function_dict['wap'].wap_friends_page().into_friend_list()
+        self.function_dict['wap'].wap_message_page().into_chat_page()
+        self.function_dict['wap'].wap_message_page().into_add_friend_page(self.wap_account)
         new_friend = self.function_dict['wap'].wap_friends_page().is_new_friend(self.operate_account)
         if not new_friend:
             self.function_dict['wap'].wap_friends_page().into_chatroom_from_userDetail()

@@ -10,7 +10,7 @@ import stf_api.stf as stf
 import stf_api.stf_utils as stf_utils
 import common.utils.globalvar as gl
 from common.utils.utils import Utils
-from Project.exchange_wellpay.apis.testcases.uiapi_tool_testcases import UiApiToolsTestCases
+from Project.exchange_wellpay.apis.testcase.uiapi_tool_testcases import UiApiToolsTestCases
 from jira.config.base_key import BaseKey
 
 # Test Setting

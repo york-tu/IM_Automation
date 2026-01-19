@@ -17,11 +17,14 @@ class MessagePageLocator:
 
     # ============================= 聊天列表頁 ===========================================================================
     header_title = (By.XPATH, '//*[@id="app"]/div[1]/div[1]/div[2]/div')  # 頁面標題
+    add_btn = (By.XPATH, '//*[@id="app"]/div[1]/div[1]/div[3]/svg[2]')  # 新增鍵
+    add_list_add_friend = (By.XPATH, "//p[text()='新增好友']")  # 新增 > 新增好友
     search_input = (By.XPATH, '//input[@placeholder="搜索"]')  # 搜尋欄位
-    # first_chatroom = (By.XPATH, '(//div[@class="flex items-center w-full overflow-hidden text-[16rem] font-medium black-text"])[1]')  # 搜尋結果第一則聊天室
+    # ============================= 新增好友頁 ===========================================================================
+    add_friend_page_note = (By.XPATH, '//div[@class="text-[16rem] text-center mt-[20px] text-grand-1"]')  # 我的IM ID
 
     # ============================= 聊天室 ==============================================================================
-    chatroom_title = (By.XPATH, '//div[@class="truncate"]')
+    chatroom_title = (By.XPATH, '//div[@class="truncate whitespace-pre"]')
     input_message = (By.XPATH, '//div[@placeholder="输入讯息..."]')  # 訊息輸入框
 
     send_btn = (By.XPATH, '//div[@class="btn-send w-[24rem] h-[24rem]"]')  # 發送btn
@@ -58,15 +61,6 @@ class MessagePageLocator:
     menu_revoke = (By.XPATH, "//p[text() = '撤回']")
     menu_delete = (By.XPATH, "//p[text() = '刪除']")
     menu_pin = (By.XPATH, "//p[text() = '设为公告']")
-    # menu_copy = (By.XPATH,
-    #              "//div[@class='px-[16rem] py-[12rem] flex items-center justify-center min-h-[48rem] cursor-pointer menu-item']//p[text() = '复制']")
-    # menu_reply = (By.XPATH,
-    #               "//div[@class='px-[16rem] py-[12rem] flex items-center justify-center min-h-[48rem] cursor-pointer menu-item']//p[text() = '回复']")
-    # menu_revoke = (By.XPATH,
-    #                "//div[@class='px-[16rem] py-[12rem] flex items-center justify-center min-h-[48rem] cursor-pointer menu-item']//p[text() = '撤回']")
-    # menu_delete = (By.XPATH,
-    #                "//div[@class='px-[16rem] py-[12rem] flex items-center justify-center min-h-[48rem] cursor-pointer menu-item']//p[text() = '刪除']")
-    # menu_pin = (By.XPATH, "//div[@class='px-[16rem] py-[12rem] flex items-center justify-center min-h-[48rem] cursor-pointer menu-item']//p[text() = '设为公告']")
     # -------------------- 二次確認彈窗 --------------------
     confirm_popup = (By.XPATH,"//div[@class='neutral-50 relative rounded-[8rem] max-h-[90%] flex-col m-auto max-w-[360rem] p-[40rem] w-full']")
     confirm_popup_title = (By.XPATH, "(//div[@class='text-center'])[last()-1]")
@@ -132,6 +126,16 @@ class MessagePage(BasePage):
         self.wait_loading_finish()
         room_title = self.get_text(MessagePageLocator.chatroom_title).split('\n')[0]
         assert room_title == room, f'預期:{room}, 實際:{room_title}'
+
+    def into_add_friend_page(self, self_id=None):
+        # === 點"新增"鍵 ===
+        pyautogui.click(pyautogui.locateCenterOnScreen(DIR_NAME + '\\element_icon\\add_btn.jpg', confidence=0.8))
+        # ================
+        self.wait_visibility(MessagePageLocator.add_list_add_friend)
+        self.click(MessagePageLocator.add_list_add_friend)
+        self.wait_loading_finish()
+        self_id_note = self.get_text(MessagePageLocator.add_friend_page_note)
+        assert self_id_note.split(":", 1)[-1].strip() == self_id
 
     def send_text_message(self):
         message = 'mWeb發訊息TeSt!@#$%'

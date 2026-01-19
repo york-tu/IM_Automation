@@ -1,20 +1,24 @@
-import yaml
 import os, sys
-
-root_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-sys.path.append(root_path)
+from common.utils.path_utils import PathUtils
+from common.utils.config_loader import ConfigLoader
 import common.utils.globalvar as gl
+
+# 使用 PathUtils 添加專案根目錄到 sys.path
+path_utils = PathUtils()
+project_root = str(path_utils.get_project_root())
+if project_root not in sys.path:
+    sys.path.append(project_root)
+
+# 使用 ConfigLoader 載入配置
+config_loader = ConfigLoader()
 
 
 class SettingChat:
-    # conf's path setting
-    testconf_path = 'chat/configs/setting_chat.yml'
+    """Chat 專案配置類（使用統一的 ConfigLoader）"""
 
     def get_yaml_conf(self):
-        path = os.path.join(root_path, self.testconf_path)
-        with open(path, 'r', encoding='utf-8') as ymlfile:
-            ymlconf = yaml.load(ymlfile, Loader=yaml.FullLoader)
-        return ymlconf
+        """獲取 Chat 專案配置（使用 ConfigLoader）"""
+        return config_loader.load_project_config('chat', 'setting_chat.yml')
 
     def get_account(self, env='', brand='', account_num=''):
         conf = self.get_yaml_conf()

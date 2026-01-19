@@ -1,104 +1,28 @@
 import os
 import sys
-DIR_NAME = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.append(DIR_NAME)
+from common.utils.path_utils import PathUtils
 
-class WebPages:
+# 使用 PathUtils 添加專案根目錄到 sys.path
+path_utils = PathUtils()
+project_root = str(path_utils.get_project_root())
+if project_root not in sys.path:
+    sys.path.append(project_root)
+
+# 使用新的統一 PageFactory（向後兼容）
+from common.framework.compat_pages import CompatiblePages
+
+
+class WebPages(CompatiblePages):
+    """SBK Web 頁面工廠（使用新的 PageFactory）"""
+    
     def __init__(self, driver, wait_sec, base_url, skip_test_method):
-        self.pages_parameter = driver, wait_sec, base_url, skip_test_method
+        """初始化 Web 頁面工廠"""
+        super().__init__(driver, wait_sec, base_url, skip_test_method, project='sbk', page_type='web')
 
-    def common_page(self):
-        from common.web.common import Common
-        return Common(*self.pages_parameter)
+
+class AdminPages(CompatiblePages):
+    """SBK Admin 頁面工廠（使用新的 PageFactory）"""
     
-    def base_page(self):
-        from Project.sbk.web.pages.webs.web_basepage import BasePage
-        return BasePage(*self.pages_parameter)
-    
-    def main_page(self):
-        from Project.sbk.web.pages.webs.web_mainpage import MainPage
-        return MainPage(*self.pages_parameter)
-
-    def login_page(self):
-        from Project.sbk.web.pages.webs.web_loginpage import LoginPage
-        return LoginPage(*self.pages_parameter)
-
-    def notification_page(self):
-        from Project.sbk.web.pages.webs.web_notificationpage import NotificationPage
-        return NotificationPage(*self.pages_parameter)
-
-    def security_page(self):
-        from Project.sbk.web.pages.webs.web_securitypage import SecurityPage
-        return SecurityPage(*self.pages_parameter)
-
-    def black_page(self):
-        from Project.sbk.web.pages.webs.web_blackpage import BlackPage
-        return BlackPage(*self.pages_parameter)
-
-    def share_page(self):
-        from Project.sbk.web.pages.webs.web_sharepage import SharePage
-        return SharePage(*self.pages_parameter)
-
-    def about_page(self):
-        from Project.sbk.web.pages.webs.web_aboutpage import AboutPage
-        return AboutPage(*self.pages_parameter)
-
-    def friend_page(self):
-        from Project.sbk.web.pages.webs.web_friendpage import FriendPage
-        return FriendPage(*self.pages_parameter)
-
-    # def sbkroomPage(self):
-    #     from Project.sbk.web.pages.webs.web_sbkroompage import sbkRoomPage
-    #     return sbkRoomPage(*self.pages_parameter)
-
-    # def sbklistPage(self):
-    #     from Project.sbk.web.pages.webs.web_sbklistpage import sbkListPage
-    #     return sbkListPage(*self.pages_parameter)
-
-class AdminPages:
     def __init__(self, driver, wait_sec, base_url, skip_test_method):
-        self.pages_parameter = driver, wait_sec, base_url, skip_test_method
-    
-    def common_page(self):
-        from common.web.common import Common
-        return Common(*self.pages_parameter)
-    
-    def base_page(self):
-        from Project.sbk.web.pages.admin.admin_basepage import BasePage
-        return BasePage(*self.pages_parameter)
-    
-    def login_page(self):
-        from Project.sbk.web.pages.admin.admin_loginpage import LoginPage
-        return LoginPage(*self.pages_parameter)
-    
-    def main_page(self):
-        from Project.sbk.web.pages.admin.admin_mainpage import MainPage
-        return MainPage(*self.pages_parameter)
-
-    def groups_page(self):
-        from Project.sbk.web.pages.admin.admin_groupspage import GroupsPage
-        return GroupsPage(*self.pages_parameter)
-
-    def logging_page(self):
-        from Project.sbk.web.pages.admin.admin_mainpage import LoggingPage
-        return LoggingPage(*self.pages_parameter)
-
-    def member_page(self):
-        from Project.sbk.web.pages.admin.admin_memberpage import MemberPage
-        return MemberPage(*self.pages_parameter)
-
-    def recode_page(self):
-        from Project.sbk.web.pages.admin.admin_recodepage import RecodePage
-        return RecodePage(*self.pages_parameter)
-
-    def red_envelope_page(self):
-        from Project.sbk.web.pages.admin.admin_redenvelopepage import RedEnvelopePage
-        return RedEnvelopePage(*self.pages_parameter)
-
-    def setting_page(self):
-        from Project.sbk.web.pages.admin.admin_settingpage import SettingPage
-        return SettingPage(*self.pages_parameter)
-
-    def system_page(self):
-        from Project.sbk.web.pages.admin.admin_systempage import SystemPage
-        return SystemPage(*self.pages_parameter)
+        """初始化 Admin 頁面工廠"""
+        super().__init__(driver, wait_sec, base_url, skip_test_method, project='sbk', page_type='admin')

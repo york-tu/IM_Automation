@@ -1,137 +1,50 @@
 import os
 import sys
-DIR_NAME = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.append(DIR_NAME)
+from common.utils.path_utils import PathUtils
 
-class WebPages:
+# 使用 PathUtils 添加專案根目錄到 sys.path
+path_utils = PathUtils()
+project_root = str(path_utils.get_project_root())
+if project_root not in sys.path:
+    sys.path.append(project_root)
+
+# 使用新的統一 PageFactory（向後兼容）
+from common.framework.compat_pages import CompatiblePages, AppPages as BaseAppPages
+
+
+class WebPages(CompatiblePages):
+    """Exchange WellPay Web 頁面工廠（使用新的 PageFactory）"""
+    
     def __init__(self, driver, wait_sec, base_url, skip_test_method):
-        self.pages_parameter = driver, wait_sec, base_url, skip_test_method
+        """初始化 Web 頁面工廠"""
+        super().__init__(driver, wait_sec, base_url, skip_test_method, project='exchange_wellpay', page_type='web')
         
-    def web_page(self):
-        from Project.lottery.web.pages.pages import WebPages
-        return WebPages(*self.pages_parameter)
+        # 特殊處理：註冊 web_page
+        self.register_page_lazy('web_page', 'Project.lottery.web.pages.pages.WebPages')
 
-    def common_page(self):
-        from common.web.common import Common
-        return Common(*self.pages_parameter)
-class AppPages:
-    def __init__(self, parameter):
-        self.pages_parameter = parameter
 
-    def common_page(self):
-        from common.app.common import Common
-        return Common(*self.pages_parameter)
-
-    def main_page(self):
-        from Project.exchange_wellpay.app.pages.app.app_main_page import MainPage
-        return MainPage(*self.pages_parameter)
+class AppPages(BaseAppPages):
+    """Exchange WellPay App 頁面工廠（使用新的 PageFactory）"""
     
-    def register_page(self):
-        from Project.exchange_wellpay.app.pages.app.app_register_page import RegisterPage
-        return RegisterPage(*self.pages_parameter)
+    def __init__(self, parameter: tuple):
+        """初始化 App 頁面工廠"""
+        super().__init__(parameter, project='exchange_wellpay')
+
+
+class AdminEPage(CompatiblePages):
+    """Exchange WellPay Admin 頁面工廠（使用新的 PageFactory）"""
     
-    def wantbuy_page(self):
-        from Project.exchange_wellpay.app.pages.app.app_want_buy_page import WantBuyPage
-        return WantBuyPage(*self.pages_parameter)
-
-    def deposit_page(self):
-        from Project.exchange_wellpay.app.pages.app.app_deposit_page import DepositPage
-        return DepositPage(*self.pages_parameter)
-    
-    def customerservice_page(self):
-        from Project.exchange_wellpay.app.pages.app.app_customer_service_page import CustomerServicePage
-        return CustomerServicePage(*self.pages_parameter)
-    
-    def bindpayment_page(self):
-        from Project.exchange_wellpay.app.pages.app.app_bind_payment_page import BindPaymentPagePage
-        return BindPaymentPagePage(*self.pages_parameter)
-  
-    def my_page(self):
-        from Project.exchange_wellpay.app.pages.app.app_my_page import MyPage
-        return MyPage(*self.pages_parameter)
-
-    def graporder_page(self):
-        from Project.exchange_wellpay.app.pages.app.app_grap_order_page import GrapOrderPage
-        return GrapOrderPage(*self.pages_parameter)
-    
-    def myorder_page(self):
-        from Project.exchange_wellpay.app.pages.app.app_my_order_page import MyOrderPage
-        return MyOrderPage(*self.pages_parameter)
-
-    def mysell_page(self):
-        from Project.exchange_wellpay.app.pages.app.app_my_sell_page import MySellPage
-        return MySellPage(*self.pages_parameter)
-
-    def myinfo_page(self):
-        from Project.exchange_wellpay.app.pages.app.app_my_info_page import MyInfoPage
-        return MyInfoPage(*self.pages_parameter)
-
-    def customerservice_page(self):
-        from Project.exchange_wellpay.app.pages.app.app_customer_service_page import CustomerServicePage
-        return CustomerServicePage(*self.pages_parameter)
-
-    def wantbuy_page(self):
-        from Project.exchange_wellpay.app.pages.app.app_want_buy_page import WantBuyPage
-        return WantBuyPage(*self.pages_parameter)
-
-    def wantsell_page(self):
-        from Project.exchange_wellpay.app.pages.app.app_want_sell_page import WantSellPage
-        return WantSellPage(*self.pages_parameter)
-    
-    def payinfo_page(self):
-        from Project.exchange_wellpay.app.pages.app.app_pay_info_page import PayInfoPage
-        return PayInfoPage(*self.pages_parameter)
-
-    def depositrecord_page(self):
-        from Project.exchange_wellpay.app.pages.app.app_deposit_record_page import DepositRecordPage
-        return DepositRecordPage(*self.pages_parameter)
-
-
-class AdminEPage:
     def __init__(self, driver, wait_sec, base_url, skip_test_method):
-        self.pages_parameter = driver, wait_sec, base_url, skip_test_method
-    
-    def common_page(self):
-        from common.web.common import Common
-        return Common(*self.pages_parameter)
-    
-    def login_page(self):
-        from Project.exchange_wellpay.app.pages.admin.admin_login_page import LoginPage
-        return LoginPage(*self.pages_parameter)
-    
-    def menu_page(self):
-        from Project.exchange_wellpay.app.pages.admin.admin_menu_page import MenuPage
-        return MenuPage(*self.pages_parameter)
-
-    def rechargeaudit_page(self):
-        from Project.exchange_wellpay.app.pages.admin.rechargemanagement.admin_recharge_audit_page import RechargeAuditPage
-        return RechargeAuditPage(*self.pages_parameter)
-
-    def orderrecordbrand_page(self):
-        from Project.exchange_wellpay.app.pages.admin.buymanagement.admin_order_record_brand_page import OrderRecordBrandPage
-        return OrderRecordBrandPage(*self.pages_parameter)
-    
-    def allrecordzqb_page(self):
-        from Project.exchange_wellpay.app.pages.admin.sellmanagement.admin_all_record_zqb_page import AllRecordZqbPage
-        return AllRecordZqbPage(*self.pages_parameter)
-    
-    def memberlist_page(self):
-        from Project.exchange_wellpay.app.pages.admin.membermanagement.admin_member_list_page import MemberListPage
-        return MemberListPage(*self.pages_parameter)
-    
-    def systemmanagement_page(self):
-        from Project.exchange_wellpay.app.pages.admin.systemmanagement.admin_system_management_page import SystemManagementPage
-        return SystemManagementPage(*self.pages_parameter)
+        """初始化 Admin 頁面工廠"""
+        super().__init__(driver, wait_sec, base_url, skip_test_method, project='exchange_wellpay', page_type='admin')
 
 
 class AdminPage(AdminEPage):
-    def __init__(self, driver, wait_sec, base_url, skip_test_method):
-        self.pages_parameter = driver, wait_sec, base_url, skip_test_method
+    """Exchange WellPay Admin 頁面工廠（繼承自 AdminEPage）"""
     
-    def common_page(self):
-        from common.web.common import Common
-        return Common(*self.pages_parameter)
-
-    def admin_page(self):
-        from Project.lottery.web.pages.pages import AdminPage
-        return AdminPage(*self.pages_parameter)
+    def __init__(self, driver, wait_sec, base_url, skip_test_method):
+        """初始化 Admin 頁面工廠"""
+        super().__init__(driver, wait_sec, base_url, skip_test_method)
+        
+        # 特殊處理：註冊 admin_page
+        self.register_page_lazy('admin_page', 'Project.lottery.web.pages.pages.AdminPage')

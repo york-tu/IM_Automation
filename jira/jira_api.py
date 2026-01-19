@@ -3,12 +3,12 @@ import json
 import filetype
 import common.utils.globalvar as gl
 
-DIR_NAME = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.append(DIR_NAME)
 from common.web.common_api import Common
 from requests_toolbelt import MultipartEncoder
 from uuid import uuid4
 
+DIR_NAME = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(DIR_NAME)
 
 
 class JiraApi(Common):
@@ -42,18 +42,10 @@ class JiraApi(Common):
     
         return session
 
-    # def create_testcase(self):
-    #     pass
-    # def create_testcycle(self):
-    #     url = self.server_url + '/rest/atm/1.0/testrun'
- 
-        
-    # def set_testresult(self):
-    #     url = self.server_url + '/rest/atm/1.0/testresult'
-
     def upload_testcase_img(self, certification):
         img_path_list = []
         url = self.server_url + '/rest/tests/1.0/attachment/embeddedimage'
+
         if gl.get_value('IMG_PATH') == None:
             return
         
@@ -108,6 +100,19 @@ class JiraApi(Common):
                     imgs_comment += img_comment
                 comment = f'Result: <span style="color: rgb(184, 49, 47);">{last_comment}</span><br>' + imgs_comment + 'Report:<br>' + comment
 
+        # 構建 Platform 欄位值（包含 iOS 版本）
+        phone_name = gl.get_value("PHONE_NAME", "").upper()
+        phone_platform = gl.get_value("PHONE_PLATFORM", "")
+        os_version = gl.get_value("OS_VERSION", "")
+        
+        # 如果是 iOS 設備且有版本信息，則組合顯示
+        if phone_platform == 'iOS' and os_version:
+            # 格式化：IPHONE_15_PRO (iOS18.2) 或 IPHONE_15_PRO (iOS26.2)
+            platform_value = f'{phone_name} ({os_version})'
+        else:
+            # 非 iOS 或沒有版本信息時，只顯示設備名稱
+            platform_value = phone_name
+
         # 把測試結果上傳JIRA
         url = f'{self.server_url}/rest/atm/1.0/testrun/{cycle_key}/testcase/{testcase_key}/testresult'
         self.headers = {
@@ -119,7 +124,7 @@ class JiraApi(Common):
             "status": f'{status}',
             "customFields": {
                 "Build Version": f'{gl.get_value("APP_VERSION")}',
-                "Platform": f'{gl.get_value("PHONE_NAME").upper()}',
+                "Platform": platform_value,
                 "Test Type": f"{gl.get_value('TEST_TYPE').upper()}",
                 "Duration": f"{gl.get_value('Duration')}"
             }

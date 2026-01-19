@@ -1,77 +1,28 @@
 import os
 import sys
-DIR_NAME = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.append(DIR_NAME)
+from common.utils.path_utils import PathUtils
 
-class WebPages:
+# 使用 PathUtils 添加專案根目錄到 sys.path
+path_utils = PathUtils()
+project_root = str(path_utils.get_project_root())
+if project_root not in sys.path:
+    sys.path.append(project_root)
+
+# 使用新的統一 PageFactory（向後兼容）
+from common.framework.compat_pages import CompatiblePages
+
+
+class WebPages(CompatiblePages):
+    """Mynah Web 頁面工廠（使用新的 PageFactory）"""
+    
     def __init__(self, driver, wait_sec, base_url, skip_test_method):
-        self.pages_parameter = driver, wait_sec, base_url, skip_test_method
-
-    def webBasePage(self):
-        from Project.mynah.pages.web.webs_basepage import WebBasePage
-        return WebBasePage(*self.pages_parameter)
-
-    def channelPage(self):
-        from Project.mynah.pages.web.web_channelpage import WebChannelPage
-        return WebChannelPage(*self.pages_parameter)
-
-    def chatPage(self):
-        from Project.mynah.pages.web.web_chatpage import WebChatPage
-        return WebChatPage(*self.pages_parameter)
-
-    def formPage(self):
-        from Project.mynah.pages.web.web_formpage import WebFormPage
-        return WebFormPage(*self.pages_parameter)
-
-    def scorePage(self):
-        from Project.mynah.pages.web.web_scorepage import WebScorePage
-        return WebScorePage(*self.pages_parameter)
+        """初始化 Web 頁面工廠"""
+        super().__init__(driver, wait_sec, base_url, skip_test_method, project='mynah', page_type='web')
 
 
-class AdminPage:
+class AdminPage(CompatiblePages):
+    """Mynah Admin 頁面工廠（使用新的 PageFactory）"""
+    
     def __init__(self, driver, wait_sec, base_url, skip_test_method):
-        self.pages_parameter = driver, wait_sec, base_url, skip_test_method
-
-    def adminBasePage(self):
-        from Project.mynah.pages.admin.admin_basepage import AdminBasePage
-        return AdminBasePage(*self.pages_parameter)
-
-    def adminChatPage(self):
-        from Project.mynah.pages.admin.admin_chatpage import AdminChatPage
-        return AdminChatPage(*self.pages_parameter)
-
-    # def adminDashboardPage(self):
-    #     from mynah.pages.admin.admin_dashboardpage import AdminDashboardPage
-    #     return AdminDashboardPage(*self.pages_parameter)
-
-    def adminFormPage(self):
-        from Project.mynah.pages.admin.admin_formpage import AdminFormPage
-        return AdminFormPage(*self.pages_parameter)
-
-    def adminAIResponsePage(self):
-        from Project.mynah.pages.admin.admin_airesponsepage import AdminAIResponsePage
-        return AdminAIResponsePage(*self.pages_parameter)
-
-    def adminMenuPage(self):
-        from Project.mynah.pages.admin.admin_menupage import AdminMenuPage
-        return AdminMenuPage(*self.pages_parameter)
-
-    def adminRulesPage(self):
-        from Project.mynah.pages.admin.admin_rulespage import AdminRulesPage
-        return AdminRulesPage(*self.pages_parameter)
-
-    def adminHistoryPage(self):
-        from Project.mynah.pages.admin.admin_historypage import AdminHistoryPage
-        return AdminHistoryPage(*self.pages_parameter)
-
-    def adminPromotionAdPage(self):
-        from Project.mynah.pages.admin.admin_promotionadpage import AdminPromotionAdPage
-        return AdminPromotionAdPage(*self.pages_parameter)
-        
-    def adminScorePage(self):
-        from Project.mynah.pages.admin.admin_scorepage import AdminScorePage
-        return AdminScorePage(*self.pages_parameter)
-
-    def adminStatisticsPage(self):
-        from Project.mynah.pages.admin.admin_statistics import AdminStatisticsPage
-        return AdminStatisticsPage(*self.pages_parameter)
+        """初始化 Admin 頁面工廠"""
+        super().__init__(driver, wait_sec, base_url, skip_test_method, project='mynah', page_type='admin')

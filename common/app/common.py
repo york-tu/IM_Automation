@@ -2,9 +2,12 @@ import re
 import os
 import imaplib
 import email
+import time
+import json
 
 from airtest.core.api import *
 from poco.drivers.ios import iosPoco
+from poco.exceptions import PocoNoSuchNodeException
 from airtest.core.api import touch, swipe, text
 import common.utils.globalvar as gl
 
@@ -143,6 +146,10 @@ class Common(object):
             return False
 
     def wait_image(self, pos, timeout=10):
+        # iOS 優化：針對 iOS 使用更短的超時時間
+        if self.device.lower() == 'ios' and timeout == 10:
+            timeout = 5
+        
         try:
             wait(Template(pos), timeout=timeout)
             return True
@@ -150,6 +157,10 @@ class Common(object):
             return False
 
     def wait_image_swipe(self, pos, vector=[0, 0], timeout=10):
+        # iOS 優化：針對 iOS 使用更短的超時時間
+        if self.device.lower() == 'ios' and timeout == 10:
+            timeout = 5
+        
         wait(Template(pos), timeout=timeout)
         swipe(Template(pos), vector=vector)
 
@@ -203,6 +214,8 @@ class Common(object):
     #         return self.poco_ui(textMatches = self.type_name)[self.num]
 
     def poco_send_text(self, data, _text):
+        # 先解析 data 參數，獲取 type_kind 和 type_name（用於 WDA）
+        self.map_value(data)
         el = self.poco(data)
 
         if self.device.lower() == 'android':
@@ -216,27 +229,53 @@ class Common(object):
                 return
 
         if self.device.lower() == 'ios':
-            # el.click()
-            # ===== 判斷是否為全數字 >>> ios會跳出純數字鍵盤 =================================================================
-            if str(_text).isdigit() is True and len(str(_text)) > 4:
-                key_coordinates = {
-                    '1': [0.16545893719806765, 0.6958705357142857],  # 这是示例坐标，请根据实际情况调整
-                    '2': [0.5, 0.6958705357142857],
-                    '3': [0.8345410628019324, 0.6958705357142857],
-                    '4': [0.16545893719806765, 0.7589285714285714],
-                    '5': [0.5, 0.7589285714285714],
-                    '6': [0.8345410628019324, 0.7589285714285714],
-                    '7': [0.16545893719806765, 0.8214285714285714],
-                    '8': [0.5, 0.8214285714285714],
-                    '9': [0.8345410628019324, 0.8214285714285714],
-                    '0': [0.5, 0.8844866071428571]
-                }
-                for char in str(_text):
-                    if char in key_coordinates:
-                        touch(key_coordinates[char])
-                    # time.sleep(0.1)
-            else:
-                text(_text, enter=False)
+            # iOS 優化：優先嘗試使用 WDA 的 set_text（最快的方式，適用於所有文字輸入）
+            wda_success = False
+            if self.wda:
+                try:
+                    # 嘗試使用 WDA 直接設置文字
+                    wda_element = self.wda_base(self.type_kind, self.type_name)
+                    if wda_element:
+                        # WDA 返回的可能是列表或單個元素
+                        if isinstance(wda_element, list) and len(wda_element) > 0:
+                            element = wda_element[0]
+                        elif not isinstance(wda_element, list):
+                            element = wda_element
+                        else:
+                            raise Exception("WDA element not found")
+                        
+                        # 使用 WDA 的 set_text 方法
+                        element.set_text(str(_text))
+                        sleep(0.1)  # 短暫等待確認輸入完成
+                        wda_success = True
+                except Exception as e:
+                    # WDA set_text 失敗，回退到原有方式
+                    wda_success = False
+            
+            # 如果 WDA set_text 失敗，使用回退方式
+            if not wda_success:
+                # ===== ?斗?臬?箏?詨? >>> ios?歲?箇??詨??萇 =================================================================
+                if str(_text).isdigit() is True and len(str(_text)) > 4:
+                    # 數字輸入：使用座標點擊方式
+                    key_coordinates = {
+                        '1': [0.16545893719806765, 0.6958705357142857],  # 这是示例坐标，请根据实际情况调整
+                        '2': [0.5, 0.6958705357142857],
+                        '3': [0.8345410628019324, 0.6958705357142857],
+                        '4': [0.16545893719806765, 0.7589285714285714],
+                        '5': [0.5, 0.7589285714285714],
+                        '6': [0.8345410628019324, 0.7589285714285714],
+                        '7': [0.16545893719806765, 0.8214285714285714],
+                        '8': [0.5, 0.8214285714285714],
+                        '9': [0.8345410628019324, 0.8214285714285714],
+                        '0': [0.5, 0.8844866071428571]
+                    }
+                    # iOS 優化：減少 touch duration，加快輸入速度
+                    for char in str(_text):
+                        if char in key_coordinates:
+                            touch(key_coordinates[char], duration=0.01)  # 減少 touch duration
+                else:
+                    # 一般文字輸入：使用 airtest 的 text() 函數
+                    text(_text, enter=False)
 
     # def more_poco_send_text(self, type_kind, type_name, num, text):
     #     el = self.more_poco(type_kind, type_name, num)
@@ -289,7 +328,11 @@ class Common(object):
     #             eval(f'el.{action}[{num}].click()')
 
     def poco_exists(self, data):
-        el = self.poco(data)
+        try:
+            el = self.poco(data)
+        except PocoNoSuchNodeException:
+            # 元素不存在時返回 False
+            return False
 
         if self.action == '':
             return el.exists()
@@ -298,10 +341,312 @@ class Common(object):
             if attr is not None:
                 return attr.exists()
             return False
-        except (AttributeError, TypeError):
+        except (AttributeError, TypeError, PocoNoSuchNodeException):
             return False
+    
+    def poco_batch_exists(self, data_list):
+        """
+        批量檢查多個元素是否存在（一次性獲取 UI 樹，減少 HTTP 請求）
+        
+        Args:
+            data_list: 元素定位器列表，例如 [locator1, locator2, ...]
+        
+        Returns:
+            dict: {locator: exists_result} 的字典
+        """
+        # #region agent log
+        import json
+        try:
+            with open(r'c:\automated_test_0219\.cursor\debug.log', 'a', encoding='utf-8') as f:
+                f.write(json.dumps({
+                    "sessionId": "debug-session",
+                    "runId": "run1",
+                    "hypothesisId": "A",
+                    "location": "common/app/common.py:poco_batch_exists:322",
+                    "message": "Function entry - data_list type and content",
+                    "data": {
+                        "data_list_type": str(type(data_list)),
+                        "data_list_len": len(data_list) if data_list else 0,
+                        "first_item_type": str(type(data_list[0])) if data_list else None,
+                        "first_item_is_dict": isinstance(data_list[0], dict) if data_list else None
+                    },
+                    "timestamp": int(time.time() * 1000)
+                }) + '\n')
+        except: pass
+        # #endregion
+        
+        # 使用 id(data) 作為鍵，同時維護映射關係
+        results = {}
+        locator_to_id = {}  # 映射：原始 locator -> id
+        
+        # #region agent log
+        try:
+            with open(r'c:\automated_test_0219\.cursor\debug.log', 'a', encoding='utf-8') as f:
+                f.write(json.dumps({
+                    "sessionId": "debug-session",
+                    "runId": "run1",
+                    "hypothesisId": "B",
+                    "location": "common/app/common.py:poco_batch_exists:after_mapping",
+                    "message": "Creating locator mapping",
+                    "data": {
+                        "mapping_created": True
+                    },
+                    "timestamp": int(time.time() * 1000)
+                }) + '\n')
+        except: pass
+        # #endregion
+        
+        # iOS 優化：一次性獲取 UI 樹，然後批量檢查
+        if self.device.lower() == 'ios':
+            # 先獲取一次 UI 樹（只請求一次）
+            try:
+                # 使用 poco 的批量查詢功能
+                for idx, data in enumerate(data_list):
+                    try:
+                        # #region agent log
+                        try:
+                            with open(r'c:\automated_test_0219\.cursor\debug.log', 'a', encoding='utf-8') as f:
+                                f.write(json.dumps({
+                                    "sessionId": "debug-session",
+                                    "runId": "run1",
+                                    "hypothesisId": "A",
+                                    "location": "common/app/common.py:poco_batch_exists:loop",
+                                    "message": "Processing locator in loop",
+                                    "data": {
+                                        "idx": idx,
+                                        "data_type": str(type(data)),
+                                        "data_is_dict": isinstance(data, dict),
+                                        "data_id": id(data)
+                                    },
+                                    "timestamp": int(time.time() * 1000)
+                                }) + '\n')
+                        except: pass
+                        # #endregion
+                        
+                        locator_id = id(data)
+                        locator_to_id[data] = locator_id
+                        
+                        el = self.poco(data)
+                        if self.action == '':
+                            results[locator_id] = el.exists()
+                        else:
+                            attr = getattr(el, self.action, None)
+                            results[locator_id] = attr.exists() if attr is not None else False
+                    except Exception as e:
+                        # #region agent log
+                        try:
+                            with open(r'c:\automated_test_0219\.cursor\debug.log', 'a', encoding='utf-8') as f:
+                                f.write(json.dumps({
+                                    "sessionId": "debug-session",
+                                    "runId": "run1",
+                                    "hypothesisId": "A",
+                                    "location": "common/app/common.py:poco_batch_exists:except_inner",
+                                    "message": "Exception in inner loop",
+                                    "data": {
+                                        "idx": idx,
+                                        "error": str(e),
+                                        "error_type": str(type(e))
+                                    },
+                                    "timestamp": int(time.time() * 1000)
+                                }) + '\n')
+                        except: pass
+                        # #endregion
+                        
+                        locator_id = id(data)
+                        locator_to_id[data] = locator_id
+                        results[locator_id] = False
+            except Exception as e:
+                # #region agent log
+                try:
+                    with open(r'c:\automated_test_0219\.cursor\debug.log', 'a', encoding='utf-8') as f:
+                        f.write(json.dumps({
+                            "sessionId": "debug-session",
+                            "runId": "run1",
+                            "hypothesisId": "A",
+                            "location": "common/app/common.py:poco_batch_exists:except_outer",
+                            "message": "Exception in outer try block",
+                            "data": {
+                                "error": str(e),
+                                "error_type": str(type(e))
+                            },
+                            "timestamp": int(time.time() * 1000)
+                        }) + '\n')
+                except: pass
+                # #endregion
+                
+                # 如果批量查詢失敗，回退到單個查詢
+                for data in data_list:
+                    try:
+                        locator_id = id(data)
+                        locator_to_id[data] = locator_id
+                        results[locator_id] = self.poco_exists(data)
+                    except:
+                        locator_id = id(data)
+                        locator_to_id[data] = locator_id
+                        results[locator_id] = False
+        else:
+            # Android 直接批量查詢
+            for data in data_list:
+                try:
+                    locator_id = id(data)
+                    locator_to_id[data] = locator_id
+                    results[locator_id] = self.poco_exists(data)
+                except:
+                    locator_id = id(data)
+                    locator_to_id[data] = locator_id
+                    results[locator_id] = False
+        
+        # 將結果轉換回使用原始 locator 作為鍵
+        final_results = {}
+        for locator, locator_id in locator_to_id.items():
+            final_results[locator] = results.get(locator_id, False)
+        
+        # #region agent log
+        try:
+            with open(r'c:\automated_test_0219\.cursor\debug.log', 'a', encoding='utf-8') as f:
+                f.write(json.dumps({
+                    "sessionId": "debug-session",
+                    "runId": "run1",
+                    "hypothesisId": "C",
+                    "location": "common/app/common.py:poco_batch_exists:return",
+                    "message": "Function exit - returning results",
+                    "data": {
+                        "final_results_keys_type": [str(type(k)) for k in final_results.keys()],
+                        "final_results_len": len(final_results)
+                    },
+                    "timestamp": int(time.time() * 1000)
+                }) + '\n')
+        except: pass
+        # #endregion
+        
+        return final_results
+    
+    def poco_batch_wait_exists(self, data_list, timeout=10, all_required=False):
+        """
+        批量等待多個元素出現（優化：減少 HTTP 請求次數）
+        
+        Args:
+            data_list: 元素定位器列表
+            timeout: 超時時間（秒）
+            all_required: 是否所有元素都需要存在（True=全部存在才返回，False=任一存在即返回）
+        
+        Returns:
+            dict: {locator: exists_result} 的字典
+        """
+        # iOS 優化：針對 iOS 使用更短的超時時間
+        if self.device.lower() == 'ios' and timeout == 10:
+            timeout = 5
+        
+        results = {}
+        start_time = time.time()
+        
+        # iOS 優化：使用輪詢方式，但減少請求頻率
+        if self.device.lower() == 'ios':
+            poll_interval = 0.3  # iOS 使用較短的輪詢間隔（減少等待時間）
+        else:
+            poll_interval = 0.5
+        
+        while time.time() - start_time < timeout:
+            # 批量檢查所有元素
+            batch_results = self.poco_batch_exists(data_list)
+            results.update(batch_results)
+            
+            # 根據 all_required 判斷是否滿足條件
+            if all_required:
+                if all(results.values()):
+                    return results
+            else:
+                if any(results.values()):
+                    return results
+            
+            time.sleep(poll_interval)
+        
+        # 超時後返回最終結果
+        return results
+    
+    def poco_get_multiple(self, data_list, attribute='text'):
+        """
+        批量獲取多個元素的屬性（一次性獲取 UI 樹，減少 HTTP 請求）
+        
+        Args:
+            data_list: 元素定位器列表
+            attribute: 要獲取的屬性名稱（'text', 'value', 'label' 等）
+        
+        Returns:
+            dict: {locator: attribute_value} 的字典
+        """
+        # 使用 id(data) 作為鍵，同時維護映射關係
+        results = {}
+        locator_to_id = {}  # 映射：原始 locator -> id
+        
+        # iOS 優化：一次性獲取 UI 樹
+        if self.device.lower() == 'ios':
+            try:
+                for data in data_list:
+                    try:
+                        locator_id = id(data)
+                        locator_to_id[data] = locator_id
+                        
+                        el = self.poco(data)
+                        if self.action == '':
+                            if attribute == 'text':
+                                results[locator_id] = el.attr("label") or el.attr("value") or ""
+                            else:
+                                results[locator_id] = el.attr(attribute) or ""
+                        else:
+                            attr = getattr(el, self.action, None)
+                            if attr is not None:
+                                if attribute == 'text':
+                                    results[locator_id] = attr.attr("label") or attr.attr("value") or ""
+                                else:
+                                    results[locator_id] = attr.attr(attribute) or ""
+                            else:
+                                results[locator_id] = ""
+                    except:
+                        locator_id = id(data)
+                        locator_to_id[data] = locator_id
+                        results[locator_id] = ""
+            except Exception as e:
+                # 如果批量查詢失敗，回退到單個查詢
+                for data in data_list:
+                    try:
+                        locator_id = id(data)
+                        locator_to_id[data] = locator_id
+                        if attribute == 'text':
+                            results[locator_id] = self.poco_get_text(data)
+                        else:
+                            results[locator_id] = self.poco_get_attr(data, attribute)
+                    except:
+                        locator_id = id(data)
+                        locator_to_id[data] = locator_id
+                        results[locator_id] = ""
+        else:
+            # Android 批量查詢
+            for data in data_list:
+                try:
+                    locator_id = id(data)
+                    locator_to_id[data] = locator_id
+                    if attribute == 'text':
+                        results[locator_id] = self.poco_get_text(data)
+                    else:
+                        results[locator_id] = self.poco_get_attr(data, attribute)
+                except:
+                    locator_id = id(data)
+                    locator_to_id[data] = locator_id
+                    results[locator_id] = ""
+        
+        # 將結果轉換回使用原始 locator 作為鍵
+        final_results = {}
+        for locator, locator_id in locator_to_id.items():
+            final_results[locator] = results.get(locator_id, "")
+        
+        return final_results
 
     def poco_wait_exists(self, data, timeout=10):
+        # iOS 優化：針對 iOS 使用更短的超時時間（從 10 秒降到 5 秒）
+        if self.device.lower() == 'ios' and timeout == 10:
+            timeout = 5
+        
         el = self.poco(data)
         result = el.wait(timeout).exists()
         if self.action == '':
@@ -367,18 +712,26 @@ class Common(object):
         el = self.poco(data)
         return el.get_name()
 
-    def poco_wait_appearance(self, data):
+    def poco_wait_appearance(self, data, timeout=10):
+        # iOS 優化：針對 iOS 使用更短的超時時間
+        if self.device.lower() == 'ios' and timeout == 10:
+            timeout = 5
+        
         try:
             el = self.poco(data)
-            el.wait_for_appearance(timeout=10)
+            el.wait_for_appearance(timeout=timeout)
             return True
         except Exception:
             return False
 
-    def poco_wait_disappearance(self, data):
+    def poco_wait_disappearance(self, data, timeout=10):
+        # iOS 優化：針對 iOS 使用更短的超時時間
+        if self.device.lower() == 'ios' and timeout == 10:
+            timeout = 5
+        
         try:
             el = self.poco(data)
-            el.wait_for_disappearance(timeout=10)
+            el.wait_for_disappearance(timeout=timeout)
             return True
         except Exception:
             return False
@@ -386,7 +739,11 @@ class Common(object):
     def poco_long_click(self, data, time=''):
         el = self.poco(data)
         if time == '':
-            el.long_click(duration=1)
+            # iOS 優化：減少默認長按 duration（從 1 秒降到 0.5 秒）
+            if self.device.lower() == 'ios':
+                el.long_click(duration=0.5)
+            else:
+                el.long_click(duration=1)
         else:
             el.long_click(duration=time)
 

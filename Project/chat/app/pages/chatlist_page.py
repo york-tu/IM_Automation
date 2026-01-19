@@ -9,24 +9,16 @@ from configs.app.setting import Setting
 from Project.chat.app.pages.base_page import Base
 from Project.chat.app.pages.xpath.xpath_base import Xpath_Base
 from Project.chat.app.pages.chatroom_page import ChatRoomPage, ChatRoomPageLocator
+from Project.chat.app.pages.locators.base_locator import BaseLocator
 import logging
 import common.utils.globalvar as gl
 
 
-class ChatListPageLocator:
-    base = Xpath_Base()
-    env = gl.get_value('ENV')
-    brand = gl.get_value('BRAND')
-    app_package = Setting().get_package_name(brand, env)
-
-    @staticmethod
-    def env(env):
-        env = ChatListPageLocator.base.check_device(
-            Android=ChatListPageLocator.base.data_collation(type_kind='textMatches', type_name=f'{env}.*'),
-            iOS=ChatListPageLocator.base.data_collation(type_kind='nameMatches', type_name=f'{env}.*')
-        )
-
-        return env
+class ChatListPageLocator(BaseLocator):
+    """聊天列表頁面 Locator，繼承 BaseLocator 以減少重複代碼"""
+    # 明確引用基類屬性，確保 IDE/linter 能正確識別
+    base = BaseLocator.base
+    app_package = BaseLocator.app_package
 
     # 系統通知icon
     system_notification = base.check_device(
@@ -71,7 +63,7 @@ class ChatListPageLocator:
 
     add_button = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/iv_add'),
-        iOS=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/iv_add'),
+        iOS=base.data_collation(type_kind='name', type_name='chatList_addAction_button'),
     )
 
     add_chat_button = base.check_device(
@@ -84,9 +76,13 @@ class ChatListPageLocator:
         iOS=base.data_collation(type_kind='name', type_name='新增群组'),
     )
 
-    add_frend_button = base.check_device(
+    add_friend_button = base.check_device(
         Android=base.data_collation(type_kind='text', type_name='新增好友'),
-        iOS=base.data_collation(type_kind='name', type_name='新增好友'),
+        iOS=base.data_collation(type_kind='name', type_name='chatList_addFriend_button'),
+    )
+    add_friend_page_note = base.check_device(
+        Android=base.data_collation(type_kind='textMatches', type_name=f'我的 IM ID：.*'),
+        iOS=base.data_collation(type_kind='nameMatches', type_name=f'我的 IM ID：.*'),
     )
 
     input_share_code_button = base.check_device(
@@ -127,17 +123,17 @@ class ChatListPageLocator:
 
     group_member_button = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/iv_checked'),
-        iOS=base.data_collation(type_kind='name', type_name='新增好友'),
+        iOS=base.data_collation(type_kind='name', type_name=''),
     )
 
     selected_empty_text = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tv_selected_empty_text'),
-        iOS=base.data_collation(type_kind='name', type_name='新增好友'),
+        iOS=base.data_collation(type_kind='name', type_name=''),
     )
 
     selected_list = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/rv_selected_users'),
-        iOS=base.data_collation(type_kind='name', type_name='新增好友'),
+        iOS=base.data_collation(type_kind='name', type_name=''),
     )
 
     last_message_room = base.check_device(
@@ -206,15 +202,37 @@ class ChatListPage(Base):
         if self.common.poco_exists(ChatListPageLocator.search_clear):
             self.common.poco_click(ChatListPageLocator.search_clear)
         self.common.poco_send_text(ChatListPageLocator.search_input, name)
-        sleep(3)
+        
+        # iOS 優化：使用動態等待替代固定 3 秒等待
+        if self.phone_platform.lower() == 'ios':
+            # 快速檢查搜索結果出現（最多等待 2 秒）
+            # 修改：同時檢查 friend_frist 和 group_frist，支持個人和群組聊天室
+            for i in range(4):  # 4 * 0.5 = 2 秒
+                if self.common.poco_exists(ChatListPageLocator.friend_frist) or \
+                   self.common.poco_exists(ChatListPageLocator.group_frist) or \
+                   self.common.poco_exists(ChatListPageLocator.search_empty):
+                    break
+                sleep(0.5)
+        else:
+            sleep(3)
+        
         if self.common.poco_exists(ChatListPageLocator.search_empty):
             raise EOFError('找不到任何結果')
         else:
             if self.phone_platform.lower() == 'ios':
-                assert self.common.poco_get_attr(ChatListPageLocator.friend_frist, 'value').__contains__(
+                # 修改：同時處理個人和群組聊天室
+                if self.common.poco_exists(ChatListPageLocator.friend_frist):
+                    assert self.common.poco_get_attr(ChatListPageLocator.friend_frist, 'value').__contains__(
                     name), f'好友搜查結果有誤'
-                self.common.poco_click(ChatListPageLocator.friend_frist)
-                sleep(1)
+                    self.common.poco_click(ChatListPageLocator.friend_frist)
+                elif self.common.poco_exists(ChatListPageLocator.group_frist):
+                    assert self.common.poco_get_attr(ChatListPageLocator.group_frist, 'value').__contains__(
+                        name), f'群組搜查結果有誤'
+                    self.common.poco_click(ChatListPageLocator.group_frist)
+                else:
+                    raise EOFError(f'找不到聊天室: {name}')
+                # iOS 優化：減少等待時間（從 1 秒降到 0.5 秒）
+                sleep(0.5)
             else:
                 if self.common.poco_exists(ChatListPageLocator.friend_frist):
                     aaa = self.common.poco_get_text(ChatListPageLocator.friend_frist)
@@ -227,6 +245,15 @@ class ChatListPage(Base):
                         name), f'群組搜查結果有誤'
                     self.common.poco_click(ChatListPageLocator.group_frist)
                     sleep(1)
+
+    def into_add_friend_page(self, self_id=None):
+        self.common.poco_click(ChatListPageLocator.add_button)
+        assert self.common.poco_exists(ChatListPageLocator.add_friend_button), '預期顯示, 實際新增好友鍵未顯示'
+        self.common.poco_click(ChatListPageLocator.add_friend_button)
+        assert self.common.poco_exists(ChatListPageLocator.add_friend_page_note)
+        self_id_note = self.common.poco_get_text(ChatListPageLocator.add_friend_page_note)
+        if self_id is not None:
+            assert self_id_note.split("：")[1] == self_id
 
     def into_system_notification(self):
         self.common.poco_click(ChatListPageLocator.message_btn)
@@ -314,16 +341,38 @@ class ChatListPage(Base):
 
             # ==================== 回到聊天列表 > 獲取聊天室最後一則訊息 ====================
             self.common.poco_click(ChatListPageLocator.back_btn)  # 回到聊天列表
+            
+            # iOS 優化：快速檢查是否已回到聊天列表（最多等待 1 秒）
+            for i in range(2):  # 2 * 0.5 = 1 秒
+                if self.common.poco_exists(ChatListPageLocator.search_input):
+                    break
+                sleep(0.5)
 
             self.common.poco_click(ChatListPageLocator.search_input)
             if self.common.poco_exists(ChatListPageLocator.search_clear):
                 self.common.poco_click(ChatListPageLocator.search_clear)
 
+            # iOS 優化：快速檢查列表訊息出現（最多等待 1 秒）
+            for i in range(2):  # 2 * 0.5 = 1 秒
+                try:
+                    list_message = self.common.poco_get_text(ChatListPageLocator.last_message_list)
+                    if list_message and room_message in list_message:
+                        break  # 已經找到匹配的訊息
+                except:
+                    pass
+                sleep(0.5)
+            
             list_message = self.common.poco_get_text(ChatListPageLocator.last_message_list)
             assert list_message.__contains__(
                 room_message), f'最後一筆訊息顯示錯誤, 目前:{list_message},預期:{room_message}'
 
             self.common.poco_click(ChatListPageLocator.list_frist)  # 重新進入聊天室
+            
+            # iOS 優化：快速檢查是否已進入聊天室（最多等待 1 秒）
+            for i in range(2):  # 2 * 0.5 = 1 秒
+                if self.common.poco_exists(ChatRoomPageLocator.message_input):
+                    break
+                sleep(0.5)
 
         else:
             self.wait_loading_finish()

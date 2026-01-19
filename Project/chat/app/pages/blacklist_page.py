@@ -3,24 +3,16 @@ from common.app.common import Common
 from configs.app.setting import Setting
 from Project.chat.app.pages.base_page import Base
 from Project.chat.app.pages.xpath.xpath_base import Xpath_Base
+from Project.chat.app.pages.locators.base_locator import BaseLocator
 import logging
 import common.utils.globalvar as gl
 
 
-class BlackListPageLocator:
-    base = Xpath_Base()
-    env = gl.get_value('ENV')
-    brand = gl.get_value('BRAND')
-    app_package = Setting().get_package_name(brand, env)
-
-    @staticmethod
-    def env(env):
-        env = BlackListPageLocator.base.check_device(
-            Android=BlackListPageLocator.base.data_collation(type_kind='textMatches', type_name=f'{env}.*'),
-            iOS=BlackListPageLocator.base.data_collation(type_kind='nameMatches', type_name=f'{env}.*')
-        )
-
-        return env
+class BlackListPageLocator(BaseLocator):
+    """黑名單頁面 Locator，繼承 BaseLocator 以減少重複代碼"""
+    # 明確引用基類屬性，確保 IDE/linter 能正確識別
+    base = BaseLocator.base
+    app_package = BaseLocator.app_package
 
     black_search_input = base.check_device(
         Android=base.data_collation(type_kind='text', type_name='搜索'),
@@ -142,10 +134,19 @@ class BlackListPage(Base):
             assert self.poco(name=f'{note}').exists()  # 確認詳情頁描述出現設定的文字
             # ========================= 刪除描述 =========================
             self.common.poco_click(BlackListPageLocator.black_note_button)
-            while not self.poco(name='全选'):
+            # iOS 優化：限制等待「全选」按鈕出現的次數，避免無限循環
+            max_attempts = 5
+            attempt = 0
+            while not self.poco(name='全选').exists() and attempt < max_attempts:
                 self.common.poco_long_click(BlackListPageLocator.note_input)
-                sleep(1)
-            self.poco(name='全选').click()
+                attempt += 1
+                sleep(0.3)  # 減少等待時間（從 1 秒降到 0.3 秒）
+            
+            if self.poco(name='全选').exists():
+                self.poco(name='全选').click()
+            else:
+                # 如果「全选」按鈕未出現，嘗試直接刪除
+                self.common.poco_long_click(BlackListPageLocator.note_input)
             self.poco(name='delete').click()
             self.common.poco_click(BlackListPageLocator.remark_submit)
             self.common.poco_click(BlackListPageLocator.black_remark_btn)
@@ -189,12 +190,14 @@ class BlackListPage(Base):
             self.common.poco_click(BlackListPageLocator.black_remark_btn)
             self.common.poco_send_text(BlackListPageLocator.nickname_input, name)
             self.common.poco_click(BlackListPageLocator.remark_submit)
+            sleep(1)
             assert self.common.poco_get_text(BlackListPageLocator.black_nickname) == name, f'暱稱更換失敗'
             # ============================= 將暱稱刪除, 欄位留空, 使用預設暱稱 ==========================
             self.common.poco_click(BlackListPageLocator.black_remark_btn)
             self.common.poco_send_text(BlackListPageLocator.nickname_input, '')
             default_nickname = self.common.poco_get_text(BlackListPageLocator.nickname_input)
             self.common.poco_click(BlackListPageLocator.remark_submit)
+            sleep(1)
             assert self.common.poco_get_text(BlackListPageLocator.black_nickname) == default_nickname, f'暱稱更換失敗'
 
     def impeach_friend(self):

@@ -54,8 +54,8 @@ class PersonalSettingPageLocator:
     version_num = (By.XPATH, '//div[contains(@class, "flex items-center justify-between")]/p[@class="text-[14rem]"]')
     service_btn = (By.XPATH, "//p[text()='服务条款']")  # 服務條款
     privacy_btn = (By.XPATH, "//p[text()='隐私权政策']")  # 隱私權政策
-    page_title = (By.XPATH,'//*[@id="app"]/div/div[14]/div/div[2]/div')
-    back_btn = (By.XPATH, '//*[@id="app"]/div/div[14]/div/div[1]/i')  # //*[@id="app"]/div/div[14]/div/div[1]/i
+    page_title = (By.XPATH,'//*[@id="app"]/div[1]/div[11]/div/div[2]/div')
+    back_btn = (By.XPATH, '//*[@id="app"]/div/div[14]/div/div[1]/i')
 
     # =========== 用戶詳情頁 ==============================================================
     user_detail_setting_delete_btn = (By.XPATH, "(//p[text()='删除'])[last()]")  # 聊天詳情頁-刪除鍵

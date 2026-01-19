@@ -1,29 +1,23 @@
 import re
 from time import sleep
 from airtest.core.api import text
+
+from Project.chat.app.pages.friend_page import FriendPageLocator
 from common.app.common import Common
 from configs.app.setting import Setting
 from Project.chat.app.pages.base_page import Base
 from Project.chat.app.pages.xpath.xpath_base import Xpath_Base
 from Project.chat.app.pages.chatroom_page import ChatRoomPage, ChatRoomPageLocator
+from Project.chat.app.pages.locators.base_locator import BaseLocator
 import logging
 import common.utils.globalvar as gl
 
 
-class ChatSetupPageLocator:
-    base = Xpath_Base()
-    env = gl.get_value('ENV')
-    brand = gl.get_value('BRAND')
-    app_package = Setting().get_package_name(brand, env)
-
-    @staticmethod
-    def env(env):
-        env = ChatSetupPageLocator.base.check_device(
-            Android=ChatSetupPageLocator.base.data_collation(type_kind='textMatches', type_name=f'{env}.*'),
-            iOS=ChatSetupPageLocator.base.data_collation(type_kind='nameMatches', type_name=f'{env}.*')
-        )
-
-        return env
+class ChatSetupPageLocator(BaseLocator):
+    """聊天設定頁面 Locator，繼承 BaseLocator 以減少重複代碼"""
+    # 明確引用基類屬性，確保 IDE/linter 能正確識別
+    base = BaseLocator.base
+    app_package = BaseLocator.app_package
 
     search_input = base.check_device(
         Android=base.data_collation(type_kind='text', type_name='搜索'),
@@ -275,14 +269,14 @@ class ChatSetupPage(Base):
         assert title == '群组设定', f'進入 群組設定有誤'
 
     def check_image_rule(self):
-        if self.common.poco_wait_exists(ChatRoomPageLocator.add_function_btn):
-            self.common.poco_click(ChatRoomPageLocator.add_function_btn)
-            assert self.common.poco_exists(ChatRoomPageLocator.image_camera) is True, f'沒有顯示相機/拍照按鈕'
-            assert self.common.poco_exists(ChatRoomPageLocator.image_photo) is True, f'沒有顯示相機/拍照按鈕'
+        self.common.poco_click(ChatRoomPageLocator.add_function_btn)
+        sleep(1)
+        assert self.common.poco_exists(ChatRoomPageLocator.image_camera), f'沒有顯示相機/拍照按鈕'
+        assert self.common.poco_exists(ChatRoomPageLocator.image_photo), f'沒有顯示相機/拍照按鈕'
 
     def check_add_user_rule(self, status):
         self.into_setting()
-        self.wait_loading_finish()
+        sleep(1)
 
         if status == '1':
             if self.phone_platform.lower() == 'android':
@@ -295,8 +289,18 @@ class ChatSetupPage(Base):
             else:
                 self.common.poco_click(ChatSetupPageLocator.member_count)
 
-                self.common.sleep(1)
-                assert self.common.poco_exists(ChatSetupPageLocator.member_add_btn), f'權限開啟 但沒有顯示 加入成員按鈕'
+                # iOS 優化：使用動態等待替代固定 sleep(1)
+                member_add_btn_found = False
+                for i in range(2):  # 2 * 0.5 = 1 秒（最多等待，從 1.5 秒減少）
+                    try:
+                        if self.common.poco_exists(ChatSetupPageLocator.member_add_btn):
+                            member_add_btn_found = True
+                            break
+                    except:
+                        pass
+                    sleep(0.5)
+                
+                assert member_add_btn_found, f'權限開啟 但沒有顯示 加入成員按鈕'
                 assert self.common.poco_exists(ChatSetupPageLocator.member_add_text)
 
             self.common.poco_click(ChatRoomPageLocator.back_btn)  # 回到群組詳情頁
@@ -307,22 +311,40 @@ class ChatSetupPage(Base):
             else:
                 self.common.poco_click(ChatSetupPageLocator.member_count)
 
-            self.common.sleep(1)
+            # iOS 優化：使用動態等待替代固定 sleep(1)
+            if self.phone_platform.lower() == 'ios':
+                # 快速檢查按鈕不存在（最多等待 1 秒）
+                for i in range(2):  # 2 * 0.5 = 1 秒
+                    try:
+                        if not self.common.poco_exists(ChatSetupPageLocator.member_add_btn):
+                            break
+                    except:
+                        pass
+                    sleep(0.5)
+            else:
+                self.common.sleep(1)
+            
             assert not self.common.poco_exists(ChatSetupPageLocator.member_add_btn), f'權限關閉 但有顯示 加好友按鈕'
 
             self.common.poco_click(ChatRoomPageLocator.back_btn)  # 回到群組詳情頁
 
-        # if self.common.poco_wait_exists(ChatSetupPageLocator.options_start):
-        #     self.common.poco_click(ChatSetupPageLocator.options_start)
-
     def check_group_rule(self, rule):
         self.common.sleep(1.5)
-        rule_list = list(rule)
-
+        rule_list = list(rule)  # rule = [傳送訊息, 傳送圖片, 傳送影片, 傳送超連結, 傳送檔案, 加入新成員]
         if rule_list[0] == '1':  # 傳送訊息"開啟"
             self.send_message_for_rule_check('群組權限更改测试')
             self.check_image_rule()
 
+            # 傳送圖片/影片
+            if rule_list[1] == '1' or rule_list[2] == '1':
+                self.send_media_for_rule_check("1")
+            else:
+                self.send_media_for_rule_check("0")
+
+            # 傳送檔案
+            self.send_file_for_rule_check(rule_list[4])
+
+            # 傳送超連結
             if rule_list[3] == '1':
                 self.send_url_message_for_rule_check()
             else:
@@ -331,7 +353,7 @@ class ChatSetupPage(Base):
         else:
             assert self.common.poco_get_text(ChatRoomPageLocator.message_input_block) == '此群组不允许传送讯息', f'權限開啟後 訊息框未開啟'
 
-        self.check_add_user_rule(rule_list[4])
+        self.check_add_user_rule(rule_list[5])
 
         self.common.poco_click(ChatSetupPageLocator.menu_back)  # 回到聊天室
 
@@ -341,34 +363,106 @@ class ChatSetupPage(Base):
         self.url_message_for_rule_check(message)
 
     def send_message_for_rule_check(self, message):
+        # iOS 優化：使用已優化的發送邏輯
+        # if self.phone_platform.lower() == 'ios':
+        #     self.common.poco_click(ChatRoomPageLocator.message_input)
+        #     self.common.poco_send_text(ChatRoomPageLocator.message_input, message)
+        #     self.common.poco_click(ChatRoomPageLocator.send_message_btn)
+        #     sleep(0.5)
+        #     room_last_message = self.common.poco_get_text(ChatRoomPageLocator.last_message_room)
+        #
+        #     assert room_last_message == message, f'發送聊天訊息有誤, 預期: {message}, 實際:{room_last_message}'
+        # else:
+        if self.common.poco_exists(ChatRoomPageLocator.send_message_btn):
+            self.common.poco_click(ChatRoomPageLocator.send_message_btn)
         self.common.poco_click(ChatRoomPageLocator.message_input)
         self.common.poco_send_text(ChatRoomPageLocator.message_input, message)
         self.common.poco_click(ChatRoomPageLocator.send_message_btn)
-
+        sleep(0.5)
         room_last_message = self.common.poco_get_text(ChatRoomPageLocator.last_message_room)
-        assert room_last_message == message, f'發送聊天訊息有誤'
+        assert room_last_message == message, f'發送聊天訊息有誤, 預期: {message}, 實際:{room_last_message}'
+
+    def send_media_for_rule_check(self, enable):
+        while not self.common.poco_exists(ChatRoomPageLocator.image_photo):
+            self.common.poco_click(ChatRoomPageLocator.add_function_btn)
+        self.common.poco_click(ChatRoomPageLocator.image_photo)
+        sleep(1)
+        if enable == '1':
+            assert self.common.poco_exists(ChatRoomPageLocator.device_photo_view)
+            self.common.poco_click(ChatRoomPageLocator.photo_view_close_btn)
+        else:
+            assert not self.common.poco_exists(ChatRoomPageLocator.device_photo_view)
+
+    def send_file_for_rule_check(self, enable):
+        while not self.common.poco_exists(ChatRoomPageLocator.file_btn):
+            self.common.poco_click(ChatRoomPageLocator.add_function_btn)
+        self.common.poco_click(ChatRoomPageLocator.file_btn)
+        sleep(1)
+        if enable == '1':
+            assert self.common.poco_exists(ChatRoomPageLocator.file_upload_view)
+            self.common.poco_click(ChatRoomPageLocator.folder_file_index(1))
+            self.common.poco_click(ChatRoomPageLocator.confirm_msg_send_btn)
+        else:
+            assert not self.common.poco_exists(ChatRoomPageLocator.file_upload_view)
 
     def url_message_for_rule_check(self, message):
+        if self.common.poco_exists(ChatRoomPageLocator.send_message_btn):
+            self.common.poco_click(ChatRoomPageLocator.send_message_btn)
         if self.common.poco_exists(ChatRoomPageLocator.message_locator(message)):
             self.common.poco_click(ChatRoomPageLocator.message_locator(message))
-            self.common.sleep(3)
+            
+            # iOS 優化：使用動態等待替代固定 sleep(3)
+            if self.phone_platform.lower() == 'ios':
+                # 快速等待連結頁面載入（最多等待 1.5 秒，從 2 秒減少）
+                url_loaded = False
+                for i in range(3):  # 3 * 0.5 = 1.5 秒
+                    try:
+                        if self.common.poco_exists(ChatRoomPageLocator.url_check_point):
+                            url_loaded = True
+                            break
+                    except:
+                        pass
+                    sleep(0.5)
+                assert url_loaded, f'超連結沒有出現'
+            else:
+                self.common.sleep(3)
+                assert self.common.poco_exists(ChatRoomPageLocator.url_check_point), f'超連結沒有出現'
 
-            assert self.common.poco_exists(ChatRoomPageLocator.url_check_point), f'超連結沒有出現'
             self.go_back()
 
     def check_url_block(self):
         url = 'https://google.com'
         last_msg_old = self.common.poco_get_text(ChatRoomPageLocator.last_message_room)
 
-        self.common.poco_click(ChatRoomPageLocator.message_input)
-        self.common.poco_send_text(ChatRoomPageLocator.message_input, url)
-        self.common.poco_click(ChatRoomPageLocator.send_message_btn)
+        # iOS 優化：使用已優化的發送邏輯
+        if self.phone_platform.lower() == 'ios':
+            self.common.poco_click(ChatRoomPageLocator.message_input)
+            sleep(0.15)  # iOS 優化：減少鍵盤彈出等待時間
+            self.common.poco_send_text(ChatRoomPageLocator.message_input, url)
+            self.common.poco_click(ChatRoomPageLocator.send_message_btn)
+            
+            # iOS 優化：快速檢查訊息是否被阻擋（最多等待 1.5 秒）
+            for i in range(3):  # 3 * 0.5 = 1.5 秒
+                try:
+                    last_msg_new = self.common.poco_get_text(ChatRoomPageLocator.last_message_room)
+                    if last_msg_old == last_msg_new:
+                        break  # 訊息被阻擋，符合預期
+                except:
+                    pass
+                sleep(0.5)
+            
+            last_msg_new = self.common.poco_get_text(ChatRoomPageLocator.last_message_room)
+            assert last_msg_old == last_msg_new, f'最後一筆訊息有誤'
+        else:
+            self.common.poco_click(ChatRoomPageLocator.message_input)
+            self.common.poco_send_text(ChatRoomPageLocator.message_input, url)
+            self.common.poco_click(ChatRoomPageLocator.send_message_btn)
 
-        last_msg_new = self.common.poco_get_text(ChatRoomPageLocator.last_message_room)
-        assert last_msg_old == last_msg_new, f'最後一筆訊息有誤'
+            last_msg_new = self.common.poco_get_text(ChatRoomPageLocator.last_message_room)
+            assert last_msg_old == last_msg_new, f'最後一筆訊息有誤'
 
     def check_admin_rule(self, rule):
-        self.common.sleep(1)
+        sleep(1)
         rule_list = list(rule)
         self.into_setting()
 
@@ -451,14 +545,14 @@ class ChatSetupPage(Base):
     def check_member_delete(self):
 
         for i in range(2):
-            self.wait_loading_finish()
+            sleep(1)
 
             if i == 0:
                 self.into_group_member_list()
             elif i == 1:
                 self.into_group_member_add()
 
-            self.wait_loading_finish()
+            sleep(1)
 
             assert self.common.poco_get_text(ChatSetupPageLocator.member_edit_btn) == '编辑', f'權限開啟 成員列標沒有出現編輯'
             self.common.poco_click(ChatSetupPageLocator.member_edit_btn)
@@ -467,11 +561,22 @@ class ChatSetupPage(Base):
             self.common.poco_click(ChatSetupPageLocator.options_back)
 
     def check_friend_add(self, new='1'):
-        self.wait_loading_finish()
+        sleep(1)
         self.common.poco_click(ChatSetupPageLocator.member_btn)  # 成員列表
         self.common.poco_click(ChatSetupPageLocator.member_search_input)
         self.common.poco_send_text(ChatSetupPageLocator.member_search_input, 'test1234')
         self.common.poco_click(ChatSetupPageLocator.member_name_frist)
+
+        # 已加為好友則先刪好友
+        if self.common.poco_exists(FriendPageLocator.friend_delete_button):
+            self.common.poco_click(FriendPageLocator.friend_delete_button)
+            sleep(1)
+            if self.phone_platform.lower() == 'ios':
+                self.poco(name='ScrollView')[-1].offspring(name='删除').click()
+            else:
+                self.common.poco_click(FriendPageLocator.friend_popup_submit)
+            sleep(2)
+
         if new == '1':
             assert self.common.poco_exists(ChatSetupPageLocator.friend_add_btn)
         else:

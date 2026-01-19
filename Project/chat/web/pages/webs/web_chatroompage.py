@@ -109,12 +109,14 @@ class ChatRoomPageLocator:
     group_rule_count = (By.XPATH, "//p[text()='群组设定']/..//p[@class='ui-tableviewcell__num']")
 
     group_rule_text = (By.XPATH, "//label[@for='member-permission-can_send_messages']")  # 傳送訊息
-    group_rule_img = (By.XPATH, "//label[contains(@for,'_send_images')]/..//input[not(@disabled)]")  # 傳送圖片
+    group_rule_img_gray = (By.XPATH, "//label[contains(@for,'_send_images')]/..//input[(@disabled)]")  # 傳送圖片鈕反灰
     group_rule_img_btn = (By.XPATH, "//input[not(@disabled)]/..//label[contains(@for,'_send_images')]")  # 傳送圖片鈕
-    group_rule_video = (By.XPATH, "//label[contains(@for,'_send_videos')]/..//input[not(@disabled)]")  # 傳送影片
+    group_rule_video_gray = (By.XPATH, "//label[contains(@for,'_send_videos')]/..//input[(@disabled)]")  # 傳送影片鈕反灰
     group_rule_video_btn = (By.XPATH, "//input[not(@disabled)]/..//label[contains(@for,'_send_videos')]")  # 傳送影片鈕
-    group_rule_link = (By.XPATH, "//label[contains(@for,'_send_hyperlink')]/..//input[not(@disabled)]")  # 傳送超連結
+    group_rule_link_gray = (By.XPATH, "//label[contains(@for,'_send_hyperlink')]/..//input[(@disabled)]")  # 傳送超連結鈕反灰
     group_rule_link_btn = (By.XPATH, "//input[not(@disabled)]/..//label[contains(@for,'_send_hyperlink')]")  # 傳送超連結鈕
+    group_rule_file_gray = (By.XPATH, "//label[contains(@for,'_send_file')]/..//input[(@disabled)]")  # 傳送檔案鈕反灰
+    group_rule_file_btn = (By.XPATH, "//input[not(@disabled)]/..//label[contains(@for,'_send_file')]")  # 傳送檔案鈕
     group_rule_user = (By.XPATH, "//label[@for='member-permission-can_invite_users']")  # 加入新成員
 
     group_ = (By.XPATH, "")
@@ -611,14 +613,16 @@ class ChatRoomPage(BasePage):
             rule_count = self.get_text(ChatRoomPageLocator.group_rule_count)
             num = rule_count.split('/')
 
-            if int(num[0]) < 4:
+            if int(num[0]) < 6:
                 self.into_group_rule()
                 self.sleep(1)
-
+                # group_rule = [傳送訊息, 傳送圖片, 傳送影片, 傳送超連結, 傳送檔案, 加入新成員]
                 if num[0] == '0':
-                    assert self.is_element_finded(ChatRoomPageLocator.group_rule_img) is False
-                    assert self.is_element_finded(ChatRoomPageLocator.group_rule_link) is False
 
+                    assert self.is_element_finded(ChatRoomPageLocator.group_rule_img)
+                    assert self.is_element_finded(ChatRoomPageLocator.group_rule_video)
+                    assert self.is_element_finded(ChatRoomPageLocator.group_rule_file)
+                    assert self.is_element_finded(ChatRoomPageLocator.group_rule_link)
                     self.click(ChatRoomPageLocator.group_rule_text)
                     self.click(ChatRoomPageLocator.group_rule_user)
 
@@ -654,47 +658,95 @@ class ChatRoomPage(BasePage):
                 break
 
     def change_group_rule(self, data):
-        self.all_group_rule_close()
-        sum_data = 0
         data_list = list(data)
+        original_rule_sum = 0
         for num in data_list:
-            sum_data += int(num)
+            original_rule_sum += int(num)  # total群組設定數
 
+        self.all_group_rule_close()
         self.wait_loading_finish()
-        if sum_data < 5:
-            self.into_group_rule()
 
+        self.into_group_rule()
+        self.sleep(1)
+
+        if data_list[5] == '1':  # 加入新成員
+            self.click(ChatRoomPageLocator.group_rule_user)
+
+        if data_list[0] == '1':  # 傳送訊息
+            self.click(ChatRoomPageLocator.group_rule_text)
             self.sleep(1)
-            if data_list[4] == '1':  # 加入新成員
-                self.click(ChatRoomPageLocator.group_rule_user)
-
-            if data_list[0] == '1':  # 傳送訊息
-                self.click(ChatRoomPageLocator.group_rule_text)
+            if data_list[1] == '1':  # 傳送圖片
+                self.click(ChatRoomPageLocator.group_rule_img_btn)
                 self.sleep(1)
-
-                if data_list[1] == '1':  # 傳送圖片
-                    self.click(ChatRoomPageLocator.group_rule_img_btn)
-                    self.sleep(1)
-                if data_list[2] == '1':  # 傳送影片
-                    self.click(ChatRoomPageLocator.group_rule_video_btn)
-                    self.sleep(1)
-                if data_list[3] == '1':  # 傳送超連結
-                    self.click(ChatRoomPageLocator.group_rule_link_btn)
-                    self.sleep(1)
-            else:
-                assert not self.is_element_finded(ChatRoomPageLocator.group_rule_img), f'群組權限 圖片按鈕 沒有自動disable'
-                assert not self.is_element_finded(ChatRoomPageLocator.group_rule_link), f'群組權限 超連結按鈕 沒有自動disable'
-
-                if data_list[1] == '1' or data_list[2] == '1':
-                    sum_data -= 1
-                    print('訊息發送權限沒有開啟 無法開啟 超連結與圖片權限')
-
-            self.click(ChatRoomPageLocator.detail_back)
-            rule_count = self.get_text(ChatRoomPageLocator.group_rule_count)
-            num = rule_count.split('/')
-            # assert str(sum_data) == num[0], f'開啟群組設定 權限有誤'
+            if data_list[2] == '1':  # 傳送影片
+                self.click(ChatRoomPageLocator.group_rule_video_btn)
+                self.sleep(1)
+            if data_list[3] == '1':  # 傳送超連結
+                self.click(ChatRoomPageLocator.group_rule_link_btn)
+                self.sleep(1)
+            if data_list[4] == '1':  # 傳送檔案
+                self.click(ChatRoomPageLocator.group_rule_file_btn)
+                self.sleep(1)
         else:
-            self.all_group_rule()
+            assert self.is_element_finded(ChatRoomPageLocator.group_rule_img_gray), f'群組權限 圖片按鈕 沒有自動disable'
+            assert self.is_element_finded(ChatRoomPageLocator.group_rule_video_gray), f'群組權限 影片按鈕 沒有自動disable'
+            assert self.is_element_finded(ChatRoomPageLocator.group_rule_file_gray), f'群組權限 檔案按鈕 沒有自動disable'
+            assert self.is_element_finded(ChatRoomPageLocator.group_rule_link_gray), f'群組權限 超連結按鈕 沒有自動disable'
+
+            if data_list[1] == '1' or data_list[2] == '1' or data_list[3] == '1' or data_list[4] == '1':
+                print('訊息發送權限沒有開啟, 無法開啟[傳圖][傳影片][傳超連結][傳檔案]權限')
+
+        self.click(ChatRoomPageLocator.detail_back)
+        after_rule_text = self.get_text(ChatRoomPageLocator.group_rule_count)
+        after_rule_count = after_rule_text.split('/')
+        assert str(original_rule_sum) == after_rule_count[0], f'設定權限後群組設定數字有誤'
+
+        # ===============================================================
+        # sum_data = 0
+        # data_list = list(data)
+        # for num in data_list:
+        #     sum_data += int(num)
+        #
+        # self.wait_loading_finish()
+        # if sum_data < 6:
+        #     self.into_group_rule()
+        #
+        #     self.sleep(1)
+        #     if data_list[5] == '1':  # 加入新成員
+        #         self.click(ChatRoomPageLocator.group_rule_user)
+        #
+        #     if data_list[0] == '1':  # 傳送訊息
+        #         self.click(ChatRoomPageLocator.group_rule_text)
+        #         self.sleep(1)
+        #
+        #         if data_list[1] == '1':  # 傳送圖片
+        #             self.click(ChatRoomPageLocator.group_rule_img_btn)
+        #             self.sleep(1)
+        #         if data_list[2] == '1':  # 傳送影片
+        #             self.click(ChatRoomPageLocator.group_rule_video_btn)
+        #             self.sleep(1)
+        #         if data_list[3] == '1':  # 傳送超連結
+        #             self.click(ChatRoomPageLocator.group_rule_link_btn)
+        #             self.sleep(1)
+        #         if data_list[4] == '1':  # 傳送檔案
+        #             self.click(ChatRoomPageLocator.group_rule_file_btn)
+        #             self.sleep(1)
+        #     else:
+        #         assert not self.is_element_finded(ChatRoomPageLocator.group_rule_img), f'群組權限 圖片按鈕 沒有自動disable'
+        #         assert not self.is_element_finded(ChatRoomPageLocator.group_rule_video), f'群組權限 影片按鈕 沒有自動disable'
+        #         assert not self.is_element_finded(ChatRoomPageLocator.group_rule_file), f'群組權限 檔案按鈕 沒有自動disable'
+        #         assert not self.is_element_finded(ChatRoomPageLocator.group_rule_link), f'群組權限 超連結按鈕 沒有自動disable'
+        #
+        #         if data_list[1] == '1' or data_list[2] == '1' or data_list[3] == '1' or data_list[4] == '1':
+        #             sum_data -= 1
+        #             print('訊息發送權限沒有開啟, 無法開啟[傳圖][傳影片][傳超連結][傳檔案]權限')
+        #
+        #     self.click(ChatRoomPageLocator.detail_back)
+        #     rule_count = self.get_text(ChatRoomPageLocator.group_rule_count)
+        #     num = rule_count.split('/')
+        #     assert str(sum_data) == num[0], f'開啟群組設定 權限有誤'
+        # else:
+        #     self.all_group_rule()
 
     def all_group_rule_close(self):
 
@@ -704,19 +756,28 @@ class ChatRoomPage(BasePage):
             rule_count = self.get_text(ChatRoomPageLocator.group_rule_count)
             num = rule_count.split('/')
 
-            if int(num[0]) != 0:
+            if int(num[0]) != 0:  # 有權限未關
                 self.into_group_rule()
                 self.sleep(1)
 
-                if int(num[0]) < 4:
-                    if self.is_element_finded(ChatRoomPageLocator.group_rule_img) is True:
-                        self.click(ChatRoomPageLocator.group_rule_text)
-                    else:
-                        self.click(ChatRoomPageLocator.group_rule_user)
-                else:
-                    self.click(ChatRoomPageLocator.group_rule_text)
+                if self.is_element_finded(ChatRoomPageLocator.group_rule_img_gray):
+                    # 有權限未關 + 傳圖權限反灰(傳訊息disable) = 加入新成員enable
                     self.click(ChatRoomPageLocator.group_rule_user)
+                else:
+                    # 有權限未關 + 傳圖權限未反灰 >>> 先關傳訊息鍵
+                    self.click(ChatRoomPageLocator.group_rule_text)
 
+
+
+                # if int(num[0]) < 4:
+                #     if self.is_element_finded(ChatRoomPageLocator.group_rule_img) is True:
+                #         self.click(ChatRoomPageLocator.group_rule_text)
+                #     else:
+                #         self.click(ChatRoomPageLocator.group_rule_user)
+                # else:
+                #     self.click(ChatRoomPageLocator.group_rule_text)
+                #     self.click(ChatRoomPageLocator.group_rule_user)
+                #
                 self.click(ChatRoomPageLocator.detail_back)
             else:
                 break
@@ -796,23 +857,26 @@ class ChatRoomPage(BasePage):
         self.wait_loading_finish()
         if self.get_text(ChatRoomPageLocator.detail_title) == "群聊详情":
             self.click(ChatRoomPageLocator.group_admin_btn)
+
         if self.get_text(ChatRoomPageLocator.detail_edit) == '编辑':
-            self.click(ChatRoomPageLocator.detail_edit)
-            self.sleep(0.5)
-            self.click(ChatRoomPageLocator.admin_remove_locator(account))
-            self.sleep(0.5)
-            confirm_list = []
-            for i in self.find_elements(ChatRoomPageLocator.confirm_text):
-                confirm_list.append(i.text)
 
-            confirm_text = ''.join(confirm_list)
-            assert confirm_text == '要把 %s 移除管理员吗?\\n移除管理员后，将无管理员权限' % account, f'二次彈窗文案有誤'
-            self.sleep(0.5)
-            self.click(ChatRoomPageLocator.confirm_submit)
-            self.sleep(0.5)
+            if account in self.check_admin_list(owner):
+                self.click(ChatRoomPageLocator.detail_edit)
+                self.sleep(0.5)
+                self.click(ChatRoomPageLocator.admin_remove_locator(account))
+                self.sleep(0.5)
+                confirm_list = []
+                for i in self.find_elements(ChatRoomPageLocator.confirm_text):
+                    confirm_list.append(i.text)
 
-            admin_list = self.check_admin_list(owner)
-            assert account not in admin_list, f'管理員刪除失敗 {account} 還在列表中'
+                confirm_text = ''.join(confirm_list)
+                assert confirm_text == '要把 %s 移除管理员吗?\\n移除管理员后，将无管理员权限' % account, f'二次彈窗文案有誤'
+                self.sleep(0.5)
+                self.click(ChatRoomPageLocator.confirm_submit)
+                self.sleep(0.5)
+
+                admin_list = self.check_admin_list(owner)
+                assert account not in admin_list, f'管理員刪除失敗 {account} 還在列表中'
 
         else:
             print('此帳號並非 擁有者無法編輯 管理員權限')

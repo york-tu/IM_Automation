@@ -38,7 +38,7 @@ class MainPageLocator:
     # ============================= 主頁 > 個人主頁 > 關注列表 =============================================================
     followed_list = (By.XPATH, "(//span[@class='van-tab__text van-tab__text--ellipsis'])[1]")  # 已關注列表
     fans_list = (By.XPATH, "(//span[@class='van-tab__text van-tab__text--ellipsis'])[2]")  # 粉絲列表
-    list_first_member = (By.XPATH, "(//div[@class='grow px-[8rem] truncate w-[200rem] text-grand-1'])[1]")  # 列表第一位成員
+    list_first_member = (By.XPATH, "(//div[@class='grow px-[8rem] truncate w-[200rem] text-grand-1 whitespace-pre'])[1]")  # 列表第一位成員
     list_first_member_following_btn = (By.XPATH, '(//div[text()="关注"])[last()]')
     list_first_member_followed_btn = (By.XPATH, '(//div[text()="已关注"])[last()]')
     search_user = (By.XPATH, "//input[@placeholder='搜索用户']")  # 搜索用戶
@@ -55,7 +55,7 @@ class MainPageLocator:
     post_via_video = (By.XPATH, '//div[text()="视频"]')  # 發布 > 視頻
     input_post_descriptions = (By.ID, "post-introduction")  # 發布頁-撰寫說明
     post_confirm = (By.XPATH, "//button[text()='发布']")
-    poster = (By.XPATH, "//p[@class='mb-[12rem] truncate text_shadow']")  # 貼文作者
+    poster = (By.XPATH, "//p[@class='mb-[12rem] truncate text_shadow whitespace-pre']")  # 貼文作者
     post_descriptions = (By.XPATH, "//div[@class='whitespace-pre-wrap max-h-[313rem] break-words line-clamp-2']")  # 貼文內容
     post_back_btn = (By.XPATH, '//*[@id="app"]/div/div[1]/div[2]/div/div[2]/div[3]/div/svg')  # 貼文>返回鍵
     # ============================= 主頁 > 下方貼文 ======================================================================

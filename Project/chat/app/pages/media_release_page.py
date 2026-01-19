@@ -6,25 +6,16 @@ from configs.app.setting import Setting
 from Project.chat.app.pages.base_page import Base
 from Project.chat.app.pages.xpath.xpath_base import Xpath_Base
 from Project.chat.app.pages.main_page import MainPageLocator
+from Project.chat.app.pages.locators.base_locator import BaseLocator
 import logging
 import common.utils.globalvar as gl
 
 
-class MediaReleasePageLocator:
-    base = Xpath_Base()
-    env = gl.get_value('ENV')
-    brand = gl.get_value('BRAND')
-    app_package = Setting().get_package_name(brand, env)
-
-
-    @staticmethod
-    def env(env):
-        env = MediaReleasePageLocator.base.check_device(
-            Android=MediaReleasePageLocator.base.data_collation(type_kind='textMatches', type_name=f'{env}.*'),
-            iOS=MediaReleasePageLocator.base.data_collation(type_kind='nameMatches', type_name=f'{env}.*')
-        )
-
-        return env
+class MediaReleasePageLocator(BaseLocator):
+    """媒體發布頁面 Locator，繼承 BaseLocator 以減少重複代碼"""
+    # 明確引用基類屬性，確保 IDE/linter 能正確識別
+    base = BaseLocator.base
+    app_package = BaseLocator.app_package
 
     release_media_btn = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/iv_icon'),
@@ -171,17 +162,16 @@ class MediaReleasePage(Base):
 
     def select_media(self, media_index, media_type='photo'):
         self.common.poco_click(MediaReleasePageLocator.release_media_btn)
-        sleep(3)
-        if self.common.poco_wait_exists(MediaReleasePageLocator.select_media_type_folder):
-            self.common.poco_click(MediaReleasePageLocator.select_media_type_folder)
-            if 'photo' in media_type.lower():
-                self.common.poco_wait_exists(MediaReleasePageLocator.media_pictures_folder)
-                sleep(1)
-                self.common.poco_click(MediaReleasePageLocator.media_pictures_folder)
-                sleep(1)
-            else:
-                self.common.poco_wait_exists(MediaReleasePageLocator.media_videos_folder)
-                self.common.poco_click(MediaReleasePageLocator.media_videos_folder)
+        sleep(2)
+        self.common.poco_wait_exists(MediaReleasePageLocator.select_media_type_folder)
+        self.common.poco_click(MediaReleasePageLocator.select_media_type_folder)
+        if 'photo' in media_type.lower():
+            self.common.poco_wait_exists(MediaReleasePageLocator.media_pictures_folder)
+            self.common.poco_click(MediaReleasePageLocator.media_pictures_folder)
+            sleep(1)
+        else:
+            self.common.poco_wait_exists(MediaReleasePageLocator.media_videos_folder)
+            self.common.poco_click(MediaReleasePageLocator.media_videos_folder)
         self.common.poco_click(MediaReleasePageLocator.media_select(MediaReleasePageLocator.app_package, media_index))
         sleep(0.5)
         assert self.common.poco_get_text(MediaReleasePageLocator.page_title) == '发布', f'未進入發布頁'

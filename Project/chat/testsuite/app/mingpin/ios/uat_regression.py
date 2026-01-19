@@ -182,6 +182,9 @@ if __name__ == '__main__':
     BaseKey().get_jira_data()
     gl.set_value('PUSH', push)
 
+    # 自動啟動 iOS WDA
+    Utils.start_wda_for_ios()
+
     # TestCase add
     suite = unittest.TestSuite()
     suite.addTests(s1_test_cases)  # total 44*s1

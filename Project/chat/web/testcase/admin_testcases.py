@@ -477,7 +477,6 @@ class AdminTestCase(BaseTestCase):
         self.test_into_red_list()
         self.function_dict['ad'].red_envelope_page().add_luck_redenvelope()
 
-
 # 測試-檢查紅包詳情
     @DecorateClass('CHATAPP-T2519')
     def test_check_red_envelope(self):

@@ -2,30 +2,22 @@ from datetime import datetime, timedelta
 import re
 from time import sleep
 
-from Project.chat.app.pages.social_sharepage import SocialSharePage
+from Project.chat.app.pages.social_share_page import SocialSharePage
 from common.app.common import Common
 from configs.app.setting import Setting
 from Project.chat.app.pages.base_page import Base
 from Project.chat.app.pages.xpath.xpath_base import Xpath_Base
 from Project.chat.app.pages.main_page import MainPageLocator
+from Project.chat.app.pages.locators.base_locator import BaseLocator
 import logging
 import common.utils.globalvar as gl
 
 
-class SocialMediaLibraryPageLocator:
-    base = Xpath_Base()
-    env = gl.get_value('ENV')
-    brand = gl.get_value('BRAND')
-    app_package = Setting().get_package_name(brand, env)
-
-    @staticmethod
-    def env(env):
-        env = SocialMediaLibraryPageLocator.base.check_device(
-            Android=SocialMediaLibraryPageLocator.base.data_collation(type_kind='textMatches', type_name=f'{env}.*'),
-            iOS=SocialMediaLibraryPageLocator.base.data_collation(type_kind='nameMatches', type_name=f'{env}.*')
-        )
-
-        return env
+class SocialMediaLibraryPageLocator(BaseLocator):
+    """社群媒體庫頁面 Locator，繼承 BaseLocator 以減少重複代碼"""
+    # 明確引用基類屬性，確保 IDE/linter 能正確識別
+    base = BaseLocator.base
+    app_package = BaseLocator.app_package
 
     # 貼文 > 貼文信息 > 頭像icon
     avatar_icon = base.check_device(
@@ -407,17 +399,16 @@ class SocialMediaLibraryPage(Base):
 
     def _check_avatar_icon(self, account):
         """檢查頭像icon，並驗證是否正確跳轉到主頁"""
-        self.common.poco_wait_exists(SocialMediaLibraryPageLocator.avatar_icon, 120)
-        assert self.common.poco_exists(SocialMediaLibraryPageLocator.avatar_icon), '頭像icon未顯示'
+        self.common.poco_wait_exists(SocialMediaLibraryPageLocator.avatar_icon, timeout=10)
         self.common.poco_click(SocialMediaLibraryPageLocator.avatar_icon)
 
-        from Project.chat.app.pages.social_homepage import PersonalSocialPageLocator
-        page_title = self.common.poco_get_text(PersonalSocialPageLocator.social_self_page_title
+        from Project.chat.app.pages.social_home_page import SocialHomePageLocator
+        page_title = self.common.poco_get_text(SocialHomePageLocator.social_self_page_title
                                                if self.common.poco_exists(
-            PersonalSocialPageLocator.social_self_page_title)
-                                               else PersonalSocialPageLocator.social_other_page_title)
+            SocialHomePageLocator.social_self_page_title)
+                                               else SocialHomePageLocator.social_other_page_title)
         assert page_title == account, '點擊頭像未進入創作者主頁或主頁錯誤'
-        self.common.poco_click(PersonalSocialPageLocator.social_page_back_btn)
+        self.common.poco_click(SocialHomePageLocator.social_page_back_btn)
 
     def _check_media_icons(self):
         """檢查媒體畫面上的各種icon是否顯示"""
@@ -508,10 +499,10 @@ class SocialMediaLibraryPage(Base):
 
     def _check_main_liked_counts(self, original_counts, increment):
         """檢查主頁贊數是否按預期更新"""
-        from Project.chat.app.pages.social_homepage import PersonalSocialPageLocator
-        self.common.poco_click(PersonalSocialPageLocator.social_page_back_btn)  # 回到主頁
+        from Project.chat.app.pages.social_home_page import SocialHomePageLocator
+        self.common.poco_click(SocialHomePageLocator.social_page_back_btn)  # 回到主頁
         sleep(1)
-        main_page_liked_counts = self.common.poco_get_text(PersonalSocialPageLocator.thumb_up_counts)
+        main_page_liked_counts = self.common.poco_get_text(SocialHomePageLocator.thumb_up_counts)
         assert int(main_page_liked_counts) == int(original_counts) + increment, f'貼文贊數沒有即時更新({increment})'
         return main_page_liked_counts
 
@@ -552,8 +543,8 @@ class SocialMediaLibraryPage(Base):
     def check_post_liked_counts_after_cancel(self, original_post_liked_counts):
         """確認取消贊後貼文贊數減少"""
         self._check_post_liked_counts(original_post_liked_counts, increment=-1)
-        from Project.chat.app.pages.social_homepage import PersonalSocialPageLocator
-        self.common.poco_click(PersonalSocialPageLocator.social_page_back_btn)
+        from Project.chat.app.pages.social_home_page import SocialHomePageLocator
+        self.common.poco_click(SocialHomePageLocator.social_page_back_btn)
 
     def post_add_collect(self):
         """新增收藏並確認收藏數更新"""

@@ -1,24 +1,41 @@
-from selenium import webdriver
-import configparser, os, sys, yaml, platform
-import os
-import sys
-import yaml
+import os, sys
+from common.utils.path_utils import PathUtils
+from common.utils.config_loader import ConfigLoader
 
-root_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-sys.path.append(root_path)
+# 使用 PathUtils 添加專案根目錄到 sys.path
+path_utils = PathUtils()
+project_root = str(path_utils.get_project_root())
+if project_root not in sys.path:
+    sys.path.append(project_root)
+
+# 使用 ConfigLoader 載入配置
+config_loader = ConfigLoader()
+
 
 class Setting:
-    # conf's path setting
-    testconf_path = ''
+    """Exchange WellPay 專案配置類（使用統一的 ConfigLoader）"""
 
-    def get_yaml_conf(self):
-        yamlfile = open(os.path.join(root_path, self.testconf_path))
-        ymlconf = yaml.safe_load(yamlfile)
-        return ymlconf
+    def get_yaml_conf_exchange(self):
+        """獲取 Exchange WellPay 專案配置（使用 ConfigLoader）"""
+        return config_loader.load_project_config('exchange_wellpay', 'setting.yml')
+    
+    def get_yaml_conf(self, project: str = 'exchange_wellpay'):
+        """
+        獲取專案配置（使用 ConfigLoader）
+        
+        Args:
+            project: 專案名稱，預設為 'exchange_wellpay'
+                    也可以為 'lottery'（用於 get_test_data）
+        """
+        if project == 'lottery':
+            # Lottery 專案的配置（如果存在）
+            return config_loader.load_project_config('lottery', 'setting.yml')
+        else:
+            return self.get_yaml_conf_exchange()
 
     def get_test_data(self, env='', brand='', account_num=''):
-        self.testconf_path = 'lottery/configs/setting.yml'
-        conf = self.get_yaml_conf()['test_env_conf']
+        """獲取 Lottery 專案測試資料（向後兼容）"""
+        conf = self.get_yaml_conf('lottery')['test_env_conf']
 
         data = {
             'web_url': conf[env][brand]['web_url'], 
@@ -35,8 +52,8 @@ class Setting:
         return data
 
     def get_test_data_exchange(self, env='', brand='', account_num=''):
-        self.testconf_path = 'exchange_wellpay/configs/setting.yml'
-        conf = self.get_yaml_conf()['test_env_conf']
+        """獲取 Exchange WellPay 專案測試資料"""
+        conf = self.get_yaml_conf_exchange()['test_env_conf']
 
         data = {
             'admin_url': conf[env][brand]['admin_url'], 

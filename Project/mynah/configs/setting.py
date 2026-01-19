@@ -1,20 +1,23 @@
-from selenium import webdriver
-import configparser, os, sys, yaml, platform
-import os
-import sys
-import yaml
+import os, sys
+from common.utils.path_utils import PathUtils
+from common.utils.config_loader import ConfigLoader
 
-root_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-sys.path.append(root_path)
+# 使用 PathUtils 添加專案根目錄到 sys.path
+path_utils = PathUtils()
+project_root = str(path_utils.get_project_root())
+if project_root not in sys.path:
+    sys.path.append(project_root)
+
+# 使用 ConfigLoader 載入配置
+config_loader = ConfigLoader()
+
 
 class Setting:
-    # conf's path setting
-    testconf_path = 'mynah/configs/setting_mynah.yml'
+    """Mynah 專案配置類（使用統一的 ConfigLoader）"""
 
     def get_yaml_conf(self):
-        yamlfile = open(os.path.join(root_path, self.testconf_path), encoding='utf-8')
-        ymlconf = yaml.safe_load(yamlfile)
-        return ymlconf
+        """獲取 Mynah 專案配置（使用 ConfigLoader）"""
+        return config_loader.load_project_config('mynah', 'setting_mynah.yml')
 
     def get_test_data(self, env, test_brand, main):
         conf = self.get_yaml_conf()['test_env_conf']

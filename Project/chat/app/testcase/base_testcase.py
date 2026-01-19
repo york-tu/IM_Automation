@@ -13,6 +13,10 @@ from configs.app.setting import Setting
 from Project.chat.configs.setting import SettingChat
 from jira.module.base_module import UnittestModule
 
+# 設置 Airtest 的 logging 級別，隱藏 WARNING 訊息
+logging.getLogger('airtest.core.api').setLevel(logging.ERROR)
+logging.getLogger('airtest').setLevel(logging.ERROR)
+
 class BaseTestCase(UnittestModule):
     # TEST SETTING
     env = ''
@@ -53,6 +57,34 @@ class BaseTestCase(UnittestModule):
     admin_account = ''
     admin_password = ''
     admin_otp = ''
+
+    @property
+    def ap(self):
+        """App Pages 快捷方式"""
+        return self.function_dict.get('ap')
+
+    def login_app(self):
+        """統一的 App 登入方法"""
+        if 'email' in self.account_type.lower():
+            self.ap.main_page().login(self.mail_address, self.mail_password, login_method='email')
+        elif 'phone' in self.account_type.lower():
+            self.ap.main_page().login(self.app_phone, self.app_password, self.app_nation)
+
+    def navigate_to_security_page(self):
+        """導航到安全設定頁面"""
+        self.ap.main_page().into_main_page()
+        self.ap.main_page().into_main_setting_page()
+        self.ap.member_page().into_security()
+
+    def navigate_to_notification_page(self):
+        """導航到通知設定頁面"""
+        self.ap.main_page().into_main_setting_page()
+        self.ap.member_page().into_notification()
+
+    def navigate_to_about_page(self):
+        """導航到關於頁面"""
+        self.ap.main_page().into_main_setting_page()
+        self.ap.member_page().into_about()
 
     @classmethod
     def setting_test_data(cls):

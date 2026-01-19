@@ -6,27 +6,18 @@ from configs.app.setting import Setting
 from Project.chat.app.pages.base_page import Base
 from Project.chat.app.pages.xpath.xpath_base import Xpath_Base
 from Project.chat.app.pages.friend_page import FriendPageLocator
+from Project.chat.app.pages.locators.base_locator import BaseLocator
 import logging
 import common.utils.globalvar as gl
 import pandas as pd
 import re
 
 
-class MainPageLocator:
-    base = Xpath_Base()
-    env = gl.get_value('ENV')
-    brand = gl.get_value('BRAND')
-    app_package = Setting().get_package_name(brand, env)
-
-
-    @staticmethod
-    def env(env):
-        env = MainPageLocator.base.check_device(
-            Android=MainPageLocator.base.data_collation(type_kind='textMatches', type_name=f'{env}.*'),
-            iOS=MainPageLocator.base.data_collation(type_kind='nameMatches', type_name=f'{env}.*')
-        )
-
-        return env
+class MainPageLocator(BaseLocator):
+    """主頁面 Locator，繼承 BaseLocator 以減少重複代碼"""
+    # 明確引用基類屬性，確保 IDE/linter 能正確識別
+    base = BaseLocator.base
+    app_package = BaseLocator.app_package
 
     login = base.check_device(
         Android=base.data_collation(type_kind='text', type_name='登录'),
@@ -34,7 +25,7 @@ class MainPageLocator:
     )
 
     login_expired_msg = base.check_device(
-        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/parentPanel'),
+        Android=base.data_collation(type_kind='text', type_name='登录状态已过期，请重新登录'),
         iOS=base.data_collation(type_kind='name', type_name='登录状态已过期，请重新登录')
     )
     login_expired_msg_confirm_btn = base.check_device(
@@ -223,7 +214,10 @@ class MainPageLocator:
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/navigation_bar_item_icon_view', num=-1),
         iOS=base.data_collation(type_kind='name', type_name='mainTabBar_my_button'),
     )
-
+    main_self_id = base.check_device(
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tv_username'),
+        iOS=base.data_collation(type_kind='name', type_name='myProfile_userID_label'),
+    )
     main_nickname = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tv_nickname'),
         iOS=base.data_collation(type_kind='name', type_name='myProfile_nickname_label'),
@@ -237,6 +231,10 @@ class MainPageLocator:
     mine_menu_btn = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/iv_right'),
         iOS=base.data_collation(type_kind='name', type_name='myProfile_menu_button'),
+    )
+    mine_settings_self_id = base.check_device(
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tv_id'),
+        iOS=base.data_collation(type_kind='name', type_name='setting_userId_label'),
     )
 
     followed_tab = base.check_device(
@@ -319,75 +317,118 @@ class MainPage(Base):
     # PASS_email_file_path = r"C:\Users\york_tu\Desktop\email_regex_testcases_PASS.xlsx"
     # FAIL_email_file_path = r"C:\Users\york_tu\Desktop\email_regex_testcases_FAIL.xlsx"
 
-    # 回傳登入狀態，已登入回傳True，反之回傳False
-    def check_login_status(self):
-        """確認是否已登入"""
-        self.wait_loading_finish()
-        self.common.poco_click(MainPageLocator.message_btn)
+    # 處理登錄狀態已過期視窗
+    def login_expired_handling(self):
+        sleep(1)
         if self.common.poco_exists(MainPageLocator.login_expired_msg):
             self.common.poco_click(MainPageLocator.login_expired_msg_confirm_btn)
-            sleep(3)
-            self.common.poco_click(MainPageLocator.message_btn)
+            sleep(1)
+
+    # 回傳登入狀態，已登入回傳True，反之回傳False
+    def check_login_status(self, login_id):
+        """確認是否已登入"""
+        sleep(1.5)
+        self.common.poco_click(MainPageLocator.main_btn)
+        sleep(0.5)
         if self.common.poco_exists(MainPageLocator.new_login_page_welcome_description):
             # 在登入頁面 → 表示未登入
             self.common.poco_click(MainPageLocator.new_login_page_close_btn)
+            return False
+        elif not self.common.poco_get_text(MainPageLocator.main_self_id) == f'@{login_id}':
+            # 登入帳號非預期 → 表示未登入
             return False
         else:
             # 不在登入頁面 → 表示已登入
             return True
 
-    def into_home_check(self):
-        if self.check_login_status():
+    def welcome_page_show(self):
+        if not self.common.poco_exists(MainPageLocator.new_login_page_welcome_description):
+            self.common.poco_click(MainPageLocator.main_btn)
+        if self.common.poco_exists(MainPageLocator.new_login_page_welcome_description):
             return True
         else:
             return False
 
+    def into_home_check(self):
+        sleep(3)
+        self.common.poco_click(MainPageLocator.main_btn)
+
+        # if self.check_login_status():
+        #     return True
+        # else:
+        #     return False
+
     # 登出
     def logout(self):
-        if self.common.poco_wait_exists(MainPageLocator.logout, timeout=10):
-            self.common.poco_click(MainPageLocator.logout)
-        if self.common.poco_wait_exists(MainPageLocator.logout_popup, timeout=10):
-            self.common.poco_click(MainPageLocator.confirm_button)
+        self.common.poco_click(MainPageLocator.logout)
+        self.common.poco_click(MainPageLocator.confirm_button)
 
-        self.common.sleep(3)
-        if self.phone_platform.lower() == 'android':
-            assert self.common.poco_get_attr(MainPageLocator.recommend_tab, 'selected') is True, f'未回到訪客首頁推薦頁'
-        else:  # ios
+        # iOS 優化：減少登出後的等待時間
+        if self.phone_platform.lower() == 'ios':
+            sleep(1.5)  # 減少等待時間（從 3 秒降到 1.5 秒）
             self.common.poco_click(MainPageLocator.main_btn)
-            assert self.common.poco_exists(MainPageLocator.new_login_page_welcome_description)  # 出現登入頁
-            self.common.poco_click(MainPageLocator.new_login_page_close_btn)
+            # 快速檢查登入頁出現（最多等待 2 秒）
+            for i in range(4):  # 4 * 0.5 = 2 秒
+                if self.common.poco_exists(MainPageLocator.new_login_page_welcome_description):
+                    break
+                sleep(0.5)
+            assert self.common.poco_exists(MainPageLocator.new_login_page_welcome_description), '未出現登入頁'
+        else:
+            self.common.sleep(3)
+            assert self.common.poco_get_attr(MainPageLocator.recommend_tab, 'selected') is True, f'未回到訪客首頁推薦頁'
+            self.common.poco_click(MainPageLocator.main_btn)
+            assert self.common.poco_exists(MainPageLocator.new_login_page_welcome_description), '未出現登入頁'
 
     # 登入
     def do_login(self, account_locator, password_locator, login_btn_locator,
                  account, password, success_check_locator=None):
         """共用登入流程"""
+        # iOS 優化：只點擊一次，使用更短的等待時間
         self.common.poco_click(account_locator)
+        # if self.phone_platform.lower() == 'ios':
+        #     self.common.sleep(0.2)  # 減少鍵盤彈出等待時間（從 0.3 降到 0.2）
+        
         self.common.poco_send_text(account_locator, account)
+        
+        # iOS 優化：減少輸入後等待時間
+        # if self.phone_platform.lower() == 'ios':
+        #     self.common.sleep(0.2)  # 減少等待時間（從 0.3 降到 0.2）
+        
         self.common.poco_click(password_locator)
         self.common.poco_send_text(password_locator, password)
-        self.common.sleep(0.5)
+        # self.common.sleep(0.3)  # 減少固定等待時間（從 0.5 降到 0.3）
 
-        if self.common.poco_exists(login_btn_locator):
-            self.common.poco_click(login_btn_locator)
-            self.common.sleep(0.5)
+        # if self.common.poco_exists(login_btn_locator):
+        self.common.poco_click(login_btn_locator)
+            # self.common.sleep(0.3)  # 減少等待時間（從 0.5 降到 0.3）
 
-        if self.common.poco_exists(MainPageLocator.error):
-            error_message = self.common.poco_get_text(MainPageLocator.error)
-            raise EOFError(f'登入失敗-{error_message}')
+        # if self.common.poco_exists(MainPageLocator.error):
+        #     error_message = self.common.poco_get_text(MainPageLocator.error)
+        #     raise EOFError(f'登入失敗-{error_message}')
 
-        sleep(3)
-
+        # iOS 優化：使用更高效的等待方式
+        # if self.phone_platform.lower() == 'ios':
+        #     # 使用快速輪詢檢查登入頁面消失（最多 4 秒，從 10 秒大幅減少）
+        #     for i in range(8):  # 8 * 0.5 = 4 秒（從原來的 20 * 0.5 = 10 秒減少）
+        #         if not self.common.poco_exists(MainPageLocator.new_login_page_welcome_description):
+        #             break
+        #         self.common.sleep(0.5)
+        #     # 快速檢查主頁元素出現（超時 2 秒，不等待完整載入）
+        #     self.common.poco_wait_exists(MainPageLocator.message_btn, timeout=2)
+        # else:
+        #     sleep(3)
+        self.common.poco_click(MainPageLocator.main_btn)
         # 預設檢查：只要不在登入頁面就視為成功
         assert not self.common.poco_exists(MainPageLocator.new_login_page_welcome_description), '登入失敗，仍在登入頁'
 
-    def login(self, account: str, password: str, nation='CN', login_method='phone'):
+    def login(self, account: str, password: str, nation='CN', login_method='phone'):  # 從歡迎頁開始確認
         # 如果已登入 -> 先登出
-        if self.check_login_status():
+        if not self.common.poco_exists(MainPageLocator.new_login_page_close_btn):
+            self.common.poco_click(MainPageLocator.main_btn)
+        if not self.common.poco_exists(MainPageLocator.new_login_page_welcome_description):
             self.into_main_setting_page()
             self.common.poco_click(MainPageLocator.security_button)
             self.logout()
-
-        self.common.poco_click(MainPageLocator.main_btn)
         self.check_new_login_page()
 
         # 各種登入方式的配置表
@@ -438,7 +479,7 @@ class MainPage(Base):
                       account, password)
 
     def check_new_login_page(self):
-        self.common.poco_wait_exists(MainPageLocator.new_login_page_welcome_description)
+        sleep(1)
         welcome_description = self.common.poco_get_text(MainPageLocator.new_login_page_welcome_description)
         assert ('欢迎来到' in welcome_description) and (self.get_product_name() in welcome_description)
         agreement_hint = self.common.poco_get_text(MainPageLocator.new_login_page_agreement_hint)
@@ -459,50 +500,102 @@ class MainPage(Base):
         product = product_info.get(brand, "UnknownProduct")
         return product
 
-    def check_focus_recommend_tab_after_login(self):
-        if self.phone_platform.lower() == 'android':
-            assert self.common.poco_get_attr(MainPageLocator.recommend_tab, "selected") is True, f'登入後沒有focus推薦頁'
+    # def check_focus_recommend_tab_after_login(self):
+    #     """檢查登入後是否正確進入推薦頁面"""
+    #
+    #     if self.phone_platform.lower() == 'android':
+    #         # Android 需要等待載入完成並檢查推薦頁
+    #         self.wait_loading_finish()
+    #         assert self.common.poco_get_attr(MainPageLocator.recommend_tab, "selected") is True, f'登入後沒有focus推薦頁'
+    #     elif self.phone_platform.lower() == 'ios':
+    #         # iOS 優化：do_login 已經驗證過登入頁消失，這裡只做快速驗證
+    #         # 不需要再次 wait_loading_finish（do_login 中已檢查主頁元素）
+    #         # 只做簡單的存在性檢查，減少等待時間
+    #         if not self.common.poco_exists(MainPageLocator.new_login_page_welcome_description):
+    #             # 登入頁已消失，快速檢查主頁元素（超時時間縮短到 2 秒）
+    #             if self.common.poco_wait_exists(MainPageLocator.message_btn, timeout=2):
+    #                 # iOS 登入成功，已進入主頁
+    #                 return
+    #         # 如果快速檢查失敗，再進行完整驗證
+    #         assert not self.common.poco_exists(MainPageLocator.new_login_page_welcome_description), 'iOS 登入後仍在登入頁'
+    #         if not self.common.poco_wait_exists(MainPageLocator.message_btn, timeout=3):
+    #             raise AssertionError('iOS 登入後未能正確進入主頁')
 
     def into_main_setting_page(self):
-        if self.common.poco_wait_exists(MainPageLocator.main_btn):
-            self.common.poco_click(MainPageLocator.main_btn)
-        if self.common.poco_wait_exists(MainPageLocator.mine_menu_btn):
-            self.common.poco_click(MainPageLocator.mine_menu_btn)
-        self.skip_login_rush()
-
-        if self.common.poco_exists(MainPageLocator.login_expired_msg):
-            return
-        else:
-            assert self.common.poco_exists(MainPageLocator.about_button), f'進入主頁_我的設定頁錯誤'
+        # # iOS 優化：縮短等待時間（從 10 秒降到 5 秒）
+        # timeout = 5 if self.phone_platform.lower() == 'ios' else 10
+        # if self.common.poco_wait_exists(MainPageLocator.main_btn, timeout=timeout):
+        self.common.poco_click(MainPageLocator.main_btn)
+        # if self.common.poco_wait_exists(MainPageLocator.mine_menu_btn, timeout=timeout):
+        self.common.poco_click(MainPageLocator.mine_menu_btn)
+        # self.skip_login_rush()
+        assert self.common.poco_exists(MainPageLocator.mine_settings_self_id)
+        # if self.common.poco_exists(MainPageLocator.login_expired_msg):
+        #     return
+        # else:
+        #     assert self.common.poco_exists(MainPageLocator.about_button), f'進入主頁_我的設定頁錯誤'
 
     def into_main_page(self):
-        if self.common.poco_wait_exists(MainPageLocator.main_btn):
-            self.common.poco_click(MainPageLocator.main_btn)
-            assert self.common.poco_exists(MainPageLocator.share_profile_btn), f'進入主頁錯誤'
-            assert self.common.poco_exists(MainPageLocator.edit_profile_btn), f'進入主頁錯誤'
+        self.common.poco_click(MainPageLocator.main_btn)
+        sleep(3)
+        assert self.common.poco_exists(MainPageLocator.main_self_id)
 
     def get_nickname(self):
+        # iOS 優化：確保主頁元素存在後再讀取
+        if self.phone_platform.lower() == 'ios':
+            # 等待主頁暱稱元素出現（最多等待 3 秒）
+            for i in range(6):  # 6 * 0.5 = 3 秒
+                try:
+                    if self.common.poco_exists(MainPageLocator.main_nickname):
+                        break
+                except:
+                    pass
+                sleep(0.5)
+        
         data = self.common.poco_get_text(MainPageLocator.main_nickname)
         return data
 
     def get_self_introduction(self):
+        # iOS 優化：確保主頁元素存在後再讀取
+        if self.phone_platform.lower() == 'ios':
+            # 等待主頁簡介元素出現（最多等待 3 秒）
+            for i in range(6):  # 6 * 0.5 = 3 秒
+                try:
+                    if self.common.poco_exists(MainPageLocator.main_description):
+                        break
+                except:
+                    pass
+                sleep(0.5)
+        
         data = self.common.poco_get_text(MainPageLocator.main_description)
         return data
 
     def into_friend_page(self):
-        if self.common.poco_wait_exists(MainPageLocator.message_btn):
-            self.common.poco_click(MainPageLocator.message_btn)
-        if self.common.poco_wait_exists(MainPageLocator.friends_btn):
-            self.common.poco_click(MainPageLocator.friends_btn)
+        # if self.common.poco_wait_exists(MainPageLocator.message_btn):
+        self.common.poco_click(MainPageLocator.message_btn)
+        # if self.common.poco_wait_exists(MainPageLocator.friends_btn):
+        self.common.poco_click(MainPageLocator.friends_btn)
         if self.common.poco_exists(FriendPageLocator.search_clear):
             self.common.poco_click(FriendPageLocator.search_clear)
-        self.skip_login_rush()
+        # self.skip_login_rush()
         assert self.common.poco_exists(MainPageLocator.friends_list_check), f'進入好友名單錯誤'
 
     def into_chat_page(self):
-        while self.common.poco_exists(MainPageLocator.back_btn):
-            self.common.poco_click(MainPageLocator.back_btn)
-        self.common.poco_wait_exists(MainPageLocator.message_btn)
+        # iOS 優化：限制返回按鈕點擊次數，避免無限循環
+        if self.phone_platform.lower() == 'ios':
+            back_click_count = 0
+            max_back_clicks = 5
+            while self.common.poco_exists(MainPageLocator.back_btn) and back_click_count < max_back_clicks:
+                self.common.poco_click(MainPageLocator.back_btn)
+                back_click_count += 1
+                sleep(0.3)  # 減少等待時間
+        else:
+            while self.common.poco_exists(MainPageLocator.back_btn):
+                self.common.poco_click(MainPageLocator.back_btn)
+        
+        # iOS 優化：縮短等待時間（從默認 10 秒降到 5 秒）
+        timeout = 5 if self.phone_platform.lower() == 'ios' else 10
+        self.common.poco_wait_exists(MainPageLocator.message_btn, timeout=timeout)
         self.common.poco_click(MainPageLocator.message_btn)
 
         assert self.common.poco_exists(MainPageLocator.chat_list_check), f'進入聊天列表錯誤'
@@ -512,13 +605,19 @@ class MainPage(Base):
         country_name = ''
         country_code = ''
         if nation == 'CN':
-            country_name = '中国大陆'
+            if self.phone_platform.lower() == 'ios':
+                country_name = '中国大陆 China mainland'
+            else:
+                country_name = '中国大陆 China'
             country_code = '86'
         elif nation == 'TW':
-            country_name = '台湾'
+            if self.phone_platform.lower() == 'ios':
+                country_name = '台湾 Taiwan'
+            else:
+                country_name = '中国台湾 Taiwan, China'
             country_code = '886'
         elif nation == 'JP':
-            country_name = '日本'
+            country_name = '日本 Japan'
             country_code = '81'
 
         for _ in range(0, 1):

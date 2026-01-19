@@ -1,63 +1,67 @@
 import os, sys, unittest
 import logging, wda
+import time
+import common.utils.globalvar as gl
+import stf_api.stf as stf
+import stf_api.stf_utils as stf_utils
+
 from poco.drivers.ios import iosPoco
 from poco.drivers.android.uiautomation import AndroidUiautomationPoco
 from airtest.core.api import *
 from airtest.core.api import G
 from airtest.cli.parser import cli_setup
-
-root_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
-sys.path.append(root_path)
-import common.utils.globalvar as gl
-import stf_api.stf as stf
-import stf_api.stf_utils as stf_utils
+from common.utils.path_utils import PathUtils
 from configs.app.setting import Setting as Setting_Phone
-# from Project.lottery.configs.setting import Setting
 from jira.module.base_module import UnittestModule
+
+# 使用 PathUtils 獲取專案根目錄
+path_utils = PathUtils()
+root_path = str(path_utils.get_project_root())
+sys.path.append(root_path)
+
 
 class AppDriver(UnittestModule):
     # stf控制手機
-    def stf_connect_phone(self):
-        self.phone_name = gl.get_value('PHONE_NAME')
-
-        if self.phone_name == 'None':
-            phone_platform, phone_serial, phone_manufacturer, phone_marketName, \
-                stf_notes, os_version = stf_utils.get_unuse_phone_serial(self.specific_os_version)
-        else:
-            phone_platform, phone_serial, phone_manufacturer, phone_marketName, \
-                stf_notes, os_version = stf_utils.get_specific_phone_serial(self.phone_name)
-        
-        assert phone_serial != None, '沒有未使用中的手機 or 指定手機目前不可用'
-
-        stf.post_use_phone(phone_serial) # 在stf上 把手機狀態改為using
-        remote_url = stf.post_connect_phone(phone_serial) # 取得手機stf遠端網址 
-
-        if phone_platform == 'iOS':
-            remote_url = remote_url[0:-5]
-        
-        gl.set_value('PHONE_PLATFORM', phone_platform) # 手機OS
-        gl.set_value('PHONE_SERIAL', phone_serial) # 手機UDID
-        gl.set_value('PHONE_MANUFACTURER', phone_manufacturer) # 廠牌名稱
-        gl.set_value('PHONE_MARKETNAME', phone_marketName) # 手機型號
-        gl.set_value('STF_NOTES', stf_notes) # 手機備註(主要是填手機公司編號)
-        gl.set_value('OS_VERSION', os_version) # 作業系統版本
-        gl.set_value('PHONE_REMOTE_IP', remote_url) # 手機遠端控制的URL
-        
-        # 覆蓋原始local手機資訊
-        self.phone_name = stf_notes
-        gl.set_value('PHONE_NAME', stf_notes)
-
-        print('\n==========================================')
-        print(f'serial name: {gl.get_value("PHONE_SERIAL")}')
-        print(f'manufacturer_name: {gl.get_value("PHONE_MANUFACTURER")}')
-        print(f'marketName_name: {gl.get_value("PHONE_MARKETNAME")}')
-        print(f'os_version: {gl.get_value("OS_VERSION")}')
-        print(f'stf_notes: {gl.get_value("STF_NOTES")}')
-        print('==========================================\n')
+    # def stf_connect_phone(self):
+    #     self.phone_name = gl.get_value('PHONE_NAME')
+    #
+    #     if self.phone_name == 'None':
+    #         phone_platform, phone_serial, phone_manufacturer, phone_marketName, \
+    #             stf_notes, os_version = stf_utils.get_unuse_phone_serial(self.specific_os_version)
+    #     else:
+    #         phone_platform, phone_serial, phone_manufacturer, phone_marketName, \
+    #             stf_notes, os_version = stf_utils.get_specific_phone_serial(self.phone_name)
+    #
+    #     assert phone_serial != None, '沒有未使用中的手機 or 指定手機目前不可用'
+    #
+    #     stf.post_use_phone(phone_serial) # 在stf上 把手機狀態改為using
+    #     remote_url = stf.post_connect_phone(phone_serial) # 取得手機stf遠端網址
+    #
+    #     if phone_platform == 'iOS':
+    #         remote_url = remote_url[0:-5]
+    #
+    #     gl.set_value('PHONE_PLATFORM', phone_platform) # 手機OS
+    #     gl.set_value('PHONE_SERIAL', phone_serial) # 手機UDID
+    #     gl.set_value('PHONE_MANUFACTURER', phone_manufacturer) # 廠牌名稱
+    #     gl.set_value('PHONE_MARKETNAME', phone_marketName) # 手機型號
+    #     gl.set_value('STF_NOTES', stf_notes) # 手機備註(主要是填手機公司編號)
+    #     gl.set_value('OS_VERSION', os_version) # 作業系統版本
+    #     gl.set_value('PHONE_REMOTE_IP', remote_url) # 手機遠端控制的URL
+    #
+    #     # 覆蓋原始local手機資訊
+    #     self.phone_name = stf_notes
+    #     gl.set_value('PHONE_NAME', stf_notes)
+    #
+    #     print('\n==========================================')
+    #     print(f'serial name: {gl.get_value("PHONE_SERIAL")}')
+    #     print(f'manufacturer_name: {gl.get_value("PHONE_MANUFACTURER")}')
+    #     print(f'marketName_name: {gl.get_value("PHONE_MARKETNAME")}')
+    #     print(f'os_version: {gl.get_value("OS_VERSION")}')
+    #     print(f'stf_notes: {gl.get_value("STF_NOTES")}')
+    #     print('==========================================\n')
 
     # 注意func執行順序不可倒，要先執行過setting_test_data()
     def airtest_connect_phone(self, phone_name=None):
-        # self.phone_name = gl.get_value('PHONE_NAME')
         self.phone_name = phone_name or gl.get_value('PHONE_NAME')
         self.connect_type = gl.get_value('CONNECT_TYPE')
         self.poco = None
@@ -72,14 +76,41 @@ class AppDriver(UnittestModule):
         if 'POCO' in gl.get_value('PHONE_NAME'):
             cap_method = 'javacap'
 
-        while True:
+        # 檢查 WDA 是否啟動失敗
+        wda_start_failed = gl.get_value('WDA_START_FAILED', False)
+        if wda_start_failed and gl.get_value("PHONE_PLATFORM") == 'iOS':
+            error_msg = "WDA 啟動失敗，無法連接設備。請檢查 tunnel 是否正確啟動。"
+            raise Exception(error_msg)
+        
+        max_retries = 3
+        retry_count = 0
+        while retry_count < max_retries:
             try:
                 auto_setup(__file__, logdir=False, devices=[f'{self.connection}?cap_method={cap_method}']) # Airtest 連線手機
                 break
-            except Exception:
+            except Exception as e:
+                retry_count += 1
+                if retry_count >= max_retries:
+                    raise
                 logging.exception('exception log')
+                time.sleep(2)  # 等待 2 秒後重試
 
         if gl.get_value("PHONE_PLATFORM") == 'Android':
+            # Android 設備：自動喚醒屏幕（如果處於待機狀態）
+            try:
+                # 方法 1：使用 Airtest 的 wake() 函數（推薦）
+                wake()
+                time.sleep(0.5)  # 等待屏幕喚醒
+                logging.info("✅ Android 設備已喚醒")
+            except Exception as e:
+                # 方法 2：如果 wake() 失敗，使用 keyevent 喚醒
+                try:
+                    keyevent("KEYCODE_WAKEUP")  # 或使用 keyevent(26)
+                    time.sleep(0.5)
+                    logging.info("✅ Android 設備已通過 keyevent 喚醒")
+                except Exception as e2:
+                    logging.warning(f"⚠️  無法喚醒 Android 設備: {e2}")
+            
             poco = AndroidUiautomationPoco(use_airtest_input=True, screenshot_each_action=True)
             parameter = (poco, '')
 
@@ -89,7 +120,49 @@ class AppDriver(UnittestModule):
             if not self.poco:
                 self.poco = iosPoco()
             if not self.wda_service:
-                self.wda_service = wda.Client(self.connection.split('///')[-1])
+                # 檢查是否有動態設置的端口
+                wda_port = gl.get_value('WDA_PORT')
+                
+                if wda_port:
+                    # 如果使用 usbmux，需要構建正確的連接字符串
+                    # 格式: http://127.0.0.1:端口 或 http+usbmux://udid
+                    if 'usbmux' in self.connection:
+                        # usbmux 連接時，端口通過 usbmux 隧道自動轉發
+                        # 但我們需要確保 WDA 在正確的端口上運行
+                        wda_url = f'http://127.0.0.1:{wda_port}'
+                    else:
+                        wda_url = self.connection.split('///')[-1]
+                else:
+                    wda_url = self.connection.split('///')[-1]
+                
+                # 添加重試邏輯，等待 WDA 準備好
+                max_retries = 15  # 最多重試 15 次（30 秒）
+                retry_count = 0
+                while retry_count < max_retries:
+                    try:
+                        self.wda_service = wda.Client(wda_url)
+                        # 嘗試連接以確認 WDA 已準備好並獲取 iOS 設備版本信息
+                        try:
+                            status_info = self.wda_service.status()
+                            os_version = status_info.get('os', {}).get('version', '')
+                            if os_version:
+                                # 格式化版本號，例如 "18.2" -> "iOS18.2"
+                                gl.set_value('OS_VERSION', f'iOS{os_version}')
+                                print(f"📱 檢測到 iOS 版本: {os_version}")
+                        except Exception as e:
+                            # 如果獲取失敗，嘗試從配置或已有值獲取
+                            existing_version = gl.get_value('OS_VERSION')
+                            if not existing_version:
+                                print(f"⚠️  無法獲取 iOS 版本: {e}")
+                        
+                        print(f"✅ WDA 連接成功 (端口: {wda_port or '默認'})")
+                        break
+                    except Exception as e:
+                        retry_count += 1
+                        if retry_count >= max_retries:
+                            raise Exception(f'無法連接到 WDA (URL: {wda_url})，已重試 {max_retries} 次: {e}')
+                        print(f"⏳ 等待 WDA 準備好... ({retry_count}/{max_retries})")
+                        time.sleep(2)
             parameter = (self.poco, self.wda_service)
             
         return parameter

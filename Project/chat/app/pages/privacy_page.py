@@ -1,28 +1,21 @@
 from time import sleep
 
 from Project.chat.app.pages.main_page import MainPage, MainPageLocator
-from Project.chat.app.pages.social_homepage import SocialHomePage
+from Project.chat.app.pages.social_home_page import SocialHomePage
 from common.app.common import Common
 from configs.app.setting import Setting
 from Project.chat.app.pages.base_page import Base
 from Project.chat.app.pages.xpath.xpath_base import Xpath_Base
+from Project.chat.app.pages.locators.base_locator import BaseLocator
 import logging
 import common.utils.globalvar as gl
 
 
-class PrivacyPageLocator:
-    base = Xpath_Base()
-    env = gl.get_value('ENV')
-    brand = gl.get_value('BRAND')
-    app_package = Setting().get_package_name(brand, env)
-
-    @staticmethod
-    def env(env):
-        env = PrivacyPageLocator.base.check_device(
-            Android=PrivacyPageLocator.base.data_collation(type_kind='textMatches', type_name=f'{env}.*'),
-            iOS=PrivacyPageLocator.base.data_collation(type_kind='nameMatches', type_name=f'{env}.*')
-        )
-        return env
+class PrivacyPageLocator(BaseLocator):
+    """隱私頁面 Locator，繼承 BaseLocator 以減少重複代碼"""
+    # 明確引用基類屬性，確保 IDE/linter 能正確識別
+    base = BaseLocator.base
+    app_package = BaseLocator.app_package
 
     # 功能表 > 隱私
     privacy_button = base.check_device(

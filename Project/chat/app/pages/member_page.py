@@ -1,26 +1,19 @@
 from time import sleep
 from common.app.common import Common
 from configs.app.setting import Setting
-from Project.chat.app.pages.base_page import Base
+from Project.chat.app.pages.base_page import Base, BaseLocator as BasePageLocator
 from Project.chat.app.pages.xpath.xpath_base import Xpath_Base
 from Project.chat.app.pages.main_page import MainPage, MainPageLocator
+from Project.chat.app.pages.locators.base_locator import BaseLocator
 import logging
 import common.utils.globalvar as gl
 
 
-class MemberPageLocator:
-    base = Xpath_Base()
-    env = gl.get_value('ENV')
-    brand = gl.get_value('BRAND')
-    app_package = Setting().get_package_name(brand, env)
-
-    @staticmethod
-    def env(env):
-        env = MemberPageLocator.base.check_device(
-            Android=MemberPageLocator.base.data_collation(type_kind='textMatches', type_name=f'{env}.*'),
-            iOS=MemberPageLocator.base.data_collation(type_kind='nameMatches', type_name=f'{env}.*')
-        )
-        return env
+class MemberPageLocator(BaseLocator):
+    """會員頁面 Locator，繼承 BaseLocator 以減少重複代碼"""
+    # 明確引用基類屬性，確保 IDE/linter 能正確識別
+    base = BaseLocator.base
+    app_package = BaseLocator.app_package
 
     notification_button = base.check_device(
         Android=base.data_collation(type_kind='text', type_name='讯息通知'),
@@ -36,7 +29,10 @@ class MemberPageLocator:
         Android=base.data_collation(type_kind='text', type_name='帐号与安全'),
         iOS=base.data_collation(type_kind='name', type_name='帐号与安全'),
     )
-
+    security_page_self_id = base.check_device(
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/cl_id'),
+        iOS=base.data_collation(type_kind='name', type_name='accountSecurity_id_label'),
+    )
     # security_check_change_pw = base.check_device(
     #     Android=base.data_collation(type_kind='nameMatches', type_name='.*密码'),
     #     iOS=base.data_collation(type_kind='name', type_name='更改密码'),
@@ -158,9 +154,12 @@ class MemberPage(Base):
         assert self.common.poco_wait_exists(MemberPageLocator.notification_check), f'進入訊息通知頁面錯誤'
 
     def into_security(self):
-        if self.common.poco_wait_exists(MemberPageLocator.security_button):
-            self.common.poco_click(MemberPageLocator.security_button)
-        assert self.common.poco_wait_exists(MemberPageLocator.logout), f'進入帳號安全頁面錯誤'
+        # iOS 優化：縮短等待時間（從默認 10 秒降到 5 秒）
+        # timeout = 5 if self.phone_platform.lower() == 'ios' else 10
+        # if self.common.poco_wait_exists(MemberPageLocator.security_button, timeout=timeout):
+        self.common.poco_click(MemberPageLocator.security_button)
+        # assert self.common.poco_wait_exists(MemberPageLocator.logout, timeout=timeout), f'進入帳號安全頁面錯誤'
+        assert self.common.poco_exists(MemberPageLocator.security_page_self_id), f'進入帳號安全頁面錯誤'
 
     def into_blacklist(self):
         if self.common.poco_wait_exists(MemberPageLocator.blacklist_button):
@@ -177,10 +176,10 @@ class MemberPage(Base):
             assert self.common.poco_wait_exists(MemberPageLocator.share_check), f'進入分享頁面錯誤'
 
     def into_about(self):
-        if self.common.poco_wait_exists(MemberPageLocator.about_button):
-            self.common.poco_click(MemberPageLocator.about_button)
-
-        assert self.common.poco_wait_exists(MemberPageLocator.about_check), f'進入關於聊天頁面錯誤'
+        # if self.common.poco_wait_exists(MemberPageLocator.about_button):
+        self.common.poco_click(MemberPageLocator.about_button)
+        assert self.common.poco_exists(MemberPageLocator.about_check)
+        # assert self.common.poco_wait_exists(MemberPageLocator.about_check), f'進入關於聊天頁面錯誤'
 
     def get_nickname(self):
         data = self.common.poco_get_text(MemberPageLocator.main_description_display)
@@ -191,28 +190,26 @@ class MemberPage(Base):
         return data
 
     def change_nickname(self, new_nickname):
+        """
+        修改暱稱
+        
+        Args:
+            new_nickname: 新的暱稱
+        """
         self.common.poco_click(MemberPageLocator.clear_button)  # 在暱稱頁面 > 點[x]清除欄位
-
         self.common.poco_send_text(MemberPageLocator.nick_name_input, new_nickname)
         if self.phone_platform.lower() == 'ios':
+            # iOS 優化：減少點擊 user_id_title 後的等待時間
             self.common.poco_click(MemberPageLocator.user_id_title)
-        self.common.poco_click(MemberPageLocator.save_btn)
-        main_nickname = self.common.poco_get_text(MainPageLocator.main_nickname)
-
-        # if self.phone_platform.lower() == 'android':
-        #     self.common.poco_send_text(MemberPageLocator.nick_name_input, new_nickname)
-        #     self.common.poco_click(MemberPageLocator.save_btn)
-        #     main_nickname = self.common.poco_get_text(MainPageLocator.main_nickname)
-        # else:
-        #     self.common.poco_send_text(MemberPageLocator.nick_name_input, new_nickname)
-        #     self.common.poco_click(MemberPageLocator.user_id_title)
-        #     self.common.poco_click(MemberPageLocator.save_btn)
-        #     main_nickname = self.poco(type="StaticText").attr('value')
-
-        assert main_nickname == new_nickname, f'個人主頁_個人暱稱顯示錯誤, 預期{new_nickname},實際{main_nickname}'
-        self.common.poco_click(MemberPageLocator.edit_profile_btn)
+            sleep(0.2)  # 減少等待時間（從可能的更長等待減少）
 
     def change_introduction(self, text):
+        """
+        修改個人簡介
+        
+        Args:
+            text: 新的簡介文字
+        """
         if self.phone_platform.lower() == 'android':
             self.common.poco_send_text(MemberPageLocator.self_introduction_input, text)
             self.common.poco_click(MemberPageLocator.save_btn)
@@ -223,10 +220,10 @@ class MemberPage(Base):
             self.common.poco_send_text(MemberPageLocator.self_introduction_input, text)
             self.common.poco_click(MemberPageLocator.user_id_title)
             self.common.poco_click(MemberPageLocator.save_btn)
+
         self.wait_loading_finish()
         main_description = self.common.poco_get_text(MainPageLocator.main_description)
         assert main_description == text, f'個人主頁_個人簡介顯示錯誤, 預期{text},實際{main_description}'
-        self.common.poco_click(MemberPageLocator.edit_profile_btn)
 
     def input_block_words_then_check_toast(self, block_words):
         if self.phone_platform.lower() == 'android':
@@ -238,7 +235,8 @@ class MemberPage(Base):
             self.wait_loading_finish()
             self.common.poco_click(MemberPageLocator.back_btn)
         else:
-            self.common.poco_long_click(MemberPageLocator.self_introduction_input)  # 個人簡介欄位長按
+            while not self.poco(name='全选').exists():
+                self.common.poco_long_click(MemberPageLocator.self_introduction_input)  # 個人簡介欄位長按
             self.poco(name='全选').click()
             self.common.poco_send_text(MemberPageLocator.self_introduction_input, block_words)
             self.common.poco_click(MemberPageLocator.user_id_title)

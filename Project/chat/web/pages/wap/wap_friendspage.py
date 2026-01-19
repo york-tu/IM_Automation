@@ -40,7 +40,7 @@ class FriendsPageLocator:
     nickname_input = (By.XPATH, '//input[@class="flex-1 text-[14rem] bg-transparent text-grand-1"]')  # 設定備註-暱稱
     note_input = (By.XPATH, '//textarea[@placeholder="描述最长至字"]')  # 設定備註-描述
     remark_submit = (By.XPATH, "//p[text()='完成']")  # 設定備註-完成鍵
-    chat_detail_nickname = (By.XPATH, '//p[@class="max-w-full my-[16rem] text-[20rem] font-semibold overflow-hidden whitespace-nowrap text-ellipsis text-neutral-800"]')  # 聊天詳情頁-暱稱
+    chat_detail_nickname = (By.XPATH, '//p[@class="max-w-full my-[16rem] text-[20rem] font-semibold overflow-hidden whitespace-pre text-ellipsis text-neutral-800"]')  # 聊天詳情頁-暱稱
     chat_detail_note = (By.XPATH, '//p[@class="flex-1 min-w-0 ml-[8rem] text-[16rem] font-semibold text-grand-2 line-clamp-2 break-all"]')  # 聊天詳情頁-描述
 
     profile_btn = (By.XPATH, "//p[text()='个人页面']")  # "个人页面"鍵
@@ -114,7 +114,7 @@ class FriendsPage(BasePage):
 
     # =========================== 新增好友頁 ======================================
     def is_new_friend(self, name):  # 新增好友頁進行搜尋
-        self.click(FriendsPageLocator.add_friend_btn)
+        # self.click(FriendsPageLocator.add_friend_btn)
         self.wait_loading_finish()
         self.type(FriendsPageLocator.search_new_friend_input, name)
         self.click(FriendsPageLocator.search_btn)
@@ -156,13 +156,15 @@ class FriendsPage(BasePage):
         self.type(FriendsPageLocator.nickname_input, nickname)
         self.click(FriendsPageLocator.remark_submit)
         self.wait_loading_finish()
-        assert self.get_text(FriendsPageLocator.chat_detail_nickname) == nickname, f'設定暱稱失敗'
+        actual_nickname = self.get_text(FriendsPageLocator.chat_detail_nickname)
+        assert actual_nickname == nickname, f'設定暱稱失敗'
 
         self.click(FriendsPageLocator.remark_btn)
         self.type(FriendsPageLocator.nickname_input, original_nickname)
         self.click(FriendsPageLocator.remark_submit)
         self.wait_loading_finish()
-        assert self.get_text(FriendsPageLocator.chat_detail_nickname) == original_nickname, f'設定原暱稱失敗'
+        actual_nickname = self.get_text(FriendsPageLocator.chat_detail_nickname)
+        assert actual_nickname == original_nickname, f'設定原暱稱失敗'
 
     def into_personal_profile(self):
         self.wait_loading_finish()

@@ -1,6 +1,10 @@
 import os, sys, glob, platform, shutil, logging
 from selenium import webdriver
-root_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
+from common.utils.path_utils import PathUtils
+
+# 使用 PathUtils 獲取專案根目錄
+path_utils = PathUtils()
+root_path = str(path_utils.get_project_root())
 sys.path.append(root_path)
 from configs.web.setting_chrome import Setting_Chrome
 import common.utils.globalvar as gl
@@ -14,17 +18,9 @@ class WebDriver(UnittestModule):
     def setting_driver(self, width, height, implicitly_wait_time=35, mode='', headless=1, is_wap=True):
         brand = gl.get_value('BRAND')
 
-        if platform.system() == 'Windows': 
-            user = os.environ['HOMEPATH']
-            path = ('C:{0}\\Downloads\\{1}'.format(user,brand))
-
-        elif platform.system() == 'Linux':
-            user = os.environ['HOME']
-            path = (r'{0}/Downloads/{1}'.format(user,brand))
-
-        elif platform.system() == 'Darwin':
-            user = os.environ['HOME']
-            path = (r'{0}/Downloads/{1}'.format(user,brand))
+        # 使用 PathUtils 獲取下載路徑
+        download_path = path_utils.get_download_path(brand)
+        path = str(download_path)
 
         if os.path.isdir(path):
             shutil.rmtree(path)

@@ -13,15 +13,15 @@ root_path = os.path.dirname(
 sys.path.append(root_path)
 
 # Test Setting
-env = 'uat'  # uat, prod
+env = 'prod'  # uat, prod
 brand = 'gu'
 user = 1
 test_type = 'wap'
-wap_version = '2.10.5'
+wap_version = '2.12.0'
 os_version = 'Win11'  # 作業系統
 platform = 'PC'  # 測試環境
 account_type = 'phone'  # 帳號類型: mail, phone...
-push = False  # 將結果推倒jira, 預設請給予 True
+push = True  # 將結果推倒jira, 預設請給予 True
 
 # ============================================== S1 Test Cases ===================================================
 s1_personal_chat_case_list = [
@@ -135,11 +135,11 @@ if __name__ == "__main__":
 
     # TestCase add
     # ================== UAT ==================
-    suite.addTests(s1_test_cases)  # total 32*s1
+    # suite.addTests(s1_test_cases)  # total 32*s1
     # suite.addTests(s2_test_cases)  # total 18*s2 + 2*s1
 
     # ================== Prod ==================
-    # suite.addTests(prod_test_cases)  # total 45
+    suite.addTests(prod_test_cases)  # total 45
 
     # RunningTest
     Utils.unittest_xml(suite)
