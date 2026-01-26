@@ -353,11 +353,6 @@ class MainPage(Base):
         sleep(3)
         self.common.poco_click(MainPageLocator.main_btn)
 
-        # if self.check_login_status():
-        #     return True
-        # else:
-        #     return False
-
     # 登出
     def logout(self):
         self.common.poco_click(MainPageLocator.logout)
@@ -381,44 +376,17 @@ class MainPage(Base):
 
     # 登入
     def do_login(self, account_locator, password_locator, login_btn_locator,
-                 account, password, success_check_locator=None):
+                 account, password):
         """共用登入流程"""
-        # iOS 優化：只點擊一次，使用更短的等待時間
         self.common.poco_click(account_locator)
-        # if self.phone_platform.lower() == 'ios':
-        #     self.common.sleep(0.2)  # 減少鍵盤彈出等待時間（從 0.3 降到 0.2）
-        
         self.common.poco_send_text(account_locator, account)
-        
-        # iOS 優化：減少輸入後等待時間
-        # if self.phone_platform.lower() == 'ios':
-        #     self.common.sleep(0.2)  # 減少等待時間（從 0.3 降到 0.2）
-        
         self.common.poco_click(password_locator)
         self.common.poco_send_text(password_locator, password)
-        # self.common.sleep(0.3)  # 減少固定等待時間（從 0.5 降到 0.3）
 
-        # if self.common.poco_exists(login_btn_locator):
         self.common.poco_click(login_btn_locator)
-            # self.common.sleep(0.3)  # 減少等待時間（從 0.5 降到 0.3）
 
-        # if self.common.poco_exists(MainPageLocator.error):
-        #     error_message = self.common.poco_get_text(MainPageLocator.error)
-        #     raise EOFError(f'登入失敗-{error_message}')
-
-        # iOS 優化：使用更高效的等待方式
-        # if self.phone_platform.lower() == 'ios':
-        #     # 使用快速輪詢檢查登入頁面消失（最多 4 秒，從 10 秒大幅減少）
-        #     for i in range(8):  # 8 * 0.5 = 4 秒（從原來的 20 * 0.5 = 10 秒減少）
-        #         if not self.common.poco_exists(MainPageLocator.new_login_page_welcome_description):
-        #             break
-        #         self.common.sleep(0.5)
-        #     # 快速檢查主頁元素出現（超時 2 秒，不等待完整載入）
-        #     self.common.poco_wait_exists(MainPageLocator.message_btn, timeout=2)
-        # else:
-        #     sleep(3)
         self.common.poco_click(MainPageLocator.main_btn)
-        # 預設檢查：只要不在登入頁面就視為成功
+        # 預設檢查：只要不出現登入頁面就視為成功
         assert not self.common.poco_exists(MainPageLocator.new_login_page_welcome_description), '登入失敗，仍在登入頁'
 
     def login(self, account: str, password: str, nation='CN', login_method='phone'):  # 從歡迎頁開始確認
@@ -500,40 +468,10 @@ class MainPage(Base):
         product = product_info.get(brand, "UnknownProduct")
         return product
 
-    # def check_focus_recommend_tab_after_login(self):
-    #     """檢查登入後是否正確進入推薦頁面"""
-    #
-    #     if self.phone_platform.lower() == 'android':
-    #         # Android 需要等待載入完成並檢查推薦頁
-    #         self.wait_loading_finish()
-    #         assert self.common.poco_get_attr(MainPageLocator.recommend_tab, "selected") is True, f'登入後沒有focus推薦頁'
-    #     elif self.phone_platform.lower() == 'ios':
-    #         # iOS 優化：do_login 已經驗證過登入頁消失，這裡只做快速驗證
-    #         # 不需要再次 wait_loading_finish（do_login 中已檢查主頁元素）
-    #         # 只做簡單的存在性檢查，減少等待時間
-    #         if not self.common.poco_exists(MainPageLocator.new_login_page_welcome_description):
-    #             # 登入頁已消失，快速檢查主頁元素（超時時間縮短到 2 秒）
-    #             if self.common.poco_wait_exists(MainPageLocator.message_btn, timeout=2):
-    #                 # iOS 登入成功，已進入主頁
-    #                 return
-    #         # 如果快速檢查失敗，再進行完整驗證
-    #         assert not self.common.poco_exists(MainPageLocator.new_login_page_welcome_description), 'iOS 登入後仍在登入頁'
-    #         if not self.common.poco_wait_exists(MainPageLocator.message_btn, timeout=3):
-    #             raise AssertionError('iOS 登入後未能正確進入主頁')
-
     def into_main_setting_page(self):
-        # # iOS 優化：縮短等待時間（從 10 秒降到 5 秒）
-        # timeout = 5 if self.phone_platform.lower() == 'ios' else 10
-        # if self.common.poco_wait_exists(MainPageLocator.main_btn, timeout=timeout):
         self.common.poco_click(MainPageLocator.main_btn)
-        # if self.common.poco_wait_exists(MainPageLocator.mine_menu_btn, timeout=timeout):
         self.common.poco_click(MainPageLocator.mine_menu_btn)
-        # self.skip_login_rush()
         assert self.common.poco_exists(MainPageLocator.mine_settings_self_id)
-        # if self.common.poco_exists(MainPageLocator.login_expired_msg):
-        #     return
-        # else:
-        #     assert self.common.poco_exists(MainPageLocator.about_button), f'進入主頁_我的設定頁錯誤'
 
     def into_main_page(self):
         self.common.poco_click(MainPageLocator.main_btn)
@@ -571,9 +509,7 @@ class MainPage(Base):
         return data
 
     def into_friend_page(self):
-        # if self.common.poco_wait_exists(MainPageLocator.message_btn):
         self.common.poco_click(MainPageLocator.message_btn)
-        # if self.common.poco_wait_exists(MainPageLocator.friends_btn):
         self.common.poco_click(MainPageLocator.friends_btn)
         if self.common.poco_exists(FriendPageLocator.search_clear):
             self.common.poco_click(FriendPageLocator.search_clear)

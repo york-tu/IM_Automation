@@ -29,61 +29,61 @@ push = False  # 將結果推倒jira, 預設請給予 True
 # -------------- 私聊相關功能測試 --------------
 s1_personal_chat_regression_list = [
     AppTestCase("test_login"),
-    # AppTestCase("test_version_check"),
-    # AppTestCase("test_into_member"),
-    # AppTestCase("test_into_friend"),
-    # AppTestCase("test_change_nickname_and_instructions"),
-    # AppTestCase("test_free_up_space"),
-    # AppTestCase("test_change_password"),
-    # AppTestCase("test_account_info"),
-    # AppTestCase("test_add_friend"),
-    # AppTestCase("test_friend_remark"),
-    # AppTestCase("test_send_message"),
-    # AppTestCase('test_send_voice_message'),
-    # AppTestCase('test_send_file_message'),
-    # AppTestCase("test_delete_friend"),
-    # AppTestCase("test_logout"),
+    AppTestCase("test_version_check"),
+    AppTestCase("test_into_member"),
+    AppTestCase("test_into_friend"),
+    AppTestCase("test_change_nickname_and_instructions"),
+    AppTestCase("test_free_up_space"),
+    AppTestCase("test_change_password"),
+    AppTestCase("test_account_info"),
+    AppTestCase("test_add_friend"),
+    AppTestCase("test_friend_remark"),
+    AppTestCase("test_send_message"),
+    AppTestCase('test_send_voice_message'),
+    AppTestCase('test_send_file_message'),
+    AppTestCase("test_delete_friend"),
+    AppTestCase("test_logout"),
 ]
 # -------------- 群聊相關功能測試 --------------
 s1_group_chat_regression_list = [
     ContextTestCase("test_group_remove_admin"),  # 移除 gubot03 管理員權限
     ContextTestCase("test_group_change_group_rules"),  # 群組成員權限設定
     ContextTestCase("test_group_add_admin_and_change_admin_rules"),  # 將 gubot03 加為管理員並更改管裡員權限
-    # AppTestCase("test_send_message_group"),
-    # AppTestCase("test_message_copy_group"),
-    # AppTestCase("test_message_reply_group"),
-    # AppTestCase("test_message_delete_group"),
-    # AppTestCase("test_message_revoke_group"),
-    # AppTestCase("test_message_pin_group"),
-    # AppTestCase("test_send_voice_message_group"),
-    # AppTestCase('test_voice_message_reply_group'),
-    # AppTestCase('test_voice_message_delete_group'),
-    # AppTestCase('test_voice_message_revoke_group'),
-    # AppTestCase('test_send_file_message_group'),
-    # AppTestCase('test_file_message_reply_group'),
-    # AppTestCase('test_file_message_delete_group'),
-    # AppTestCase('test_file_message_revoke_group'),
+    AppTestCase("test_send_message_group"),
+    AppTestCase("test_message_copy_group"),
+    AppTestCase("test_message_reply_group"),
+    AppTestCase("test_message_delete_group"),
+    AppTestCase("test_message_revoke_group"),
+    AppTestCase("test_message_pin_group"),
+    AppTestCase("test_send_voice_message_group"),
+    AppTestCase('test_voice_message_reply_group'),
+    AppTestCase('test_voice_message_delete_group'),
+    AppTestCase('test_voice_message_revoke_group'),
+    AppTestCase('test_send_file_message_group'),
+    AppTestCase('test_file_message_reply_group'),
+    AppTestCase('test_file_message_delete_group'),
+    AppTestCase('test_file_message_revoke_group'),
 ]
 # -------------- 搶紅包測試 --------------
 s1_grab_red_envelop_regression_list = [
-    # ContextTestCase("test_app_grab_red_envelope"),
-    # ContextTestCase("test_app_grab_luck_red_envelope"),
-    # ContextTestCase("test_app_grab_bulk_upload_luck_red_envelope")
+    ContextTestCase("test_app_grab_red_envelope"),
+    ContextTestCase("test_app_grab_luck_red_envelope"),
+    ContextTestCase("test_app_grab_bulk_upload_luck_red_envelope")
 ]
 # -------------- 社群相關功能測試 --------------
 s1_social_regression_list = [
-    # AppTestCase("test_social_post_photo"),  # 發布圖片
-    # AppTestCase('test_social_post_video'),  # 發布影片
-    # AppTestCase("test_social_draft_photo"),  # 發布草稿_圖片
-    # AppTestCase("test_social_search"),  # 搜索視頻 & 用戶
-    # AppTestCase("test_social_follow_unfollow"),  # 關注/取消關注
-    # AppTestCase("test_social_post_add_like_collect"),  # 貼文點贊收藏
-    # AppTestCase("test_social_self_post_add_comments_reply_like"),  # 自己貼文評論上留言回覆點贊
-    # AppTestCase("test_social_other_post_add_comments_reply"),  # 他人貼文評論上留言回覆
-    # AppTestCase('test_social_share_self_main_page'),  # 分享"自己主頁"到群組
-    # AppTestCase('test_social_share_other_main_page'),  # 分享"他人主頁"到群組
-    # AppTestCase('test_social_share_self_post'),  # 分享"自己貼文"到群組
-    # AppTestCase('test_social_share_others_post'),  # 分享"他人貼文"到群組
+    AppTestCase("test_social_post_photo"),  # 發布圖片
+    AppTestCase('test_social_post_video'),  # 發布影片
+    AppTestCase("test_social_draft_photo"),  # 發布草稿_圖片
+    AppTestCase("test_social_search"),  # 搜索視頻 & 用戶
+    AppTestCase("test_social_follow_unfollow"),  # 關注/取消關注
+    AppTestCase("test_social_post_add_like_collect"),  # 貼文點贊收藏
+    AppTestCase("test_social_self_post_add_comments_reply_like"),  # 自己貼文評論上留言回覆點贊
+    AppTestCase("test_social_other_post_add_comments_reply"),  # 他人貼文評論上留言回覆
+    AppTestCase('test_social_share_self_main_page'),  # 分享"自己主頁"到群組
+    AppTestCase('test_social_share_other_main_page'),  # 分享"他人主頁"到群組
+    AppTestCase('test_social_share_self_post'),  # 分享"自己貼文"到群組
+    AppTestCase('test_social_share_others_post'),  # 分享"他人貼文"到群組
 ]
 
 # ============================================== S2 Test cases ===================================================
@@ -100,17 +100,20 @@ s2_personal_chat_regression_list = [
     AppTestCase("test_block_setting"),
     AppTestCase("test_unblock_friend"),
     AppTestCase("test_share_message"),
+
+    AppTestCase("test_message_pin"),
+    AppTestCase("test_message_pin_reply"),
+    AppTestCase("test_message_pin_delete"),
+    AppTestCase("test_message_pin_revoke"),
+
     AppTestCase("test_message_copy"),
     AppTestCase("test_message_reply"),
     AppTestCase("test_message_delete"),
     AppTestCase("test_message_revoke"),
     AppTestCase("test_message_reply_delete"),
     AppTestCase("test_message_reply_revoke"),
-    AppTestCase("test_message_pin"),
-    AppTestCase("test_message_pin_reply"),
-    AppTestCase("test_message_pin_delete"),
-    AppTestCase("test_message_pin_revoke"),
     AppTestCase("test_message_emoji"),
+
     AppTestCase('test_voice_message_reply'),
     AppTestCase('test_voice_message_delete'),
     AppTestCase('test_voice_message_revoke'),

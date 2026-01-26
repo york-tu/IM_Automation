@@ -133,8 +133,8 @@ class NotificationPage(Base):
                     assert self.common.poco_get_attr(NotificationPageLocator.detail_switch,'value'), f'通知訊息顯示詳情開關沒有開啟'
                 else:
                     self.common.poco_long_click(NotificationPageLocator.detail_switch)
-                    if self.common.poco_wait_exists(NotificationPageLocator.detail_check):
-                        self.common.poco_click(NotificationPageLocator.close_button)
+                    self.common.poco_wait_exists(NotificationPageLocator.detail_check)
+                    self.common.poco_click(NotificationPageLocator.close_button)
                     assert self.common.poco_get_attr(NotificationPageLocator.detail_switch,'value') == '0', f'通知訊息顯示詳情開關沒有關閉'
 
     def turn_voice_switch(self):

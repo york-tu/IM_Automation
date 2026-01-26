@@ -325,6 +325,8 @@ class ChatListPage(Base):
             group_name), f'綁定群組名與預期不符'  # 搜尋群組名, 確認已透過邀請碼加入該群組
 
     def check_last_message(self, message_type='text', is_reply=False, other_msg=False):
+        # if self.common.poco_exists(ChatListPageLocator.search_clear):
+        #     self.common.poco_click(ChatListPageLocator.search_clear)
         if self.phone_platform.lower() == 'ios':
             # ==================== 獲取聊天室內最後一則訊息 ====================
             if message_type == 'voice':

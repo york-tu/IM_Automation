@@ -14,7 +14,7 @@ from jira.config.base_key import BaseKey
 
 # Test Setting
 test_brand = 'bh'  # 前台平台
-user = 5  # 第n組帳號帳號
+user = 4  # 第n組帳號帳號
 test_type = 'web'
 os_version = 'Win11'  # 作業系統
 platform = 'PC'

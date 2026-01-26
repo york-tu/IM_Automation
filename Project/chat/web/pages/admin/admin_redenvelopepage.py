@@ -704,9 +704,10 @@ class RedEnvelopePage(BasePage):
         self.type(RedEnvelopePageLocator.detail_search_ID,grab_account)
         self.click(RedEnvelopePageLocator.search_btn)
         # =================================================================
-        aaa = self.get_text(RedEnvelopePageLocator.detail_list_ID)
+        actual_id = self.get_text(RedEnvelopePageLocator.detail_list_ID)
         assert self.get_text(RedEnvelopePageLocator.detail_red_type_info) == f'红包种类:{grab_type}', f'紅包詳情頁種類錯誤'
-        assert self.get_text(RedEnvelopePageLocator.detail_list_ID) == grab_account, f'搶紅包人員有誤, 預期{grab_account}, 實際:{self.get_text(RedEnvelopePageLocator.detail_list_ID)}'
+        assert actual_id == grab_account, f'搶紅包人員有誤, 預期:[{grab_account}], 實際:[{actual_id}]'
+
         if grab_time is not None:
             actual = self.get_text(RedEnvelopePageLocator.detail_list_time)[:-3].replace("/", "-")
             assert actual == grab_time.replace("/", "-"), f'搶紅包時間有誤, 預期{grab_time.replace("/", "-")}, 實際{actual}'

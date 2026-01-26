@@ -189,15 +189,6 @@ class SocialMediaPostPage(Base):
         sleep(3)
         assert self.common.poco_get_text(SocialMediaPostPageLocator.page_title) == '发布', '未進入發布頁'
 
-    # def _select_media_folder(self, media_type):
-    #     self.common.poco_click(SocialMediaPostPageLocator.select_media_type_folder)
-    #     folder_locator = (SocialMediaPostPageLocator.media_pictures_folder if 'photo' in media_type.lower()
-    #                       else SocialMediaPostPageLocator.media_videos_folder)
-    #     self.common.poco_wait_exists(folder_locator)
-    #     sleep(1)
-    #     self.common.poco_click(folder_locator)
-    #     sleep(1)
-
     def post_page_setting_and_post(self, instructions, privacy_index=0, media_type='photo', save_to_local=True,
                                    post=True):
         if 'video' in media_type.lower():

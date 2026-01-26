@@ -521,7 +521,7 @@ class ChatRoomPage(Base):
                     self.common.sleep(1)
                 num = num + 1
 
-            self.go_back()
+            # self.go_back()
 
     def send_url_message(self):
         messages = ['https://google.com.tw', 'https://gu-chat.com']

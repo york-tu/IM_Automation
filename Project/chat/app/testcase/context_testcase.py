@@ -551,7 +551,7 @@ class ContextTestCase(BaseTestCase, BasePage_Web, BasePage_Admin):
             'ap'].socialmedialibrary_page().get_post_author_and_content()
         assert current_content != description
         self.ap.socialhome_page().return_to_my_social_page()
-        self.test_logout()
+        self.test_logout(self.web_account)
         # ================ A進到自己主頁, 確認自己的貼文還在 =================================================================
         self.ap.main_page().login(self.app_phone, self.app_password, self.app_nation)
         self.ap.socialhome_page().return_to_my_social_page()
@@ -773,7 +773,7 @@ class ContextTestCase(BaseTestCase, BasePage_Web, BasePage_Admin):
     @DecorateClass('CHATAPP-T3312')
     def test_app_email_registration(self):
         self.test_admin_login()
-        self.test_logout()
+        self.test_logout(self.app_account)
         mail_address = 'qa5@tengyuntech.com'
 
         # ============== 後台"關閉"極驗 =======================================================
@@ -782,9 +782,9 @@ class ContextTestCase(BaseTestCase, BasePage_Web, BasePage_Admin):
         # ============== email註冊帳號 =======================================================
         self.ap.main_page().register_by_email(self.mail_account_id, mail_address, self.mail_password)
         # ============== 登出後再登入 =======================================================
-        self.test_logout()
+        self.test_logout(self.mail_account_id)
         self.ap.main_page().login(mail_address, self.mail_password, login_method='email')
-        self.test_logout()
+        self.test_logout(self.mail_account_id)
         # ============== 後台"開啟"極驗 =======================================================
         self.function_dict['ad'].main_page().enable_geetest(True)
         # ============== 後台刪除該帳號 ========================================================
@@ -794,7 +794,7 @@ class ContextTestCase(BaseTestCase, BasePage_Web, BasePage_Admin):
     @DecorateClass('CHATAPP-T3352')
     def test_app_email_forgetPW(self):
         self.test_admin_login()
-        self.test_logout()
+        self.test_logout(self.app_account)
         newPW = '000111abc'
         # ============== 後台"關閉"極驗 ======================================================
         self.function_dict['ad'].main_page().into_system_app_setting()
@@ -817,8 +817,8 @@ class ContextTestCase(BaseTestCase, BasePage_Web, BasePage_Admin):
                 self.ap.main_page().login(self.app_phone, self.app_password, self.app_nation)
             self._login_status[0] = True
 
-    def test_logout(self):
-        if self.ap.main_page().check_login_status() is True:
+    def test_logout(self, account):
+        if self.ap.main_page().check_login_status(account) is True:
             self.ap.main_page().into_main_page()
             self.ap.main_page().into_main_setting_page()
             self.ap.member_page().into_security()
