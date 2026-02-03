@@ -29,3 +29,4 @@
 
 # 忽略webdriver自動下載folder
 driver/driver/.wdm
+Project/chat/test_medias/sample_3840x2160.m4v
