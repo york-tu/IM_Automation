@@ -29,4 +29,6 @@
 
 # 忽略webdriver自動下載folder
 driver/driver/.wdm
+
+# 大檔案不納入版控（超過 GitHub 100MB 限制）
 Project/chat/test_medias/sample_3840x2160.m4v
