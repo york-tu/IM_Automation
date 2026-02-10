@@ -84,7 +84,8 @@ class JiraApi(Common):
             comment = 'automation test'
 
         if status != 'pass' and status != 'skip':
-            last_comment = comment.split('<br>')[-2]
+            parts = comment.split('<br>')
+            last_comment = parts[-2] if len(parts) >= 2 else (parts[-1] if parts else comment)
             img_path_list = self.upload_testcase_img(certification)
 
             if img_path_list == None:

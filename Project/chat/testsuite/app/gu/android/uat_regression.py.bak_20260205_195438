@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import os
 import sys
 import unittest
@@ -24,9 +23,8 @@ connect_type = 'local'  # 手機連線模式 remote or local
 phone_name = 'HUAWEI_MATE_30_PRO_5G'  # 手機型號
 phone_platform = 'Android'  # 手機作業系統
 app_version = '2.20.1-rc.1'  # 版本號
-account_type = 'phone'  # 帳號類型: email, phone...
+account_type = 'phone'  # 帳號類型: mail, phone...
 push = True  # 將結果推倒jira, 預設請給予 True
-
 # ============================================== S1 Test Cases ===================================================
 # -------------- 私聊相關功能測試 --------------
 s1_personal_chat_regression_list = [
@@ -39,7 +37,7 @@ s1_personal_chat_regression_list = [
     AppTestCase("test_change_password"),
     AppTestCase("test_account_info"),
     AppTestCase("test_add_friend"),
-                            # AppTestCase("test_friend_remark"),
+    AppTestCase("test_friend_remark"),
     AppTestCase("test_send_message"),
     AppTestCase('test_send_voice_message'),
     AppTestCase('test_send_file_message'),
@@ -87,6 +85,7 @@ s1_social_regression_list = [
     AppTestCase('test_social_share_self_post'),  # 分享"自己貼文"到群組
     AppTestCase('test_social_share_others_post'),  # 分享"他人貼文"到群組
 ]
+
 # ============================================== S2 Test cases ===================================================
 # -------------- 私聊相關功能測試 --------------
 s2_personal_chat_regression_list = [
@@ -101,10 +100,12 @@ s2_personal_chat_regression_list = [
     AppTestCase("test_block_setting"),
     AppTestCase("test_unblock_friend"),
     AppTestCase("test_share_message"),
+    
     AppTestCase("test_message_pin"),
     AppTestCase("test_message_pin_reply"),
     AppTestCase("test_message_pin_delete"),
     AppTestCase("test_message_pin_revoke"),
+    
     AppTestCase("test_message_copy"),
     AppTestCase("test_message_reply"),
     AppTestCase("test_message_delete"),
@@ -112,6 +113,7 @@ s2_personal_chat_regression_list = [
     AppTestCase("test_message_reply_delete"),
     AppTestCase("test_message_reply_revoke"),
     AppTestCase("test_message_emoji"),
+    
     AppTestCase('test_voice_message_reply'),
     AppTestCase('test_voice_message_delete'),
     AppTestCase('test_voice_message_revoke'),
@@ -154,7 +156,7 @@ s2_social_regression_list = [
 # -------------- 其他功能測試 --------------
 s2_combination_regression_list = [
     ContextTestCase("test_app_email_registration"),  # 測試-email註冊 (後台需先關閉極驗)
-    ContextTestCase("test_app_email_forgetPW"),  # 測試-email登入時忘記密碼 > 重設
+    # ContextTestCase("test_app_email_forgetPW"),  # 測試-email登入時忘記密碼 > 重設
 ]
 
 s1_test_cases = (s1_personal_chat_regression_list + s1_group_chat_regression_list + s1_grab_red_envelop_regression_list
@@ -194,8 +196,8 @@ if __name__ == '__main__':
     gl.set_value('PUSH', push)
 
     # TestCase add：S1 跑完 + retry 失敗後發 S1 報告到 Slack，再跑 S2 + retry 後發 S2 報告到 Slack
-    suite_s1 = unittest.TestSuite()
-    suite_s1.addTests(s1_test_cases)  # total 47*s1
+    # suite_s1 = unittest.TestSuite()
+    # suite_s1.addTests(s1_test_cases)  # total 47*s1
     suite_s2 = unittest.TestSuite()
     suite_s2.addTests(s2_test_cases)  # total 50*s2 + 3*s1
 

@@ -205,7 +205,7 @@ class SocialMediaPostPage(Base):
     def _select_video_cover(self):
         assert self.common.poco_get_text(SocialMediaPostPageLocator.video_select_cover) == "选择封面", '未出現"选择封面"字串'
         self.common.poco_click(SocialMediaPostPageLocator.video_select_cover)
-        sleep(3)
+        sleep(5)
         assert self.common.poco_get_text(
             SocialMediaPostPageLocator.video_select_frame_hint) == '左右滑动，选择最优的封面', '進入封面設定頁or提示訊息有誤'
         self.common.poco_click(SocialMediaPostPageLocator.video_cover_select(random.randint(-9, -1)))

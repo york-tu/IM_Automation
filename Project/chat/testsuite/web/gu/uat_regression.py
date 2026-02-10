@@ -22,79 +22,79 @@ push = True  # 將結果推倒jira, 預設請給予 True
 # ============================================== S1 Test Cases ===================================================
 s1_web_regression_list = [
     WebTestCase("test_web_login"),  # 測試-登入
-    # WebTestCase("test_account_info"),  # 測試-檢查帳號與手機號碼
-    # WebTestCase("test_change_password"),  # 測試-變更登入密碼
-    # WebTestCase("test_change_nickname"),  # 測試-更改個人暱稱
-    # WebTestCase("test_notify_switch"),   # 測試-訊息通知開關
-    # WebTestCase("test_add_friend"),  # 測試-新增好友
-    # WebTestCase("test_friend_remark"),  # 測試-好友暱稱
-    # WebTestCase("test_block_friend"),  # 測試-好友黑名單
-    # WebTestCase("test_block_setting"),  # 測試-好友黑名單設定
-    # WebTestCase("test_unblock_friend"),  # 測試-解除好友黑名單
-    # WebTestCase("test_send_message"),  # 測試-個人發送文字超連結訊息
-    # WebTestCase("test_message_copy"),  # 測試-個人訊息複製
-    # WebTestCase("test_message_reply"),  # 測試-個人訊息回覆
-    # WebTestCase("test_message_revoke"),  # 測試-個人訊息撤回
-    # WebTestCase("test_message_pin"),  # 測試-個人訊息設置公告
-    # WebTestCase("test_send_file_message"),  # 測試-個人發送檔案
-    # WebTestCase("test_file_message_reply"),  # 測試-個人檔案訊息回覆
-    # WebTestCase("test_file_message_revoke"),  # 測試-個人檔案訊息撤回
-    # WebTestCase("test_groups_build"),  # 測試-建立群組
-    # WebTestCase("test_group_name_change"),  # 測試-變更群組名稱
-    # WebTestCase("test_group_rule_all"),  # 測試-變更群組權限設定
-    # WebTestCase("test_send_message_group"),  # 測試-群組發送文字超連結訊息
-    # WebTestCase("test_message_copy_group"),  # 測試-群組訊息複製
-    # WebTestCase("test_message_reply_group"),   # 測試-群組發訊息回覆
-    # WebTestCase("test_message_revoke_group"),   # 測試-群組訊息撤回
-    # WebTestCase("test_message_pin_group"),  # 測試-群組訊息設置公告
-    # WebTestCase("test_send_file_message_group"),  # 測試-群組發送檔案
-    # WebTestCase("test_file_message_reply_group"),  # 測試-群組檔案訊息回覆
-    # WebTestCase("test_file_message_revoke_group"),  # 測試-群組檔案訊息撤回
-    # WebTestCase("test_delete_friend"),  # 測試-刪除好友
-    # WebTestCase("test_web_logout"),  # 測試-登出
+    WebTestCase("test_account_info"),  # 測試-檢查帳號與手機號碼
+    WebTestCase("test_change_password"),  # 測試-變更登入密碼
+    WebTestCase("test_change_nickname"),  # 測試-更改個人暱稱
+    WebTestCase("test_notify_switch"),   # 測試-訊息通知開關
+    WebTestCase("test_add_friend"),  # 測試-新增好友
+    WebTestCase("test_friend_remark"),  # 測試-好友暱稱
+    WebTestCase("test_block_friend"),  # 測試-好友黑名單
+    WebTestCase("test_block_setting"),  # 測試-好友黑名單設定
+    WebTestCase("test_unblock_friend"),  # 測試-解除好友黑名單
+    WebTestCase("test_send_message"),  # 測試-個人發送文字超連結訊息
+    WebTestCase("test_message_copy"),  # 測試-個人訊息複製
+    WebTestCase("test_message_reply"),  # 測試-個人訊息回覆
+    WebTestCase("test_message_revoke"),  # 測試-個人訊息撤回
+    WebTestCase("test_message_pin"),  # 測試-個人訊息設置公告
+    WebTestCase("test_send_file_message"),  # 測試-個人發送檔案
+    WebTestCase("test_file_message_reply"),  # 測試-個人檔案訊息回覆
+    WebTestCase("test_file_message_revoke"),  # 測試-個人檔案訊息撤回
+    WebTestCase("test_groups_build"),  # 測試-建立群組
+    WebTestCase("test_group_name_change"),  # 測試-變更群組名稱
+    WebTestCase("test_group_rule_all"),  # 測試-變更群組權限設定
+    WebTestCase("test_send_message_group"),  # 測試-群組發送文字超連結訊息
+    WebTestCase("test_message_copy_group"),  # 測試-群組訊息複製
+    WebTestCase("test_message_reply_group"),   # 測試-群組發訊息回覆
+    WebTestCase("test_message_revoke_group"),   # 測試-群組訊息撤回
+    WebTestCase("test_message_pin_group"),  # 測試-群組訊息設置公告
+    WebTestCase("test_send_file_message_group"),  # 測試-群組發送檔案
+    WebTestCase("test_file_message_reply_group"),  # 測試-群組檔案訊息回覆
+    WebTestCase("test_file_message_revoke_group"),  # 測試-群組檔案訊息撤回
+    WebTestCase("test_delete_friend"),  # 測試-刪除好友
+    WebTestCase("test_web_logout"),  # 測試-登出
 ]
 s1_admin_regression_list = [
-    # AdminTestCase("test_admin_login"),  # 測試-ADMIN登入
-    # AdminTestCase("test_into_and_check_member_list"),  # 測試-進入會員列表並檢查基本資訊
-    # AdminTestCase("test_into_and_check_member_level"),  # 測試-進入會員層級並檢查基本資訊
-    # AdminTestCase("test_into_and_check_groups_list"),  # 測試-進入群組列表
-    # AdminTestCase("test_into_groups_set"),  # 測試-進入群組設定
-    # AdminTestCase("test_into_groups_own"),  # 測試-進入群組建立成員
-    # AdminTestCase("test_into_share_code_setting"),  # 測試-後台登入不同權限帳號,確認對應'邀請碼管理'頁顯示與不顯示
-    # AdminTestCase("test_into_system_maintenance"),  # 測試-進入APP/Web维护
-    # AdminTestCase("test_into_system_app_setting"),  # 測試-進入APP/Web设定
-    # AdminTestCase("test_into_setting_account"),   # 測試-進入帳號管理
-    # AdminTestCase("test_into_setting_role"),  # 測試-進入角色權限
-    # AdminTestCase("test_into_logging"),  # 測試-進入操作日誌
-    # AdminTestCase("test_into_red_list"),  # 測試-進入紅包列表
-    # AdminTestCase("test_into_red_integral"),  # 測試-進入積分使用紀錄
-    # AdminTestCase("test_into_red_water"),  # 測試-進入水量控制
-    # AdminTestCase("test_build_group_permission"),  # 測試-群組建立權限設定
-    # AdminTestCase("test_manual_create_account"),  # 測試-人工創建帳號
-    # AdminTestCase("test_member_revise_remark"),  # 測試-設定備註
-    # AdminTestCase("test_member_change_data"),  # 測試-修改資料
-    # AdminTestCase("test_member_reset_security_password"),  # 測試-重製安全密碼
-    # AdminTestCase("test_member_change_password"),  # 測試-變更密碼
-    # AdminTestCase("test_member_search_function"),   # 測試-搜尋功能
-    # AdminTestCase("test_manual_create_account_delete"),  # 測試-刪除人工創建帳號
-    # AdminTestCase("test_group_delete"),  # 測試-刪除群組
+    AdminTestCase("test_admin_login"),  # 測試-ADMIN登入
+    AdminTestCase("test_into_and_check_member_list"),  # 測試-進入會員列表並檢查基本資訊
+    AdminTestCase("test_into_and_check_member_level"),  # 測試-進入會員層級並檢查基本資訊
+    AdminTestCase("test_into_and_check_groups_list"),  # 測試-進入群組列表
+    AdminTestCase("test_into_groups_set"),  # 測試-進入群組設定
+    AdminTestCase("test_into_groups_own"),  # 測試-進入群組建立成員
+    AdminTestCase("test_into_share_code_setting"),  # 測試-後台登入不同權限帳號,確認對應'邀請碼管理'頁顯示與不顯示
+    AdminTestCase("test_into_system_maintenance"),  # 測試-進入APP/Web维护
+    AdminTestCase("test_into_system_app_setting"),  # 測試-進入APP/Web设定
+    AdminTestCase("test_into_setting_account"),   # 測試-進入帳號管理
+    AdminTestCase("test_into_setting_role"),  # 測試-進入角色權限
+    AdminTestCase("test_into_logging"),  # 測試-進入操作日誌
+    AdminTestCase("test_into_red_list"),  # 測試-進入紅包列表
+    AdminTestCase("test_into_red_integral"),  # 測試-進入積分使用紀錄
+    AdminTestCase("test_into_red_water"),  # 測試-進入水量控制
+    AdminTestCase("test_build_group_permission"),  # 測試-群組建立權限設定
+    AdminTestCase("test_manual_create_account"),  # 測試-人工創建帳號
+    AdminTestCase("test_member_revise_remark"),  # 測試-設定備註
+    AdminTestCase("test_member_change_data"),  # 測試-修改資料
+    AdminTestCase("test_member_reset_security_password"),  # 測試-重製安全密碼
+    AdminTestCase("test_member_change_password"),  # 測試-變更密碼
+    AdminTestCase("test_member_search_function"),   # 測試-搜尋功能
+    AdminTestCase("test_manual_create_account_delete"),  # 測試-刪除人工創建帳號
+    AdminTestCase("test_group_delete"),  # 測試-刪除群組
 ]
 s1_exchange_related_list = [
-    # WebTestCase("test_manual_deposit_and_withdraw"),  # 測試-人工存入&人工提出積分
+    WebTestCase("test_manual_deposit_and_withdraw"),  # 測試-人工存入&人工提出積分
     # ======================積分兌換=====================================
     # ---------- 順付 ---------
-    # WebTestCase("test_exchange_wellpay"),  # 測試-綁定正確的錢包並兌換積分 (順付)
-    # AdminTestCase("test_exchange_success_recode"),   # 測試-順付成功積分紀錄
+    WebTestCase("test_exchange_wellpay"),  # 測試-綁定正確的錢包並兌換積分 (順付)
+    AdminTestCase("test_exchange_success_recode"),   # 測試-順付成功積分紀錄
     # ---------- 平臺 ---------
-    # WebTestCase("test_exchange_brand"),  # 測試-綁定平臺SC,兌換積分,確認兌換紀錄
+    WebTestCase("test_exchange_brand"),  # 測試-綁定平臺SC,兌換積分,確認兌換紀錄
 ]
 s1_red_envelope_related_list = [
-    # AdminTestCase("test_add_redenvelope"),  # 測試-[後台]新增紅包
-    # AdminTestCase("test_check_red_envelope"),  # 測試-[後台]檢查紅包詳情
-    # WebTestCase("test_grab_red_envelope"),  # 測試-[前台]搶紅包
-    # AdminTestCase("test_add_luck_redenvelope"),  # 測試-[後台]新增拚手氣紅包
-    # AdminTestCase("test_check_luck_red_envelope"),  # 測試-[後台]檢查拚手氣紅包詳情
-    # WebTestCase("test_grab_luck_red_envelope"),  # 測試-[前台]搶拚手氣紅包
+    AdminTestCase("test_add_redenvelope"),  # 測試-[後台]新增紅包
+    AdminTestCase("test_check_red_envelope"),  # 測試-[後台]檢查紅包詳情
+    WebTestCase("test_grab_red_envelope"),  # 測試-[前台]搶紅包
+    AdminTestCase("test_add_luck_redenvelope"),  # 測試-[後台]新增拚手氣紅包
+    AdminTestCase("test_check_luck_red_envelope"),  # 測試-[後台]檢查拚手氣紅包詳情
+    WebTestCase("test_grab_luck_red_envelope"),  # 測試-[前台]搶拚手氣紅包
 ]
 
 # ============================================== S2 Test Cases ===================================================
@@ -157,9 +157,6 @@ s2_test_cases = (s2_web_regression_list + s2_admin_regression_list + s2_exchange
                  + s2_red_envelope_related_list)
 all_test_cases = (s1_test_cases + s2_test_cases)
 
-# TestCase frame add
-suite = unittest.TestSuite()
-
 if __name__ == "__main__":
     gl._init()
 
@@ -184,10 +181,13 @@ if __name__ == "__main__":
     BaseKey().get_jira_data()
     gl.set_value('PUSH', push)
 
-    # TestCase add
-    suite.addTests(s1_test_cases)  # total 65*s1
-    # suite.addTests(s2_test_cases)  # total 37*s2 + 5*s1
-    # suite.addTests(all_test_cases)  # total 102
+    # TestCase add：S1 跑完 + retry 失敗後發 S1 報告到 Slack，再跑 S2 + retry 後發 S2 報告到 Slack
+    suite_s1 = unittest.TestSuite()
+    suite_s1.addTests(s1_test_cases)  # total 65*s1
+    suite_s2 = unittest.TestSuite()
+    suite_s2.addTests(s2_test_cases)  # total 37*s2 + 5*s1
 
-    # RunningTest
-    Utils.unittest_xml(suite)
+    # S1：跑完 + retry 失敗案例 → 發 S1 報告到 Slack
+    Utils.unittest_xml_with_retry_and_slack(suite_s1, report_label='S1', run_check_last_result=False)
+    # S2：跑完 + retry 失敗案例 → 發 S2 報告到 Slack，並執行 Jira check_last_result
+    Utils.unittest_xml_with_retry_and_slack(suite_s2, report_label='S2', run_check_last_result=True)

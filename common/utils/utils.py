@@ -1,8 +1,62 @@
-import datetime, re, platform, os, sys, xmlrunner
+import datetime, re, platform, os, sys, time, xmlrunner
 DIR_NAME = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 sys.path.append(DIR_NAME)
 import common.utils.globalvar as gl
 from jira.jira_api import JiraApi
+from common.utils.retry_runner import RetryXMLTestRunner
+from configs.app.setting import Setting
+
+
+class FilteredStream(object):
+    """包裝 stream，過濾 [pocoservice.apk] / INSTRUMENTATION_RESULT 重複訊息並移除空白行。"""
+
+    def __init__(self, stream):
+        self._stream = stream
+        self._buffer = ''
+        self._last_was_blank = False
+
+    def _should_skip(self, line):
+        s = line.strip()
+        if '[pocoservice.apk]' in line:
+            return True
+        if 'INSTRUMENTATION_RESULT' in line or ('Process crashed' in line and 'INSTRUMENTATION' in line):
+            return True
+        if 'urllib3.connectionpool' in line and ('Retrying' in line or 'connection broken' in line):
+            return True
+        if 'NewConnectionError' in line or 'WinError 10061' in line:
+            return True
+        if s == '':
+            return True
+        return False
+
+    def write(self, s):
+        if not isinstance(s, str):
+            s = str(s)
+        self._buffer += s
+        while '\n' in self._buffer or '\r' in self._buffer:
+            idx = len(self._buffer)
+            for sep in ('\r\n', '\n', '\r'):
+                i = self._buffer.find(sep)
+                if i != -1:
+                    idx = min(idx, i)
+            if idx == len(self._buffer):
+                break
+            sep = '\r\n' if self._buffer[idx:idx + 2] == '\r\n' else (self._buffer[idx] if idx < len(self._buffer) else '\n')
+            line = self._buffer[:idx]
+            self._buffer = self._buffer[idx + len(sep):]
+            if not self._should_skip(line):
+                self._stream.write(line + sep)
+
+    def writeln(self, s=''):
+        self.write(s + '\n')
+
+    def flush(self):
+        if self._buffer and not self._should_skip(self._buffer):
+            self._stream.write(self._buffer)
+        self._buffer = ''
+        self._stream.flush()
+
+
 class Utils(JiraApi):
     report = ''
     testcase_key = []
@@ -35,6 +89,132 @@ class Utils(JiraApi):
         runner = xmlrunner.XMLTestRunner(output=folderpath, verbosity=2)
         Utils.report = runner.run(suite)
         Utils.check_last_result(Utils)
+
+    @staticmethod
+    def send_slack_notification(result, folderpath, report_label=None, time_taken=None):
+        """
+        將測試結果摘要發送到 Slack。
+        :param result: XMLTestRunner 的 result 物件（含 testsRun, failures, errors, skipped）
+        :param folderpath: 報告目錄路徑
+        :param report_label: 報告標籤，例如 'S1'、'S2'，會顯示在標題中
+        :param time_taken: 總耗時（秒），若為 None 則不顯示
+        """
+        try:
+            webhook_url = Setting.get_slack_webhook_url()
+            if not webhook_url:
+                return
+            import requests
+            env = gl.get_value('ENV', 'uat').upper()
+            brand = gl.get_value('BRAND', 'gu').upper()
+            test_type = gl.get_value('TEST_TYPE', 'app_ios')
+            tt = test_type.lower() if test_type else ''
+            if 'ios' in tt:
+                platform_label = 'iOS'
+            elif 'web' in tt:
+                platform_label = 'Web'
+            elif 'wap' in tt:
+                platform_label = 'WAP'
+            else:
+                platform_label = 'Android'
+            label_part = (' [%s]' % report_label) if report_label else ''
+            passed = result.testsRun - len(result.failures) - len(result.errors) - len(result.skipped)
+            failed = len(result.failures) + len(result.errors)
+            is_ok = result.wasSuccessful()
+            title = '%s [%s][%s][%s]%s Automation Regression Result' % (
+                '✅' if is_ok else '❌', env, brand, platform_label, label_part
+            )
+            time_str = '%.2f min' % (time_taken / 60.0) if time_taken is not None else '-'
+            report_path_display = folderpath.replace('\\', '/')
+            def _short_name(full_name):
+                """簡化為 ClassName.method_name"""
+                if not full_name:
+                    return full_name
+                parts = full_name.split('.')
+                if len(parts) >= 2:
+                    return parts[-2] + '.' + parts[-1]
+                return full_name
+
+            failed_items = []
+            for ti, _ in getattr(result, 'failures', []):
+                name = getattr(ti, 'test_id', None) or getattr(ti, '_test_id', None) or str(ti)
+                failed_items.append('%s (FAIL)' % _short_name(name))
+            for ti, _ in getattr(result, 'errors', []):
+                name = getattr(ti, 'test_id', None) or getattr(ti, '_test_id', None) or str(ti)
+                failed_items.append('%s (ERROR)' % _short_name(name))
+            failed_items = failed_items[:20]
+            if (len(result.failures) + len(result.errors)) > 20:
+                failed_items.append('... 還有更多失敗項目')
+            app_version = gl.get_value('APP_VERSION', '-')
+            blocks = [
+                {"type": "header", "text": {"type": "plain_text", "text": title, "emoji": True}},
+                {"type": "section", "text": {"type": "mrkdwn", "text": "*📊 測試統計*"}},
+                {"type": "section", "fields": [
+                    {"type": "mrkdwn", "text": "*🕐 總耗時*\n%s" % time_str},
+                    {"type": "mrkdwn", "text": "*📋 總案例數*\n%d 條" % result.testsRun},
+                    {"type": "mrkdwn", "text": "*✅ Pass*\n%d 條" % passed},
+                    {"type": "mrkdwn", "text": "*❌ Fail*\n%d 條" % failed},
+                    {"type": "mrkdwn", "text": "*⏭️ Skipped*\n%d 條" % len(result.skipped)},
+                    {"type": "mrkdwn", "text": "*📦 版本號*\n%s" % app_version},
+                ]},
+                {"type": "section", "text": {"type": "mrkdwn", "text": "*📁 報告路徑*\n%s" % report_path_display}},
+            ]
+            if failed_items:
+                blocks.append({"type": "section", "text": {"type": "mrkdwn", "text": "*失敗項目*\n" + "\n".join(failed_items)}})
+            payload = {"blocks": blocks}
+            requests.post(webhook_url, json=payload, timeout=10)
+        except Exception as e:
+            print('Slack 通知發送失敗: %s' % e)
+
+    @staticmethod
+    def unittest_xml_with_retry_and_slack(suite, report_label=None, run_check_last_result=False):
+        """
+        執行測試（含失敗重試 1 次）、寫入 XML 報告，並將該段結果發送到 Slack。
+        若 report_label 為 'S1'/'S2'，報告會寫入子目錄 S1/、S2/，且 Slack 標題會帶上標籤。
+        :param suite: unittest.TestSuite
+        :param report_label: 例如 'S1'、'S2'，用於子目錄與 Slack 標題
+        :param run_check_last_result: 是否在本次跑完後呼叫 check_last_result（通常僅最後一段設 True）
+        """
+        gl.set_value('STATUS', ['amount', 'errors', 'failures', 'skipped'])
+        gl.set_value('HOLD', '')
+        env = gl.get_value('ENV')
+        brand = gl.get_value('BRAND')
+        test_type = gl.get_value('TEST_TYPE')
+        basename = os.path.basename(os.path.splitext(sys.argv[0])[0])
+        if len(sys.argv) == 1:
+            base_dir = os.path.dirname(os.path.abspath(__file__)) + "/../Test-Reports/" + test_type + "/" + env + "/" + brand + "/" + basename + "/"
+        else:
+            base_dir = os.getcwd() + "/" + 'Test-Reports' + "/" + "Jenkins" + "/" + test_type + "/" + env + "/" + brand + "/" + basename + "/"
+        ts = datetime.datetime.now().strftime('%Y-%m-%d_%H%M%S')
+        if report_label:
+            existing_base = gl.get_value('REPORT_BASE_PATH')
+            if existing_base:
+                base_with_ts = existing_base
+            else:
+                base_with_ts = base_dir + ts + "/"
+                gl.set_value('REPORT_BASE_PATH', base_with_ts)
+            folderpath = base_with_ts + report_label + "/"
+        else:
+            folderpath = base_dir + ts + "/"
+        gl.set_value('FOLDER_PATH', folderpath)
+        if not os.path.exists(folderpath):
+            os.makedirs(folderpath)
+        print(folderpath)
+        _orig_stdout, _orig_stderr = sys.stdout, sys.stderr
+        filtered_stdout = FilteredStream(_orig_stdout)
+        filtered_stderr = FilteredStream(_orig_stderr)
+        sys.stdout, sys.stderr = filtered_stdout, filtered_stderr
+        runner = RetryXMLTestRunner(output=folderpath, verbosity=2, max_retries=1, retry_delay=5, stream=filtered_stderr)
+        start_time = time.time()
+        try:
+            Utils.report = runner.run(suite)
+        finally:
+            filtered_stdout.flush()
+            filtered_stderr.flush()
+            sys.stdout, sys.stderr = _orig_stdout, _orig_stderr
+        time_taken = time.time() - start_time
+        Utils.send_slack_notification(Utils.report, folderpath, report_label=report_label, time_taken=time_taken)
+        if run_check_last_result:
+            Utils.check_last_result(Utils)
 
     @staticmethod
     def unittest_html(unittest, Testcase):
@@ -72,25 +252,28 @@ class Utils(JiraApi):
         if gl.get_value('PUSH') != True:
             return
 
-        certification = JiraApi().jira_login() # jira登入
-        # JiraApi().set_cycle_result(certification, gl.get_value('CYCLE_KEY'), gl.get_value('TESTCASE_KEY')[0], 'in progress') # 初始化測試結果
+        testcase_key = gl.get_value('TESTCASE_KEY')
+        if not testcase_key or not isinstance(testcase_key, (list, tuple)) or len(testcase_key) == 0:
+            return
+        cycle_key = gl.get_value('CYCLE_KEY')
+        if not cycle_key:
+            return
 
-        if gl.get_value('TESTCASE_KEY') != None:
-            resultcount = gl.get_value('RESULT_COUNT')
-            orange_result = re.findall("[0-9]+", str(gl.get_value('RESULT')))
-            finally_result = re.findall("[0-9]+", str(self.report))
+        certification = JiraApi().jira_login()  # jira登入
+        resultcount = gl.get_value('RESULT_COUNT')
+        orange_result = re.findall("[0-9]+", str(gl.get_value('RESULT')))
+        finally_result = re.findall("[0-9]+", str(self.report))
 
-            if finally_result != orange_result or finally_result[0] == finally_result[1] or resultcount[1:] != finally_result[1:]:
-                result = gl.get_value('RESULT')
-                if resultcount[1] != finally_result[1]:
-                    gl.set_value('ERROR', result.errors)
-                else:
-                    gl.set_value('FAILURE', result.failures)
-                # jira api
-                JiraApi().set_cycle_result(certification, gl.get_value('CYCLE_KEY'), gl.get_value('TESTCASE_KEY')[0], 'fail')
+        key = testcase_key[0]
+        if finally_result != orange_result or finally_result[0] == finally_result[1] or resultcount[1:] != finally_result[1:]:
+            result = gl.get_value('RESULT')
+            if resultcount[1] != finally_result[1]:
+                gl.set_value('ERROR', result.errors)
             else:
-                # jira api
-                JiraApi().set_cycle_result(certification, gl.get_value('CYCLE_KEY'), gl.get_value('TESTCASE_KEY')[0], 'pass')
+                gl.set_value('FAILURE', result.failures)
+            JiraApi().set_cycle_result(certification, cycle_key, key, 'fail')
+        else:
+            JiraApi().set_cycle_result(certification, cycle_key, key, 'pass')
 
     # 檢查這次測試案例的結果
     def check_test_result(self, id, key, result):

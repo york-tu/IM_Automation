@@ -13,11 +13,11 @@ root_path = os.path.dirname(
 sys.path.append(root_path)
 
 # Test Setting
-env = 'prod'  # uat, prod
+env = 'uat'  # uat, prod
 brand = 'gu'
 user = 1
 test_type = 'wap'
-wap_version = '2.12.0'
+wap_version = '2.11.0'
 os_version = 'Win11'  # 作業系統
 platform = 'PC'  # 測試環境
 account_type = 'phone'  # 帳號類型: mail, phone...
@@ -102,9 +102,6 @@ s2_test_cases = (s2_personal_chat_case_list + s2_group_chat_case_list + s2_combi
 prod_test_cases = (s1_personal_chat_case_list + s1_group_chat_case_list + s2_personal_chat_case_list
                    + s2_group_chat_case_list)
 
-# TestCase frame add
-suite = unittest.TestSuite()
-
 if __name__ == "__main__":
     gl._init()
 
@@ -133,13 +130,13 @@ if __name__ == "__main__":
     BaseKey().get_jira_data()
     gl.set_value('PUSH', push)
 
-    # TestCase add
-    # ================== UAT ==================
-    # suite.addTests(s1_test_cases)  # total 32*s1
-    # suite.addTests(s2_test_cases)  # total 18*s2 + 2*s1
+    # TestCase add：S1 跑完 + retry 失敗後發 S1 報告到 Slack，再跑 S2 + retry 後發 S2 報告到 Slack
+    suite_s1 = unittest.TestSuite()
+    suite_s1.addTests(s1_test_cases)  # total 32*s1
+    suite_s2 = unittest.TestSuite()
+    suite_s2.addTests(s2_test_cases)  # total 18*s2 + 2*s1
 
-    # ================== Prod ==================
-    suite.addTests(prod_test_cases)  # total 45
-
-    # RunningTest
-    Utils.unittest_xml(suite)
+    # S1：跑完 + retry 失敗案例 → 發 S1 報告到 Slack
+    Utils.unittest_xml_with_retry_and_slack(suite_s1, report_label='S1', run_check_last_result=False)
+    # S2：跑完 + retry 失敗案例 → 發 S2 報告到 Slack，並執行 Jira check_last_result
+    Utils.unittest_xml_with_retry_and_slack(suite_s2, report_label='S2', run_check_last_result=True)

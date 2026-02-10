@@ -1,0 +1,14 @@
+C:\automated_test_0219\common\utils/../Test-Reports/app_android/uat/gu/uat_regression/2026-02-05_161710/S2/
+Running tests...
+----------------------------------------------------------------------
+  test_notify_switch (Project.chat.app.testcase.app_testcase.AppTestCase) ... ERROR (9.461s)
+  test_detail_switch (Project.chat.app.testcase.app_testcase.AppTestCase) ... ERROR (8.566s)
+  test_voice_switch (Project.chat.app.testcase.app_testcase.AppTestCase) ... ERROR (8.342s)
+  test_vibration_switch (Project.chat.app.testcase.app_testcase.AppTestCase) ... ERROR (8.232s)
+  test_about_terms (Project.chat.app.testcase.app_testcase.AppTestCase) ... ERROR (8.073s)
+  test_add_friend (Project.chat.app.testcase.app_testcase.AppTestCase) ... ERROR (13.822s)
+  test_add_myself (Project.chat.app.testcase.app_testcase.AppTestCase) ... ERROR (13.495s)
+  test_block_friend (Project.chat.app.testcase.app_testcase.AppTestCase) ... ERROR (14.130s)
+  test_block_setting (Project.chat.app.testcase.app_testcase.AppTestCase) ... ERROR (8.468s)
+  test_unblock_friend (Project.chat.app.testcase.app_testcase.AppTestCase) ... ERROR (8.237s)
+  test_share_message (Project.chat.app.testcase.app_testcase.AppTestCase) ... ERROR (21.886s)

@@ -1,0 +1,204 @@
+﻿import os
+import sys
+import unittest
+import logging
+
+root_path = os.path.dirname(
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
+sys.path.append(root_path)
+
+import common.utils.globalvar as gl
+from common.utils.utils import Utils
+from Project.chat.app.testcase.app_testcase import AppTestCase
+from Project.chat.app.testcase.context_testcase import ContextTestCase
+from jira.config.base_key import BaseKey
+
+logging.getLogger("airtest").setLevel(logging.WARNING)
+
+# Test Setting
+env = 'uat'
+brand = 'gu'
+user = 1
+connect_type = 'local'  # ?????璅∪? remote or local
+phone_name = 'HUAWEI_MATE_30_PRO_5G'  # ????
+phone_platform = 'Android'  # ??雿平蝟餌絞
+app_version = '2.20.1-rc.1'  # ???account_type = 'phone'  # 撣唾?憿?: mail, phone...
+push = True  # 撠???ira, ?身隢策鈭?True
+# ============================================== S1 Test Cases ===================================================
+# -------------- 蝘??賊??皜祈岫 --------------
+s1_personal_chat_regression_list = [
+    AppTestCase("test_login"),
+    AppTestCase("test_version_check"),
+    AppTestCase("test_into_member"),
+    AppTestCase("test_into_friend"),
+    AppTestCase("test_change_nickname_and_instructions"),
+    AppTestCase("test_free_up_space"),
+    AppTestCase("test_change_password"),
+    AppTestCase("test_account_info"),
+    AppTestCase("test_add_friend"),
+    AppTestCase("test_friend_remark"),
+    AppTestCase("test_send_message"),
+    AppTestCase('test_send_voice_message'),
+    AppTestCase('test_send_file_message'),
+    AppTestCase("test_delete_friend"),
+    AppTestCase("test_logout"),
+]
+# -------------- 蝢方??賊??皜祈岫 --------------
+s1_group_chat_regression_list = [
+    ContextTestCase("test_group_remove_admin"),  # 蝘駁 gubot03 蝞∠??⊥???    ContextTestCase("test_group_change_group_rules"),  # 蝢斤??甈?閮剖?
+    ContextTestCase("test_group_add_admin_and_change_admin_rules"),  # 撠?gubot03 ?蝞∠??∩蒂?湔蝞∟ㄐ?⊥???    AppTestCase("test_send_message_group"),
+    AppTestCase("test_message_copy_group"),
+    AppTestCase("test_message_reply_group"),
+    AppTestCase("test_message_delete_group"),
+    AppTestCase("test_message_revoke_group"),
+    AppTestCase("test_message_pin_group"),
+    AppTestCase("test_send_voice_message_group"),
+    AppTestCase('test_voice_message_reply_group'),
+    AppTestCase('test_voice_message_delete_group'),
+    AppTestCase('test_voice_message_revoke_group'),
+    AppTestCase('test_send_file_message_group'),
+    AppTestCase('test_file_message_reply_group'),
+    AppTestCase('test_file_message_delete_group'),
+    AppTestCase('test_file_message_revoke_group'),
+]
+# -------------- ?嗥??葫閰?--------------
+s1_grab_red_envelop_regression_list = [
+    ContextTestCase("test_app_grab_red_envelope"),
+    ContextTestCase("test_app_grab_luck_red_envelope"),
+    ContextTestCase("test_app_grab_bulk_upload_luck_red_envelope")
+]
+# -------------- 蝷曄黎?賊??皜祈岫 --------------
+s1_social_regression_list = [
+    AppTestCase("test_social_post_photo"),  # ?澆???
+    AppTestCase('test_social_post_video'),  # ?澆?敶梁?
+    AppTestCase("test_social_draft_photo"),  # ?澆??阮_??
+    AppTestCase("test_social_search"),  # ?揣閬 & ?冽
+    AppTestCase("test_social_follow_unfollow"),  # ?釣/???釣
+    AppTestCase("test_social_post_add_like_collect"),  # 鞎潭?暺??嗉?
+    AppTestCase("test_social_self_post_add_comments_reply_like"),  # ?芸楛鞎潭?閰?銝?閮??暺?
+    AppTestCase("test_social_other_post_add_comments_reply"),  # 隞犖鞎潭?閰?銝?閮??
+    AppTestCase('test_social_share_self_main_page'),
+    AppTestCase('test_social_share_other_main_page'),
+    AppTestCase('test_social_share_self_post'),
+    AppTestCase('test_social_share_others_post'),
+]
+# ============================================== S2 Test cases ===================================================
+# -------------- 蝘??賊??皜祈岫 --------------
+s2_personal_chat_regression_list = [
+    AppTestCase("test_notify_switch"),
+    AppTestCase("test_detail_switch"),
+    AppTestCase("test_voice_switch"),
+    AppTestCase("test_vibration_switch"),
+    AppTestCase("test_about_terms"),
+    AppTestCase("test_add_friend"),  # s1
+    AppTestCase("test_add_myself"),
+    AppTestCase("test_block_friend"),
+    AppTestCase("test_block_setting"),
+    AppTestCase("test_unblock_friend"),
+    AppTestCase("test_share_message"),
+    
+    AppTestCase("test_message_pin"),
+    AppTestCase("test_message_pin_reply"),
+    AppTestCase("test_message_pin_delete"),
+    AppTestCase("test_message_pin_revoke"),
+    
+    AppTestCase("test_message_copy"),
+    AppTestCase("test_message_reply"),
+    AppTestCase("test_message_delete"),
+    AppTestCase("test_message_revoke"),
+    AppTestCase("test_message_reply_delete"),
+    AppTestCase("test_message_reply_revoke"),
+    AppTestCase("test_message_emoji"),
+    
+    AppTestCase('test_voice_message_reply'),
+    AppTestCase('test_voice_message_delete'),
+    AppTestCase('test_voice_message_revoke'),
+    AppTestCase('test_file_message_reply'),
+    AppTestCase('test_file_message_delete'),
+    AppTestCase('test_file_message_revoke'),
+    AppTestCase("test_delete_friend"),  # s1
+    AppTestCase("test_logout"),  # s1
+]
+# -------------- 蝢方??賊??皜祈岫 --------------
+s2_group_chat_regression_list = [
+    ContextTestCase("test_group_add_and_remove_member"),  # ?末?(auto_test_7788) > 撠?蝢?> 撠?蝢?> ?芸末?
+    ContextTestCase("test_group_add_and_remove_block_member"),
+    AppTestCase("test_join_group_by_share_code"),
+    AppTestCase("test_message_pin_reply_group"),
+    AppTestCase("test_message_pin_delete_group"),
+    AppTestCase("test_message_pin_revoke_group"),
+    ContextTestCase("test_user_contact_whitelist_be_fe_linkage"),  # 皜祈岫-?瘛餃?憟賢?閮剖???蝡舫??
+    ContextTestCase("test_search_friend_by_phone_and_ID"),  # 皜祈岫-??ID/????蝝Ｘ溶??/???
+    ContextTestCase("test_admin_send_system_notification"),  # 敺?潮頂蝯梯???> ?蝣箄?蝟餌絞?
+    ContextTestCase("test_admin_send_group_msg"),  # 敺?潮黎蝯???> ?蝣箄?蝢文閮
+]
+# -------------- ?潛閮剖?皜祈岫 --------------
+s2_discover_regression_list = [
+    ContextTestCase("test_discover_list"),  # 敺???潛? > ?蝣箄???
+    AppTestCase("test_discover_floating_icon"),
+]
+# -------------- 蝷曄黎?賊??皜祈岫 --------------
+s2_social_regression_list = [
+    AppTestCase("test_social_change_account_privacy"),  # ??撣唾??梁?閮剖? > 蝣箄?隞犖蝡航???撌脤?韐?慦??
+    AppTestCase('test_social_post_with_different_privacy'),
+    ContextTestCase("test_social_change_post_privacy"),
+    ContextTestCase("test_post_removed_after_impeach_approve"),
+    ContextTestCase("test_post_view_then_check_views_and_viewers"),
+    ContextTestCase("test_social_change_poster_auto_audit_type"),
+    ContextTestCase("test_block_words_blocks_instructions_input"),
+    ContextTestCase("test_post_comment_when_social_permission_change"),
+    ContextTestCase("test_post_URL_when_post_permission_change"),  # 敺??鞎潭?閰?頞???? > ?蝣箄?閰???URL
+]
+# -------------- ?嗡??皜祈岫 --------------
+s2_combination_regression_list = [
+    ContextTestCase("test_app_email_registration"),  # 皜祈岫-email閮餃? (敺????扔撽?
+    # ContextTestCase("test_app_email_forgetPW"),  # 皜祈岫-email?餃??閮?蝣?> ?身
+]
+
+s1_test_cases = (s1_personal_chat_regression_list + s1_group_chat_regression_list + s1_grab_red_envelop_regression_list
+                 + s1_social_regression_list)
+s2_test_cases = (s2_personal_chat_regression_list + s2_group_chat_regression_list + s2_discover_regression_list
+                 + s2_social_regression_list + s2_combination_regression_list)
+
+if __name__ == '__main__':
+    gl._init()
+    # 隞丘MD?孵??瑁?
+    if len(sys.argv) == 1:
+        pass
+    elif len(sys.argv) > 2:
+        data = sys.argv[4].split(',,')
+        env = sys.argv[1]
+        brand = sys.argv[2]
+        user = sys.argv[3]
+        app_version = data[4]
+        connect_type = data[5]
+        phone_name = data[6]
+        specific_os_version = data[7]
+        push = bool(data[3])
+
+    gl.set_value('ENV', env)
+    gl.set_value('BRAND', brand)
+    gl.set_value('USER', int(user))
+    gl.set_value('CONNECT_TYPE', connect_type)
+    gl.set_value('PHONE_NAME', phone_name)
+    gl.set_value('PHONE_PLATFORM', phone_platform)  # 雿平蝟餌絞?迂
+    gl.set_value('APP_VERSION', app_version)
+    gl.set_value('ACCOUNT_TYPE', account_type)
+    # gl.set_value('SPECIFIC_OS_VERSION', specific_os_version)
+
+    # for jira config
+    gl.set_value('TEST_TYPE', 'app_android')  # android: app_android , ios: app_ios
+    BaseKey().get_jira_data()
+    gl.set_value('PUSH', push)
+
+    # TestCase add嚗1 頝? + retry 憭望?敺 S1 ?勗???Slack嚗?頝?S2 + retry 敺 S2 ?勗???Slack
+suite_s1 = unittest.TestSuite()
+suite_s1.addTests(s1_test_cases)  # total 47*s1
+# suite_s2 = unittest.TestSuite()
+# suite_s2.addTests(s2_test_cases)  # total 50*s2 + 3*s1
+
+    # S1嚗?摰?+ retry 憭望?獢? ????S1 ?勗???Slack
+Utils.unittest_xml_with_retry_and_slack(suite_s1, report_label='S1', run_check_last_result=False)
+    # S2嚗?摰?+ retry 憭望?獢? ????S2 ?勗???Slack嚗蒂?瑁? Jira check_last_result
+# Utils.unittest_xml_with_retry_and_slack(suite_s2, report_label='S2', run_check_last_result=True)
+

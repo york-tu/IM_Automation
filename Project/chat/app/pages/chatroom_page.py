@@ -1049,3 +1049,4 @@ class ChatRoomPage(Base):
         self.common.poco_wait_exists(ChatRoomPageLocator.option_delete_history)
         self.common.poco_click(ChatRoomPageLocator.option_delete_history)  # 刪除對話紀錄
         self.common.poco_click(ChatRoomPageLocator.menu_delete)  # 刪除確認
+        sleep(5)

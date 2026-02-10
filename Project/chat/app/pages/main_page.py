@@ -574,7 +574,8 @@ class MainPage(Base):
                 break
 
     def register_by_email(self, account, email, pw):
-        self.common.poco_click(MainPageLocator.main_btn)
+        if self.common.poco_exists(MainPageLocator.main_btn):
+            self.common.poco_click(MainPageLocator.main_btn)
         self.common.poco_click(MainPageLocator.new_login_page_use_email_btn)
         self.common.poco_click(MainPageLocator.register_button)
         self.common.poco_click(MainPageLocator.login_email_input)

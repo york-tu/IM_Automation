@@ -465,7 +465,10 @@ class RedEnvelopePage(BasePage):
                 self.click(RedEnvelopePageLocator.add_initiate_ID_select)
                 self.click(RedEnvelopePageLocator.add_red_select_all)
                 self.type(RedEnvelopePageLocator.luck_award_high, str(random.randint(10,100)))
-                self.click(RedEnvelopePageLocator.luck_now_initial)
+                self.click(RedEnvelopePageLocator.luck_now_initial)  # 即刻發布
+                self.click(RedEnvelopePageLocator.luck_expire_time)  # 紅包有效時間
+                expire_time = (datetime.datetime.now() + datetime.timedelta(minutes=10)).strftime("%Y-%m-%d %H:%M")
+                self.type(RedEnvelopePageLocator.luck_expire_time, expire_time)
                 self.click(RedEnvelopePageLocator.luck_award_calculate)
                 sleep(1)
                 self.click(RedEnvelopePageLocator.luck_single_picture)

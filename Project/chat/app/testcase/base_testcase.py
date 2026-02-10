@@ -16,6 +16,9 @@ from jira.module.base_module import UnittestModule
 # 設置 Airtest 的 logging 級別，隱藏 WARNING 訊息
 logging.getLogger('airtest.core.api').setLevel(logging.ERROR)
 logging.getLogger('airtest').setLevel(logging.ERROR)
+# 隱藏 urllib3 連線重試的 WARNING（session 斷線時 accept_alert / window_handles 會觸發）
+logging.getLogger('urllib3.connectionpool').setLevel(logging.ERROR)
+logging.getLogger('urllib3').setLevel(logging.ERROR)
 
 class BaseTestCase(UnittestModule):
     # TEST SETTING

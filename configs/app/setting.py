@@ -18,6 +18,15 @@ class Setting:
     def get_yaml_conf(self):
         """獲取 App 通用配置（使用 ConfigLoader）"""
         return config_loader.get_app_config()
+
+    @staticmethod
+    def get_slack_webhook_url():
+        """獲取 Slack Webhook URL（用於發送測試報告通知）"""
+        try:
+            conf = config_loader.get_app_config()
+            return (conf.get('slack') or {}).get('webhook_url') or ''
+        except Exception:
+            return ''
     
     def get_device_conf(self):
         """獲取手機配置（使用 ConfigLoader）"""

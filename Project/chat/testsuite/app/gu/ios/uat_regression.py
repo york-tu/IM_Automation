@@ -184,11 +184,13 @@ if __name__ == '__main__':
     # 自動啟動 iOS WDA
     Utils.start_wda_for_ios()
 
-    # TestCase add
-    suite = unittest.TestSuite()
-    # suite.addTests(s1_test_cases)  # total 44*s1
-    suite.addTests(s2_test_cases)  # total 40*s2 + 3*s1
-    # suite.addTests(all_test_cases)  # total 81
+    # TestCase add：S1 跑完 + retry 失敗後發 S1 報告到 Slack，再跑 S2 + retry 後發 S2 報告到 Slack
+    suite_s1 = unittest.TestSuite()
+    suite_s1.addTests(s1_test_cases)  # total 44*s1
+    suite_s2 = unittest.TestSuite()
+    suite_s2.addTests(s2_test_cases)  # total 40*s2 + 3*s1
 
-    # RunningTest
-    Utils.unittest_xml(suite)
+    # S1：跑完 + retry 失敗案例 → 發 S1 報告到 Slack
+    Utils.unittest_xml_with_retry_and_slack(suite_s1, report_label='S1', run_check_last_result=False)
+    # S2：跑完 + retry 失敗案例 → 發 S2 報告到 Slack，並執行 Jira check_last_result
+    Utils.unittest_xml_with_retry_and_slack(suite_s2, report_label='S2', run_check_last_result=True)
