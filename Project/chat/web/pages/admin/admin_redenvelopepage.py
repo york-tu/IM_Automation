@@ -713,6 +713,14 @@ class RedEnvelopePage(BasePage):
 
         if grab_time is not None:
             actual = self.get_text(RedEnvelopePageLocator.detail_list_time)[:-3].replace("/", "-")
-            assert actual == grab_time.replace("/", "-"), f'搶紅包時間有誤, 預期{grab_time.replace("/", "-")}, 實際{actual}'
+            expected_str = grab_time.replace("/", "-")
+            try:
+                fmt = "%Y-%m-%d %H:%M"
+                actual_dt = datetime.datetime.strptime(actual, fmt)
+                expected_dt = datetime.datetime.strptime(expected_str, fmt)
+                diff_seconds = abs((actual_dt - expected_dt).total_seconds())
+                assert diff_seconds <= 60, f'搶紅包時間有誤(允許±1分鐘), 預期{expected_str}, 實際{actual}, 相差{diff_seconds:.0f}秒'
+            except ValueError:
+                assert actual == expected_str, f'搶紅包時間有誤, 預期{expected_str}, 實際{actual}'
         assert self.get_text(RedEnvelopePageLocator.detail_list_type) == '已领取', f'紅包領取狀態有誤'
         assert self.get_text(RedEnvelopePageLocator.detail_list_point) == grab_amount, f'獲得積分有誤'

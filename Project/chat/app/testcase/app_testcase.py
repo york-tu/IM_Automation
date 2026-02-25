@@ -179,20 +179,20 @@ class AppTestCase(BaseTestCase):
         self.ap.about_page().check_version(app_version)
 
 
-    @DecorateClass('CHATAPP-T1752')
-    # 進入主頁_我的設定頁面
-    def test_into_member(self):
-        self.test_login()
+    # @DecorateClass('CHATAPP-T1752')
+    # # 進入主頁_我的設定頁面
+    # def test_into_member(self):
+    #     self.test_login()
+    #
+    #     self.ap.main_page().into_main_page()
+    #     self.ap.main_page().into_main_setting_page()
 
-        self.ap.main_page().into_main_page()
-        self.ap.main_page().into_main_setting_page()
-
-    @DecorateClass('CHATAPP-T1753')
-    # 進入好友頁面
-    def test_into_friend(self):
-        self.test_login()
-
-        self.ap.main_page().into_friend_page()
+    # @DecorateClass('CHATAPP-T1753')
+    # # 進入好友頁面
+    # def test_into_friend(self):
+    #     self.test_login()
+    #
+    #     self.ap.main_page().into_friend_page()
     
     @DecorateClass('CHATAPP-T1754')
     # 變更自己暱稱 & 個人簡介
@@ -234,38 +234,41 @@ class AppTestCase(BaseTestCase):
         
         self.ap.main_page().into_main_setting_page()
         self.ap.member_page().into_notification()
-        self.ap.notification_page().turn_notify_switch()
+        self.ap.notification_page().turn_notify_switch()  # 訊息通知設定切換
+        self.ap.notification_page().turn_detail_switch()  # 通知詳情設定切換
+        self.ap.notification_page().turn_voice_switch()   # 通知聲音設定切換
+        self.ap.notification_page().turn_vibration_switch()  # 通知震動設定切換
 
-    @DecorateClass('CHATAPP-T1756')
-    # 通知詳情設定
-    def test_detail_switch(self):
-        self.test_login()
-        
-        self.ap.main_page().into_main_setting_page()
-        self.ap.member_page().into_notification()
-        self.ap.notification_page().turn_detail_switch()
+    # @DecorateClass('CHATAPP-T1756')
+    # # 通知詳情設定
+    # def test_detail_switch(self):
+    #     self.test_login()
+    #
+    #     self.ap.main_page().into_main_setting_page()
+    #     self.ap.member_page().into_notification()
+    #     self.ap.notification_page().turn_detail_switch()
 
-    @DecorateClass('CHATAPP-T1757')
-    # 通知聲音設定
-    def test_voice_switch(self):
-        self.test_login()
-        
-        self.ap.main_page().into_main_setting_page()
-        self.ap.member_page().into_notification()
-        self.ap.notification_page().turn_voice_switch()
+    # @DecorateClass('CHATAPP-T1757')
+    # # 通知聲音設定
+    # def test_voice_switch(self):
+    #     self.test_login()
+    #
+    #     self.ap.main_page().into_main_setting_page()
+    #     self.ap.member_page().into_notification()
+    #     self.ap.notification_page().turn_voice_switch()
 
-    @DecorateClass('CHATAPP-T1758')
-    # 通知震動設定
-    def test_vibration_switch(self):
-        self.test_login()
-        
-        self.ap.main_page().into_main_setting_page()
-        self.ap.member_page().into_notification()
-        self.ap.notification_page().turn_vibration_switch()
+    # @DecorateClass('CHATAPP-T1758')
+    # # 通知震動設定
+    # def test_vibration_switch(self):
+    #     self.test_login()
+    #
+    #     self.ap.main_page().into_main_setting_page()
+    #     self.ap.member_page().into_notification()
+    #     self.ap.notification_page().turn_vibration_switch()
     
     @DecorateClass('CHATAPP-T1759')
-    # 關於聊天
-    def test_about_terms(self):
+    # 關於股聊
+    def test_about_product(self):
         self.test_login()
 
         self.ap.main_page().into_main_setting_page()

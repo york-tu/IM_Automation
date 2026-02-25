@@ -88,7 +88,7 @@ class SecurityPage(Base):
             self.common.poco_send_text(SecurityPageLocator.password_input_check, new_pwd)
 
             self.common.poco_click(SecurityPageLocator.submit_button)
-
+            sleep(5)
             assert self.common.poco_exists(SecurityPageLocator.popup_message), f'沒有跳出"密码重设成功"toast'
             self.common.poco_click(SecurityPageLocator.popup_button)
 

@@ -65,7 +65,6 @@ class NotificationPage(Base):
     def turn_notify_switch(self):
 
         if self.phone_platform.lower() == 'android':
-
             if self.common.poco_get_attr(NotificationPageLocator.notify_switch, 'checked') is True:
                 num = 2
             else:
@@ -106,7 +105,7 @@ class NotificationPage(Base):
 
     def turn_detail_switch(self):
         if self.phone_platform.lower() == 'android':
-            if not self.common.poco_get_attr(NotificationPageLocator.notify_switch, 'checked'):
+            if self.common.poco_get_attr(NotificationPageLocator.notify_switch, 'checked'):
                 num = 2
             else:
                 num = 1
@@ -122,7 +121,7 @@ class NotificationPage(Base):
                     assert not self.common.poco_get_attr(NotificationPageLocator.detail_switch,'checked'), f'詳情開關沒有關閉'
         # ============================ iOS scenario =====================================
         else:
-            if self.common.poco_get_attr(NotificationPageLocator.notify_switch, 'value') == '0':
+            if self.common.poco_get_attr(NotificationPageLocator.notify_switch, 'value') == '1':
                 num = 2
             else:
                 num = 1
