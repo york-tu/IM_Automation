@@ -56,6 +56,12 @@ class BaseTestCase(UnittestModule):
         cls.web_phone = SettingChat().get_account(cls.env, cls.brand, cls.user)['web_phone']
         cls.web_nation = SettingChat().get_account(cls.env, cls.brand, cls.user)['nation']
 
+        cls.web2_url = SettingChat().get_account(cls.env, cls.brand, cls.user)['web2_url']
+        cls.web2_account = SettingChat().get_account(cls.env, cls.brand, cls.user)['web2_account']
+        cls.web2_password = SettingChat().get_account(cls.env, cls.brand, cls.user)['password']
+        cls.web2_phone = SettingChat().get_account(cls.env, cls.brand, cls.user)['web2_phone']
+        cls.web2_nation = SettingChat().get_account(cls.env, cls.brand, cls.user)['nation']
+
         cls.wap_url = SettingChat().get_account(cls.env, cls.brand, cls.user)['wap_url']
         cls.wap_account = SettingChat().get_account(cls.env, cls.brand, cls.user)['wap_account']
         cls.wap_password = SettingChat().get_account(cls.env, cls.brand, cls.user)['password']

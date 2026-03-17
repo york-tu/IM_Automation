@@ -461,8 +461,7 @@ class FriendPage(Base):
         # self.common.poco_click(FriendPageLocator.friend_setting_button)
         if self.phone_platform.lower() == 'ios':
             self.common.poco_long_click(FriendPageLocator.friend_block_button)
-            string = self.poco(name='ScrollView')[0].children()[0].children()[0].children()[0].children()[0].attr(
-                'name')
+            string = self.poco(name='ScrollView')[0].children()[0].children()[0].children()[0].attr('name')
             assert string == '加入黑名单，你将不再收到对方的讯息，对方也无法查看你。', f'黑名單彈窗訊息有誤'
             self.common.poco_click(FriendPageLocator.friend_popup_submit)
             assert self.common.poco_get_attr(FriendPageLocator.friend_block_button, 'value') == '1', f'未成功加入黑名單'

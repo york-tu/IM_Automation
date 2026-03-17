@@ -52,7 +52,15 @@ CHAT_WAP_PAGES: DictType[str, str] = {
     'wap_login_page': 'Project.chat.web.pages.wap.wap_loginpage.LoginPage',
     'search_page': 'Project.chat.web.pages.wap.wap_searchpage.SearchPage',
 }
-
+CHAT_WEB2_PAGES: DictType[str, str] = {
+    'common_page': 'common.web.common.Common',
+    'base_page': 'Project.chat.web.pages.web2.web2_basepage.BasePage',
+    'web2_first_page': 'Project.chat.web.pages.web2.web2_firstpage.FirstPage',
+    'web2_main_page': 'Project.chat.web.pages.web2.web2_mainpage.MainPage',
+    'web2_login_page': 'Project.chat.web.pages.web2.web2_loginpage.LoginPage',
+    'web2_search_page': 'Project.chat.web.pages.web2.web2_searchpage.SearchPage',
+    'web2_social_page': 'Project.chat.web.pages.web2.web2_socialpage.SocialPage',
+}
 CHAT_APP_PAGES: DictType[str, str] = {
     'common_page': 'common.app.common.Common',
     'base_page': 'Project.chat.app.pages.base_page.Base',
@@ -158,6 +166,7 @@ PAGE_CONFIGS: DictType[str, DictType[str, str]] = {
     'chat.web': CHAT_WEB_PAGES,
     'chat.admin': CHAT_ADMIN_PAGES,
     'chat.wap': CHAT_WAP_PAGES,
+    'chat.web2': CHAT_WEB2_PAGES,
     'chat.app': CHAT_APP_PAGES,
     # 'sbk.web': SBK_WEB_PAGES,  # 已移除，不再使用
     # 'sbk.admin': SBK_ADMIN_PAGES,  # 已移除，不再使用

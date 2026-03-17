@@ -18,6 +18,7 @@ class ChatRoomPageLocator(BaseLocator):
     # 明確引用基類屬性，確保 IDE/linter 能正確識別
     base = BaseLocator.base
     app_package = BaseLocator.app_package
+    is_ios = "ios" in app_package
 
     search_input = base.check_device(
         Android=base.data_collation(type_kind='text', type_name='搜索'),
@@ -400,11 +401,14 @@ class ChatRoomPageLocator(BaseLocator):
     @staticmethod
     def folder_file_index(num=-1):
         folder_file_path = ChatRoomPageLocator.base.check_device(
-            Android=ChatRoomPageLocator.base.data_collation(type_kind='name', type_name='android:id/title', num=num),
-            iOS=ChatRoomPageLocator.base.data_collation(
-                type_kind='nameMatches', type_name='0_TestExample.*', num=num,
-                parent={'type_kind': 'type', 'type_name': 'Cell', 'num': num}
-            ),
+            Android=ChatRoomPageLocator.base.data_collation(
+                type_kind='name', type_name='android:id/title', num=num),
+            # iOS=ChatRoomPageLocator.base.data_collation(
+            #     type_kind='type',
+            #     type_name='Cell',
+            #     num=num,
+            #     parent={'type_kind': 'name', 'type_name': 'File View'}
+            # )
         )
         return folder_file_path
 
@@ -1016,10 +1020,11 @@ class ChatRoomPage(Base):
             file_name_1 = self.common.poco_get_text(ChatRoomPageLocator.folder_file_index(file_index))
             self.common.poco_click(ChatRoomPageLocator.folder_file_index(file_index))
         else:
-            file = self.common.poco_get_text(ChatRoomPageLocator.folder_file_index(file_index+1))
+            ele = self.poco(name='File View').child(type='Cell')[file_index]
+            file = ele.attr("name")
             parts = [p.strip() for p in file.split(",")]
             file_name_1 = f"{parts[0]}.{parts[1]}"
-            self.common.poco_click(ChatRoomPageLocator.folder_file_index(file_index+1))
+            ele.click()
         file_name = re.sub(r'(\.\w+)\1$', r'\1', file_name_1)
         confirm_msg_content = self.common.poco_get_text(ChatRoomPageLocator.confirm_msg_content)
         assert confirm_msg_content == f'您要传送『{file_name}』吗？', f'預期:{confirm_msg_content}, 實際:您要传送『{file_name}』吗？'

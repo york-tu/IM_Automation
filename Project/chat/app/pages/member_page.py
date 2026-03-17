@@ -19,12 +19,10 @@ class MemberPageLocator(BaseLocator):
         Android=base.data_collation(type_kind='text', type_name='讯息通知'),
         iOS=base.data_collation(type_kind='name', type_name='讯息通知'),
     )
-
     notification_check = base.check_device(
         Android=base.data_collation(type_kind='text', type_name='震动'),
         iOS=base.data_collation(type_kind='name', type_name='震动'),
     )
-
     security_button = base.check_device(
         Android=base.data_collation(type_kind='text', type_name='帐号与安全'),
         iOS=base.data_collation(type_kind='name', type_name='帐号与安全'),
@@ -33,10 +31,6 @@ class MemberPageLocator(BaseLocator):
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/cl_id'),
         iOS=base.data_collation(type_kind='name', type_name='accountSecurity_id_label'),
     )
-    # security_check_change_pw = base.check_device(
-    #     Android=base.data_collation(type_kind='nameMatches', type_name='.*密码'),
-    #     iOS=base.data_collation(type_kind='name', type_name='更改密码'),
-    # )
     logout = base.check_device(
         Android=base.data_collation(type_kind='text', type_name='登出'),
         iOS=base.data_collation(type_kind='name', type_name='登出')
@@ -45,57 +39,46 @@ class MemberPageLocator(BaseLocator):
         Android=base.data_collation(type_kind='text', type_name='黑名单'),
         iOS=base.data_collation(type_kind='name', type_name='黑名单'),
     )
-
     blacklist_check = base.check_device(
         Android=base.data_collation(type_kind='text', type_name='黑名单'),
         iOS=base.data_collation(type_kind='name', type_name='黑名单'),
     )
-
     share_button = base.check_device(
         Android=base.data_collation(type_kind='text', type_name='分享'),
         iOS=base.data_collation(type_kind='name', type_name='setting_share_cell'),
     )
-
     share_check = base.check_device(
         Android=base.data_collation(type_kind='text', type_name='复制'),
         iOS=base.data_collation(type_kind='name', type_name='titleLabel', num=0),
     )
-
     about_button = base.check_device(
         Android=base.data_collation(type_kind='textMatches', type_name='关于.*'),
         iOS=base.data_collation(type_kind='name', type_name='setting_aboutApp_cell'),
     )
-
     about_button_365 = base.check_device(
         Android=base.data_collation(type_kind='textMatches', type_name='关于365'),
         iOS=base.data_collation(type_kind='name', type_name='关于股聊'),
     )
-
     about_check = base.check_device(
         Android=base.data_collation(type_kind='text', type_name='使用版本'),
         iOS=base.data_collation(type_kind='name', type_name='使用版本'),
     )
-
     user_name = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tv_username'),
         iOS=base.data_collation(type_kind='name', type_name='Image', pos=[0.9323671497584541, 0.13002232142857142] ),
     )
-
     user_id = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tv_id_value'),
         iOS=base.data_collation(type_kind='name', type_name='关于股聊'),
     )
-
     nick_name_title = base.check_device(
         Android=base.data_collation(type_kind='text', type_name='昵称'),
         iOS=base.data_collation(type_kind='name', type_name='昵称'),
     )
-
     clear_button = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/iv_icon_left_of_selector'),
         iOS=base.data_collation(type_kind='name', type_name='清除文本'),
     )
-
     nick_name_input = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/et_input_text'),
         iOS=base.data_collation(type_kind='name', type_name='TextField'),
@@ -120,10 +103,9 @@ class MemberPageLocator(BaseLocator):
         Android=base.data_collation(type_kind='text', type_name='编辑主页'),
         iOS=base.data_collation(type_kind='name', type_name='myProfile_editMyInfoPage_button'),
     )
-
     back_btn = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/iv_back'),
-        iOS=base.data_collation(type_kind='name', type_name='返回'),
+        iOS=base.data_collation(type_kind='name', type_name='BackButton'),
     )
     main_description_display = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tv_content'),
@@ -137,7 +119,6 @@ class MemberPageLocator(BaseLocator):
         Android=base.data_collation(type_kind='text', type_name='确定'),
         iOS=base.data_collation(type_kind='name', type_name='确定'),
     )
-
 
 class MemberPage(Base):
     phone_platform = gl.get_value('PHONE_PLATFORM')
@@ -154,11 +135,7 @@ class MemberPage(Base):
         assert self.common.poco_wait_exists(MemberPageLocator.notification_check), f'進入訊息通知頁面錯誤'
 
     def into_security(self):
-        # iOS 優化：縮短等待時間（從默認 10 秒降到 5 秒）
-        # timeout = 5 if self.phone_platform.lower() == 'ios' else 10
-        # if self.common.poco_wait_exists(MemberPageLocator.security_button, timeout=timeout):
         self.common.poco_click(MemberPageLocator.security_button)
-        # assert self.common.poco_wait_exists(MemberPageLocator.logout, timeout=timeout), f'進入帳號安全頁面錯誤'
         assert self.common.poco_exists(MemberPageLocator.security_page_self_id), f'進入帳號安全頁面錯誤'
 
     def into_blacklist(self):
@@ -176,10 +153,8 @@ class MemberPage(Base):
             assert self.common.poco_wait_exists(MemberPageLocator.share_check), f'進入分享頁面錯誤'
 
     def into_about(self):
-        # if self.common.poco_wait_exists(MemberPageLocator.about_button):
         self.common.poco_click(MemberPageLocator.about_button)
-        assert self.common.poco_exists(MemberPageLocator.about_check)
-        # assert self.common.poco_wait_exists(MemberPageLocator.about_check), f'進入關於聊天頁面錯誤'
+        assert self.common.poco_exists(MemberPageLocator.about_check), f'進入關於聊天頁面錯誤'
 
     def get_nickname(self):
         data = self.common.poco_get_text(MemberPageLocator.main_description_display)
@@ -241,25 +216,9 @@ class MemberPage(Base):
             self.common.poco_send_text(MemberPageLocator.self_introduction_input, block_words)
             self.common.poco_click(MemberPageLocator.user_id_title)
             self.common.poco_click(MemberPageLocator.save_btn)
+            sleep(3)
             actual_wordings = self.common.poco_get_text(MemberPageLocator.toast_wordings)
             assert actual_wordings == f'请勿包含{block_words}', '錯誤訊息有誤'
             self.common.poco_click(MemberPageLocator.toast_confirm_btn)
             self.wait_loading_finish()
             self.common.poco_click(MemberPageLocator.back_btn)
-
-        # self.common.poco_click(MemberPageLocator.self_introduction_input)  # 點 個人簡介欄位
-        # for _ in range(3):
-        #     self.common.poco_long_click(MemberPageLocator.self_introduction_input)  # 欄位上長按 >>> 出現選單
-        #     sleep(1)
-        #
-        # if self.phone_platform == 'Android':
-        #     self.poco(text='全选').click()
-        #     self.common.poco_send_text(MemberPageLocator.self_introduction_input, block_words)
-        #     self.common.poco_click(MemberPageLocator.save_btn)
-        #     actual_wordings = self.common.poco_get_text(MemberPageLocator.toast_wordings)
-        #     assert actual_wordings == f'请勿包含{block_words}', '錯誤訊息有誤'
-        #     self.common.poco_click(MemberPageLocator.toast_confirm_btn)
-        #     self.wait_loading_finish()
-        #     self.common.poco_click(MemberPageLocator.back_btn)
-
-

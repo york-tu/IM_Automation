@@ -110,8 +110,10 @@ class Utils(JiraApi):
             tt = test_type.lower() if test_type else ''
             if 'ios' in tt:
                 platform_label = 'iOS'
+            elif 'web2' in tt:
+                platform_label = 'WEB2.0'
             elif 'web' in tt:
-                platform_label = 'Web'
+                platform_label = 'WEB'
             elif 'wap' in tt:
                 platform_label = 'WAP'
             else:
@@ -264,7 +266,8 @@ class Utils(JiraApi):
         orange_result = re.findall("[0-9]+", str(gl.get_value('RESULT')))
         finally_result = re.findall("[0-9]+", str(self.report))
 
-        key = testcase_key[0]
+        # 使用最後一筆 key（剛跑完的 suite 的最後一個案例），S1+S2 分段跑時 S2 才會回填到正確的 Jira
+        key = testcase_key[-1]
         if finally_result != orange_result or finally_result[0] == finally_result[1] or resultcount[1:] != finally_result[1:]:
             result = gl.get_value('RESULT')
             if resultcount[1] != finally_result[1]:
@@ -288,6 +291,7 @@ class Utils(JiraApi):
         self.total(result)
         gl.set_value('NEW', [gl.get_value('AMOUNT'), gl.get_value('ERRORS'), gl.get_value('FAILURES'), gl.get_value('SKIPPED')])
 
+        # AMOUNT >= 2 時才回填 Jira，避免第一個案例因 OLD 尚未初始化而被誤判
         if gl.get_value('AMOUNT') >= 2:
             certification = JiraApi().jira_login() # jira登入
             # JiraApi().set_cycle_result(certification, gl.get_value('CYCLE_KEY'), self.TESTCASE_KEY[0], 'in progress') # 初始化測試結果

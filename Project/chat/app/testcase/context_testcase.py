@@ -650,7 +650,7 @@ class ContextTestCase(BaseTestCase, BasePage_Web, BasePage_Admin):
     @DecorateClass('CHATAPP-T2846')
     def test_block_words_blocks_instructions_input(self):
         current_time = datetime.now().strftime("%H_%M_%S")
-        block_words = f'shit_{current_time}'
+        block_words = f'asshole_{current_time}'
         self.test_admin_login()
         self.function_dict['ad'].social_management_page().into_block_words_page()
         self.function_dict['ad'].social_management_page().add_block_words(block_words)

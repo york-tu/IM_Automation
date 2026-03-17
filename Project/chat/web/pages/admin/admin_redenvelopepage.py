@@ -706,6 +706,7 @@ class RedEnvelopePage(BasePage):
         # ======================== 紅包詳情頁搜尋目標人物 =====================
         self.type(RedEnvelopePageLocator.detail_search_ID,grab_account)
         self.click(RedEnvelopePageLocator.search_btn)
+        sleep(1)
         # =================================================================
         actual_id = self.get_text(RedEnvelopePageLocator.detail_list_ID)
         assert self.get_text(RedEnvelopePageLocator.detail_red_type_info) == f'红包种类:{grab_type}', f'紅包詳情頁種類錯誤'

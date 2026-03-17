@@ -1284,7 +1284,7 @@ class AppTestCase(BaseTestCase):
         elif 'phone' in self.account_type.lower():
             return self.app_account
 
-    # 他人貼文上評論: 自己留言+回覆 > 他人留言+回覆 > 他人點贊 > 我點贊
+    # 他人貼文上評論: 我留言+回覆 > 創作者端確認留言+回覆
     @DecorateClass('CHATAPP-T2781')
     def test_social_other_post_add_comments_reply(self):
         self_account = self.login_self_account()

@@ -2,7 +2,6 @@ from selenium.webdriver.common.by import By
 import os, sys
 from common.web.common import Common
 
-
 class BasePageLocator:
     # ALL PAGE
     loading_mask = (By.XPATH, "//div[@class='loading__img']")

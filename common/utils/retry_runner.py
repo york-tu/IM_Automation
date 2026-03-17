@@ -8,6 +8,8 @@ import time
 import re
 from xmlrunner import XMLTestRunner
 from xmlrunner.result import _XMLTestResult
+import common.utils.globalvar as gl
+from jira.jira_api import JiraApi
 
 
 def _filter_output(output):
@@ -140,6 +142,24 @@ class RetryXMLTestRunner(XMLTestRunner):
                         result.failures = [(ti, tb) for (ti, tb) in result.failures if ti.test_id != tid]
                     else:
                         result.errors = [(ti, tb) for (ti, tb) in result.errors if ti.test_id != tid]
+
+                    # 如果原本這個案例曾經失敗，但重試成功，則再把 Jira 結果覆寫為 pass
+                    try:
+                        if gl.get_value('PUSH'):
+                            cycle_key = gl.get_value('CYCLE_KEY')
+                            if cycle_key:
+                                # 優先使用 DecorateClass 紀錄的「test_id -> testcase_key」對應
+                                mapping = gl.get_value('TESTCASE_ID_MAP', {}) or {}
+                                testcase_key = mapping.get(tid, None)
+                                # 若 mapping 中沒有，再退回全域 TESTCASE_KEY（維持舊行為）
+                                if not testcase_key:
+                                    testcase_key = gl.get_value('TESTCASE_KEY')
+                                if testcase_key:
+                                    certification = JiraApi().jira_login()
+                                    JiraApi().set_cycle_result(certification, cycle_key, testcase_key, 'pass')
+                    except Exception:
+                        # Jira 更新失敗不影響測試流程
+                        pass
 
             stop_time = time.time()
             time_taken = stop_time - start_time

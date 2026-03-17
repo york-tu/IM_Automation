@@ -34,6 +34,11 @@ class WapPages(CompatiblePages):
         super().__init__(driver, wait_sec, base_url, skip_test_method, project='chat', page_type='wap')
 
 
+class Web2Pages(CompatiblePages):
+    """Web2.0 頁面工廠（使用新的 PageFactory）"""
 
+    def __init__(self, driver, wait_sec, base_url, skip_test_method):
+        """初始化 Web2.0 頁面工廠"""
+        super().__init__(driver, wait_sec, base_url, skip_test_method, project='chat', page_type='web2')
 
 
