@@ -95,6 +95,20 @@ class RetryXMLTestRunner(XMLTestRunner):
             # 這種情況代表 regression 根本沒跑到任何案例，必須直接視為失敗，避免 Jenkins 誤判 SUCCESS。
             if getattr(result, 'testsRun', 0) == 0:
                 self.stream.writeln("ERROR: Ran 0 tests. setUpClass may have failed; aborting.")
+                # 盡可能把 setUpClass 相關錯誤印出來，方便在 Jenkins console 直接定位根因
+                try:
+                    if getattr(result, 'errors', None):
+                        self.stream.writeln("---- errors ----")
+                        for ti, tb in result.errors:
+                            self.stream.writeln(str(ti))
+                            self.stream.writeln(str(tb))
+                    if getattr(result, 'failures', None):
+                        self.stream.writeln("---- failures ----")
+                        for ti, tb in result.failures:
+                            self.stream.writeln(str(ti))
+                            self.stream.writeln(str(tb))
+                except Exception as _e:
+                    self.stream.writeln(f"[WARN] Failed to dump errors for 0 tests: {_e}")
                 raise RuntimeError("Ran 0 tests (setUpClass failure or test discovery issue)")
 
             delay = getattr(self, 'retry_delay', 5)
