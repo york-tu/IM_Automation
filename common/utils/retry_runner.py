@@ -91,6 +91,12 @@ class RetryXMLTestRunner(XMLTestRunner):
             start_time = time.time()
             test(result)
 
+            # 若 setUpClass 失敗，unittest 可能會導致 testsRun = 0。
+            # 這種情況代表 regression 根本沒跑到任何案例，必須直接視為失敗，避免 Jenkins 誤判 SUCCESS。
+            if getattr(result, 'testsRun', 0) == 0:
+                self.stream.writeln("ERROR: Ran 0 tests. setUpClass may have failed; aborting.")
+                raise RuntimeError("Ran 0 tests (setUpClass failure or test discovery issue)")
+
             delay = getattr(self, 'retry_delay', 5)
             for idx, (test_obj, _err, kind) in enumerate(list(getattr(result, '_retry_list', []))):
                 if idx > 0:
