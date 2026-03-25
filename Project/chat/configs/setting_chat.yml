@@ -1,0 +1,204 @@
+uat:
+    gu:
+        web_url: https://web-gu-chat-uat.idc.pstdsf.com/
+        web2_url: https://website-gu-chat-uat.idc.pstdsf.com/
+        wap_url: https://wap-gu-chat-uat.idc.pstdsf.com/home/recommend/
+        app_url: https://morse-gu-chat-uat.idc.pstdsf.com/
+        admin_url: https://admin-gu-chat-uat.idc.pstdsf.com/
+        admin_account: test1234
+        admin_password: test43214321
+        low_permission_admin_account: test4321
+        low_permission_admin_password: test43211234
+        admin_otp: 1
+        operate_id: test1234
+        operate_phone: 8613542600999
+        password: Heaven4394
+        accounts: 
+            1:
+                app_id: gubot03
+                web_id: gubot02
+                wap_id: gubot04
+                web2_id: gubot05
+                mail_id: gubotmail01
+                password: Heaven4394
+                app_phone: 13542600003
+                web_phone: 13542600002
+                wap_phone: 13542600004
+                web2_phone: 13542600005
+                mail_address: qa4@tengyuntech.com
+                nation: CN
+
+    mee:
+        web_url: https://web-mee-chat-uat.idc.pstdsf.com/
+        web2_url:
+        wap_url: https://wap-mee-chat-uat.idc.pstdsf.com/
+        app_url: https://morse-mee-chat-uat.pstdsf.com/
+        admin_url: https://admin-mee-chat-uat.idc.pstdsf.com/
+        admin_account: test1234
+        admin_password: test43214321
+        low_permission_admin_account: test4321
+        low_permission_admin_password: test4321
+        admin_otp: 1
+        operate_id: test1234
+        operate_phone: 8613542600999
+        accounts: 
+            1:
+                app_id: gubot03
+                web_id: gubot02
+                wap_id: gubot04
+                web2_id:
+                mail_id:
+                password: Heaven4394
+                app_phone: 5568833333
+                web_phone: 5568822222
+                wap_phone: 5568844444
+                web2_phone:
+                mail_address:
+                nation: CN
+
+    chit:
+        web_url: https://web-chit-chat-uat.idc.pstdsf.com/
+        web2_url:
+        app_url:
+        wap_url:
+        admin_url: https://admin-chit-chat-uat.idc.pstdsf.com/
+        admin_account: test1234
+        admin_password: test432112344321
+        low_permission_admin_account: test4321
+        low_permission_admin_password: test43211234
+        admin_otp: 1
+        operate_id: test1234
+        operate_phone: 8615842289943
+        accounts:
+            1:
+                app_id: gubot03
+                web_id: gubot02
+                wap_id: gubot04
+                web2_id:
+                mail_id: gubotmail01
+                password: Heaven4394
+                app_phone: 15629302628
+                web_phone: 15629302627
+                wap_phone: 15629302629
+                web2_phone:
+                mail_address: qa4@tengyuntech.com
+                nation: CN
+    mingpin:
+        web_url: https://web-mingpin-chat-uat.idc.pstdsf.com/
+        wap_url: https://wap-mingpin-chat-uat.idc.pstdsf.com/
+        app_url: https://
+        admin_url: https://admin-mingpin-chat-uat.idc.pstdsf.com/
+        admin_account: test1234
+        admin_password: test43214321
+        low_permission_admin_account: test4321
+        low_permission_admin_password: test43211234
+        admin_otp: 1
+        operate_id: test1234
+        operate_phone: 8613542600999
+        password: Heaven4394
+        accounts:
+            1:
+                app_id: gubot03
+                web_id: gubot02
+                wap_id: gubot04
+                mail_id: gubotmail01
+                password: Heaven4394
+                app_phone: 13542600003
+                web_phone: 13542600002
+                wap_phone: 13542600004
+                mail_address: qa4@tengyuntech.com
+                nation: CN
+            2:
+                app_id: gubot07
+                web_id: gubot08
+                wap_id: gubot09
+                mail_id:
+                password: Heaven4394
+                app_phone: 13542600007
+                web_phone: 13542600008
+                wap_phone: 13542600009
+                mail_address:
+                nation: CN
+prod:
+    gu:
+        web_url: https://web-guchat.com/
+        app_url: https://api.gu-chat.com/
+        wap_url: https://m-guchat.com/
+        operate_id: test1234
+        operate_phone: 819016000200
+        accounts:
+            1:
+                app_id: gutest001
+                web_id: gutest002
+                wap_id: gutest003
+                mail_id:
+                password: ps43941122
+                app_phone: 9016000201
+                web_phone: 9016000202
+                wap_phone: 9016000203
+                mail_address:
+                nation: JP
+
+    mee:
+        web_url: https://meechat.online/
+        app_url: https://mee-chat.site/
+        wap_url: https://m-guchat.com/
+        operate_id: test1234
+        operate_phone: 819016001200
+        accounts:
+            1:
+                app_id: meetest001
+                web_id: meetest004
+                wap_id: meetest003
+                password: ps43941122
+                app_phone: 9016001201
+                web_phone: 9016001204
+                wap_phone: 9016001203
+                nation: JP
+#            2:
+#                app_id: meetest002
+#                web_id: meetest005
+#                password: ps43941122
+#                app_phone: 9016001202
+#                web_phone: 9016001205
+#                nation: JP
+#            3:
+#                app_id: meetest003
+#                web_id: meetest006
+#                password: ps43941122
+#                app_phone: 9016001203
+#                web_phone: 9016001206
+#                nation: JP
+
+    chit:
+        web_url: https://chitchat-web.com/
+        app_url: https://chitchat-chat.com/
+        operate_id: pm00003
+        operate_phone: 8613019786561
+        accounts:
+            1:
+                app_id: pm00001
+                web_id: pm00002
+                password: 1111qqqq
+                app_phone: 13047665804
+                web_phone: 13031700244
+                nation: CN
+
+    mingpin:
+        web_url: https://web.mingpin-vip.com/
+        app_url:
+        wap_url: https://m.mingpin-vip.com/
+        operate_id: test1234
+        operate_phone: 819016000200
+        accounts:
+            1:
+                app_id: gutest001
+                web_id: gutest002
+                wap_id: gutest003
+                mail_id:
+                password: ps43941122
+                app_phone: 9016000201
+                web_phone: 9016000202
+                wap_phone: 9016000203
+                mail_address:
+                nation: JP

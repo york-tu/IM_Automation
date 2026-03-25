@@ -10,6 +10,7 @@
 *.log
 
 *.yml
+!Project/chat/configs/setting_chat.yml
 
 *.pyd
 
