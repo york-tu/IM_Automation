@@ -3,11 +3,19 @@ import re
 from time import sleep
 import pandas as pd
 import pyautogui
-import win32clipboard
-import pywintypes
-from pywinauto import Application, Desktop
-import win32gui
-import win32con
+import platform
+
+# Windows-only dependencies (used for file dialog / clipboard automation)
+_IS_WINDOWS = platform.system().lower().startswith("win")
+if _IS_WINDOWS:
+    import win32clipboard
+    import pywintypes
+    from pywinauto import Application, Desktop
+    import win32gui
+    import win32con
+else:
+    # Linux container run: fallback to pure python clipboard/file upload paths.
+    import pyperclip
 from selenium.webdriver.common.by import By
 import os, sys, datetime
 from Project.chat.web.pages.admin.admin_basepage import BasePage
@@ -168,6 +176,9 @@ def send_enter_key_to_window(window_handle):
 
 
 def copy_to_clipboard(text, retry=50, delay=2):
+    if not _IS_WINDOWS:
+        pyperclip.copy(text)
+        return
     for attempt in range(retry):
         try:
             win32clipboard.OpenClipboard()
@@ -193,6 +204,8 @@ def upload_file_via_dialog(file_path, timeout=10):
     """
     使用 pywinauto 直接操作文件對話框，即使在屏幕鎖定時也能工作
     """
+    if not _IS_WINDOWS:
+        return False
     try:
         # 等待文件對話框出現
         sleep(1)
