@@ -1,4 +1,5 @@
 #!/bin/sh
+set -e
 path=$1
 filename=$2
 env=$3
@@ -38,8 +39,8 @@ noVNC_port=$(ruby -e 'require "socket"; puts Addrinfo.tcp("", 0).bind {|s| s.loc
 volume=$(pwd)
 
 sudo docker pull reg.paradise-soft.com.tw:5000/patrick_star
-sudo docker stop 'qa_'$env'_'$brand
-sudo docker rm 'qa_'$env'_'$brand
+sudo docker stop "qa_${env}_${brand}" || true
+sudo docker rm "qa_${env}_${brand}" || true
 sudo docker run -i -u 0 -e LANG=zh_CN.UTF-8 --shm-size 31g --network host -v $volume:/qa --name 'qa_'$env'_'$brand -w /qa --rm reg.paradise-soft.com.tw:5000/patrick_star sh -c \
 "
 chmod 777 driver/driver/chromedriver_linux
@@ -55,6 +56,7 @@ echo -e '\nDISPLAY=:' $display
 echo '-----------------------------------------------'
 echo 'Web VNC: http://'$server_ip':'$noVNC_port'/vnc.html'
 echo -e '-----------------------------------------------\n'
+export PYTHONPATH=\"/qa:${PYTHONPATH:-}\"
 DISPLAY=:$display python3.6 -B -u ${path}${filename} ${env} ${brand} ${user} ${test_list}
 "
 
