@@ -57,6 +57,8 @@ echo '-----------------------------------------------'
 echo 'Web VNC: http://'$server_ip':'$noVNC_port'/vnc.html'
 echo -e '-----------------------------------------------\n'
 export PYTHONPATH=\"/qa:${PYTHONPATH:-}\"
+python3.6 -m pip uninstall -y xmlrunner >/dev/null 2>&1 || true
+python3.6 -m pip install -r requirements.txt
 DISPLAY=:$display python3.6 -B -u ${path}${filename} ${env} ${brand} ${user} ${test_list}
 "
 
