@@ -20,6 +20,43 @@ root_path = str(path_utils.get_project_root())
 sys.path.append(root_path)
 
 
+def is_ios_wda_connection_lost(exc):
+    """
+    判斷是否為 iOS WDA / usbmux / HTTP 連線中斷。
+    含：8100 未就緒、MuxConnectError、WDA 回應 RemoteDisconnected 等。
+    """
+    if exc is None:
+        return False
+    msg = str(exc).lower()
+    name = type(exc).__name__.lower()
+    if any(
+        x in msg
+        for x in (
+            'port:8100',
+            'muxconnecterror',
+            'usbmux',
+            'remotedisconnected',
+            'remote end closed',
+            'connection aborted',
+            'connection reset',
+            'connection refused',
+            'broken pipe',
+            'protocolerror',
+        )
+    ):
+        return True
+    if any(
+        x in name
+        for x in (
+            'remotedisconnected',
+            'connectionerror',
+            'protocolerror',
+        )
+    ):
+        return True
+    return False
+
+
 class AppDriver(UnittestModule):
     # stf控制手機
     # def stf_connect_phone(self):
@@ -84,11 +121,24 @@ class AppDriver(UnittestModule):
         
         max_retries = 3
         retry_count = 0
+        wda_restarted = False
         while retry_count < max_retries:
             try:
                 auto_setup(__file__, logdir=False, devices=[f'{self.connection}?cap_method={cap_method}']) # Airtest 連線手機
                 break
             except Exception as e:
+                # iOS 遇到 WDA/usbmux/HTTP 連線異常時，嘗試先重啟 WDA 再重試連線
+                if (gl.get_value("PHONE_PLATFORM") == 'iOS'
+                        and not wda_restarted
+                        and is_ios_wda_connection_lost(e)):
+                    try:
+                        from common.utils.utils import Utils
+                        print("⚠️  偵測到 iOS WDA 連線異常，嘗試重啟 WDA 後重連...")
+                        Utils.start_wda_for_ios()
+                        wda_restarted = True
+                    except Exception:
+                        # 重啟失敗不阻斷重試流程，交由原有重試次數控制
+                        pass
                 retry_count += 1
                 if retry_count >= max_retries:
                     raise
@@ -138,6 +188,7 @@ class AppDriver(UnittestModule):
                 # 添加重試邏輯，等待 WDA 準備好
                 max_retries = 15  # 最多重試 15 次（30 秒）
                 retry_count = 0
+                wda_restarted = False
                 while retry_count < max_retries:
                     try:
                         self.wda_service = wda.Client(wda_url)
@@ -158,6 +209,16 @@ class AppDriver(UnittestModule):
                         print(f"✅ WDA 連接成功 (端口: {wda_port or '默認'})")
                         break
                     except Exception as e:
+                        # 僅在第一次遇到 WDA/usbmux/HTTP 斷線時重啟，避免無限反覆拉起
+                        if not wda_restarted and is_ios_wda_connection_lost(e):
+                            try:
+                                from common.utils.utils import Utils
+                                print("⚠️  WDA 尚未就緒/已斷線，嘗試重啟 WDA...")
+                                Utils.start_wda_for_ios()
+                                wda_restarted = True
+                                time.sleep(3)
+                            except Exception:
+                                pass
                         retry_count += 1
                         if retry_count >= max_retries:
                             raise Exception(f'無法連接到 WDA (URL: {wda_url})，已重試 {max_retries} 次: {e}')

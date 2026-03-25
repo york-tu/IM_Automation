@@ -27,7 +27,7 @@ class WebTestCase(BaseTestCase):
     driver_list = []
     security_code = 326789
     env = gl.get_value('ENV')
-
+    brand = gl.get_value('BRAND')
     # ================================= Page Shortcuts =============================
     
     @property
@@ -367,41 +367,68 @@ class WebTestCase(BaseTestCase):
         """"
         添加方: 非白名單內成員
         1. (後台)會員添加好友 > 關閉
-            1.1. (前台)個人資訊 > 新增好友 > 透過'手機號'搜尋非白名單成員(8613141010102) >>> 跳"暫不支援此功能" toast
+            1.1. (前台)個人資訊 > 新增好友 > 透過'手機號'搜尋非白名單成員(8613141010102) >>>
+                gu: 跳"暂不支援手机号搜索" toast
+                chit: 跳"暫不支援此功能" toast
             1.2. (前台)個人資訊 > 新增好友 > 透過'ID'搜尋非白名單成員(outwhite02) >>> 跳"暂不支援此功能" toast
-            1.3. (前台)個人資訊 > 新增好友 > 透過'手機號'搜尋白名單成員(8613141010103) >>> 跳"暂不支援此功能" toast
+            1.3. (前台)個人資訊 > 新增好友 > 透過'手機號'搜尋白名單成員(8613141010103) >>>
+                gu: 跳"暂不支援手机号搜索" toast
+                chit: 搜尋的到, 且可以加
             1.4. (前台)個人資訊 > 新增好友 > 透過'ID'搜尋白名單成員(inwhite02) >>> 顯示該成員個人資訊 & 成功加入通訊錄
         2. (後台)會員添加好友 > 開啟
-            2.1. (前台)個人資訊 > 新增好友 > 透過'手機號'搜尋非白名單成員(8613141010102) >>> 跳"找不到相關帳號" toast
+            2.1. (前台)個人資訊 > 新增好友 > 透過'手機號'搜尋非白名單成員(8613141010102) >>>
+                gu: 跳"暂不支援手机号搜索" toast
+                chit: 搜尋的到, 且可以加
             2.2. (前台)個人資訊 > 新增好友 > 透過'ID'搜尋非白名單成員(outwhite02) >>> 顯示該成員個人資訊 & 成功加入通訊錄
-            2.3. (前台)個人資訊 > 新增好友 > 透過'手機號'搜尋白名單成員(8613141010103) >>> 跳"找不到相關帳號" toast
+            2.3. (前台)個人資訊 > 新增好友 > 透過'手機號'搜尋白名單成員(8613141010103) >>>
+                gu: 跳"暂不支援手机号搜索" toast
+                chit: 搜尋的到, 且可以加
             2.4. (前台)個人資訊 > 新增好友 > 透過'ID'搜尋白名單成員(inwhite02) >>> 顯示該成員個人資訊 & 成功加入通訊錄
          """
         self.test_admin_login()
-        self.ad.main_page().disable_member_add_friend_setting()  # 1
 
+        self.ad.main_page().disable_member_add_friend_setting()  # 1
         self.test_web_login()
         self.wp.main_page().open_user_info()
         self.wp.main_page().into_friend_add()
-        self.wp.main_page().add_friend('8613141010102', '暂不支援手机号搜索')  # 1.1
-        self.wp.main_page().add_friend('outwhite02', '暂不支援此功能')  # 1.2
-        self.wp.main_page().add_friend('8613141010103', '暂不支援手机号搜索')  # 1.3
-        self.add_target_friend('inwhite02')  # 1.4
-        self.delete_target_friend('inwhite02')
+
+        if self.brand == 'chit':
+            self.wp.main_page().add_friend('8613141010102', '暂不支援此功能')  # 1.1
+            self.wp.main_page().add_friend('outwhite02', '暂不支援此功能')  # 1.2
+            self.add_target_friend('8613141010103')  # 1.3
+            self.delete_target_friend('inwhite02')
+            self.add_target_friend('inwhite02')  # 1.4
+            self.delete_target_friend('inwhite02')
+        else:
+            self.wp.main_page().add_friend('8613141010102', '暂不支援手机号搜索')  # 1.1
+            self.wp.main_page().add_friend('outwhite02', '暂不支援此功能')  # 1.2
+            self.wp.main_page().add_friend('8613141010103', '暂不支援手机号搜索')  # 1.3
+            self.add_target_friend('inwhite02')  # 1.4
+            self.delete_target_friend('inwhite02')
 
         self.test_admin_login()
 
         self.ad.main_page().enable_member_add_friend_setting()  # 2
-
         self.wp.base_page().switch_last_page()
         self.wp.main_page().open_user_info()
         self.wp.main_page().into_friend_add()
-        self.wp.main_page().add_friend('8613141010102', '暂不支援手机号搜索')  # 2.1
-        self.wp.main_page().add_friend('8613141010103', '暂不支援手机号搜索')  # 2.3
-        self.add_target_friend('outwhite02')  # 2.2
-        self.add_target_friend('inwhite02')  # 2.4
-        self.delete_target_friend('outwhite02')
-        self.delete_target_friend('inwhite02')
+
+        if self.brand == 'chit':
+            self.add_target_friend('8613141010102')  # 2.1
+            self.add_target_friend('8613141010103')  # 2.3
+            self.delete_target_friend('outwhite02')
+            self.delete_target_friend('inwhite02')
+            self.add_target_friend('outwhite02')  # 2.2
+            self.add_target_friend('inwhite02')  # 2.4
+            self.delete_target_friend('outwhite02')
+            self.delete_target_friend('inwhite02')
+        else:
+            self.wp.main_page().add_friend('8613141010102', '暂不支援手机号搜索')  # 2.1
+            self.wp.main_page().add_friend('8613141010103', '暂不支援手机号搜索')  # 2.3
+            self.add_target_friend('outwhite02')  # 2.2
+            self.add_target_friend('inwhite02')  # 2.4
+            self.delete_target_friend('outwhite02')
+            self.delete_target_friend('inwhite02')
 
     # 測試-新增好友
     @DecorateClass('CHATAPP-T1803')

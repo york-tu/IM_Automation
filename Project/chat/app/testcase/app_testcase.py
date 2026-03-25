@@ -13,7 +13,7 @@ sys.path.append(root_path)
 
 import common.utils.globalvar as gl
 import stf_api.stf as stf
-from driver.app_driver import AppDriver
+from driver.app_driver import AppDriver, is_ios_wda_connection_lost
 from common.app.decorator import DecorateClass
 from Project.chat.app.testcase.base_testcase import BaseTestCase
 from Project.chat.app.pages.pages import AppPages
@@ -115,21 +115,15 @@ class AppTestCase(BaseTestCase):
             if login_status is False:
                 self._login_status[0] = False
         except Exception as e:
-            if 'device offline' in str(e):
+            err_msg = str(e).lower()
+            if 'device offline' in err_msg:
                 self.device_reconnect()     # 手機斷線重連
-            elif 'device' and 'not found' in str(e):
+            elif 'not found' in err_msg and 'device' in err_msg:
+                self.device_reconnect()
+            elif is_ios_wda_connection_lost(e):
                 self.device_reconnect()
             else:
                 raise e
-
-    def device_reconnect(self):
-        gl.set_value('PHONE_NAME', 'None')
-        self._login_status[0] = False
-        self.unknown_env[0] = False
-        self.tearDownClass()
-        self.sleep(60)
-        self.setUpClass()
-        self.setUp()
 
 # -------------------------------------------------------------------------------
 

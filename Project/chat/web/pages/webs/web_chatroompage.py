@@ -619,16 +619,16 @@ class ChatRoomPage(BasePage):
                 # group_rule = [傳送訊息, 傳送圖片, 傳送影片, 傳送超連結, 傳送檔案, 加入新成員]
                 if num[0] == '0':
 
-                    assert self.is_element_finded(ChatRoomPageLocator.group_rule_img)
-                    assert self.is_element_finded(ChatRoomPageLocator.group_rule_video)
-                    assert self.is_element_finded(ChatRoomPageLocator.group_rule_file)
-                    assert self.is_element_finded(ChatRoomPageLocator.group_rule_link)
+                    assert self.is_element_finded(ChatRoomPageLocator.group_rule_img_gray)
+                    assert self.is_element_finded(ChatRoomPageLocator.group_rule_video_gray)
+                    assert self.is_element_finded(ChatRoomPageLocator.group_rule_file_gray)
+                    assert self.is_element_finded(ChatRoomPageLocator.group_rule_link_gray)
                     self.click(ChatRoomPageLocator.group_rule_text)
                     self.click(ChatRoomPageLocator.group_rule_user)
 
                     self.sleep(1)
-                    if self.is_element_finded(ChatRoomPageLocator.group_rule_img) \
-                            and self.is_element_finded(ChatRoomPageLocator.group_rule_link) is True:
+                    if self.is_element_finded(ChatRoomPageLocator.group_rule_img_gray) \
+                            and self.is_element_finded(ChatRoomPageLocator.group_rule_link_gray) is True:
 
                         self.click(ChatRoomPageLocator.group_rule_img_btn)
                         self.click(ChatRoomPageLocator.group_rule_link_btn)
@@ -638,15 +638,15 @@ class ChatRoomPage(BasePage):
                     self.click(ChatRoomPageLocator.detail_back)
 
                 elif num[0] == '1':
-                    if self.is_element_finded(ChatRoomPageLocator.group_rule_img) is True:
+                    if self.is_element_finded(ChatRoomPageLocator.group_rule_img_gray) is True:
                         self.click(ChatRoomPageLocator.group_rule_img_btn)
                         self.click(ChatRoomPageLocator.group_rule_link_btn)
                         self.click(ChatRoomPageLocator.group_rule_user)
                     else:
                         self.click(ChatRoomPageLocator.group_rule_text)
 
-                        if self.is_element_finded(ChatRoomPageLocator.group_rule_img) and self.is_element_finded(
-                                ChatRoomPageLocator.group_rule_link) is True:
+                        if self.is_element_finded(ChatRoomPageLocator.group_rule_img_gray) and self.is_element_finded(
+                                ChatRoomPageLocator.group_rule_link_gray) is True:
                             self.click(ChatRoomPageLocator.group_rule_img_btn)
                             self.click(ChatRoomPageLocator.group_rule_link_btn)
                     self.click(ChatRoomPageLocator.detail_back)

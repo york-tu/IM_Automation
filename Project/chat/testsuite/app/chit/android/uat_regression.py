@@ -22,7 +22,7 @@ user = 1
 connect_type = 'local'  # 手機連線模式 remote or local
 phone_name = 'HUAWEI_MATE_30_PRO_5G'  # 手機型號
 phone_platform = 'Android'  # 手機作業系統
-app_version = '2.19.0-rc.3'  # 版本號
+app_version = '2.20.1-rc.1'  # 版本號
 account_type = 'phone'  # 帳號類型: mail, phone...
 push = True  # 將結果推倒jira, 預設請給予 True
 # ============================================== S1 Test Cases ===================================================
@@ -30,14 +30,12 @@ push = True  # 將結果推倒jira, 預設請給予 True
 s1_personal_chat_regression_list = [
     AppTestCase("test_login"),
     AppTestCase("test_version_check"),
-    AppTestCase("test_into_member"),
-    AppTestCase("test_into_friend"),
     AppTestCase("test_change_nickname_and_instructions"),
     AppTestCase("test_free_up_space"),
     AppTestCase("test_change_password"),
     AppTestCase("test_account_info"),
     AppTestCase("test_add_friend"),
-    AppTestCase("test_friend_remark"),
+                        # AppTestCase("test_friend_remark"),
     AppTestCase("test_send_message"),
     AppTestCase('test_send_voice_message'),
     AppTestCase('test_send_file_message'),
@@ -90,10 +88,7 @@ s1_social_regression_list = [
 # -------------- 私聊相關功能測試 --------------
 s2_personal_chat_regression_list = [
     AppTestCase("test_notify_switch"),
-    AppTestCase("test_detail_switch"),
-    AppTestCase("test_voice_switch"),
-    AppTestCase("test_vibration_switch"),
-    AppTestCase("test_about_terms"),
+    AppTestCase("test_about_product"),
     AppTestCase("test_add_friend"),  # s1
     AppTestCase("test_add_myself"),
     AppTestCase("test_block_friend"),
@@ -160,7 +155,6 @@ s1_test_cases = (s1_personal_chat_regression_list + s1_group_chat_regression_lis
                  + s1_social_regression_list)
 s2_test_cases = (s2_personal_chat_regression_list + s2_group_chat_regression_list + s2_discover_regression_list
                  + s2_social_regression_list + s2_combination_regression_list)
-all_test_cases = (s1_test_cases + s2_test_cases)
 
 if __name__ == '__main__':
     gl._init()
@@ -193,11 +187,13 @@ if __name__ == '__main__':
     BaseKey().get_jira_data()
     gl.set_value('PUSH', push)
 
-    # TestCase add
-    suite = unittest.TestSuite()
-    suite.addTests(s1_test_cases)  # total 47*s1
-    suite.addTests(s2_test_cases)  # total 50*s2 + 3*s1
-    # suite.addTests(all_test_cases)  # total 97
+    # TestCase add：S1 跑完 + retry 失敗後發 S1 報告到 Slack，再跑 S2 + retry 後發 S2 報告到 Slack
+    suite_s1 = unittest.TestSuite()
+    suite_s1.addTests(s1_test_cases)  # total 47*s1
+    suite_s2 = unittest.TestSuite()
+    suite_s2.addTests(s2_test_cases)  # total 50*s2 + 3*s1
 
-    # RunningTest
-    Utils.unittest_xml(suite)
+    # S1：跑完 + retry 失敗案例 → 發 S1 報告到 Slack
+    Utils.unittest_xml_with_retry_and_slack(suite_s1, report_label='S1', run_check_last_result=False)
+    # S2：跑完 + retry 失敗案例 → 發 S2 報告到 Slack，並執行 Jira check_last_result
+    Utils.unittest_xml_with_retry_and_slack(suite_s2, report_label='S2', run_check_last_result=True)

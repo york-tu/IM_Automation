@@ -13,7 +13,7 @@ import common.utils.globalvar as gl
 from jira.config.base_key import BaseKey
 
 # Test Setting
-brand = 'gu'
+brand = 'gu'  # gu, chit
 user = 1
 test_type = 'web'
 os_version = 'Win11'  # 作業系統

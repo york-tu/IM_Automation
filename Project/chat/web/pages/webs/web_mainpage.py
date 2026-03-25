@@ -159,7 +159,7 @@ class MainPage(BasePage):
                 return False
         elif self.is_element_finded(MainPageLocator.not_support_toast):
             actual_msg = self.get_text(MainPageLocator.not_support_toast)
-            assert actual_msg == toast_expect_msg, f'warning訊息錯誤, 預期;{toast_expect_msg}, 實際:{actual_msg}'
+            assert actual_msg == toast_expect_msg, f'warning訊息錯誤, 預期:{toast_expect_msg}, 實際:{actual_msg}'
         else:
             if self.is_element_finded(MainPageLocator.friend_danger):
                 raise EOFError(f'{name}被加入黑名單')

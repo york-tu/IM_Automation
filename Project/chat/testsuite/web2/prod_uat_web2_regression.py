@@ -16,7 +16,7 @@ env = 'uat'  # uat, prod
 brand = 'gu'
 user = 1
 test_type = 'web2'
-web2_version = '2.11.0'
+# web2_version = '2.11.0'
 os_version = 'Win11'  # 作業系統
 platform = 'PC'  # 測試環境
 account_type = 'phone'  # 帳號類型: mail, phone...
@@ -26,7 +26,6 @@ push = True  # 將結果推倒jira, 預設請給予 True
 s1_case_list = [
     Web2TestCase("test_web2_login"),  # 測試-登入
     Web2TestCase('test_change_nickname_and_instructions'),  # 測試-編輯個人暱稱&說明
-    Web2TestCase('test_web2_logout'),  # 測試-登出
     Web2TestCase("test_social_post_photo"),  # 測試-發布圖片
     Web2TestCase('test_social_post_video'),  # 測試-發布影片
                     # Web2TestCase('test_social_search'),  # 測試-搜索視頻&用戶
@@ -34,11 +33,12 @@ s1_case_list = [
     Web2TestCase("test_social_post_add_remove_likes_collections"),  # 貼文點贊/取消贊/收藏/取消收藏
     Web2TestCase('test_social_other_post_add_comments_reply'),  # 他人貼文評論上留言回覆
     Web2TestCase("test_social_self_post_add_comments_reply_like"),  # 自己貼文評論上留言回覆點贊
-
+    Web2TestCase('test_web2_logout'),  # 測試-登出
 ]
 s2_case_list = [
-    Web2TestCase('test_social_post_with_different_privacy'),  # 測試-發布影片
-    Web2TestCase("test_web2_email_registration"),  # 測試-email註冊
+    # Web2TestCase('test_social_post_with_different_privacy'),  # 測試-發布影片
+    Web2TestCase('test_social_change_poster_auto_audit_type'),  # 後台變更發布者自動審核權限
+    # Web2TestCase("test_web2_email_registration"),  # 測試-email註冊
 
 ]
 
@@ -69,7 +69,7 @@ if __name__ == "__main__":
     gl.set_value('USER', int(user))
     gl.set_value('ACCOUNT_TYPE', account_type)
 
-    gl.set_value('PHONE_PLATFORM', web2_version)  # 作業系統名稱
+    # gl.set_value('PHONE_PLATFORM', web2_version)  # 作業系統名稱
     gl.set_value('PHONE_NAME', platform)
 
     # for jira config

@@ -8,7 +8,7 @@ from airtest.cli.parser import cli_setup
 root_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
 sys.path.append(root_path)
 import common.utils.globalvar as gl
-from driver.app_driver import AppDriver
+from driver.app_driver import AppDriver, is_ios_wda_connection_lost
 from configs.app.setting import Setting
 from Project.chat.configs.setting import SettingChat
 from jira.module.base_module import UnittestModule
@@ -145,3 +145,63 @@ class BaseTestCase(UnittestModule):
         if cls.connect_type == 'remote':
             app_dr = AppDriver()
             app_dr.stf_connect_phone()
+
+    def device_reconnect(self):
+        """手機 / WDA 斷線時重建 session（與 AppTestCase、ContextTestCase 原邏輯一致）。"""
+        original_phone_name = gl.get_value('PHONE_NAME')
+        # remote 模式沿用既有邏輯，允許重新挑機；local 模式保留原設備避免找不到配置
+        if self.connect_type == 'remote':
+            gl.set_value('PHONE_NAME', 'None')
+        else:
+            gl.set_value('PHONE_NAME', original_phone_name)
+        self._login_status[0] = False
+        self.unknown_env[0] = False
+
+        last_exc = None
+        for attempt in range(1, 4):
+            try:
+                try:
+                    self.tearDownClass()
+                except Exception:
+                    pass
+
+                # iOS 先主動拉起 WDA，降低 setUpClass 直接卡在 8100 的機率
+                if str(self.phone_platform).lower() == 'ios':
+                    if not gl.get_value('PHONE_NAME') and original_phone_name:
+                        gl.set_value('PHONE_NAME', original_phone_name)
+                    from common.utils.utils import Utils
+                    Utils.start_wda_for_ios()
+
+                wait_seconds = 10 if attempt == 1 else 20
+                print(f"⏳ device_reconnect 第 {attempt}/3 次，等待 {wait_seconds}s 後重建連線...")
+                sleep(wait_seconds)
+                self.setUpClass()
+                self.setUp()
+                print("✅ device_reconnect 重連成功")
+                return
+            except Exception as e:
+                last_exc = e
+                print(f"⚠️  device_reconnect 第 {attempt}/3 次失敗: {e}")
+                # 若屬 WDA 斷線，下一輪再重啟並重試；否則也交由下一輪嘗試一次
+                continue
+
+        if last_exc:
+            raise last_exc
+
+    def _callTestMethod(self, method):
+        """iOS：WDA HTTP 斷線（如 RemoteDisconnected）時重連並重跑該測試方法一次。"""
+        if not self.phone_platform or str(self.phone_platform).lower() != 'ios':
+            super()._callTestMethod(method)
+            return
+        self._ios_wda_reconnect_done = False
+        try:
+            super()._callTestMethod(method)
+        except Exception as e:
+            if not is_ios_wda_connection_lost(e):
+                raise
+            if self._ios_wda_reconnect_done:
+                raise
+            self._ios_wda_reconnect_done = True
+            print('⚠️  WDA 連線異常，嘗試 device_reconnect 後重跑該測試一次...')
+            self.device_reconnect()
+            super()._callTestMethod(method)

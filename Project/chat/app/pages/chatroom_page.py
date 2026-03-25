@@ -403,12 +403,12 @@ class ChatRoomPageLocator(BaseLocator):
         folder_file_path = ChatRoomPageLocator.base.check_device(
             Android=ChatRoomPageLocator.base.data_collation(
                 type_kind='name', type_name='android:id/title', num=num),
-            # iOS=ChatRoomPageLocator.base.data_collation(
-            #     type_kind='type',
-            #     type_name='Cell',
-            #     num=num,
-            #     parent={'type_kind': 'name', 'type_name': 'File View'}
-            # )
+            iOS=ChatRoomPageLocator.base.data_collation(
+                type_kind='type',
+                type_name='Cell',
+                num=num,
+                parent={'type_kind': 'name', 'type_name': 'File View'}
+            )
         )
         return folder_file_path
 

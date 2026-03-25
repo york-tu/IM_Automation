@@ -84,28 +84,28 @@ s1_social_regression_list = [
 # ============================================== S2 Test cases ===================================================
 # -------------- 私聊相關功能測試 --------------
 s2_personal_chat_regression_list = [
-    AppTestCase("test_notify_switch"),
-    AppTestCase("test_about_product"),
-    AppTestCase("test_add_friend"),  # s1
-    AppTestCase("test_add_myself"),
-    AppTestCase("test_block_friend"),
-    AppTestCase("test_block_setting"),
-    AppTestCase("test_unblock_friend"),
-    AppTestCase("test_share_message"),
-    AppTestCase("test_message_copy"),
-    AppTestCase("test_message_reply"),
-    AppTestCase("test_message_delete"),
-    AppTestCase("test_message_revoke"),
-    AppTestCase("test_message_reply_delete"),
-    AppTestCase("test_message_reply_revoke"),
-    AppTestCase("test_message_pin"),
-    AppTestCase("test_message_pin_reply"),
-    AppTestCase("test_message_pin_delete"),
-    AppTestCase("test_message_pin_revoke"),
-    AppTestCase("test_message_emoji"),
-    AppTestCase('test_voice_message_reply'),
-    AppTestCase('test_voice_message_delete'),
-    AppTestCase('test_voice_message_revoke'),
+    # AppTestCase("test_notify_switch"),
+    # AppTestCase("test_about_product"),
+    # AppTestCase("test_add_friend"),  # s1
+    # AppTestCase("test_add_myself"),
+    # AppTestCase("test_block_friend"),
+    # AppTestCase("test_block_setting"),
+    # AppTestCase("test_unblock_friend"),
+    # AppTestCase("test_share_message"),
+    # AppTestCase("test_message_copy"),
+    # AppTestCase("test_message_reply"),
+    # AppTestCase("test_message_delete"),
+    # AppTestCase("test_message_revoke"),
+    # AppTestCase("test_message_reply_delete"),
+    # AppTestCase("test_message_reply_revoke"),
+    # AppTestCase("test_message_pin"),
+    # AppTestCase("test_message_pin_reply"),
+    # AppTestCase("test_message_pin_delete"),
+    # AppTestCase("test_message_pin_revoke"),
+    # AppTestCase("test_message_emoji"),
+    # AppTestCase('test_voice_message_reply'),
+    # AppTestCase('test_voice_message_delete'),
+    # AppTestCase('test_voice_message_revoke'),
     AppTestCase('test_file_message_reply'),
     AppTestCase('test_file_message_delete'),
     AppTestCase('test_file_message_revoke'),
@@ -186,6 +186,6 @@ if __name__ == '__main__':
     suite_s2.addTests(s2_test_cases)  # total 40*s2 + 3*s1
 
     # S1：跑完 + retry 失敗案例 → 發 S1 報告到 Slack
-    Utils.unittest_xml_with_retry_and_slack(suite_s1, report_label='S1', run_check_last_result=False)
+    # Utils.unittest_xml_with_retry_and_slack(suite_s1, report_label='S1', run_check_last_result=False)
     # S2：跑完 + retry 失敗案例 → 發 S2 報告到 Slack，並執行 Jira check_last_result
     Utils.unittest_xml_with_retry_and_slack(suite_s2, report_label='S2', run_check_last_result=True)

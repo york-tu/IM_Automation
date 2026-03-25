@@ -473,6 +473,40 @@ class Web2TestCase(BaseTestCase):
             privacy_index = checks['privacy_index']
             check_media_for_user(account, description_list, media_index, privacy_index)
 
+    # 測試 - (後台)變更發布者gubot06自動審核權限 > (前台)發布媒體 > (後台)確認媒體審核狀態
+    @DecorateClass('CHATAPP-T3483')
+    def test_social_change_poster_auto_audit_type(self):
+        audit_type_list = [2, 0, 1]  # 2:黑名單, 0:一般會員, 1:白名單
+        # ============ 將發布者自動審核權限設為不同權限後確認貼文狀態 ====================================
+        for audit_type in audit_type_list:
+            # ---------- 後台"自動審核"設定發布帳號審核權限 ----------
+            self.test_admin_login()
+            self.function_dict['ad'].social_management_page().into_auto_audit_page()
+            self.function_dict['ad'].social_management_page().set_audit_privacy(self.web2_account, audit_type)
+            # ---------- 前台發布貼文 ----------
+            self.test_web2_login()
+            instructions = self.photo_post(audit_type)
+            # ---------- 後台"媒體審核"確認貼文審核狀態 ----------
+            self.test_admin_login()
+            self.function_dict['ad'].social_management_page().into_media_audit_page()
+            self.function_dict['ad'].social_management_page().search_audit_result(self.web2_account, instructions, audit_type)
+
+    def photo_post(self, audit_type):
+        if audit_type == 1:
+            _type = '白名单'
+        elif audit_type == 2:
+            _type = '黑名单'
+        else:
+            _type = '一般会员'
+        current_time = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
+        description = f'Web2.0_自動審核_{self.brand}_{_type}_{current_time}'
+
+        self.function_dict['web2.0'].web2_main_page().select_media(media_type='photo')
+        self.function_dict['web2.0'].web2_main_page().into_post_settings_and_confirm(description, privacy=0)
+
+        sleep(5)
+        return description
+
     # email註冊帳號 > 登出 > 登入 > 登出
     @DecorateClass('CHATAPP-T3472')
     def test_web2_email_registration(self):
