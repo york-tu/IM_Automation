@@ -178,7 +178,12 @@ if __name__ == "__main__":
 
     # for jira config
     gl.set_value('TEST_TYPE', test_type)
-    BaseKey().get_jira_data()
+    try:
+        BaseKey().get_jira_data()
+    except FileNotFoundError as e:
+        # Jenkins/Docker 環境可能不會提供 Jira key 檔，缺檔時先跳過 Jira 回填避免整體 regression 失敗
+        print(f"[WARN] {e}. Skip Jira push for this run.")
+        push = False
     gl.set_value('PUSH', push)
 
     # TestCase add：S1 跑完 + retry 失敗後發 S1 報告到 Slack，再跑 S2 + retry 後發 S2 報告到 Slack
