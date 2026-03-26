@@ -1,9 +1,13 @@
 import sys
+import platform
 import pyautogui
 import common.utils.globalvar as gl
-import win32clipboard
 import pyperclip
 import os, random, re
+
+_IS_WINDOWS = platform.system().lower().startswith("win")
+if _IS_WINDOWS:
+    import win32clipboard
 
 from datetime import datetime
 from time import sleep
@@ -330,6 +334,9 @@ class ChatRoomPage(BasePage):
 
 
     def copy_to_clipboard(self, text, retry=50, delay=2):
+        if not _IS_WINDOWS:
+            pyperclip.copy(text)
+            return
         for attempt in range(retry):
             try:
                 win32clipboard.OpenClipboard()
