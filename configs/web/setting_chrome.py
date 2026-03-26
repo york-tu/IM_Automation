@@ -61,8 +61,12 @@ class Setting_Chrome:
         chrome_options.add_experimental_option("prefs", prefs)
 
         if _is_wap:
+            # 舊版 chromedriver（例如 83）對 deviceName 支援有限，會噴：
+            # 'iPhone 12 Pro' must be a valid device
+            # 因此改用 deviceMetrics + userAgent 的方式，跨版本更穩定
             mobile_emulation = {
-                "deviceName": "iPhone 12 Pro"
+                "deviceMetrics": {"width": 390, "height": 844, "pixelRatio": 3.0},
+                "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0 Mobile/15E148 Safari/604.1",
             }
             chrome_options.add_experimental_option("mobileEmulation", mobile_emulation)
             # mobile_ua = "Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X) AppleWebKit/537.36 (KHTML, like Gecko) Version/14.0 Mobile/15E148 Safari/604.1"
