@@ -109,13 +109,25 @@ if __name__ == "__main__":
     if len(sys.argv) == 1:
         pass
     elif len(sys.argv) > 2:
-        data = sys.argv[4].split(',,')
-        env = data[0]
+        # 參數格式（與其他 regression 腳本一致）
+        # argv[2]=brand, argv[3]=user, argv[4]="env,,x,,x,,push,,wap_version,,account_type"
+        raw = sys.argv[4] if len(sys.argv) > 4 else ''
+        data = raw.split(',,') if raw else []
         brand = sys.argv[2]
         user = sys.argv[3]
-        wap_version = data[4]
-        account_type = data[5]
-        push = bool(data[3])
+
+        # data[0]=env, data[3]=push, data[4]=wap_version, data[5]=account_type
+        if len(data) >= 1 and data[0]:
+            env = data[0]
+        if len(data) >= 4 and data[3] != '':
+            push = str(data[3]).strip().lower() in ('1', 'true', 'yes', 'y')
+        if len(data) >= 5 and data[4]:
+            wap_version = data[4]
+        if len(data) >= 6 and data[5]:
+            account_type = data[5]
+
+        if len(data) < 6:
+            print(f"[WARN] argv[4] segments < 6, using defaults. raw={raw!r} parsed={data!r}")
 
     gl.set_value('ENV', env)
     gl.set_value('BRAND', brand)
@@ -127,7 +139,11 @@ if __name__ == "__main__":
 
     # for jira config
     gl.set_value('TEST_TYPE', test_type)
-    BaseKey().get_jira_data()
+    try:
+        BaseKey().get_jira_data()
+    except FileNotFoundError as e:
+        print(f"[WARN] {e}. Skip Jira push for this run.")
+        push = False
     gl.set_value('PUSH', push)
 
     # TestCase add：S1 跑完 + retry 失敗後發 S1 報告到 Slack，再跑 S2 + retry 後發 S2 報告到 Slack
