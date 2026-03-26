@@ -295,14 +295,18 @@ class ChatRoomPage(BasePage):
         clip_path = ''
         random_file = ''
         if media_type == 'photo':
-            clip_path = DIR_NAME + '\\test_medias\\360x360.png'
+            clip_path = os.path.join(DIR_NAME, 'test_medias', '360x360.png')
         elif media_type == 'video':
-            clip_path = DIR_NAME + '\\test_medias\\ForBiggerMeltdowns.mp4'
+            clip_path = os.path.join(DIR_NAME, 'test_medias', 'ForBiggerMeltdowns.mp4')
         elif media_type == 'file':
-            file_folder_path = f'{DIR_NAME}\\test_medias\\file_sample'
+            file_folder_path = os.path.join(DIR_NAME, 'test_medias', 'file_sample')
+            if not os.path.isdir(file_folder_path):
+                raise FileNotFoundError(f'file_sample folder not found: {file_folder_path}')
             files = [f for f in os.listdir(file_folder_path) if os.path.isfile(os.path.join(file_folder_path, f))]
+            if not files:
+                raise FileNotFoundError(f'No files found in: {file_folder_path}')
             random_file = random.choice(files)
-            clip_path = f'{DIR_NAME}\\test_medias\\file_sample\\{random_file}'
+            clip_path = os.path.join(file_folder_path, random_file)
 
         self.wait_loading_finish()
         self.click(ChatRoomPageLocator.add_btn)
