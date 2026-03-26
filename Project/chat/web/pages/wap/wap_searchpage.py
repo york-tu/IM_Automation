@@ -7,7 +7,12 @@ import common.utils.globalvar as gl
 DIR_NAME = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 sys.path.append(DIR_NAME)
 import pyautogui
-import win32clipboard
+import platform
+import pyperclip
+
+_IS_WINDOWS = platform.system().lower().startswith("win")
+if _IS_WINDOWS:
+    import win32clipboard
 
 class SearchPageLocator:
     # ============================= 導航欄 ==============================================================================

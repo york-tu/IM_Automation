@@ -7,7 +7,12 @@ import os, random, re, sys
 DIR_NAME = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 sys.path.append(DIR_NAME)
 import pyautogui
-import win32clipboard
+import platform
+import pyperclip
+
+_IS_WINDOWS = platform.system().lower().startswith("win")
+if _IS_WINDOWS:
+    import win32clipboard
 
 
 class MainPageLocator:
@@ -218,6 +223,9 @@ class MainPage(BasePage):
         pyautogui.press('enter')
 
     def copy_to_clipboard(self, text, retry=50, delay=2):
+        if not _IS_WINDOWS:
+            pyperclip.copy(text)
+            return
         for attempt in range(retry):
             try:
                 win32clipboard.OpenClipboard()

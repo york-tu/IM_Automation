@@ -4,7 +4,12 @@ import sys
 from time import sleep
 
 import pyautogui
-import win32clipboard
+import platform
+import pyperclip
+
+_IS_WINDOWS = platform.system().lower().startswith("win")
+if _IS_WINDOWS:
+    import win32clipboard
 from selenium.webdriver.common.by import By
 from Project.chat.web.pages.wap.wap_basepage import BasePage
 import common.utils.globalvar as gl
@@ -227,6 +232,9 @@ class MessagePage(BasePage):
         assert actual_chatroom_filename == random_file, f'檔案名稱錯誤, 預期:{random_file},實際:{actual_chatroom_filename}'
 
     def copy_to_clipboard(self, text, retry=50, delay=2):
+        if not _IS_WINDOWS:
+            pyperclip.copy(text)
+            return
         for attempt in range(retry):
             try:
                 win32clipboard.OpenClipboard()
