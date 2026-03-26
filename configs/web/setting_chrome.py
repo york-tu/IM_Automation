@@ -35,7 +35,10 @@ class Setting_Chrome:
         chrome_options.add_argument('--window-size=%s,%s' % (str(width), str(height)))
         chrome_options.add_argument('--disable-dev-shm-usage')
         chrome_options.add_experimental_option('w3c',False)
-        # chrome_options.add_argument('--no-sandbox')  # disable to avoid "chromedriver cannot quit" issue (v124)
+        # Docker / Linux root / CI：未加 sandbox 關閉時常出現 DevToolsActivePort / Chrome exited abnormally
+        if platform.system() == 'Linux':
+            chrome_options.add_argument('--no-sandbox')
+            chrome_options.add_argument('--disable-setuid-sandbox')
         chrome_options.add_argument('--disable-gpu')
         chrome_options.add_argument("--proxy-server='direct://'")
         chrome_options.add_argument("--proxy-bypass-list=*")

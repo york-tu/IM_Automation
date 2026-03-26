@@ -26,8 +26,14 @@ class WebDriver(UnittestModule):
             shutil.rmtree(path)
 
         os.makedirs(path)
-        
-        self.chrome_path = Setting_Chrome().get_chromedriver_path_by_os()
+
+        # Linux（Jenkins Docker）：bundled chromedriver 常與映像內 google-chrome 主版本不符 → session 失敗。
+        # 預設用 ChromeDriverManager 對齊已安裝 Chrome；若需離線可設環境變數 USE_LOCAL_CHROMEDRIVER_ON_LINUX=1
+        if platform.system() == 'Linux' and os.environ.get('USE_LOCAL_CHROMEDRIVER_ON_LINUX') != '1':
+            logging.getLogger('WDM').setLevel(logging.NOTSET)
+            self.chrome_path = ChromeDriverManager().install()
+        else:
+            self.chrome_path = Setting_Chrome().get_chromedriver_path_by_os()
         self.chrome_option = Setting_Chrome().get_chrome_options(width=width, height=height, _is_wap=is_wap, Headless=headless)
 
         prefs = {"download.default_directory": f"{path}"}
