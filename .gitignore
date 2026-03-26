@@ -11,6 +11,7 @@
 
 *.yml
 !Project/chat/configs/setting_chat.yml
+!configs/web/setting_chrome.yml
 
 *.pyd
 

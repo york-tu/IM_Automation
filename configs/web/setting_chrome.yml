@@ -1,0 +1,10 @@
+# Chrome / Chromedriver 路徑（相對專案根目錄，與 PathUtils.get_relative_path 一致）
+# Jenkins Docker 內 script 會 chmod driver/driver/chromedriver_linux；本機 Windows 請改為實際 chromedriver.exe 路徑
+headless_mode: 0
+driver_path:
+  win:
+    chrome_path: driver/driver/chromedriver.exe
+  linux:
+    chrome_path: driver/driver/chromedriver_linux
+  mac:
+    chrome_path: driver/driver/chromedriver_mac
