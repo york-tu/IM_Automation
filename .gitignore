@@ -24,6 +24,7 @@
 *.html
 
 *.jpg
+!Project/chat/element_icon/**
 
 # *.png
 
