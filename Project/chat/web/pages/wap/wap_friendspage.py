@@ -27,12 +27,16 @@ class FriendsPageLocator:
     back_btn = (By.XPATH, '//i[@class="el-icon text-[18rem]"]')  # 返回鍵
 
     # ============================= 好友-好友名單 =========================================================================
+    chatlist_friend_btn = (By.XPATH, "(//div[contains(@class,'cursor-pointer')]//*[name()='svg'])[2]")  # 聊天列表-好友名單鍵
     header_title = (By.XPATH, '//*[@id="app"]/div/div[1]/div[2]/div')  # 頁面標題
     search_friend_input = (By.XPATH, '//input[@placeholder="搜索"]')  # 搜尋欄位
     search_clear_btn = (By.XPATH, '//div[@class="cursor-pointer w-[16rem] h-[16rem] cross-icon bg-white-100"]')  # 清除搜尋鍵
     result_first = (By.XPATH, '//span[@class="bg-transparent text-primary-500"]')  # 搜尋結果第一筆
+    userDetail_back_btn = (By.XPATH, "(//div[contains(@class,'cursor-pointer')]//*[name()='svg'])[last()]")  # 用戶詳情-返回鍵
 
     # ============================= 聊天詳情 =============================================================================
+    chatroom_back_btn = (By.XPATH, "(//div[contains(@class,'cursor-pointer')]//*[name()='svg'])[1]")  # 聊天室-返回鍵
+
     chatroom_detail = (By.XPATH, "//div[@class='cursor-pointer icon more-icon w-[24rem] h-[24rem]']")  # 聊天室右上角"聊天詳情"鍵
     user_detail_remark_title = (By.XPATH, '//p[@class="text-[16rem] font-semibold whitespace-nowrap text-grand-1"]')  # "描述"
     user_detail_remark_display = (By.XPATH, '//p[@class="flex-1 min-w-0 ml-[8rem] text-[16rem] font-semibold text-neutral-400 line-clamp-2 break-all"]')  # 備註內容
@@ -71,13 +75,14 @@ class FriendsPage(BasePage):
     def into_friend_list(self):
         self.click(FriendsPageLocator.message_button)
         sleep(2)
-        button_img_path = ''
-        if self.brand.lower() == "gu":
-            button_img_path = DIR_NAME + '\\element_icon\\friend_btn.jpg'
-        elif self.brand.lower() == "mingpin":
-            button_img_path = DIR_NAME + '\\element_icon\\friend_btn_mingpin.jpg'
-        location = pyautogui.locateCenterOnScreen(button_img_path, confidence=0.8)
-        pyautogui.click(location)
+        # button_img_path = ''
+        # if self.brand.lower() == "gu":
+        #     button_img_path = os.path.join(DIR_NAME, 'element_icon', 'friend_btn.jpg')
+        # elif self.brand.lower() == "mingpin":
+        #     button_img_path = os.path.join(DIR_NAME, 'element_icon', 'friend_btn_mingpin.jpg')
+        # location = pyautogui.locateCenterOnScreen(button_img_path, confidence=0.8)
+        # pyautogui.click(location)
+        self.click(FriendsPageLocator.chatlist_friend_btn)
         sleep(3)
         current_page_title = self.get_text(FriendsPageLocator.header_title)
         assert current_page_title == '好友名单', f'非好友名單頁, 預期:好友名单, 實際:{current_page_title}'
@@ -86,13 +91,14 @@ class FriendsPage(BasePage):
         self.click(FriendsPageLocator.add_to_address_book_btn)
         self.wait_loading_finish()
         assert self.get_text(MessagePageLocator.chatroom_title) == friend_nickname
-        button_img_path = ''
-        if self.brand.lower() == "gu":
-            button_img_path = DIR_NAME + '\\element_icon\\back.jpg'
-        elif self.brand.lower() == "mingpin":
-            button_img_path = DIR_NAME + '\\element_icon\\back_mingpin.jpg'
-        location = pyautogui.locateCenterOnScreen(button_img_path, confidence=0.8)
-        pyautogui.click(location)
+        # button_img_path = ''
+        # if self.brand.lower() == "gu":
+        #     button_img_path = os.path.join(DIR_NAME, 'element_icon', 'back.jpg')
+        # elif self.brand.lower() == "mingpin":
+        #     button_img_path = os.path.join(DIR_NAME, 'element_icon', 'back_mingpin.jpg')
+        # location = pyautogui.locateCenterOnScreen(button_img_path, confidence=0.8)
+        # pyautogui.click(location)
+        self.click(FriendsPageLocator.chatroom_back_btn)
         self.wait_loading_finish()
 
     def back_to_friend_list_page(self):
@@ -103,13 +109,14 @@ class FriendsPage(BasePage):
         self.refresh_browser()
         sleep(2)
         while not self.get_text(FriendsPageLocator.header_title) == 'Chat':
-            button_img_path = ''
-            if self.brand.lower() == "gu":
-                button_img_path = DIR_NAME + '\\element_icon\\back.jpg'
-            elif self.brand.lower() == "mingpin":
-                button_img_path = DIR_NAME + '\\element_icon\\back_mingpin.jpg'
-            location = pyautogui.locateCenterOnScreen(button_img_path, confidence=0.8)
-            pyautogui.click(location)
+            # button_img_path = ''
+            # if self.brand.lower() == "gu":
+            #     button_img_path = os.path.join(DIR_NAME, 'element_icon', 'back.jpg')
+            # elif self.brand.lower() == "mingpin":
+            #     button_img_path = os.path.join(DIR_NAME, 'element_icon', 'back_mingpin.jpg')
+            # location = pyautogui.locateCenterOnScreen(button_img_path, confidence=0.8)
+            # pyautogui.click(location)
+            self.click(FriendsPageLocator.chatroom_back_btn)
             sleep(1)
 
     # =========================== 新增好友頁 ======================================
@@ -219,15 +226,15 @@ class FriendsPage(BasePage):
         assert pops_msg == f'将联络人「{friend_nickname}」删除，同时删除与该联络人的聊天纪录。', f'彈窗有誤'
         self.click(FriendsPageLocator.delete_confirm_btn)
         self.wait_loading_finish()
-        Aaa = self.is_element_finded(FriendsPageLocator.add_to_address_book_btn)
         assert self.is_element_finded(FriendsPageLocator.add_to_address_book_btn), f"未出現[新增至通讯录]選項"
         # 返回上一頁
-        button_img_path = ''
-        if self.brand.lower() == "gu":
-            button_img_path = DIR_NAME + '\\element_icon\\back.jpg'
-        elif self.brand.lower() == "mingpin":
-            button_img_path = DIR_NAME + '\\element_icon\\back_mingpin.jpg'
-        location = pyautogui.locateCenterOnScreen(button_img_path, confidence=0.8)
+        # button_img_path = ''
+        # if self.brand.lower() == "gu":
+        #     button_img_path = os.path.join(DIR_NAME, 'element_icon', 'back.jpg')
+        # elif self.brand.lower() == "mingpin":
+        #     button_img_path = os.path.join(DIR_NAME, 'element_icon', 'back_mingpin.jpg')
+        # location = pyautogui.locateCenterOnScreen(button_img_path, confidence=0.8)
         for _ in range(2):
-            pyautogui.click(location)
+            # pyautogui.click(location)
+            self.click(FriendsPageLocator.userDetail_back_btn)
             self.wait_loading_finish()

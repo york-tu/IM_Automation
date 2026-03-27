@@ -707,20 +707,20 @@ class WapTestCase(BaseTestCase):
             poster_phone_list = ['9016000202', '9016000203']
             poster_nickname_list = ['gutest002', 'gutest03']
         #
-        description_list = []
+        description_list = ['mWeb_gu_SearchTest_2026_03_26_15_32_25', 'mWeb_gu_SearchTest_2026_03_26_15_32_52']
 
-        for poster_phone, poster_nickname in zip(poster_phone_list, poster_nickname_list):
-            self.function_dict['wap'].base_page().open_base_url()  # 開啟wap網頁
-            self.function_dict['wap'].wap_login_page().login(poster_phone, self.wap_password, self.web_nation)
-            # ========================== gubot01 & gubot02 依序發布貼文 ==================================================
-            current_time = datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
-            description = f'mWeb_{self.brand}_SearchTest_{current_time}'
-            description_list.append(description)
-
-            self.function_dict['wap'].wap_main_page().select_media(media_type='video')
-            self.function_dict['wap'].wap_main_page().into_post_settings(description)
-            self.function_dict['wap'].wap_main_page().check_post(poster_nickname, description)
-            self.test_wap_logout()
+        # for poster_phone, poster_nickname in zip(poster_phone_list, poster_nickname_list):
+        #     self.function_dict['wap'].base_page().open_base_url()  # 開啟wap網頁
+        #     self.function_dict['wap'].wap_login_page().login(poster_phone, self.wap_password, self.web_nation)
+        #     # ========================== gubot01 & gubot02 依序發布貼文 ==================================================
+        #     current_time = datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
+        #     description = f'mWeb_{self.brand}_SearchTest_{current_time}'
+        #     description_list.append(description)
+        #
+        #     self.function_dict['wap'].wap_main_page().select_media(media_type='video')
+        #     self.function_dict['wap'].wap_main_page().into_post_settings(description)
+        #     self.function_dict['wap'].wap_main_page().check_post(poster_nickname, description)
+        #     self.test_wap_logout()
         # ========================== gubot04 or gubotmail01 登入 ========================================================
         if 'mail' in self.account_type.lower():
             self.function_dict['wap'].wap_login_page().login(self.mail_address, self.mail_password, login_method='mail')

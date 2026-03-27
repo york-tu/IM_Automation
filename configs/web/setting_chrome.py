@@ -52,11 +52,19 @@ class Setting_Chrome:
         chrome_options.add_argument("--disable-notifications")
         chrome_options.add_argument("--disable-popup-blocking")
         chrome_options.add_argument("--disable-save-password-bubble")
+        # 避免瀏覽器層級「麥克風/相機權限」彈窗（非 DOM，測試中很難可靠點擊）
+        # - use-fake-ui-for-media-stream: 自動按下允許
+        # - use-fake-device-for-media-stream: 提供假裝置，避免沒有麥克風硬體時卡住
+        chrome_options.add_argument("--use-fake-ui-for-media-stream")
+        chrome_options.add_argument("--use-fake-device-for-media-stream")
 
         prefs = {
             "credentials_enable_service": False,
             "profile.password_manager_enabled": False,
             "profile.default_content_setting_values.media_stream_mic": 1,
+            "profile.default_content_setting_values.media_stream_camera": 1,
+            "profile.default_content_setting_values.geolocation": 1,
+            "profile.default_content_setting_values.notifications": 1,
         }
         chrome_options.add_experimental_option("prefs", prefs)
 

@@ -18,6 +18,7 @@ class PersonalSettingPageLocator:
     edit_profile_btn = (By.XPATH, "//button[@class=' bg-gray-100 py-[10rem] px-[20rem] rounded-[4rem] text-[15rem] font-semibold' and text()=' 编辑主页 ']")  # 個人主頁-編輯主頁鍵
     share_profile_btn = (By.XPATH, "//button[@class=' bg-gray-100 py-[10rem] px-[20rem] rounded-[4rem] text-[15rem] font-semibold' and text()=' 分享主页 ']")  # 個人主頁-分享主頁鍵
     header_title = (By.XPATH, '//div[@class="w-[80%] text-[16rem] font-bold flex flex-col items-center relative"]')  # 頁面標題
+    edit_back_btn = (By.XPATH, "(//div[contains(@class,'cursor-pointer')]//*[name()='svg'])[last()]")  # 編輯主頁-返回鍵
 
     # ============================= 主頁 > 個人 > 設定頁 =================================================================
     function_btn = (By.XPATH, "//div[@class='absolute right-[16rem]']")  # 個人主頁-右上角功能鍵
@@ -175,11 +176,12 @@ class PersonalSettingPage(BasePage):
         self.click_back_btn()
 
     def click_back_btn(self):
-        button_img_path = ''
-        if self.brand.lower() == "gu":
-            button_img_path = DIR_NAME + '\\element_icon\\back.jpg'
-        elif self.brand.lower() == "mingpin":
-            button_img_path = DIR_NAME + '\\element_icon\\back_mingpin.jpg'
-        location = pyautogui.locateCenterOnScreen(button_img_path, confidence=0.8)
-        pyautogui.click(location)
+        # button_img_path = ''
+        # if self.brand.lower() == "gu":
+        #     button_img_path = os.path.join(DIR_NAME, 'element_icon', 'back.jpg')
+        # elif self.brand.lower() == "mingpin":
+        #     button_img_path = os.path.join(DIR_NAME, 'element_icon', 'back_mingpin.jpg')
+        # location = pyautogui.locateCenterOnScreen(button_img_path, confidence=0.8)
+        # pyautogui.click(location)
+        self.click(PersonalSettingPageLocator.edit_back_btn)
         self.wait_loading_finish()

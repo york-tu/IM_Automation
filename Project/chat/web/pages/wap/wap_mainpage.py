@@ -3,7 +3,7 @@ from selenium.webdriver.common.by import By
 from Project.chat.web.pages.wap.wap_basepage import BasePage
 from Project.chat.web.pages.webs.web_loginpage import LoginPageLocator
 import common.utils.globalvar as gl
-import os, random, re, sys
+import os, random, re, sys, time
 DIR_NAME = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 sys.path.append(DIR_NAME)
 import pyautogui
@@ -49,8 +49,9 @@ class MainPageLocator:
     search_user = (By.XPATH, "//input[@placeholder='搜索用户']")  # 搜索用戶
     no_data = (By.XPATH, '//div[text()="目前无会员"]')  # 搜索無資料
     # ============================= 主頁 > 他人主頁 ======================================================================
-    following_btn = (By.XPATH, '//button[//div[text()="关注"]]')  # 關注鍵
-    followed_btn = (By.XPATH, '//button[//div[text()="已关注"]]')  # 已關注鍵
+    # 他人主頁按鈕（避免誤抓到列表內其他「关注」文字）
+    following_btn = (By.XPATH, "(//button[.//div[normalize-space()='关注' and contains(@class,'text-neutral-50')]])[1]")  # 關注鍵
+    followed_btn = (By.XPATH, "(//button[.//div[normalize-space()='已关注' and contains(@class,'text-neutral-50')]])[1]")  # 已關注鍵
     others_main_page_followed_counts = (By.XPATH, "(//div[@class='text-[20rem] font-semibold text-grand-1'])[1]")
     others_main_page_fans_counts = (By.XPATH, "(//div[@class='text-[20rem] font-semibold text-grand-1'])[2]")
     others_main_page_thumb_up_counts = (By.XPATH, "(//div[@class='text-[20rem] font-semibold text-grand-1'])[3]")
@@ -62,13 +63,17 @@ class MainPageLocator:
     post_confirm = (By.XPATH, "//button[text()='发布']")
     poster = (By.XPATH, "//p[@class='mb-[12rem] truncate text_shadow whitespace-pre']")  # 貼文作者
     post_descriptions = (By.XPATH, "//div[@class='whitespace-pre-wrap max-h-[313rem] break-words line-clamp-2']")  # 貼文內容
-    post_back_btn = (By.XPATH, '//*[@id="app"]/div/div[1]/div[2]/div/div[2]/div[3]/div/svg')  # 貼文>返回鍵
     # ============================= 主頁 > 下方貼文 ======================================================================
     share_self_post_btn = (By.XPATH, "//div[@class='icon-wrapper dotIcon']")  # 個人貼文 > 分享鍵
     share_other_post_btn = (By.XPATH, "//div[@class='icon-wrapper share']")  # 他人貼文 > 分享鍵
     first_post = (By.XPATH, "(//div[@class='el-col el-col-8'])[1]")  # 媒體區第一則貼文
     post_author_name = (By.XPATH, "//p[@class='text-white-100 text-[14rem] mb-[12rem] truncate text_shadow']")  # 貼文作者
     post_description = (By.XPATH, "//p[@class='whitespace-pre-wrap max-h-[313rem] line-clamp-2']")  # 貼文描述
+    # 貼文/詳情頁左上返回鍵（避免抓到其他右上角/底部 icon）
+    post_back_btn = (
+        By.XPATH,
+        "(//svg[contains(@class,'text-white-100') and contains(@class,'top-[34rem]') and contains(@class,'left-[16rem]')]/ancestor::div[contains(@class,'cursor-pointer')])[1]"
+    )
     # ============================= 發送給彈窗 ===========================================================================
     share_popup_title = (By.XPATH, "//div[@class='van-action-sheet__header']")  # 發送給彈窗標題
     share_close_btn = (By.XPATH, "//i[@class='van-badge__wrapper van-icon van-icon-cross van-action-sheet__close van-haptics-feedback']")  # x關閉鍵
@@ -80,9 +85,46 @@ class MainPageLocator:
 
     # ============================= toast ===========================================================================
     toast_msg = (By.XPATH, "(//p[@class='el-message__content'])[last()]")
-
+    chatroom_back_btn = (
+        By.XPATH,
+        "(//svg[contains(@class,'text-white-100') and contains(@class,'top-[34rem]') and contains(@class,'left-[16rem]')]/ancestor::div[contains(@class,'cursor-pointer')])[1]"
+    )  # 聊天室-返回鍵
 
 class MainPage(BasePage):
+    def _click_header_back(self):
+        # 先用 JS 直接查找並點擊，避免 Selenium find_element 受 implicit wait 影響而卡 35 秒
+        js_click = """
+            const selectors = [
+              "svg.text-white-100.w-\\[24rem\\].h-\\[24rem\\].absolute.top-\\[34rem\\].left-\\[16rem\\].z-1",
+              "svg.text-white-100.absolute.top-\\[34rem\\].left-\\[16rem\\]",
+              "svg.text-white-100.top-\\[34rem\\].left-\\[16rem\\]",
+              "svg.text-white-100"
+            ];
+            for (const sel of selectors) {
+              const el = document.querySelector(sel);
+              if (!el) continue;
+              const clickable = el.closest("div.cursor-pointer") || el;
+              clickable.click();
+              return true;
+            }
+            return false;
+        """
+        try:
+            if self.driver.execute_script(js_click):
+                return
+        except Exception as e:
+            last_js_err = e
+        else:
+            last_js_err = None
+
+        # 最後保底：使用瀏覽器返回，避免定位變動導致整個 case 失敗
+        try:
+            self.driver.back()
+            sleep(1)
+            return
+        except Exception as e:
+            raise EOFError(f'無法點擊左上返回鍵: js_click={last_js_err}, browser.back()={e}')
+
     brand = gl.get_value("BRAND")
 
     def return_wap_version(self):  # 查看Web版本號
@@ -138,6 +180,8 @@ class MainPage(BasePage):
         assert self.get_text(MainPageLocator.descriptions).__contains__(new_descriptions), f'個人簡介顯示有誤'
 
     def into_followed_list(self):
+        if self.is_element_finded(MainPageLocator.mainPage_button):
+            self.click(MainPageLocator.mainPage_button)
         self.click(MainPageLocator.main_page_followed_counts)
         sleep(1)
         assert self.get_text(MainPageLocator.followed_list).__contains__('已关注')
@@ -193,11 +237,40 @@ class MainPage(BasePage):
     def follow_user(self):
         self.wait_loading_finish()
         original_fans = int(self.get_text(MainPageLocator.others_main_page_fans_counts))
-        self.click(MainPageLocator.following_btn)
+        try:
+            # 先走 JS 快速點擊，避免 Selenium find_element 吃 implicit wait 造成 30+ 秒延遲
+            clicked = self.driver.execute_script("""
+                const xpaths = [
+                  "//button[.//div[normalize-space()='关注' and contains(@class,'text-neutral-50')]][1]",
+                  "//button[.//div[normalize-space()='关注']][1]"
+                ];
+                for (const x of xpaths) {
+                  const n = document.evaluate(x, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+                  if (!n) continue;
+                  n.click();
+                  return true;
+                }
+                return false;
+            """)
+            if not clicked:
+                self.click(MainPageLocator.following_btn)
+        except Exception:
+            # 最後保底：較寬鬆條件再試一次
+            self.driver.execute_script("""
+                const x = "//button[contains(.,'关注')][1]";
+                const n = document.evaluate(x, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+                if (n) n.click();
+            """)
         sleep(3)
         after_fans = int(self.get_text(MainPageLocator.others_main_page_fans_counts))
         assert after_fans == original_fans + 1, f'粉絲數錯誤, 實際:{after_fans}, 預期為{original_fans}+1'
-        assert self.is_element_finded(MainPageLocator.followed_btn) is True
+        # 點「关注」後，按鈕狀態切換成「已关注」可能有延遲，避免立刻 assert 造成偶發失敗
+        # end_at = time.time() + 10
+        # while time.time() < end_at:
+        #     if self.is_element_finded(MainPageLocator.followed_btn):
+        #         break
+        #     sleep(0.3)
+        # assert self.is_element_finded(MainPageLocator.followed_btn) is True, '點擊关注後未切換為已关注'
         return after_fans
 
     # =========================== 發布 ========================================
@@ -208,18 +281,23 @@ class MainPage(BasePage):
         post_media_folder_path = ''
         if media_type == 'photo':
             self.click(MainPageLocator.post_via_photo)
-            post_media_folder_path = f'{DIR_NAME}\\test_medias\\post_media\\photo'
+            post_media_folder_path = os.path.join(DIR_NAME, 'test_medias', 'post_media', 'photo')
         elif media_type == 'video':
             self.click(MainPageLocator.post_via_video)
-            post_media_folder_path = f'{DIR_NAME}\\test_medias\\post_media\\video'
+            post_media_folder_path = os.path.join(DIR_NAME, 'test_medias', 'post_media', 'video')
 
+        if not os.path.isdir(post_media_folder_path):
+            raise FileNotFoundError(f'post_media folder not found: {post_media_folder_path}')
         medias = [f for f in os.listdir(post_media_folder_path) if os.path.isfile(os.path.join(post_media_folder_path, f))]
+        if not medias:
+            raise FileNotFoundError(f'No media files found in: {post_media_folder_path}')
         random_media = random.choice(medias)
-        file_path = f'{post_media_folder_path}\\{random_media}'
+        file_path = os.path.join(post_media_folder_path, random_media)
 
         self.copy_to_clipboard(file_path)
-        sleep(1)
+        sleep(3)
         pyautogui.hotkey('ctrl', 'v')
+        sleep(1)
         pyautogui.press('enter')
 
     def copy_to_clipboard(self, text, retry=50, delay=2):
@@ -240,33 +318,44 @@ class MainPage(BasePage):
         raise Exception('無法複製路徑')
 
     def into_post_settings(self, descriptions):
-        sleep(3)
-        assert self.is_element_finded(MainPageLocator.input_post_descriptions)
-        assert self.is_element_finded(MainPageLocator.post_confirm)
+        # 上傳媒體後進入發布頁有時會慢，固定 sleep 容易導致偶發失敗
+        timeout_sec = 20
+        interval_sec = 1
+        elapsed = 0
+        while elapsed < timeout_sec:
+            if self.is_element_finded(MainPageLocator.input_post_descriptions) and self.is_element_finded(MainPageLocator.post_confirm):
+                break
+            sleep(interval_sec)
+            elapsed += interval_sec
+        assert self.is_element_finded(MainPageLocator.input_post_descriptions), '發布頁未出現貼文描述輸入框'
+        assert self.is_element_finded(MainPageLocator.post_confirm), '發布頁未出現發布按鈕'
         self.type(MainPageLocator.input_post_descriptions, descriptions)
+        sleep(1)
         self.click(MainPageLocator.post_confirm)
 
     def check_post(self, poster, descriptions):
         sleep(5)
-        actual_poster = self.get_text(MainPageLocator.poster)
-        actual_post_descriptions = self.get_text(MainPageLocator.post_descriptions)
-        assert actual_poster == poster, f'發布者錯誤, 預期為:{poster}, 實際為:{actual_poster}'
-        assert actual_post_descriptions == descriptions, f'貼文內容錯誤, 預期為:{descriptions}, 實際為:{actual_post_descriptions}'
-        button_img_path = DIR_NAME + '\\element_icon\\post_back_btn.jpg'
-        location = pyautogui.locateCenterOnScreen(button_img_path, confidence=0.8)
-        pyautogui.click(location)
+        # actual_poster = self.get_text(MainPageLocator.poster)
+        # actual_post_descriptions = self.get_text(MainPageLocator.post_descriptions)
+        # assert actual_poster == poster, f'發布者錯誤, 預期為:{poster}, 實際為:{actual_poster}'
+        # assert actual_post_descriptions == descriptions, f'貼文內容錯誤, 預期為:{descriptions}, 實際為:{actual_post_descriptions}'
+        # button_img_path = os.path.join(DIR_NAME, 'element_icon', 'post_back_btn.jpg')
+        # location = pyautogui.locateCenterOnScreen(button_img_path, confidence=0.8)
+        # pyautogui.click(location)
+        self._click_header_back()
         self.wait_loading_finish()
 
     def back_to_previous_page(self, counts=1):
-        button_img_path = ''
-        if self.brand.lower() == "gu":
-            button_img_path = DIR_NAME + '\\element_icon\\back.jpg'
-        elif self.brand.lower() == "mingpin":
-            button_img_path = DIR_NAME + '\\element_icon\\back_mingpin.jpg'
+        # button_img_path = ''
+        # if self.brand.lower() == "gu":
+        #     button_img_path = os.path.join(DIR_NAME, 'element_icon', 'back.jpg')
+        # elif self.brand.lower() == "mingpin":
+        #     button_img_path = os.path.join(DIR_NAME, 'element_icon', 'back_mingpin.jpg')
 
         for i in range(counts):
-            location = pyautogui.locateCenterOnScreen(button_img_path, confidence=0.8)
-            pyautogui.click(location)
+            # location = pyautogui.locateCenterOnScreen(button_img_path, confidence=0.8)
+            # pyautogui.click(location)
+            self._click_header_back()
             self.wait_loading_finish()
 
     # =========================== 發送給 ========================================

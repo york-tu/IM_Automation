@@ -22,7 +22,7 @@ class MessagePageLocator:
 
     # ============================= 聊天列表頁 ===========================================================================
     header_title = (By.XPATH, '//*[@id="app"]/div[1]/div[1]/div[2]/div')  # 頁面標題
-    add_btn = (By.XPATH, '//*[@id="app"]/div[1]/div[1]/div[3]/svg[2]')  # 新增鍵
+    add_btn = (By.XPATH, "(//div[contains(@class,'cursor-pointer')]//*[name()='svg'])[3]")  # 新增鍵
     add_list_add_friend = (By.XPATH, "//p[text()='新增好友']")  # 新增 > 新增好友
     search_input = (By.XPATH, '//input[@placeholder="搜索"]')  # 搜尋欄位
     # ============================= 新增好友頁 ===========================================================================
@@ -34,7 +34,7 @@ class MessagePageLocator:
 
     send_btn = (By.XPATH, '//div[@class="btn-send w-[24rem] h-[24rem]"]')  # 發送btn
     chatroom_latest_message = (By.XPATH, '(//div[@class="flex flex-col relative min-w-0"])[last()]')  # 聊天室內最新一則訊息
-    back_btn = (By.XPATH, '//*[@id="app"]/div[1]/div[1]/div[1]/svg')  # 返回鍵
+    chatroom_back_btn = (By.XPATH, "(//div[contains(@class,'cursor-pointer')]//*[name()='svg'])[1]")  # 聊天室-返回鍵
     chat_list_chatroom_last_message = (By.XPATH, '//div[@class="flex items-center w-full mt-[4rem]"]')  # 聊天列表聊天室最後一則訊息
     system_message = (By.XPATH, "(//div[@class='text-[12rem] font-medium text-grand-2 text-center mx-auto bg-neutral-900 rounded-full px-[12rem] py-[3rem] break-all w-fit mt-[8rem]'])[last()]")
     # ------------------------ 語音訊息 ----------------------------
@@ -43,6 +43,7 @@ class MessagePageLocator:
     popup_title = (By.XPATH, '//*[@id="app"]/div[1]/div[3]/div[1]/div[1]')  # 語音介面標題
     record_voice_btn = (By.XPATH, '//*[@id="app"]/div/div[3]/div[2]/div/div/div')  # 語音介面-開始錄音
     close_btn = (By.XPATH, '//*[@id="app"]/div/div[3]/div[1]/div[2]')  # 語音介面-關閉鍵
+    voice_send_btn = (By.CSS_SELECTOR, "div.green-send")  # 語音介面-送出鍵
     chatroom_latest_voice_message = (By.XPATH, '(//div[@class="time-display"])[last()]')  # 聊天室最新一筆語音訊息
     # ------------------------ 檔案訊息 ----------------------------
     file_btn = (By.XPATH, "//div[text()='档案']")  # 檔案鍵
@@ -134,7 +135,8 @@ class MessagePage(BasePage):
 
     def into_add_friend_page(self, self_id=None):
         # === 點"新增"鍵 ===
-        pyautogui.click(pyautogui.locateCenterOnScreen(DIR_NAME + '\\element_icon\\add_btn.jpg', confidence=0.8))
+        self.click(MessagePageLocator.add_btn)
+        # pyautogui.click(pyautogui.locateCenterOnScreen(os.path.join(DIR_NAME, 'element_icon', 'add_btn.jpg'), confidence=0.8))
         # ================
         self.wait_visibility(MessagePageLocator.add_list_add_friend)
         self.click(MessagePageLocator.add_list_add_friend)
@@ -164,10 +166,10 @@ class MessagePage(BasePage):
 
     def send_voice_message(self, record_length):
         length = int(record_length)
-        if length < 9:
-            expect_result = f"00:0{length}"
-        else:
-            expect_result = f"00:{length}"
+        # if length < 9:
+        #     expect_result = f"00:0{length}"
+        # else:
+        #     expect_result = f"00:{length}"
 
         if self.is_element_finded(MessagePageLocator.mic_btn):
             self.click(MessagePageLocator.mic_btn)
@@ -179,23 +181,25 @@ class MessagePage(BasePage):
         self.click(MessagePageLocator.record_voice_btn)
         # ---------- 瀏覽器跳出麥克風權限時點擊允許-----------------
         sleep(1)
-        location_mic_allow = pyautogui.locateCenterOnScreen(DIR_NAME + '\\element_icon\\mic_allow_permission.jpg', confidence=0.8)
-        if location_mic_allow:
-            sleep(3)
-            pyautogui.click(location_mic_allow)
+        # location_mic_allow = pyautogui.locateCenterOnScreen(os.path.join(DIR_NAME, 'element_icon', 'mic_allow_permission.jpg'), confidence=0.8)
+        # if location_mic_allow:
+        #     sleep(3)
+        #     pyautogui.click(location_mic_allow)
+        # else:
+        if length < 9:
+            expect_result = f"00:0{length+1}"
         else:
-            if length < 9:
-                expect_result = f"00:0{length+1}"
-            else:
-                expect_result = f"00:{length+1}"
+            expect_result = f"00:{length+1}"
         # ----------------------------------------------------
         sleep(length)
-        button_img_path = ''
-        if self.brand.lower() == "gu":
-            button_img_path = DIR_NAME + '\\element_icon\\send.jpg'
-        elif self.brand.lower() == "mingpin":
-            button_img_path = DIR_NAME + '\\element_icon\\send_mingpin.jpg'
-        pyautogui.click(pyautogui.locateCenterOnScreen(button_img_path, confidence=0.8))
+        # button_img_path = ''
+        # if self.brand.lower() == "gu":
+        #     button_img_path = os.path.join(DIR_NAME, 'element_icon', 'send.jpg')
+        # elif self.brand.lower() == "mingpin":
+        #     button_img_path = os.path.join(DIR_NAME, 'element_icon', 'send_mingpin.jpg')
+        #
+        # pyautogui.click(pyautogui.locateCenterOnScreen(button_img_path, confidence=0.8))
+        self.click(MessagePageLocator.voice_send_btn)
         sleep(3)
         self.click(MessagePageLocator.close_btn)
         self.wait_loading_finish()
@@ -205,12 +209,15 @@ class MessagePage(BasePage):
         expect = int(expect_result.split(":")[1])
         assert abs(actual-expect) <= 1, f'聊天室內語音長度有誤, 預期:{expect_result}, 實際:{actual_voice_msg_length}'
 
-
     def send_file_message(self):
-        file_folder_path = f'{DIR_NAME}\\test_medias\\file_sample'
+        file_folder_path = os.path.join(DIR_NAME, 'test_medias', 'file_sample')
+        if not os.path.isdir(file_folder_path):
+            raise FileNotFoundError(f'file_sample folder not found: {file_folder_path}')
         files = [f for f in os.listdir(file_folder_path) if os.path.isfile(os.path.join(file_folder_path, f))]
+        if not files:
+            raise FileNotFoundError(f'No files found in: {file_folder_path}')
         random_file = random.choice(files)
-        file_path = f'{DIR_NAME}\\test_medias\\file_sample\\{random_file}'
+        file_path = os.path.join(file_folder_path, random_file)
         self.copy_to_clipboard(file_path)
 
         if self.is_element_finded(MessagePageLocator.file_btn):
@@ -254,14 +261,15 @@ class MessagePage(BasePage):
         self.send_message(message_url)
         self.check_url_message(brand)
 
-        button_img_path = ''
-        if self.brand.lower() == "gu":
-            button_img_path = DIR_NAME + '\\element_icon\\back.jpg'
-        elif self.brand.lower() == "mingpin":
-            button_img_path = DIR_NAME + '\\element_icon\\back_mingpin.jpg'
-        location = pyautogui.locateCenterOnScreen(button_img_path, confidence=0.8)
-        pyautogui.click(location)
+        # button_img_path = ''
+        # if self.brand.lower() == "gu":
+        #     button_img_path = os.path.join(DIR_NAME, 'element_icon', 'back.jpg')
+        # elif self.brand.lower() == "mingpin":
+        #     button_img_path = os.path.join(DIR_NAME, 'element_icon', 'back_mingpin.jpg')
+        # location = pyautogui.locateCenterOnScreen(button_img_path, confidence=0.8)
+        # pyautogui.click(location)
 
+        self.click(MessagePageLocator.chatroom_back_btn)
         self.wait_login_finish()
         return message_url
 
@@ -277,13 +285,14 @@ class MessagePage(BasePage):
     def check_chatroom_list_last_message(self, text):
         # if self.is_element_finded(MessagePageLocator.back_btn):
         #     self.click(MessagePageLocator.back_btn)
-        button_img_path = ''
-        if self.brand.lower() == "gu":
-            button_img_path = DIR_NAME + '\\element_icon\\back.jpg'
-        elif self.brand.lower() == "mingpin":
-            button_img_path = DIR_NAME + '\\element_icon\\back_mingpin.jpg'
-        location = pyautogui.locateCenterOnScreen(button_img_path, confidence=0.8)
-        pyautogui.click(location)
+        # button_img_path = ''
+        # if self.brand.lower() == "gu":
+        #     button_img_path = os.path.join(DIR_NAME, 'element_icon', 'back.jpg')
+        # elif self.brand.lower() == "mingpin":
+        #     button_img_path = os.path.join(DIR_NAME, 'element_icon', 'back_mingpin.jpg')
+        # location = pyautogui.locateCenterOnScreen(button_img_path, confidence=0.8)
+        # pyautogui.click(location)
+        self.click(MessagePageLocator.chatroom_back_btn)
         self.wait_login_finish()
         current_last_message = self.get_text(MessagePageLocator.chat_list_chatroom_last_message)
         assert current_last_message.__contains__(text), f'最後一筆訊息有誤, 預期:{text}, 實際:{current_last_message}'

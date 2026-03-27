@@ -18,6 +18,8 @@ class SearchPageLocator:
     # ============================= 導航欄 ==============================================================================
     firstPage_button = (By.XPATH, "//a[@href='/home']")  # 導航欄-首页
     mainPage_button = (By.XPATH, "//a[@href='/my-page']")  # 導航欄-主頁
+    # 右上角搜尋圖示外層是 <a href="/search">，點外層比點 svg/path 穩定
+    mainPage_search_btn = (By.XPATH, "//a[@href='/search']")  # 主頁-貼文搜索鍵
     # ============================= 搜尋頁 ===============================================================================
     searchPage_description = (By.XPATH, "//p[text() = '最近搜索']")
     search_column = (By.XPATH, "//input[@class='text-[16rem] bg-transparent my-[6rem] flex-1 border-none outline-0 text-grand-1']")
@@ -40,11 +42,10 @@ class SearchPage(BasePage):
     brand = gl.get_value("BRAND")
 
     def into_search_page(self):
-        button_img_path = DIR_NAME + '\\element_icon\\search_btn.jpg'
-        location = pyautogui.locateCenterOnScreen(button_img_path, confidence=0.8)
-        pyautogui.click(location)
-        # self.wait_visibility(SearchPageLocator.searchPage_description)
-        # assert self.is_element_finded(SearchPageLocator.searchPage_description)
+        el = self.find_element(SearchPageLocator.mainPage_search_btn)
+        # WAP 上此按鈕常出現「可見但 click 不觸發」，改用 JS click 提升穩定性
+        self.driver.execute_script("arguments[0].click();", el)
+        self.wait_loading_finish()
 
     def search_from_search_page(self, keywords):
         self.into_search_page()
@@ -84,9 +85,9 @@ class SearchPage(BasePage):
     def check_recent_search_record(self, expected_history):
         button_img_path = ''
         if self.brand.lower() == "gu":
-            button_img_path = DIR_NAME + '\\element_icon\\back.jpg'
+            button_img_path = os.path.join(DIR_NAME, 'element_icon', 'back.jpg')
         elif self.brand.lower() == "mingpin":
-            button_img_path = DIR_NAME + '\\element_icon\\back_mingpin.jpg'
+            button_img_path = os.path.join(DIR_NAME, 'element_icon', 'back_mingpin.jpg')
         location = pyautogui.locateCenterOnScreen(button_img_path, confidence=0.8)
         pyautogui.click(location)
         self.wait_loading_finish()
