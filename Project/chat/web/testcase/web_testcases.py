@@ -897,11 +897,12 @@ class WebTestCase(BaseTestCase):
         web_password = 'ps43941122'
         member_ID = 'exchange0'
         operate_type = '平台'
-        brand = 'SC'  #SC
+        brand = 'SC'
         env = 'uat'
-
+        brand_account = 'cmtest006'
+        brand_pw = 'ps43941122'
         # =========================== 登入SC平臺, 設定股聊積分兌換數值 =====================
-        self.wp.brand_page().into_brand_page(brand, env)
+        self.wp.brand_page().into_brand_page(brand, env, brand_account, brand_pw)
         before_main_wallet_money = self.wp.brand_page().get_main_wallet_money()
         exchange_address, exchange_amount = self.wp.brand_page().online_deposit()
         # =========================== 登入前臺, 獲取原股聊積分 =============================

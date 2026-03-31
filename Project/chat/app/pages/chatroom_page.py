@@ -397,7 +397,6 @@ class ChatRoomPageLocator(BaseLocator):
         )
         return message_path
 
-
     @staticmethod
     def folder_file_index(num=-1):
         folder_file_path = ChatRoomPageLocator.base.check_device(

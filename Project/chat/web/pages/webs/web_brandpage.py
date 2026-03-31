@@ -41,13 +41,13 @@ class BrandPageLocator:
 
 class BrandPage(BasePage):
 
-    def into_brand_page(self, brand, env):
+    def into_brand_page(self, brand, env, account, pw):
         self.open_browser(f'http://{brand.lower()}-web-{env.lower()}.paradise-soft.com.tw/')
         self.wait_loading_finish()
         if self.is_element_finded(BrandPageLocator.popup_msg):
             self.click(BrandPageLocator.close_btn)
-        self.type(BrandPageLocator.login_id_input, 'cmtest005')
-        self.type(BrandPageLocator.login_pw_input, 'ps43941122')
+        self.type(BrandPageLocator.login_id_input, account)
+        self.type(BrandPageLocator.login_pw_input, pw)
         self.type(BrandPageLocator.login_verify_code_input, '1')
         self.click(BrandPageLocator.login_btn)
         self.wait_loading_finish()

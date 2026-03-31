@@ -400,8 +400,14 @@ class ChatSetupPage(Base):
         sleep(1)
         if enable == '1':
             assert self.common.poco_exists(ChatRoomPageLocator.file_upload_view)
-            self.common.poco_click(ChatRoomPageLocator.folder_file_index(1))
-            self.common.poco_click(ChatRoomPageLocator.confirm_msg_send_btn)
+
+            if self.phone_platform.lower() == 'android':
+                self.common.poco_click(ChatRoomPageLocator.folder_file_index(1))
+                self.common.poco_click(ChatRoomPageLocator.confirm_msg_send_btn)
+            else:  # ios part
+                ele = self.poco(name='File View').child(type='Cell')[1]
+                ele.click()
+                self.common.poco_click(ChatRoomPageLocator.confirm_msg_send_btn)
         else:
             assert not self.common.poco_exists(ChatRoomPageLocator.file_upload_view)
 
