@@ -124,6 +124,7 @@ prod:
         web_url: https://web-guchat.com/
         app_url: https://api.gu-chat.com/
         wap_url: https://m-guchat.com/
+        web2_url:
         operate_id: test1234
         operate_phone: 819016000200
         accounts:
@@ -131,11 +132,13 @@ prod:
                 app_id: gutest001
                 web_id: gutest002
                 wap_id: gutest003
+                web2_id:
                 mail_id:
                 password: ps43941122
                 app_phone: 9016000201
                 web_phone: 9016000202
                 wap_phone: 9016000203
+                web2_phone:
                 mail_address:
                 nation: JP
 

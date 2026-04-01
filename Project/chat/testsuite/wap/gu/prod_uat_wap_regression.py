@@ -13,11 +13,11 @@ root_path = os.path.dirname(
 sys.path.append(root_path)
 
 # Test Setting
-env = 'uat'  # uat, prod
+env = 'prod'  # uat, prod
 brand = 'gu'
 user = 1
 test_type = 'wap'
-wap_version = '2.11.0'
+wap_version = '2.12.0'
 os_version = 'Win11'  # 作業系統
 platform = 'PC'  # 測試環境
 account_type = 'phone'  # 帳號類型: mail, phone...
@@ -152,7 +152,13 @@ if __name__ == "__main__":
     suite_s2 = unittest.TestSuite()
     suite_s2.addTests(s2_test_cases)  # total 18*s2 + 2*s1
 
-    # S1：跑完 + retry 失敗案例 → 發 S1 報告到 Slack
-    Utils.unittest_xml_with_retry_and_slack(suite_s1, report_label='S1', run_check_last_result=True)
-    # S2：跑完 + retry 失敗案例 → 發 S2 報告到 Slack，並執行 Jira check_last_result
-    Utils.unittest_xml_with_retry_and_slack(suite_s2, report_label='S2', run_check_last_result=True)
+    suit_prod = unittest.TestSuite()  # prod cases
+    suit_prod.addTests(prod_test_cases)
+
+    if env == 'prod':  # uat, prod
+        Utils.unittest_xml_with_retry_and_slack(suit_prod, report_label='S1', run_check_last_result=True)
+    else:  # uat
+        # S1：跑完 + retry 失敗案例 → 發 S1 報告到 Slack
+        Utils.unittest_xml_with_retry_and_slack(suite_s1, report_label='S1', run_check_last_result=True)
+        # S2：跑完 + retry 失敗案例 → 發 S2 報告到 Slack，並執行 Jira check_last_result
+        Utils.unittest_xml_with_retry_and_slack(suite_s2, report_label='S2', run_check_last_result=True)

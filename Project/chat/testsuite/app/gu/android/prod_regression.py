@@ -26,29 +26,29 @@ account_type = 'phone'  # 帳號類型: mail, phone...
 push = True  # 將結果推倒jira, 預設請給予 True
 
 Prod_regression_list = [
-    # AppTestCase("test_login"),
-    # AppTestCase("test_version_check"),
-    # AppTestCase("test_change_nickname_and_instructions"),
-    # AppTestCase("test_change_password"),
-    # AppTestCase("test_add_friend"),
-    # AppTestCase("test_friend_remark"),
-    # AppTestCase("test_send_message"),
-    # AppTestCase("test_message_copy"),
-    # AppTestCase("test_message_reply"),
-    # AppTestCase("test_message_delete"),
-    # AppTestCase("test_message_revoke"),
-    # AppTestCase("test_message_pin"),
-    # AppTestCase("test_message_emoji"),
-    # AppTestCase('test_send_voice_message'),
-    # AppTestCase('test_voice_message_reply'),
-    # AppTestCase('test_voice_message_delete'),
-    # AppTestCase('test_voice_message_revoke'),
-    # AppTestCase('test_send_file_message'),
-    # AppTestCase('test_file_message_reply'),
-    # AppTestCase('test_file_message_delete'),
-    # AppTestCase('test_file_message_revoke'),
-    # AppTestCase("test_send_message_group"),
-    # AppTestCase("test_message_copy_group"),
+    AppTestCase("test_login"),
+    AppTestCase("test_version_check"),
+    AppTestCase("test_change_nickname_and_instructions"),
+    AppTestCase("test_change_password"),
+    AppTestCase("test_add_friend"),
+    AppTestCase("test_friend_remark"),
+    AppTestCase("test_send_message"),
+    AppTestCase("test_message_copy"),
+    AppTestCase("test_message_reply"),
+    AppTestCase("test_message_delete"),
+    AppTestCase("test_message_revoke"),
+    AppTestCase("test_message_pin"),
+    AppTestCase("test_message_emoji"),
+    AppTestCase('test_send_voice_message'),
+    AppTestCase('test_voice_message_reply'),
+    AppTestCase('test_voice_message_delete'),
+    AppTestCase('test_voice_message_revoke'),
+    AppTestCase('test_send_file_message'),
+    AppTestCase('test_file_message_reply'),
+    AppTestCase('test_file_message_delete'),
+    AppTestCase('test_file_message_revoke'),
+    AppTestCase("test_send_message_group"),
+    AppTestCase("test_message_copy_group"),
     AppTestCase("test_message_reply_group"),
     AppTestCase("test_message_delete_group"),
     AppTestCase("test_message_revoke_group"),
@@ -71,14 +71,8 @@ Prod_regression_list = [
 one_on_one_chat_regression_list = [
     AppTestCase("test_login"),
     AppTestCase("test_version_check"),
-    AppTestCase("test_into_member"),
-    AppTestCase("test_into_friend"),
     AppTestCase("test_change_nickname_and_instructions"),
     AppTestCase("test_notify_switch"),
-    AppTestCase("test_detail_switch"),
-    AppTestCase("test_voice_switch"),
-    AppTestCase("test_vibration_switch"),
-    AppTestCase("test_about_terms"),
     AppTestCase("test_free_up_space"),
     AppTestCase("test_change_password"),
     AppTestCase("test_account_info"),
@@ -166,17 +160,21 @@ if __name__ == '__main__':
 
     # for jira config
     gl.set_value('TEST_TYPE', 'app_android')
-    BaseKey().get_jira_data()
+    try:
+        BaseKey().get_jira_data()
+    except FileNotFoundError as e:
+        print(f"[WARN] {e}. Skip Jira push for this run.")
+        push = False
     gl.set_value('PUSH', push)
-    
-    # TestCase add
-    suite = unittest.TestSuite()
-    suite.addTests(Prod_regression_list)  # total 38 cases
+
+    # TestCase add：沿用既有 prod 清單與順序，改用 retry + Slack 報告流程
+    suite_prod = unittest.TestSuite()
+    suite_prod.addTests(Prod_regression_list)  # total 38 cases
 
     # =================== Backup ===================
     # suite.addTests(one_on_one_chat_regression_list)
     # suite.addTests(group_chat_regression_list)
     # suite.addTests(discover_regression_list)
 
-    # RunningTest
-    Utils.unittest_xml(suite)
+    # RunningTest：失敗案例自動 retry 1 次，執行完回報 Slack
+    Utils.unittest_xml_with_retry_and_slack(suite_prod, report_label='S1', run_check_last_result=True)

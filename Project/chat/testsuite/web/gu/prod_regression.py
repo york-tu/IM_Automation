@@ -93,11 +93,16 @@ if __name__ == "__main__":
 
     # for jira config
     gl.set_value('TEST_TYPE', test_type)
-    BaseKey().get_jira_data()
+    try:
+        BaseKey().get_jira_data()
+    except FileNotFoundError as e:
+        print(f"[WARN] {e}. Skip Jira push for this run.")
+        push = False
     gl.set_value('PUSH', push)
-    
-    # TestCase add
-    suite.addTests(web_regression_list)
-    
-    # RunningTest
-    Utils.unittest_xml(suite)
+
+    # TestCase add：沿用既有 prod 清單與順序，改用 retry + Slack 報告流程
+    suite_s1 = unittest.TestSuite()
+    suite_s1.addTests(web_regression_list)
+
+    # RunningTest：失敗案例自動 retry 1 次，執行完回報 Slack
+    Utils.unittest_xml_with_retry_and_slack(suite_s1, report_label='S1', run_check_last_result=True)

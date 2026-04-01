@@ -22,7 +22,7 @@ user = 1
 connect_type = 'local'  # 手機連線模式 remote or local
 phone_name = 'IPHONE_15_PRO'  # 手機型號 'IPHONE_15_PRO (ios18.6.2)', 'IPHONE_73 (ios16.1.1)', 'IPHONE_11_PRO (ios15)'
 phone_platform = 'iOS'  # 手機作業系統
-app_version = '5.20.0(114181.116)'  # 版本號
+app_version = '5.21.0(114457.116)'  # 版本號
 account_type = 'phone'  # 帳號類型: email, phone...
 push = True  # 將結果推倒jira, 預設請給予 True
 
@@ -70,14 +70,8 @@ Prod_regression_list = [
 one_on_one_chat_regression_list = [
     AppTestCase("test_login"),
     AppTestCase("test_version_check"),
-    AppTestCase("test_into_member"),
-    AppTestCase("test_into_friend"),
     AppTestCase("test_change_nickname_and_instructions"),
     AppTestCase("test_notify_switch"),
-    AppTestCase("test_detail_switch"),
-    AppTestCase("test_voice_switch"),
-    AppTestCase("test_vibration_switch"),
-    AppTestCase("test_about_terms"),
     AppTestCase("test_free_up_space"),
     AppTestCase("test_change_password"),
     AppTestCase("test_account_info"),
@@ -166,20 +160,24 @@ if __name__ == '__main__':
 
     # for jira config
     gl.set_value('TEST_TYPE', 'app_ios')  # android: app_android , ios: app_ios
-    BaseKey().get_jira_data()
+    try:
+        BaseKey().get_jira_data()
+    except FileNotFoundError as e:
+        print(f"[WARN] {e}. Skip Jira push for this run.")
+        push = False
     gl.set_value('PUSH', push)
 
     # 自動啟動 iOS WDA
     Utils.start_wda_for_ios()
 
-    # TestCase add
-    suite = unittest.TestSuite()
-    suite.addTests(Prod_regression_list)  # total 38 cases
+    # TestCase add：沿用既有 prod 清單與順序，改用 retry + Slack 報告流程
+    suite_s1 = unittest.TestSuite()
+    suite_s1.addTests(Prod_regression_list)  # total 38 cases
 
     # =================== All Test cases ===================
     # suite.addTests(one_on_one_chat_regression_list)
     # suite.addTests(group_chat_regression_list)
     # suite.addTests(discover_regression_list)
 
-    # RunningTest
-    Utils.unittest_xml(suite)
+    # RunningTest：失敗案例自動 retry 1 次，執行完回報 Slack
+    Utils.unittest_xml_with_retry_and_slack(suite_s1, report_label='S1', run_check_last_result=True)

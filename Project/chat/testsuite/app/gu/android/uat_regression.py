@@ -37,7 +37,7 @@ s1_personal_chat_regression_list = [
     AppTestCase("test_change_password"),
     AppTestCase("test_account_info"),
     AppTestCase("test_add_friend"),
-                            # AppTestCase("test_friend_remark"),
+    AppTestCase("test_friend_remark"),
     AppTestCase("test_send_message"),
     AppTestCase('test_send_voice_message'),
     AppTestCase('test_send_file_message'),

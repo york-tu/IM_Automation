@@ -312,7 +312,7 @@ class ChatRoomPage(BasePage):
         self.click(ChatRoomPageLocator.add_btn)
         sleep(1)
         self.copy_to_clipboard(clip_path)
-        sleep(1)
+        sleep(3)
         pyautogui.hotkey('ctrl', 'v')
         pyautogui.press('enter')
 

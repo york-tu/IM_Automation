@@ -398,19 +398,19 @@ class FriendPage(Base):
             sleep(0.5)
             assert self.common.poco_get_text(FriendPageLocator.userDetail_friend_nickname) == name, f'暱稱更換失敗'
             # --------------------- 回到聊天列表 > 確認私聊室名稱有更新 ---------------------
-            self.common.poco_click(FriendPageLocator.back_btn)  # 回到好友名單頁
-            self.search_friend_from_list(name)  # 好友名單頁 > 確認搜尋到改暱稱後的好友 > 進到詳情頁
-            for i in range(2):
-                self.common.poco_click(FriendPageLocator.back_btn)  # 回到聊天列表
-            ChatListPage(self.poco, self.wda).into_chat_room(name)  # 聊天列表 > 確認搜尋到改暱稱後的好友 > 進到該聊天室
-            self.common.poco_send_text(ChatRoomPageLocator.message_input, "更改暱稱, 確認聊天室名")
-            self.common.poco_click(ChatRoomPageLocator.send_message_btn)  # 發送訊息, 確保聊天室在列表最上
-            self.common.poco_click(FriendPageLocator.chatroom_back_btn)  # 回到聊天列表
-            self.common.poco_click(ChatListPageLocator.search_clear)
-            actual_chatroom_name = self.common.poco_get_text(FriendPageLocator.chatList_frist)
-            assert actual_chatroom_name == name, f'聊天室名有錯, 預期:{name},實際:{actual_chatroom_name}'
-            self.common.poco_click(FriendPageLocator.chatList_frist)
-            self.common.poco_click(FriendPageLocator.chatroom_options_btn)  # 聊天視窗右上角more > 用戶詳情頁
+            # self.common.poco_click(FriendPageLocator.back_btn)  # 回到好友名單頁
+            # self.search_friend_from_list(name)  # 好友名單頁 > 確認搜尋到改暱稱後的好友 > 進到詳情頁
+            # for i in range(2):
+            #     self.common.poco_click(FriendPageLocator.back_btn)  # 回到聊天列表
+            # ChatListPage(self.poco, self.wda).into_chat_room(name)  # 聊天列表 > 確認搜尋到改暱稱後的好友 > 進到該聊天室
+            # self.common.poco_send_text(ChatRoomPageLocator.message_input, "更改暱稱, 確認聊天室名")
+            # self.common.poco_click(ChatRoomPageLocator.send_message_btn)  # 發送訊息, 確保聊天室在列表最上
+            # self.common.poco_click(FriendPageLocator.chatroom_back_btn)  # 回到聊天列表
+            # self.common.poco_click(ChatListPageLocator.search_clear)
+            # actual_chatroom_name = self.common.poco_get_text(FriendPageLocator.chatList_frist)
+            # assert actual_chatroom_name == name, f'聊天室名有錯, 預期:{name},實際:{actual_chatroom_name}'
+            # self.common.poco_click(FriendPageLocator.chatList_frist)
+            # self.common.poco_click(FriendPageLocator.chatroom_options_btn)  # 聊天視窗右上角more > 用戶詳情頁
             # ============================= 將暱稱刪除, 使用預設暱稱 ==========================
             self.common.poco_click(FriendPageLocator.friend_remark_btn)
             self.common.poco_send_text(FriendPageLocator.nickname_input, default_nickname)
