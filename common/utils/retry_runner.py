@@ -124,7 +124,8 @@ class RetryXMLTestRunner(XMLTestRunner):
                 cls = test_obj.__class__
                 if hasattr(cls, 'tearDownClass'):
                     try:
-                        cls.tearDownClass(cls)
+                        # tearDownClass 是 @classmethod，呼叫時不需要手動傳 cls
+                        cls.tearDownClass()
                     except Exception:
                         pass
                 # 強制清空 driver_list，避免 setUpClass 的 setting_browser 對已關閉的 list 做 append 造成重複
@@ -133,16 +134,35 @@ class RetryXMLTestRunner(XMLTestRunner):
                 if hasattr(cls, 'function_dict') and isinstance(getattr(cls, 'function_dict', None), dict):
                     # 移除 web driver 引用，讓 setUpClass 重新建立
                     cls.function_dict.pop('wp', None)
+                    cls.function_dict.pop('wap', None)
                     cls.function_dict.pop('ad', None)
                 if hasattr(cls, 'setUpClass'):
                     try:
-                        cls.setUpClass(cls)
+                        # setUpClass 是 @classmethod，呼叫時不需要手動傳 cls
+                        cls.setUpClass()
                     except Exception:
                         pass
 
                 result.start_time = time.time()
                 temp = unittest.TestResult()
-                test_obj.run(temp)
+                try:
+                    test_obj.run(temp)
+                finally:
+                    # 重跑結束（不論成功/失敗）都強制關閉瀏覽器，避免 retry 仍失敗時留下殘留 Chrome
+                    try:
+                        if hasattr(cls, 'tearDownClass'):
+                            cls.tearDownClass()
+                    except Exception:
+                        pass
+                    try:
+                        if hasattr(cls, 'driver_list'):
+                            cls.driver_list = []
+                        if hasattr(cls, 'function_dict') and isinstance(getattr(cls, 'function_dict', None), dict):
+                            cls.function_dict.pop('wp', None)
+                            cls.function_dict.pop('wap', None)
+                            cls.function_dict.pop('ad', None)
+                    except Exception:
+                        pass
                 result.stop_time = time.time()
 
                 if temp.failures or temp.errors:

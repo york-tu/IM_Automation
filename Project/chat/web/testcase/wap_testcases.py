@@ -80,13 +80,20 @@ class WapTestCase(BaseTestCase):
     @classmethod
     def tearDownClass(cls):
         num = 0
-        for function in cls.function_dict.values():
-            function.base_page().quit_browser()
+        for function in list(cls.function_dict.values()):
+            try:
+                function.base_page().quit_browser()
+            except Exception:
+                pass
             num += 1
 
             if num == len(cls.driver_list):
-                cls.driver_list = []
                 break
+        cls.driver_list = []
+        try:
+            cls.function_dict = {}
+        except Exception:
+            pass
 
     # ================================= Open Browser ================================
 
