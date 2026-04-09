@@ -13,7 +13,7 @@ root_path = os.path.dirname(
 sys.path.append(root_path)
 
 # Test Setting
-env = 'prod'  # uat, prod
+env = 'uat'  # uat, prod
 brand = 'gu'
 user = 1
 test_type = 'wap'

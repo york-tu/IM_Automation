@@ -297,6 +297,7 @@ class FriendPage(Base):
             assert '我的 IM ID：' in default_text, f'新增好友頁未清空'
         else:
             self.common.poco_send_text(FriendPageLocator.add_friend_input, id)
+            sleep(1)
             assert self.common.poco_exists(FriendPageLocator.add_friend_search), f'未顯示搜查按鍵'
             self.common.poco_click(FriendPageLocator.search_clear)
 

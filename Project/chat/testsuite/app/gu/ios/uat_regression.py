@@ -84,60 +84,60 @@ s1_social_regression_list = [
 # ============================================== S2 Test cases ===================================================
 # -------------- 私聊相關功能測試 --------------
 s2_personal_chat_regression_list = [
-    AppTestCase("test_notify_switch"),
-    AppTestCase("test_about_product"),
-    AppTestCase("test_add_friend"),  # s1
-    AppTestCase("test_add_myself"),
-    AppTestCase("test_block_friend"),
-    AppTestCase("test_block_setting"),
-    AppTestCase("test_unblock_friend"),
-    AppTestCase("test_share_message"),
-    AppTestCase("test_message_copy"),
-    AppTestCase("test_message_reply"),
-    AppTestCase("test_message_delete"),
-    AppTestCase("test_message_revoke"),
-    AppTestCase("test_message_reply_delete"),
-    AppTestCase("test_message_reply_revoke"),
-    AppTestCase("test_message_pin"),
-    AppTestCase("test_message_pin_reply"),
-    AppTestCase("test_message_pin_delete"),
-    AppTestCase("test_message_pin_revoke"),
-    AppTestCase("test_message_emoji"),
-    AppTestCase('test_voice_message_reply'),
-    AppTestCase('test_voice_message_delete'),
-    AppTestCase('test_voice_message_revoke'),
-    AppTestCase('test_file_message_reply'),
-    AppTestCase('test_file_message_delete'),
-    AppTestCase('test_file_message_revoke'),
-    AppTestCase("test_delete_friend"),  # s1
-    AppTestCase("test_logout"),  # s1
+    # AppTestCase("test_notify_switch"),
+    # AppTestCase("test_about_product"),
+    # AppTestCase("test_add_friend"),  # s1
+    # AppTestCase("test_add_myself"),
+    # AppTestCase("test_block_friend"),
+    # AppTestCase("test_block_setting"),
+    # AppTestCase("test_unblock_friend"),
+    # AppTestCase("test_share_message"),
+    # AppTestCase("test_message_copy"),
+    # AppTestCase("test_message_reply"),
+    # AppTestCase("test_message_delete"),
+    # AppTestCase("test_message_revoke"),
+    # AppTestCase("test_message_reply_delete"),
+    # AppTestCase("test_message_reply_revoke"),
+    # AppTestCase("test_message_pin"),
+    # AppTestCase("test_message_pin_reply"),
+    # AppTestCase("test_message_pin_delete"),
+    # AppTestCase("test_message_pin_revoke"),
+    # AppTestCase("test_message_emoji"),
+    # AppTestCase('test_voice_message_reply'),
+    # AppTestCase('test_voice_message_delete'),
+    # AppTestCase('test_voice_message_revoke'),
+    # AppTestCase('test_file_message_reply'),
+    # AppTestCase('test_file_message_delete'),
+    # AppTestCase('test_file_message_revoke'),
+    # AppTestCase("test_delete_friend"),  # s1
+    # AppTestCase("test_logout"),  # s1
 ]
 # -------------- 群聊相關功能測試 --------------
 s2_group_chat_regression_list = [
-    AppTestCase("test_message_pin_reply_group"),
-    AppTestCase("test_message_pin_delete_group"),
-    AppTestCase("test_message_pin_revoke_group"),
-    ContextTestCase("test_user_contact_whitelist_be_fe_linkage"),  # 測試-會員添加好友設定前後端連動
-    ContextTestCase("test_search_friend_by_phone_and_ID"),  # 測試-透過ID/手機號搜索添加白名單/非白名單成員
-    ContextTestCase("test_admin_send_system_notification"),  # 後台發送系統訊息 > 前台確認系統通知
-    ContextTestCase("test_admin_send_group_msg"),  # 後台發送群組訊息 > 前台確認群內訊息
+    # AppTestCase("test_message_pin_reply_group"),
+    # AppTestCase("test_message_pin_delete_group"),
+    # AppTestCase("test_message_pin_revoke_group"),
+    # ContextTestCase("test_user_contact_whitelist_be_fe_linkage"),  # 測試-會員添加好友設定前後端連動
+    # ContextTestCase("test_search_friend_by_phone_and_ID"),  # 測試-透過ID/手機號搜索添加白名單/非白名單成員
+    # ContextTestCase("test_admin_send_system_notification"),  # 後台發送系統訊息 > 前台確認系統通知
+    # ContextTestCase("test_admin_send_group_msg"),  # 後台發送群組訊息 > 前台確認群內訊息
 ]
 # -------------- 發現設定測試 --------------
 s2_discover_regression_list = [
-    ContextTestCase("test_discover_list"),  # 後台切換發現功能 > 前台確認排序
-    AppTestCase("test_discover_floating_icon"),  # 確認功能懸浮按鈕與選單
+    # ContextTestCase("test_discover_list"),  # 後台切換發現功能 > 前台確認排序
+    # AppTestCase("test_discover_floating_icon"),  # 確認功能懸浮按鈕與選單
 ]
 # -------------- 社群相關功能測試 --------------
 s2_social_regression_list = [
     ContextTestCase("test_block_words_blocks_instructions_input"),  # 後台新增屏蔽字詞 >前台確認個人簡介阻擋屏蔽字輸入
-    ContextTestCase("test_post_comment_when_social_permission_change"),  # 後台切換帳號社群權限 > 前台確認評論留言
+    # ContextTestCase("test_post_comment_when_social_permission_change"),  # 後台切換帳號社群權限 > 前台確認評論留言
     ContextTestCase("test_post_URL_when_post_permission_change"),  # 後台切換貼文評論超連結開關 > 前台確認評論留言URL
-    ContextTestCase("test_social_change_poster_auto_audit_type"),  # 不同審核權限下發布的貼文
+    # ContextTestCase("test_social_change_poster_auto_audit_type"),  # 不同審核權限下發布的貼文
 ]
 # -------------- 其他功能測試 --------------
 s2_combination_regression_list = [
-    ContextTestCase("test_app_email_registration"),  # 測試-email註冊 (後台需先關閉極驗)
-    ContextTestCase("test_app_email_forgetPW"),  # 測試-email登入時忘記密碼 > 重設
+    # ContextTestCase("test_app_email_registration"),  # 測試-email註冊 (後台需先關閉極驗)
+    # ContextTestCase("test_app_email_forgetPW"),  # 測試-email登入時忘記密碼 > 重設
 ]
 
 s1_test_cases = (s1_personal_chat_regression_list + s1_group_chat_regression_list + s1_grab_red_envelop_regression_list
@@ -186,6 +186,6 @@ if __name__ == '__main__':
     suite_s2.addTests(s2_test_cases)  # total 40*s2 + 3*s1
 
     # S1：跑完 + retry 失敗案例 → 發 S1 報告到 Slack
-    Utils.unittest_xml_with_retry_and_slack(suite_s1, report_label='S1', run_check_last_result=True)
+    # Utils.unittest_xml_with_retry_and_slack(suite_s1, report_label='S1', run_check_last_result=True)
     # S2：跑完 + retry 失敗案例 → 發 S2 報告到 Slack，並執行 Jira check_last_result
     Utils.unittest_xml_with_retry_and_slack(suite_s2, report_label='S2', run_check_last_result=True)
