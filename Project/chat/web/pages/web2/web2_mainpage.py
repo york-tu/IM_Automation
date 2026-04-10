@@ -247,6 +247,7 @@ class MainPage(BasePage):
     def select_media(self, media_type='photo'):
         self.click(MainPageLocator.post_btn)
         self.click(MainPageLocator.upload_btn)
+        sleep(5)
         post_media_folder_path = ''
         if media_type == 'photo':
             post_media_folder_path = f'{DIR_NAME}\\test_medias\\post_media\\photo'
@@ -258,7 +259,6 @@ class MainPage(BasePage):
         file_path = f'{post_media_folder_path}\\{random_media}'
 
         copy_to_clipboard(file_path)
-        sleep(1)
         pyautogui.hotkey('ctrl', 'v')
         pyautogui.press('enter')
 
@@ -282,7 +282,7 @@ class MainPage(BasePage):
         # ==============================
         self.type(MainPageLocator.input_post_descriptions, descriptions)
         self.click(MainPageLocator.post_confirm)
-        sleep(5)
+        sleep(7)
 
     def check_post(self, poster, descriptions, is_post=True, post_index=0):
         try:

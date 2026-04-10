@@ -1,4 +1,4 @@
-import datetime, re, platform, os, sys, time, xmlrunner
+import datetime, re, platform, os, sys, time, traceback, xmlrunner
 DIR_NAME = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 sys.path.append(DIR_NAME)
 import common.utils.globalvar as gl
@@ -278,51 +278,102 @@ class Utils(JiraApi):
         else:
             JiraApi().set_cycle_result(certification, cycle_key, key, 'pass')
 
+    @staticmethod
+    def _outcome_error_for_test_case(test_case):
+        """Python 3 unittest 在 tearDown 之後才呼叫 _feedErrorsToResult，tearDown 內讀 result 尚無本條錯誤。"""
+        outcome = getattr(test_case, '_outcome', None)
+        if not outcome or not getattr(outcome, 'errors', None):
+            return None, None
+        failure_exc = getattr(test_case, 'failureException', AssertionError)
+        for err_test, exc_info in outcome.errors:
+            if exc_info is None:
+                continue
+            if err_test is not test_case and getattr(err_test, 'test_case', None) is not test_case:
+                continue
+            tb_str = ''.join(traceback.format_exception(*exc_info))
+            if issubclass(exc_info[0], failure_exc):
+                return 'failure', tb_str
+            return 'error', tb_str
+        return None, None
+
     # 檢查這次測試案例的結果
-    def check_test_result(self, id, key, result):
+    def check_test_result(self, id, key, result, test_case=None):
         if gl.get_value('PUSH') != True:
             return
 
-        success = True
-        self.testcase_id.append(id)
-        self.testcase_key.append(key)
+        cycle_key = gl.get_value('CYCLE_KEY')
+        if not cycle_key:
+            return
 
-        gl.set_value('OLD', [gl.get_value('AMOUNT'), gl.get_value('ERRORS'), gl.get_value('FAILURES'), gl.get_value('SKIPPED')])
+        # key 可能是單一字串，也可能是 list/tuple（舊邏輯殘留）
+        if isinstance(key, (list, tuple)):
+            testcase_key = key[-1] if len(key) > 0 else None
+        else:
+            testcase_key = key
+
+        # 某些執行環境（例如 __main__）test_id 前綴可能不同，補一層 mapping fallback（尾碼/方法名比對）
+        if not testcase_key:
+            mapping = gl.get_value('TESTCASE_ID_MAP', {}) or {}
+            test_id = str(id)
+            testcase_key = mapping.get(test_id)
+            if not testcase_key and test_id:
+                method_name = test_id.split('.')[-1]
+                for mapped_test_id, mapped_key in mapping.items():
+                    if mapped_test_id.endswith(test_id) or test_id.endswith(mapped_test_id):
+                        testcase_key = mapped_key
+                        break
+                    if mapped_test_id.split('.')[-1] == method_name:
+                        testcase_key = mapped_key
+                        break
+            if not testcase_key:
+                testcase_key = gl.get_value('TESTCASE_KEY') or gl.get_value('HOLD')
+
+        if not testcase_key:
+            return
+
+        # 先刷新總體統計（供報告/其他流程使用）
         self.total(result)
-        gl.set_value('NEW', [gl.get_value('AMOUNT'), gl.get_value('ERRORS'), gl.get_value('FAILURES'), gl.get_value('SKIPPED')])
+        test_id = str(id)
 
-        # AMOUNT >= 2 時才回填 Jira，避免第一個案例因 OLD 尚未初始化而被誤判
-        if gl.get_value('AMOUNT') >= 2:
-            certification = JiraApi().jira_login() # jira登入
-            # JiraApi().set_cycle_result(certification, gl.get_value('CYCLE_KEY'), self.TESTCASE_KEY[0], 'in progress') # 初始化測試結果
-            try:
-                for old, new, status in zip(gl.get_value('OLD'), gl.get_value('NEW'), gl.get_value('STATUS')):
-                    if status == 'amount':
-                        continue
-                    if old != new:
-                        success = False
-                        if status == 'skipped':
-                            status = 'skip'
-                        else:
-                            if status == 'errors':
-                                gl.set_value('ERROR', result.errors)
-                            if status == 'failures':
-                                gl.set_value('FAILURE', result.failures)
-                            status = 'fail'
-                        # jira api
-                        JiraApi().set_cycle_result(certification, gl.get_value('CYCLE_KEY'), self.testcase_key[0], status)
-            
-                if success == True:
-                    # jira api
-                    JiraApi().set_cycle_result(certification, gl.get_value('CYCLE_KEY'), self.testcase_key[0], 'pass')
-            finally:
-                del self.testcase_id[0]
-                del self.testcase_key[0]
-                gl.set_value('ERROR', [])
-                gl.set_value('FAILURE', [])
-            
-        gl.set_value('TESTCASE_ID', self.testcase_id)
-        gl.set_value('TESTCASE_KEY', self.testcase_key)
+        # 直接以「當前 test_id 是否出現在 result 對應清單」判斷狀態，避免前後案例互相污染
+        status = 'pass'
+        kind, tb_str = (None, None)
+        if test_case is not None:
+            kind, tb_str = self._outcome_error_for_test_case(test_case)
+        if kind == 'error':
+            status = 'fail'
+            gl.set_value('ERROR', [(None, tb_str)])
+        elif kind == 'failure':
+            status = 'fail'
+            gl.set_value('FAILURE', [(None, tb_str)])
+        if status == 'pass':
+            for ti, _ in getattr(result, 'errors', []):
+                if getattr(ti, 'test_id', None) == test_id:
+                    status = 'fail'
+                    gl.set_value('ERROR', [(ti, _)])
+                    break
+        if status == 'pass':
+            for ti, _ in getattr(result, 'failures', []):
+                if getattr(ti, 'test_id', None) == test_id:
+                    status = 'fail'
+                    gl.set_value('FAILURE', [(ti, _)])
+                    break
+        if status == 'pass':
+            for skipped_item in getattr(result, 'skipped', []):
+                try:
+                    skipped_test = skipped_item[0]
+                    if hasattr(skipped_test, 'id') and skipped_test.id() == test_id:
+                        status = 'skip'
+                        break
+                except Exception:
+                    pass
+
+        certification = JiraApi().jira_login()  # jira登入
+        JiraApi().set_cycle_result(certification, cycle_key, testcase_key, status)
+
+        # 清理，避免下一條 case 共用到前一條的失敗訊息
+        gl.set_value('ERROR', [])
+        gl.set_value('FAILURE', [])
 
     # 紀錄個別結果的數量
     def total(self, result=None):

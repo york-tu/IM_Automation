@@ -476,6 +476,8 @@ class Web2TestCase(BaseTestCase):
     # 測試 - (後台)變更發布者gubot06自動審核權限 > (前台)發布媒體 > (後台)確認媒體審核狀態
     @DecorateClass('CHATAPP-T3483')
     def test_social_change_poster_auto_audit_type(self):
+        self.test_web2_logout()
+
         audit_type_list = [2, 0, 1]  # 2:黑名單, 0:一般會員, 1:白名單
         # ============ 將發布者自動審核權限設為不同權限後確認貼文狀態 ====================================
         for audit_type in audit_type_list:

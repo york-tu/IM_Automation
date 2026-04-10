@@ -8,18 +8,23 @@ class DecorateClass:
     def __call__(self, f):
         def set_testcase_key(*args, **kargs):
             if self.testcase_key is not None:
-                # HOLD 一開始是 None，第一次執行時也要視為「尚未設定」
-                hold = gl.get_value('HOLD')
-                if not hold:
-                    gl.set_value('HOLD', self.testcase_key)
-                    gl.set_value('TESTCASE_KEY', self.testcase_key)
+                self_obj = args[0] if args else None
+                test_id = self_obj.id() if self_obj and hasattr(self_obj, 'id') else None
+                current_method = test_id.split('.')[-1] if test_id else None
+
+                # 只有「unittest 正在執行的當前方法」才更新 testcase key / mapping。
+                # 避免在某測試內呼叫其他 test_xxx helper 時覆蓋 key（例如 email case 呼叫 login case）。
+                if current_method == f.__name__:
+                    # HOLD 一開始是 None，第一次執行時也要視為「尚未設定」
+                    hold = gl.get_value('HOLD')
+                    if not hold:
+                        gl.set_value('HOLD', self.testcase_key)
+                        gl.set_value('TESTCASE_KEY', self.testcase_key)
 
                 # 額外紀錄 unittest TestCase.id() 與 Jira testcase key 的對應關係，
                 # 讓 retry 成功時可以找回正確的 Jira 測試案例來覆寫結果。
                 try:
-                    self_obj = args[0] if args else None
-                    test_id = self_obj.id() if self_obj and hasattr(self_obj, 'id') else None
-                    if test_id:
+                    if test_id and current_method == f.__name__:
                         mapping = gl.get_value('TESTCASE_ID_MAP', {}) or {}
                         mapping[test_id] = self.testcase_key
                         gl.set_value('TESTCASE_ID_MAP', mapping)

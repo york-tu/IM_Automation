@@ -136,8 +136,22 @@ class JiraApi(Common):
         # 當cycle沒有testcase的時候會產生500,當下無法給我pass or fail,固再進行一次put修改
         if response.status_code == 500:
             response = self.put(url, certification=certification, data=json.dumps(data), header=self.headers)
+        # 任何非 2xx 都視為失敗，避免 Jira 回填靜默失敗
+        assert response.status_code in (200, 201), (
+            f'\n[JIRA] set_cycle_result failed'
+            f'\ncode: {response.status_code}'
+            f'\nresponse: {response.text}'
+            f'\ncycle: {cycle_key}'
+            f'\ntestcase_key: {testcase_key}'
+            f'\nstatus: {status}'
+        )
 
-        if response.text.__contains__('id'):
-            message = ((response.text).split(':'))[1]
-            assert response.status_code == 201 or response.status_code == 200, f'\ncode:{response.status_code},\
-                 \nresponse:{message}\ncycle:{cycle_key},testcase_key:{testcase_key}, status:{status}'
+        # 2xx 但沒有 id 也視為異常，避免看似成功但實際未落地
+        assert response.text and response.text.__contains__('id'), (
+            f'\n[JIRA] set_cycle_result unexpected success payload (no id)'
+            f'\ncode: {response.status_code}'
+            f'\nresponse: {response.text}'
+            f'\ncycle: {cycle_key}'
+            f'\ntestcase_key: {testcase_key}'
+            f'\nstatus: {status}'
+        )
