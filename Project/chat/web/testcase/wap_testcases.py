@@ -65,7 +65,6 @@ class WapTestCase(BaseTestCase):
 
     def tearDown(self):
         self.test_all_windows_max()
-        self.check_result(str(self.id()).split('.')[-1])
         image_name = self.id().split('.')[-1]
         image_path_list = []
         for driver in self.driver_list:
@@ -76,6 +75,7 @@ class WapTestCase(BaseTestCase):
         end_time = time.time()
         duration = "{:.3f}".format(end_time - self.start_time)  # 測試案例執行所花時間
         gl.set_value('Duration', f'{duration}s')
+        self.check_result(str(self.id()).split('.')[-1])
 
     @classmethod
     def tearDownClass(cls):

@@ -226,7 +226,7 @@ class MessagePage(BasePage):
             self.click(MessagePageLocator.add_function_btn)
             self.click(MessagePageLocator.file_btn)
 
-        sleep(3)
+        sleep(7)
         pyautogui.hotkey('ctrl', 'v')
         pyautogui.press('enter')
         sleep(2)

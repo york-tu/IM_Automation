@@ -2,16 +2,14 @@ import os
 import sys
 import unittest
 import logging
-
-root_path = os.path.dirname(
-    os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
-sys.path.append(root_path)
-
 import common.utils.globalvar as gl
+
 from common.utils.utils import Utils
 from Project.chat.app.testcase.app_testcase import AppTestCase
-from Project.chat.app.testcase.context_testcase import ContextTestCase
 from jira.config.base_key import BaseKey
+
+root_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
+sys.path.append(root_path)
 
 logging.getLogger("airtest").setLevel(logging.WARNING)
 
@@ -34,11 +32,11 @@ Prod_regression_list = [
     AppTestCase("test_add_friend"),
     AppTestCase("test_friend_remark"),
     AppTestCase("test_send_message"),
+    AppTestCase("test_message_pin"),
     AppTestCase("test_message_copy"),
     AppTestCase("test_message_reply"),
     AppTestCase("test_message_delete"),
     AppTestCase("test_message_revoke"),
-    AppTestCase("test_message_pin"),
     AppTestCase("test_message_emoji"),
     AppTestCase('test_send_voice_message'),
     AppTestCase('test_voice_message_reply'),

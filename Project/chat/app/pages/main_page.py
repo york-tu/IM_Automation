@@ -581,13 +581,14 @@ class MainPage(Base):
         self.common.poco_click(MainPageLocator.login_email_input)
         self.common.poco_send_text(MainPageLocator.login_email_input, email)  # 輸入email
         self.common.poco_click(MainPageLocator.next_btn)
-
+        sleep(3)
         # ==================== 獲得驗證碼 > 輸入驗證碼 ====================
-        sleep(15)
-        code = self.common.get_verification_code_from_mail(self.brand)  # 獲得驗證碼
-        self.common.poco_click(MainPageLocator.input_code)
-        self.common.poco_send_text(MainPageLocator.input_code, code)  # 輸入驗證碼
-        self.common.poco_click(MainPageLocator.next_btn)
+        if self.common.poco_exists(MainPageLocator.input_code):
+            sleep(12)
+            code = self.common.get_verification_code_from_mail(self.brand)  # 獲得驗證碼
+            self.common.poco_click(MainPageLocator.input_code)
+            self.common.poco_send_text(MainPageLocator.input_code, code)  # 輸入驗證碼
+            self.common.poco_click(MainPageLocator.next_btn)
 
         # ==================== 資料填寫頁 ====================
         self.common.poco_click(MainPageLocator.input_account_id)

@@ -1,19 +1,17 @@
 import os
 import sys
 import unittest
+import common.utils.globalvar as gl
+
 from common.utils.utils import Utils
 from Project.chat.web.testcase.wap_testcases import WapTestCase
-from Project.chat.web.testcase.admin_testcases import AdminTestCase
-from Project.chat.app.testcase.context_testcase import ContextTestCase
-import common.utils.globalvar as gl
 from jira.config.base_key import BaseKey
 
-root_path = os.path.dirname(
-    os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
+root_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
 sys.path.append(root_path)
 
 # Test Setting
-env = 'uat'  # uat, prod
+env = 'prod'  # uat, prod
 brand = 'gu'
 user = 1
 test_type = 'wap'

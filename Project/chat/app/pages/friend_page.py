@@ -422,7 +422,7 @@ class FriendPage(Base):
 
     def add_friend(self, nickname):  # 添加好友並回到聊天列表
         self.common.poco_click(FriendPageLocator.add_to_address_book_btn)
-        sleep(2)
+        sleep(3)
         expect = self.common.poco_get_text(ChatRoomPageLocator.options_title)
         assert expect == nickname, f'預期:{nickname}, 實際:{expect}'
         if self.common.poco_exists(ChatRoomPageLocator.back_btn):

@@ -69,19 +69,16 @@ class AppTestCase(BaseTestCase):
             image_path_list = [image_path]
             snapshot(filename=image_path, msg=f"{self.id()}")
             stop_app(self.package)
-            self.check_result(str(self.id()).split('.')[-1])
             gl.set_value('IMG_PATH', image_path_list)
+            end_time = time.time()
+            duration = "{:.3f}".format(end_time - self.start_time)  # 測試案例執行所花時間
+            gl.set_value('Duration', f'{duration}s')
+            self.check_result(str(self.id()).split('.')[-1])
         except Exception as e:
             if 'No available screen capture method found' in str(e):
                 pass
             else:
                 raise e
-        
-        # 在 tearDown 最後記錄結束時間，與 unittest 框架的時間計算一致
-        # unittest 框架的時間包括：setUp + 測試方法 + tearDown
-        end_time = time.time()
-        duration = "{:.3f}".format(end_time - self.start_time)  # 測試案例執行所花時間
-        gl.set_value('Duration', f'{duration}s')
 
     @classmethod
     def tearDownClass(cls):
@@ -799,6 +796,7 @@ class AppTestCase(BaseTestCase):
         self.test_login()
         
         self.ap.chatlist_page().into_chat_room(self.test_group)
+        self.ap.chatroom_page().group_delete_history()
         self.ap.chatroom_page().delete_all_pin()
         self.ap.chatroom_page().send_text_message()
         self.ap.chatroom_page().pin_full_messages()

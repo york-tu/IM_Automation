@@ -30,7 +30,7 @@ class SocialLocator:
 
     # ==================== 評論頁 ====================
     input_comment = (By.XPATH, "//textarea[@name='comment']")  # 輸入留言
-    send_btn = (By.XPATH, "(//button[@class='flex-shrink-0 bg-green-500 rounded-full p-2 hover:cursor-pointer disabled:bg-neutral-300 disabled:cursor-not-allowed transition-colors'])[last()]")  # 送出鍵
+    send_btn = (By.XPATH, "(//button[@class='flex-shrink-0 flex items-center justify-center bg-green-500 rounded-full p-2 hover:cursor-pointer disabled:bg-neutral-300 disabled:cursor-not-allowed transition-colors'])[last()]")  # 送出鍵
 
     # === 評輪頁 > 留言 ===
     post_recent_comment_commenter = (By.XPATH, "(//h4[@class='text-sm text-neutral-500 break-words line-clamp-2'])[1]")  # 最新一則留言-留言者
@@ -139,7 +139,7 @@ class SocialPage(BasePage):
     def _verify_comment_count_updated(self, original_count, self_post):
         """驗證評論數量是否更新"""
         updated_count = self._get_original_comment_count(self_post)
-        assert updated_count == original_count + 1, '評論數量未更新'
+        assert updated_count == original_count + 1, f'評論數錯誤, 預期:{original_count + 1}, 實際:{updated_count}'
 
     def _verify_creator_label(self, author_locator):
         """驗證創作者標籤是否正確顯示"""

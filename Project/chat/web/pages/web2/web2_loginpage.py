@@ -19,8 +19,7 @@ class LoginPageLocator:
     new_login_page_use_cellphone_btn = (By.XPATH, "//span[text()='使用手机号继续']")
     new_login_page_use_email_btn = (By.XPATH, "//span[text()='使用电子邮件继续']")
     new_login_page_use_google_btn = (By.XPATH, "//span[text()='使用 Google 繼續']")
-    new_login_page_agreement_hint = (By.XPATH,
-                                     "//p[@class='my-auto text-xs text-center text-neutral-900 leading-[18px]']")
+    new_login_page_agreement_hint = (By.XPATH, "//p[@class='my-auto text-xs text-center text-neutral-900 leading-[20px]']")
     new_login_page_close_btn = (By.XPATH, "//button[@aria-label='關閉']")
 
     # ========== 手機號登錄 ==========
@@ -151,6 +150,7 @@ class LoginPage(BasePage):
         self.click(LoginPageLocator.login_page_register_btn)  # 註冊鍵
         self.type(LoginPageLocator.login_email_input, email)  # 輸入email
         self.click(LoginPageLocator.next_btn)
+        sleep(0.5)
         if self.is_element_finded(LoginPageLocator.input_code):
             self.click(LoginPageLocator.get_verifycode_btn)
             sleep(10)

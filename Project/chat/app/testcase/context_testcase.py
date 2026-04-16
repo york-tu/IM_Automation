@@ -88,7 +88,6 @@ class ContextTestCase(BaseTestCase, BasePage_Web, BasePage_Admin):
     def tearDown(self):
         # web
         self.test_all_windows_max()
-        self.check_result(str(self.id()).split('.')[-1])
         image_name = self.id().split('.')[-1]
         image_path_list = []
         for driver in self.driver_list:
@@ -99,6 +98,7 @@ class ContextTestCase(BaseTestCase, BasePage_Web, BasePage_Admin):
         end_time = time.time()
         duration = "{:.3f}".format(end_time - self.start_time)  # 測試案例執行所花時間
         gl.set_value('Duration', f'{duration}s')
+        self.check_result(str(self.id()).split('.')[-1])
 
         # app
         try:
@@ -106,8 +106,8 @@ class ContextTestCase(BaseTestCase, BasePage_Web, BasePage_Admin):
             image_path_list = [image_path]
             snapshot(filename=image_path, msg=f"{self.id()}")
             stop_app(self.package)
-            self.check_result(str(self.id()).split('.')[-1])
             gl.set_value('IMG_PATH', image_path_list)
+            self.check_result(str(self.id()).split('.')[-1])
         except Exception as e:
             if 'No available screen capture method found' in str(e):
                 pass

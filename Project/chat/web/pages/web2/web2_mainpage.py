@@ -30,14 +30,16 @@ class MainPageLocator:
     input_descriptions = (By.XPATH, "//textarea[@placeholder='请输入个人简介']")  # 編輯主頁-輸入個人簡介
     save_btn = (By.XPATH, "//button[text()='保存']")
     # ==================== 發布頁 ====================
-    upload_btn = (By.XPATH, "//button[text()='上传']")  # 發布>上傳鍵
+    # upload_btn = (By.XPATH, "//button[text()='上传']")  # 發布>上傳鍵
+    post_via_video = (By.XPATH, "//span[text()='视频']")  # 發布>視頻
+    post_via_photo = (By.XPATH, "//span[text()='照片']")  # 發布>照片
     input_post_descriptions = (By.XPATH, "//textarea[@placeholder='输入正文描述']")  # 發布頁-撰寫說明
     privacy_list = (By.XPATH, "//span[@class='font-normal text-neutral-900']")  # 隱私設置下拉選單
     privacy_everyone = (By.XPATH, "//ul[@class='flex flex-col overflow-y-auto']//li[1]")  # 隱私設置-所有人
     privacy_mutual_followers = (By.XPATH, "//ul[@class='flex flex-col overflow-y-auto']//li[2]")  # 隱私設置-互關
     privacy_fans = (By.XPATH, "//ul[@class='flex flex-col overflow-y-auto']//li[3]")  # 隱私設置-粉絲
     privacy_self = (By.XPATH, "//ul[@class='flex flex-col overflow-y-auto']//li[4]")  # 隱私設置-自己
-    post_confirm = (By.XPATH, "//button[text()='發佈']")
+    post_confirm = (By.XPATH, "//button[text()='发布']")
     # =================== 已關注/粉絲列表=============================
     focus_tab = (By.XPATH,"//button[@class='flex-1 text-center font-medium leading-6 hover:cursor-pointer text-neutral-900']")  # focus的關注/粉私列表
     list_first_member = (By.XPATH,"(//p[@class='text-base leading-6 text-neutral-900 font-normal truncate'])[1]")  # 列表第一位成員
@@ -246,14 +248,16 @@ class MainPage(BasePage):
     # =========================== 發布 ========================================
     def select_media(self, media_type='photo'):
         self.click(MainPageLocator.post_btn)
-        self.click(MainPageLocator.upload_btn)
-        sleep(5)
-        post_media_folder_path = ''
+        sleep(1)
+
         if media_type == 'photo':
             post_media_folder_path = f'{DIR_NAME}\\test_medias\\post_media\\photo'
-        elif media_type == 'video':
+            self.click(MainPageLocator.post_via_photo)
+        else:
             post_media_folder_path = f'{DIR_NAME}\\test_medias\\post_media\\video'
+            self.click(MainPageLocator.post_via_video)
 
+        sleep(5)
         medias = [f for f in os.listdir(post_media_folder_path) if os.path.isfile(os.path.join(post_media_folder_path, f))]
         random_media = random.choice(medias)
         file_path = f'{post_media_folder_path}\\{random_media}'

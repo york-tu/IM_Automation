@@ -1,15 +1,14 @@
 import os
 import sys
 import unittest
-import logging
-
-root_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
-sys.path.append(root_path)
+import common.utils.globalvar as gl
 
 from common.utils.utils import Utils
 from Project.chat.web.testcase.web_testcases import WebTestCase
-import common.utils.globalvar as gl
 from jira.config.base_key import BaseKey
+
+root_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
+sys.path.append(root_path)
 
 # Test Setting
 brand = 'gu'

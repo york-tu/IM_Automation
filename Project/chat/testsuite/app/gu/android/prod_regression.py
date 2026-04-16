@@ -3,9 +3,9 @@ import sys
 import unittest
 import logging
 import common.utils.globalvar as gl
+
 from common.utils.utils import Utils
 from Project.chat.app.testcase.app_testcase import AppTestCase
-from Project.chat.app.testcase.context_testcase import ContextTestCase
 from jira.config.base_key import BaseKey
 
 root_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
