@@ -1,10 +1,19 @@
+# region preamble (sys.path 設定 + 所有 import) - 收合後從 '# Test Setting' 起始
 import os
 import sys
-import unittest
+from pathlib import Path
 
-root_path = os.path.dirname(
-    os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
-sys.path.append(root_path)
+# 以 requirements.txt 為標記向上搜尋專案根目錄, 確保下面的專案 import 都能找到 module
+_here = Path(__file__).resolve().parent
+for _p in (_here, *_here.parents):
+    if (_p / 'requirements.txt').exists():
+        root_path = str(_p)
+        break
+else:
+    root_path = str(_here)
+if root_path not in sys.path:
+    sys.path.insert(0, root_path)
+import unittest
 
 from common.utils.utils import Utils
 from Project.chat.web.testcase.web_testcases import WebTestCase
@@ -12,8 +21,10 @@ from Project.chat.web.testcase.admin_testcases import AdminTestCase
 import common.utils.globalvar as gl
 from jira.config.base_key import BaseKey
 
+# endregion
+
 # Test Setting
-brand = 'gu'  # gu, chit
+brand = 'gu'  # gu, chit, mee
 user = 1
 test_type = 'web'
 os_version = 'Win11'  # 作業系統
@@ -86,7 +97,7 @@ s1_exchange_related_list = [
     WebTestCase("test_exchange_wellpay"),  # 測試-綁定正確的錢包並兌換積分 (順付)
     AdminTestCase("test_exchange_success_recode"),   # 測試-順付成功積分紀錄
     # ---------- 平臺 ---------
-    WebTestCase("test_exchange_brand"),  # 測試-綁定平臺SC,兌換積分,確認兌換紀錄
+    WebTestCase("test_exchange_brand"),  # 測試-綁定平臺SC,兌換積分,確認兌換紀錄 (平台後台關圖形驗證:管理首页>系统管理>系统设定>网站设定:滑动验证"禁用")
 ]
 s1_red_envelope_related_list = [
     AdminTestCase("test_add_redenvelope"),  # 測試-[後台]新增紅包
@@ -190,9 +201,23 @@ if __name__ == "__main__":
     suite_s1 = unittest.TestSuite()
     suite_s1.addTests(s1_test_cases)  # total 65*s1
     suite_s2 = unittest.TestSuite()
-    suite_s2.addTests(s2_test_cases)  # total 37*s2 + 5*s1
+    suite_s2.addTests(s2_test_cases)  # total 39*s2 + 3*s1
+
+    # 有「依賴序列」的 case 群組，群組內任一條失敗時整組重跑，避免單獨重跑必失敗
+    # S1: 綁錢包 → 兌換成功紀錄；後台建紅包 → 前台搶；後台建拚手氣 → 前台搶
+    s1_retry_groups = [
+        ('test_exchange_wellpay', 'test_exchange_success_recode'),
+        ('test_add_redenvelope', 'test_check_red_envelope', 'test_grab_red_envelope'),
+        ('test_add_luck_redenvelope', 'test_check_luck_red_envelope', 'test_grab_luck_red_envelope'),
+    ]
+    # S2: 綁錯誤錢包 → 兌換失敗紀錄；自動搶紅包；自動搶拚手氣 + 水量
+    s2_retry_groups = [
+        ('test_exchange_wellpay_incorrect', 'test_exchange_fail_recode'),
+        ('add_auto_grad_red_envelope', 'test_auto_grab_red_envelope'),
+        ('add_auto_grad_luck_red_envelope_then_check_water_control', 'test_auto_grab_luck_red_envelope'),
+    ]
 
     # S1：跑完 + retry 失敗案例 → 發 S1 報告到 Slack
-    Utils.unittest_xml_with_retry_and_slack(suite_s1, report_label='S1', run_check_last_result=True)
+    Utils.unittest_xml_with_retry_and_slack(suite_s1, report_label='S1', run_check_last_result=True,retry_groups=s1_retry_groups,)
     # S2：跑完 + retry 失敗案例 → 發 S2 報告到 Slack，並執行 Jira check_last_result
-    Utils.unittest_xml_with_retry_and_slack(suite_s2, report_label='S2', run_check_last_result=True)
+    Utils.unittest_xml_with_retry_and_slack(suite_s2, report_label='S2', run_check_last_result=True, retry_groups=s2_retry_groups,)

@@ -52,6 +52,12 @@ class Setting_Chrome:
         chrome_options.add_argument("--disable-notifications")
         chrome_options.add_argument("--disable-popup-blocking")
         chrome_options.add_argument("--disable-save-password-bubble")
+        # 關閉 Chrome 內建的「密碼外洩警示 / 自動填入後台通訊」等非 DOM 彈窗
+        chrome_options.add_argument(
+            "--disable-features=PasswordLeakDetection,AutofillServerCommunication"
+        )
+        chrome_options.add_argument("--no-default-browser-check")
+        chrome_options.add_argument("--no-first-run")
         # 避免瀏覽器層級「麥克風/相機權限」彈窗（非 DOM，測試中很難可靠點擊）
         # - use-fake-ui-for-media-stream: 自動按下允許
         # - use-fake-device-for-media-stream: 提供假裝置，避免沒有麥克風硬體時卡住
@@ -60,7 +66,13 @@ class Setting_Chrome:
 
         prefs = {
             "credentials_enable_service": False,
+            "credentials_enable_autosignin": False,
             "profile.password_manager_enabled": False,
+            # 關閉「變更你的密碼 / 密碼已在資料外洩事件中外洩」彈窗
+            "profile.password_manager_leak_detection": False,
+            "autofill.profile_enabled": False,
+            "autofill.credit_card_enabled": False,
+            "safebrowsing.enabled": False,
             "profile.default_content_setting_values.media_stream_mic": 1,
             "profile.default_content_setting_values.media_stream_camera": 1,
             "profile.default_content_setting_values.geolocation": 1,

@@ -1,17 +1,28 @@
+# region preamble (sys.path 設定 + 所有 import) - 收合後從 '# Test Setting' 起始
 import os
 import sys
+from pathlib import Path
+
+# 以 requirements.txt 為標記向上搜尋專案根目錄, 確保下面的專案 import 都能找到 module
+_here = Path(__file__).resolve().parent
+for _p in (_here, *_here.parents):
+    if (_p / 'requirements.txt').exists():
+        root_path = str(_p)
+        break
+else:
+    root_path = str(_here)
+if root_path not in sys.path:
+    sys.path.insert(0, root_path)
 import unittest
 import logging
 import common.utils.globalvar as gl
 from common.utils.utils import Utils
 from Project.chat.app.testcase.app_testcase import AppTestCase
-from Project.chat.app.testcase.context_testcase import ContextTestCase
 from jira.config.base_key import BaseKey
 
-root_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
-sys.path.append(root_path)
-
 logging.getLogger("airtest").setLevel(logging.WARNING)
+
+# endregion
 
 # Test Setting
 env = 'prod'
@@ -20,7 +31,7 @@ user = 1
 connect_type = 'local'  # 手機連線模式
 phone_name = 'HUAWEI_MATE_30_PRO_5G'  # 手機型號
 phone_platform = 'Android'  # 手機作業系統
-app_version = '2.19.0'  # 版本號
+app_version = '2.20.1'  # 版本號
 account_type = 'phone'  # 帳號類型: mail, phone...
 # specific_os_version = []  # 指定OS版本, ['10','11','8']
 push = True  # 將結果推倒jira, 預設請給予 True
@@ -65,18 +76,13 @@ s1_regression_list = [
     AppTestCase("test_logout"),
 ]
 
+# ==================================================== Backup ==========================================================
 # =========== 私聊相關功能測試 ===========
 one_on_one_chat_regression_list = [
     AppTestCase("test_login"),
     AppTestCase("test_version_check"),
-    AppTestCase("test_into_member"),
-    AppTestCase("test_into_friend"),
     AppTestCase("test_change_nickname_and_instructions"),
     AppTestCase("test_notify_switch"),
-    AppTestCase("test_detail_switch"),
-    AppTestCase("test_voice_switch"),
-    AppTestCase("test_vibration_switch"),
-    AppTestCase("test_about_terms"),
     AppTestCase("test_free_up_space"),
     AppTestCase("test_change_password"),
     AppTestCase("test_account_info"),
@@ -165,17 +171,21 @@ if __name__ == '__main__':
 
     # for jira config
     gl.set_value('TEST_TYPE', 'app_android')
-    BaseKey().get_jira_data()
+    try:
+        BaseKey().get_jira_data()
+    except FileNotFoundError as e:
+        print(f"[WARN] {e}. Skip Jira push for this run.")
+        push = False
     gl.set_value('PUSH', push)
-    
-    # TestCase add
-    suite = unittest.TestSuite()
-    suite.addTests(s1_regression_list)  # total 37 cases
 
-    # =================== All Test cases ===================
+    # TestCase add：沿用既有 prod 清單與順序，改用 retry + Slack 報告流程
+    suite_prod = unittest.TestSuite()
+    suite_prod.addTests(s1_regression_list)  # total 37 cases
+
+    # =================== Backup ===================
     # suite.addTests(one_on_one_chat_regression_list)
     # suite.addTests(group_chat_regression_list)
     # suite.addTests(discover_regression_list)
 
-    # RunningTest
-    Utils.unittest_xml(suite)
+    # RunningTest：失敗案例自動 retry 1 次，執行完回報 Slack
+    Utils.unittest_xml_with_retry_and_slack(suite_prod, report_label='S1', run_check_last_result=True)

@@ -168,13 +168,21 @@ class Utils(JiraApi):
             print('Slack 通知發送失敗: %s' % e)
 
     @staticmethod
-    def unittest_xml_with_retry_and_slack(suite, report_label=None, run_check_last_result=False):
+    def unittest_xml_with_retry_and_slack(suite, report_label=None, run_check_last_result=False,
+                                          retry_groups=None):
         """
         執行測試（含失敗重試 1 次）、寫入 XML 報告，並將該段結果發送到 Slack。
         若 report_label 為 'S1'/'S2'，報告會寫入子目錄 S1/、S2/，且 Slack 標題會帶上標籤。
         :param suite: unittest.TestSuite
         :param report_label: 例如 'S1'、'S2'，用於子目錄與 Slack 標題
         :param run_check_last_result: 是否在本次跑完後呼叫 check_last_result（通常僅最後一段設 True）
+        :param retry_groups: 群組重跑設定，例如：
+            [
+                ('test_add_redenvelope', 'test_check_red_envelope', 'test_grab_red_envelope'),
+                ('add_auto_grad_red_envelope', 'test_auto_grab_red_envelope'),
+            ]
+            群組內任一條失敗時，retry 階段會把整組 case 從原 suite 撈出來依序一起重跑，
+            適用於「依賴前一條後置條件」的測試（例：後台先建紅包 → 前台才能搶）。
         """
         gl.set_value('STATUS', ['amount', 'errors', 'failures', 'skipped'])
         gl.set_value('HOLD', '')
@@ -205,7 +213,8 @@ class Utils(JiraApi):
         filtered_stdout = FilteredStream(_orig_stdout)
         filtered_stderr = FilteredStream(_orig_stderr)
         sys.stdout, sys.stderr = filtered_stdout, filtered_stderr
-        runner = RetryXMLTestRunner(output=folderpath, verbosity=2, max_retries=1, retry_delay=5, stream=filtered_stderr)
+        runner = RetryXMLTestRunner(output=folderpath, verbosity=2, max_retries=1, retry_delay=5,
+                                    retry_groups=retry_groups, stream=filtered_stderr)
         start_time = time.time()
         try:
             Utils.report = runner.run(suite)

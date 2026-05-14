@@ -1,5 +1,18 @@
+# region preamble (sys.path 設定 + 所有 import) - 收合後從 '# Test Setting' 起始
 import os
 import sys
+from pathlib import Path
+
+# 以 requirements.txt 為標記向上搜尋專案根目錄, 確保下面的專案 import 都能找到 module
+_here = Path(__file__).resolve().parent
+for _p in (_here, *_here.parents):
+    if (_p / 'requirements.txt').exists():
+        root_path = str(_p)
+        break
+else:
+    root_path = str(_here)
+if root_path not in sys.path:
+    sys.path.insert(0, root_path)
 import unittest
 from common.utils.utils import Utils
 from Project.chat.web.testcase.web2_testcases import Web2TestCase
@@ -7,9 +20,7 @@ from Project.chat.web.testcase.web2_testcases import Web2TestCase
 import common.utils.globalvar as gl
 from jira.config.base_key import BaseKey
 
-root_path = os.path.dirname(
-    os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
-sys.path.append(root_path)
+# endregion
 
 # Test Setting
 env = 'uat'  # uat, prod
@@ -28,7 +39,7 @@ s1_case_list = [
     Web2TestCase('test_change_nickname_and_instructions'),  # 測試-編輯個人暱稱&說明
     Web2TestCase("test_social_post_photo"),  # 測試-發布圖片
     Web2TestCase('test_social_post_video'),  # 測試-發布影片
-    #                 # Web2TestCase('test_social_search'),  # 測試-搜索視頻&用戶
+    Web2TestCase('test_social_search'),  # 測試-搜索視頻&用戶
     Web2TestCase('test_social_follow_unfollow'),  # 測試-關注 & 取消關注
     Web2TestCase("test_social_post_add_remove_likes_collections"),  # 貼文點贊/取消贊/收藏/取消收藏
     Web2TestCase('test_social_other_post_add_comments_reply'),  # 他人貼文評論上留言回覆

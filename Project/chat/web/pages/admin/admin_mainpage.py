@@ -481,7 +481,7 @@ class MainPage(BasePage):
 
     def into_logging(self):
         self.wait_loading_finish()
-        if self.brand == 'gu' or 'chit':
+        if self.brand in ('gu', 'chit', 'mee'):
             self.click(MainPageLocator.menu_log_query_gu)
             self.click(MainPageLocator.menu_operation_log)
         elif self.brand == 'mingpin':

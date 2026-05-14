@@ -386,7 +386,7 @@ class ChatSetupPage(Base):
         while not self.common.poco_exists(ChatRoomPageLocator.image_photo):
             self.common.poco_click(ChatRoomPageLocator.add_function_btn)
         self.common.poco_click(ChatRoomPageLocator.image_photo)
-        sleep(1)
+        sleep(5)
         if enable == '1':
             assert self.common.poco_exists(ChatRoomPageLocator.device_photo_view)
             self.common.poco_click(ChatRoomPageLocator.photo_view_close_btn)
@@ -397,7 +397,7 @@ class ChatSetupPage(Base):
         while not self.common.poco_exists(ChatRoomPageLocator.file_btn):
             self.common.poco_click(ChatRoomPageLocator.add_function_btn)
         self.common.poco_click(ChatRoomPageLocator.file_btn)
-        sleep(1)
+        sleep(3)
         if enable == '1':
             assert self.common.poco_exists(ChatRoomPageLocator.file_upload_view)
 

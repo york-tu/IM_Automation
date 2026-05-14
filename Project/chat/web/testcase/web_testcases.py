@@ -399,7 +399,7 @@ class WebTestCase(BaseTestCase):
         self.wp.main_page().open_user_info()
         self.wp.main_page().into_friend_add()
 
-        if self.brand == 'chit':
+        if self.brand in ('chit', 'mee'):
             self.wp.main_page().add_friend('8613141010102', '暂不支援此功能')  # 1.1
             self.wp.main_page().add_friend('outwhite02', '暂不支援此功能')  # 1.2
             self.add_target_friend('8613141010103')  # 1.3
@@ -420,7 +420,7 @@ class WebTestCase(BaseTestCase):
         self.wp.main_page().open_user_info()
         self.wp.main_page().into_friend_add()
 
-        if self.brand == 'chit':
+        if self.brand in ('chit', 'mee'):
             self.add_target_friend('8613141010102')  # 2.1
             self.add_target_friend('8613141010103')  # 2.3
             self.delete_target_friend('outwhite02')
@@ -904,10 +904,10 @@ class WebTestCase(BaseTestCase):
         web_password = 'ps43941122'
         member_ID = 'exchange0'
         operate_type = '平台'
-        brand = 'SC'
+        brand = 'hy'
         env = 'uat'
         brand_account = 'cmtest006'
-        brand_pw = 'ps43941122'
+        brand_pw = 'Heaven@4394'
         # =========================== 登入SC平臺, 設定股聊積分兌換數值 =====================
         self.wp.brand_page().into_brand_page(brand, env, brand_account, brand_pw)
         before_main_wallet_money = self.wp.brand_page().get_main_wallet_money()
@@ -927,7 +927,7 @@ class WebTestCase(BaseTestCase):
         # =========================== 後台確認積分使用紀錄 ================================
         self.test_admin_login()
         self.ad.main_page().into_integral_record()
-        self.ad.water_recode_page().check_current_exchange_record(member_ID, None, f'-{str(exchange_amount)}', f'{operate_type}-{brand}', None, remain_integral_amount_after)  # [後台]積分使用紀錄頁確認積分訊息
+        self.ad.water_recode_page().check_current_exchange_record(member_ID, None, f'-{str(exchange_amount)}', f'{operate_type}-{brand.upper()}', None, remain_integral_amount_after)  # [後台]積分使用紀錄頁確認積分訊息
 
         # =========================== 解綁平臺 ===========================================
         self.test_admin_login_to_memberlist()

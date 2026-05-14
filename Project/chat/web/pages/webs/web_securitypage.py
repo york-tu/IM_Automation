@@ -57,6 +57,8 @@ class SecurityPage(BasePage):
             product_name = '名品会'
         elif brand == 'chit':
             product_name = '趣聊'
+        elif brand == 'mee':
+            product_name = '觅聊'
 
         if self.get_text(SecurityPageLocator.header_title) == '帐号与安全':
             my_id = self.get_text(SecurityPageLocator.security_id)

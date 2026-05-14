@@ -1,24 +1,34 @@
 # -*- coding: utf-8 -*-
+# region preamble (sys.path 設定 + 所有 import) - 收合後從 '# Test Setting' 起始
 import os
 import sys
+from pathlib import Path
+
+# 以 requirements.txt 為標記向上搜尋專案根目錄, 確保下面的專案 import 都能找到 module
+_here = Path(__file__).resolve().parent
+for _p in (_here, *_here.parents):
+    if (_p / 'requirements.txt').exists():
+        root_path = str(_p)
+        break
+else:
+    root_path = str(_here)
+if root_path not in sys.path:
+    sys.path.insert(0, root_path)
 import unittest
 import logging
-
-root_path = os.path.dirname(
-    os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
-sys.path.append(root_path)
 
 import common.utils.globalvar as gl
 from common.utils.utils import Utils
 from Project.chat.app.testcase.app_testcase import AppTestCase
 from Project.chat.app.testcase.context_testcase import ContextTestCase
 from jira.config.base_key import BaseKey
-
 logging.getLogger("airtest").setLevel(logging.WARNING)
+
+# endregion
 
 # Test Setting
 env = 'uat'
-brand = 'gu'
+brand = 'gu'  # gu, chit, mee
 user = 1
 connect_type = 'local'  # 手機連線模式 remote or local
 phone_name = 'HUAWEI_MATE_30_PRO_5G'  # 手機型號
@@ -148,6 +158,7 @@ s2_social_regression_list = [
 ]
 # -------------- 其他功能測試 --------------
 s2_combination_regression_list = [
+    AppTestCase("test_login"),  # s1
     ContextTestCase("test_app_email_registration"),  # 測試-email註冊 (後台需先關閉極驗)
     ContextTestCase("test_app_email_forgetPW"),  # 測試-email登入時忘記密碼 > 重設
 ]
@@ -190,9 +201,9 @@ if __name__ == '__main__':
 
     # TestCase add：S1 跑完 + retry 失敗後發 S1 報告到 Slack，再跑 S2 + retry 後發 S2 報告到 Slack
     suite_s1 = unittest.TestSuite()
-    suite_s1.addTests(s1_test_cases)  # total 47*s1
+    suite_s1.addTests(s1_test_cases)  # total 45*s1
     suite_s2 = unittest.TestSuite()
-    suite_s2.addTests(s2_test_cases)  # total 50*s2 + 3*s1
+    suite_s2.addTests(s2_test_cases)  # total 47*s2 + 3*s1
 
     # S1：跑完 + retry 失敗案例 → 發 S1 報告到 Slack
     Utils.unittest_xml_with_retry_and_slack(suite_s1, report_label='S1', run_check_last_result=True)

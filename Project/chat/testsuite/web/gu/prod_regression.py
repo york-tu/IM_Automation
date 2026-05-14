@@ -1,5 +1,18 @@
+# region preamble (sys.path 設定 + 所有 import) - 收合後從 '# Test Setting' 起始
 import os
 import sys
+from pathlib import Path
+
+# 以 requirements.txt 為標記向上搜尋專案根目錄, 確保下面的專案 import 都能找到 module
+_here = Path(__file__).resolve().parent
+for _p in (_here, *_here.parents):
+    if (_p / 'requirements.txt').exists():
+        root_path = str(_p)
+        break
+else:
+    root_path = str(_here)
+if root_path not in sys.path:
+    sys.path.insert(0, root_path)
 import unittest
 import common.utils.globalvar as gl
 
@@ -7,11 +20,10 @@ from common.utils.utils import Utils
 from Project.chat.web.testcase.web_testcases import WebTestCase
 from jira.config.base_key import BaseKey
 
-root_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
-sys.path.append(root_path)
+# endregion
 
 # Test Setting
-brand = 'gu'
+brand = 'gu'  # gu, mee, chit
 user = 1
 test_type = 'web'
 os_version = 'Win11'  # 作業系統

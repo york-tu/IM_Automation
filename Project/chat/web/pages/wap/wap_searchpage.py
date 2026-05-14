@@ -31,7 +31,7 @@ class SearchPageLocator:
     user_result_tab = (By.XPATH, "//span[text()='用户']")
     user_result_poster = (By.XPATH, "//p[@class='w-full text-[16rem] text-grand-1 overflow-hidden text-ellipsis whitespace-pre']")
     user_result_poster_info = (By.XPATH, "//div[@class='text-[14rem] text-grand-2']")
-    user_result_follow_btn = (By.XPATH, "//div[@class='ml-auto text-[14rem] text-neutral-80 rounded-[4rem] py-[7rem] w-[74rem] text-center text-white-100 gradient-primary bg-primary-500']")
+    user_result_follow_btn = (By.XPATH, '//*[@id="app"]/div[1]/div[2]/div/div[2]/div/div/div[3]')
     @staticmethod
     def search_record_index(num):
         locator = (By.XPATH, f"(//p[@class='flex-1 overflow-hidden text-ellipsis text-neutral-800'])[{num}]")
@@ -53,8 +53,11 @@ class SearchPage(BasePage):
         self.click(SearchPageLocator.search_btn)
 
     def check_search_post_result(self, nickname, description):
-        assert self.get_text(SearchPageLocator.video_result_post_description) == description
-        assert self.get_text(SearchPageLocator.video_result_poster) == nickname
+        sleep(1)
+        result_description = self.get_text(SearchPageLocator.video_result_post_description)
+        result_poster = self.get_text(SearchPageLocator.video_result_poster)
+        assert result_description == description
+        assert result_poster == nickname
 
     def search_post(self, keywords, search_by_switch_tab=True):
         if search_by_switch_tab:
@@ -84,10 +87,10 @@ class SearchPage(BasePage):
 
     def check_recent_search_record(self, expected_history):
         button_img_path = ''
-        if self.brand.lower() == "gu":
-            button_img_path = os.path.join(DIR_NAME, 'element_icon', 'back.jpg')
-        elif self.brand.lower() == "mingpin":
+        if self.brand.lower() == "mingpin":
             button_img_path = os.path.join(DIR_NAME, 'element_icon', 'back_mingpin.jpg')
+        else:
+            button_img_path = os.path.join(DIR_NAME, 'element_icon', 'back.jpg')
         location = pyautogui.locateCenterOnScreen(button_img_path, confidence=0.8)
         pyautogui.click(location)
         self.wait_loading_finish()

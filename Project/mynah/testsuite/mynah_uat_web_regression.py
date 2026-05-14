@@ -1,16 +1,13 @@
 import unittest
 import sys
 import os
-import datetime, random
-
-DIR_NAME = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-sys.path.append(DIR_NAME)
-
 from common.utils.utils import Utils
 from Project.mynah.testsuite.testcases.web_testcases import WebTestCases
 import common.utils.globalvar as gl
 from jira.config.base_key import BaseKey
 
+DIR_NAME = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+sys.path.append(DIR_NAME)
 
 # Test Setting
 test_brand = 'bh'  # 前台平台
@@ -31,14 +28,16 @@ web_testcase_list = [
     WebTestCases("test_talk_different_cs"),
     WebTestCases("test_talk_more_guest"),
     WebTestCases("test_invite_cs"),
-    WebTestCases("test_disconnect_auto_end"),  # 20mins
-    WebTestCases("test_visitor_auto_end"),  # 20mins
+
     WebTestCases("test_send_img"),
     WebTestCases("test_channel_account"),
     WebTestCases("test_search_group_message"),
     WebTestCases("test_history_check"),
     WebTestCases("test_promotion_ad"),
     WebTestCases("test_score_statistics"),
+
+    WebTestCases("test_disconnect_auto_end"),  # 20mins
+    WebTestCases("test_visitor_auto_end"),  # 20mins
 ]
 
 
@@ -47,6 +46,11 @@ suite = unittest.TestSuite()
 
 if __name__ == "__main__":
     gl._init()
+    # 初始化 HOLD / 對應表，確保第一個案例就能被 DecorateClass 正確綁定 Jira TESTCASE_KEY
+    gl.set_value('HOLD', '')
+    gl.set_value('TESTCASE_ID_MAP', {})
+    gl.set_value('ERROR', [])
+    gl.set_value('FAILURE', [])
     # 以CMD方式執行
     if len(sys.argv) == 1:
         pass
@@ -77,7 +81,5 @@ if __name__ == "__main__":
     # TestCase add
     suite.addTests(web_testcase_list)
 
-    # RuningTest
-    Utils.unittest_xml(suite)   
-
-    
+    # RunningTest：失敗案例自動 retry 1 次，執行完將結果回報 Slack
+    Utils.unittest_xml_with_retry_and_slack(suite, run_check_last_result=True)

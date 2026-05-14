@@ -77,7 +77,7 @@ class MainPageLocator(BaseLocator):
         iOS=base.data_collation(type_kind='name', type_name='forgotPassword_verificationCode_button')
     )
     input_code = base.check_device(
-        Android=base.data_collation(type_kind='text', type_name='请输入验证码'),
+        Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/et_input_text'),
         iOS=base.data_collation(type_kind='name', type_name='codeVerify_textField')
     )
     forgetPW_input_code = base.check_device(
@@ -325,7 +325,7 @@ class MainPage(Base):
             sleep(1)
 
     # 回傳登入狀態，已登入回傳True，反之回傳False
-    def check_login_status(self, login_id):
+    def check_login_status(self, login_id=None):
         """確認是否已登入"""
         sleep(1.5)
         self.common.poco_click(MainPageLocator.main_btn)
@@ -382,8 +382,40 @@ class MainPage(Base):
         self.common.poco_send_text(account_locator, account)
         self.common.poco_click(password_locator)
         self.common.poco_send_text(password_locator, password)
-
         self.common.poco_click(login_btn_locator)
+        sleep(3)
+
+        # ================= 處理android登入後還是卡在登入頁情況 (先登入不同國碼帳號>登出>登入目標帳號) =================
+        if self.phone_platform.lower() == 'android':
+            if self.common.poco_exists(MainPageLocator.new_login_page_welcome_description):
+                self.common.poco_click(MainPageLocator.new_login_page_use_cellphone_btn)
+                # ---------- 登入不同國碼帳號 ----------
+                self.common.poco_click(MainPageLocator.nation_button)
+                self.common.sleep(0.5)
+                self.common.poco_click(MainPageLocator.nation_search)
+                self.common.poco_send_text(MainPageLocator.nation_search, '886')
+                self.common.sleep(0.5)
+                self.common.poco_click(MainPageLocator.nation_code)
+
+                if self.brand == 'chit':
+                    phone = '987110001'
+                elif self.brand == 'mee':
+                    phone = '987611001'
+                else:
+                    phone = '987666555'
+                self.common.poco_send_text(account_locator, phone)
+                self.common.poco_click(password_locator)
+                self.common.poco_send_text(password_locator, '000111abc')
+                self.common.poco_click(login_btn_locator)
+                sleep(2)
+                # ---------- 登出帳號 ----------
+                self.into_main_setting_page()
+                self.common.poco_click(MainPageLocator.security_button)
+                self.logout()
+                sleep(2)
+                # ---------- 登入指定帳號 ----------
+                self.do_login(account_locator, password_locator, login_btn_locator, account, password)
+        # =================================================================================================
 
         self.common.poco_click(MainPageLocator.main_btn)
         # 預設檢查：只要不出現登入頁面就視為成功
@@ -462,6 +494,7 @@ class MainPage(Base):
             "gu": f"GuChat{suffix}",
             "mingpin": f"名品会{suffix}",
             "chit": f"ChitChat{suffix}",
+            "mee": f"MeeChat{suffix}",
         }
 
         # 預設值，可避免 key 不存在報錯
@@ -583,7 +616,7 @@ class MainPage(Base):
         self.common.poco_click(MainPageLocator.next_btn)
         sleep(3)
         # ==================== 獲得驗證碼 > 輸入驗證碼 ====================
-        if self.common.poco_exists(MainPageLocator.input_code):
+        if not self.common.poco_exists(MainPageLocator.input_account_id):
             sleep(12)
             code = self.common.get_verification_code_from_mail(self.brand)  # 獲得驗證碼
             self.common.poco_click(MainPageLocator.input_code)
@@ -748,9 +781,12 @@ class MainPage(Base):
         self.common.poco_send_text(MainPageLocator.forgetPWPage_confirmNewPW, newPW)  # 再次設定新密碼
         self.common.poco_click(MainPageLocator.PWReset_btn)  # 重設密碼btn
         # ==================== 確認密碼設定成功彈窗 ====================
-        assert self.common.poco_exists(MainPageLocator.alert_msg)
+        assert self.common.poco_exists(MainPageLocator.alert_msg), \
+            '重設密碼後，確認彈窗未出現 (alert_msg not found)'
         if self.phone_platform.lower() == 'android':
-            assert self.common.poco_get_text(MainPageLocator.alert_msg) == '密码重设成功'
+            actual_alert_text = self.common.poco_get_text(MainPageLocator.alert_msg)
+            assert actual_alert_text == '密码重设成功', \
+                f"重設密碼彈窗文字不符，預期: '密码重设成功'，實際: {actual_alert_text!r}"
             self.common.poco_click(MainPageLocator.confirm_button)
         else:
             self.poco(type='ScrollView')[-1].click()

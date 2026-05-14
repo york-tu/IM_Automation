@@ -114,6 +114,8 @@ class FreeUpSpacePage(Base):
         brand_name = 'GuChat'
     elif brand.lower() == 'chit':
         brand_name = 'ChitChat'
+    elif brand.lower() == 'mee':
+        brand_name = 'MeeChat'
 
     def into_free_up_space(self, product_name):
         self.common.poco_click(FreeUpSpacePageLocator.free_up_space_btn)

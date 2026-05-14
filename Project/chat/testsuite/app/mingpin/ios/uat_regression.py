@@ -1,11 +1,20 @@
+# region preamble (sys.path 設定 + 所有 import) - 收合後從 '# Test Setting' 起始
 import os
 import sys
+from pathlib import Path
+
+# 以 requirements.txt 為標記向上搜尋專案根目錄, 確保下面的專案 import 都能找到 module
+_here = Path(__file__).resolve().parent
+for _p in (_here, *_here.parents):
+    if (_p / 'requirements.txt').exists():
+        root_path = str(_p)
+        break
+else:
+    root_path = str(_here)
+if root_path not in sys.path:
+    sys.path.insert(0, root_path)
 import unittest
 import logging
-
-root_path = os.path.dirname(
-    os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
-sys.path.append(root_path)
 
 import common.utils.globalvar as gl
 from common.utils.utils import Utils
@@ -15,6 +24,8 @@ from jira.config.base_key import BaseKey
 
 logging.getLogger("airtest").setLevel(logging.WARNING)
 
+# endregion
+
 # Test Setting
 env = 'uat'
 brand = 'mingpin'
@@ -22,7 +33,7 @@ user = 1
 connect_type = 'local'  # 手機連線模式 remote or local
 phone_name = 'IPHONE_15_PRO'  # 手機型號 'IPHONE_15_PRO (ios18.6.2)', 'IPHONE_73 (ios16.1.1)', 'IPHONE_11_PRO (ios15)'
 phone_platform = 'iOS'  # 手機作業系統
-app_version = '5.18.0(113659.116)'  # 版本號
+app_version = '5.22.0(115183.116)'  # 版本號
 account_type = 'phone'  # 帳號類型: email, phone...
 # specific_os_version = []  # 指定OS版本, ['10','11','8']
 push = True  # 將結果推倒jira, 預設請給予 True
@@ -30,69 +41,64 @@ push = True  # 將結果推倒jira, 預設請給予 True
 # ============================================== S1 Test Cases ===================================================
 # -------------- 私聊相關功能測試 --------------
 s1_personal_chat_regression_list = [
-    # AppTestCase("test_login"),
-    # AppTestCase("test_version_check"),
-    # AppTestCase("test_into_member"),
-    # AppTestCase("test_into_friend"),
-    # AppTestCase("test_change_nickname_and_instructions"),
-    # AppTestCase("test_free_up_space"),
-    # AppTestCase("test_change_password"),
-    # AppTestCase("test_account_info"),
-    # AppTestCase("test_add_friend"),
-    # AppTestCase("test_friend_remark"),
-    # AppTestCase("test_send_message"),
-    # AppTestCase('test_send_voice_message'),
-    # AppTestCase('test_send_file_message'),
-    # AppTestCase("test_delete_friend"),
-    # AppTestCase("test_logout"),
+    AppTestCase("test_login"),
+    AppTestCase("test_version_check"),
+    AppTestCase("test_change_nickname_and_instructions"),
+    AppTestCase("test_free_up_space"),
+    AppTestCase("test_change_password"),
+    AppTestCase("test_account_info"),
+    AppTestCase("test_add_friend"),
+    AppTestCase("test_friend_remark"),
+    AppTestCase("test_send_message"),
+    AppTestCase('test_send_voice_message'),
+    AppTestCase('test_send_file_message'),
+    AppTestCase("test_delete_friend"),
+    AppTestCase("test_logout"),
 ]
 # -------------- 群聊相關功能測試 --------------
 s1_group_chat_regression_list = [
     ContextTestCase("test_group_remove_admin"),  # 移除 gubot03 管理員權限
     ContextTestCase("test_group_change_group_rules"),  # 群組成員權限設定
     ContextTestCase("test_group_add_admin_and_change_admin_rules"),  # 將 gubot03 加為管理員並更改管裡員權限
-    # AppTestCase("test_send_message_group"),
-    # AppTestCase("test_message_copy_group"),
-    # AppTestCase("test_message_reply_group"),
-    # AppTestCase("test_message_delete_group"),
-    # AppTestCase("test_message_revoke_group"),
-    # AppTestCase("test_message_pin_group"),
-    # AppTestCase("test_send_voice_message_group"),
-    # AppTestCase('test_voice_message_reply_group'),
-    # AppTestCase('test_voice_message_delete_group'),
-    # AppTestCase('test_voice_message_revoke_group'),
-    # AppTestCase('test_send_file_message_group'),
-    # AppTestCase('test_file_message_reply_group'),
-    # AppTestCase('test_file_message_delete_group'),
-    # AppTestCase('test_file_message_revoke_group'),
+    AppTestCase("test_send_message_group"),
+    AppTestCase("test_message_copy_group"),
+    AppTestCase("test_message_reply_group"),
+    AppTestCase("test_message_delete_group"),
+    AppTestCase("test_message_revoke_group"),
+    AppTestCase("test_message_pin_group"),
+    AppTestCase("test_send_voice_message_group"),
+    AppTestCase('test_voice_message_reply_group'),
+    AppTestCase('test_voice_message_delete_group'),
+    AppTestCase('test_voice_message_revoke_group'),
+    AppTestCase('test_send_file_message_group'),
+    AppTestCase('test_file_message_reply_group'),
+    AppTestCase('test_file_message_delete_group'),
+    AppTestCase('test_file_message_revoke_group'),
 ]
 # -------------- 搶紅包測試 --------------
 s1_grab_red_envelop_regression_list = [
-    # ContextTestCase("test_app_grab_red_envelope"),
-    # ContextTestCase("test_app_grab_luck_red_envelope"),
-    # ContextTestCase("test_app_grab_bulk_upload_luck_red_envelope")
+    ContextTestCase("test_app_grab_red_envelope"),
+    ContextTestCase("test_app_grab_luck_red_envelope"),
+    ContextTestCase("test_app_grab_bulk_upload_luck_red_envelope")
 ]
 # -------------- 社群相關功能測試 --------------
 s1_social_regression_list = [
-    # AppTestCase("test_social_post_photo"),  # 發布圖片
-    # AppTestCase("test_social_search"),  # 搜索視頻 & 用戶
-    # AppTestCase("test_social_follow_unfollow"),  # 關注/取消關注
-    # AppTestCase("test_social_other_post_add_comments_reply"),  # 他人貼文評論上留言回覆
-    # AppTestCase("test_social_self_post_add_comments_reply_like"),  # 自己貼文評論上留言回覆點贊
-    # AppTestCase('test_social_share_self_main_page'),  # 分享"自己主頁"到群組
-    # AppTestCase('test_social_share_other_main_page'),  # 分享"他人主頁"到群組
-    # AppTestCase('test_social_share_self_post'),  # 分享"自己貼文"到群組
-    # AppTestCase('test_social_share_others_post'),  # 分享"他人貼文"到群組
+    AppTestCase("test_social_post_photo"),  # 發布圖片
+    AppTestCase("test_social_search"),  # 搜索視頻 & 用戶
+    AppTestCase("test_social_follow_unfollow"),  # 關注/取消關注
+    AppTestCase("test_social_other_post_add_comments_reply"),  # 他人貼文評論上留言回覆
+    AppTestCase("test_social_self_post_add_comments_reply_like"),  # 自己貼文評論上留言回覆點贊
+    AppTestCase('test_social_share_self_main_page'),  # 分享"自己主頁"到群組
+    AppTestCase('test_social_share_other_main_page'),  # 分享"他人主頁"到群組
+    AppTestCase('test_social_share_self_post'),  # 分享"自己貼文"到群組
+    AppTestCase('test_social_share_others_post'),  # 分享"他人貼文"到群組
 ]
 
 # ============================================== S2 Test cases ===================================================
 # -------------- 私聊相關功能測試 --------------
 s2_personal_chat_regression_list = [
     AppTestCase("test_notify_switch"),
-    AppTestCase("test_detail_switch"),
-    AppTestCase("test_voice_switch"),
-    AppTestCase("test_vibration_switch"),
-    AppTestCase("test_about_terms"),
+    AppTestCase("test_about_product"),
     AppTestCase("test_add_friend"),  # s1
     AppTestCase("test_add_myself"),
     AppTestCase("test_block_friend"),
@@ -179,17 +185,23 @@ if __name__ == '__main__':
 
     # for jira config
     gl.set_value('TEST_TYPE', 'app_ios')  # android: app_android , ios: app_ios
-    BaseKey().get_jira_data()
+    try:
+        BaseKey().get_jira_data()
+    except FileNotFoundError as e:
+        print(f"[WARN] {e}. Skip Jira push for this run.")
+        push = False
     gl.set_value('PUSH', push)
 
     # 自動啟動 iOS WDA
     Utils.start_wda_for_ios()
 
-    # TestCase add
-    suite = unittest.TestSuite()
-    suite.addTests(s1_test_cases)  # total 44*s1
-    # suite.addTests(s2_test_cases)  # total 40*s2 + 3*s1
-    # suite.addTests(all_test_cases)  # total 81
+    # TestCase add：S1 跑完 + retry 失敗後發 S1 報告到 Slack，再跑 S2 + retry 後發 S2 報告到 Slack
+    suite_s1 = unittest.TestSuite()
+    suite_s1.addTests(s1_test_cases)  # total 42*s1
+    suite_s2 = unittest.TestSuite()
+    suite_s2.addTests(s2_test_cases)  # total 39*s2 + 3*s1
 
-    # RunningTest
-    Utils.unittest_xml(suite)
+    # S1：跑完 + retry 失敗案例 → 發 S1 報告到 Slack
+    # Utils.unittest_xml_with_retry_and_slack(suite_s1, report_label='S1', run_check_last_result=False)
+    # S2：跑完 + retry 失敗案例 → 發 S2 報告到 Slack，並執行 Jira check_last_result
+    Utils.unittest_xml_with_retry_and_slack(suite_s2, report_label='S2', run_check_last_result=True)

@@ -767,7 +767,7 @@ class ContextTestCase(BaseTestCase, BasePage_Web, BasePage_Admin):
     @DecorateClass('CHATAPP-T3312')
     def test_app_email_registration(self):
         self.test_admin_login()
-        self.test_logout(self.app_account)
+        self.force_logout()
         mail_address = 'qa5@tengyuntech.com'
 
         # ============== 後台"關閉"極驗 =======================================================
@@ -817,6 +817,12 @@ class ContextTestCase(BaseTestCase, BasePage_Web, BasePage_Admin):
             self.ap.main_page().into_main_setting_page()
             self.ap.member_page().into_security()
             self.ap.main_page().logout()
+
+    def force_logout(self):
+        self.ap.main_page().into_main_page()
+        self.ap.main_page().into_main_setting_page()
+        self.ap.member_page().into_security()
+        self.ap.main_page().logout()
 
     # 測試-發訊息檢查
     @DecorateClass('CHATAPP-T')

@@ -268,9 +268,17 @@ class ChatRoomPageLocator(BaseLocator):
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/iv_photo'),
         iOS=base.data_collation(type_kind='name', type_name='message_attachment_album_button')
     )
+    _photo_picker_view_map = {
+        'chit': 'ChitChat.PhotoPickerView',
+        'mingpin': 'MingPinChat.PhotoPickerView',
+        'mee': 'MeeChat.PhotoPickerView',
+    }
     device_photo_view = base.check_device(
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/rv_media'),
-        iOS=base.data_collation(type_kind='name', type_name='GuChat.PhotoPickerView')
+        iOS=base.data_collation(
+            type_kind='name',
+            type_name=_photo_picker_view_map.get(BaseLocator.brand, 'GuChat.PhotoPickerView')
+        )
     )
     photo_view_close_btn = base.check_device(
         Android=base.data_collation(type_kind='name', type_name='转到上一层级'),

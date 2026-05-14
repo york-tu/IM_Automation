@@ -31,35 +31,40 @@ class SharePage(Base):
     brand = gl.get_value('BRAND')
     # app_package = Setting().get_package_name(brand, env)
 
+    # 各品牌分享文字關鍵字; 值為 str 代表 iOS/Android 共用, 值為 dict 則依平台 'ios'/'android' 取
+    # NOTE: mee 在 iOS 是「觅聊(簡)」, Android 是「覓聊(繁)」, 如為筆誤請統一
+    _SHARE_KEYWORDS = {
+        'chit':    '下载免费趣聊App，分享乐趣 一起畅聊!',
+        'mingpin': '加强好友间联系！下载免费名品会App，串连好友',
+        'mee':     '加强好友间联系！下载免费覓聊App，串连好友',
+    }
+    _SHARE_KEYWORD_DEFAULT = '加强好友间联系！下载免费股聊App，串连好友'  # gu
+
+    def _expected_share_keyword(self, platform):
+        keyword = self._SHARE_KEYWORDS.get(self.brand, self._SHARE_KEYWORD_DEFAULT)
+        return keyword[platform] if isinstance(keyword, dict) else keyword
+
     def get_share_text(self):
-        if self.phone_platform.lower() == 'ios':  # iOS part
+        is_ios = self.phone_platform.lower() == 'ios'
+        platform = 'ios' if is_ios else 'android'
+        expected = self._expected_share_keyword(platform)
+
+        if is_ios:
             message = self.poco(type='NavigationBar')[1].attr('name')
             share_list = message.split('\n')
-
-            if self.brand == 'chit':
-                assert share_list[1].__contains__('下载免费趣聊App，分享乐趣 一起畅聊!')
-            else:
-                assert share_list[1].__contains__('加强好友间联系！下载免费股聊App，串连好友')
-
+            target = share_list[1]
+            assert expected in target, f"分享文字不符，預期含 {expected!r}，實際 {target!r}"
             self.poco(name='actionGroupCell')[0].offspring(label='拷贝').click()
             self.wait_loading_finish()
+            return target, None
 
-            return share_list[1], None
-
-        else:  # android part
-            message = self.common.poco_get_text(SharePageLocator.share_text)
-            share_list = message.split('\n')
-
-            if self.brand == 'chit':
-                assert share_list[0].__contains__('下载免费趣聊App，分享乐趣 一起畅聊!')
-            else:
-                aaa = share_list[0]
-                assert share_list[0].__contains__('加强好友间联系！下载免费股聊App，串连好友')
-
-            self.common.poco_click(SharePageLocator.copy_btn)
-            self.wait_loading_finish()
-
-            return message, share_list[1]
+        message = self.common.poco_get_text(SharePageLocator.share_text)
+        share_list = message.split('\n')
+        target = share_list[0]
+        assert expected in target, f"分享文字不符，預期含 {expected!r}，實際 {target!r}"
+        self.common.poco_click(SharePageLocator.copy_btn)
+        self.wait_loading_finish()
+        return message, share_list[1]
 
     # def get_brand_name(self):
     #     if self.brand == 'gu':

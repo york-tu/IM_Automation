@@ -67,8 +67,9 @@ class MainPage(BasePage):
     def open_user_info(self):
         if not self.get_text(MainPageLocator.header_title) == '个人资讯':
             self.refresh_browser()
-            self.sleep(0.5)
+            self.sleep(2)
             self.click(LoginPageLocator.model_btn)
+            sleep(0.5)
             self.click(MainPageLocator.menu_icon)
             self.sleep(0.5)
         assert self.get_text(MainPageLocator.header_title) == '个人资讯', f'開啟個人資訊頁面有誤'

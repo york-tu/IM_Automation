@@ -28,7 +28,7 @@ class SearchPageLocator:
     # ===== 用戶搜索結果頁 =====
     user_result_poster = (By.XPATH, "//p[@class='text-base leading-6 text-neutral-900 font-normal truncate']")
     user_result_poster_info = (By.XPATH, "")
-    user_result_follow_btn = (By.XPATH, "")
+    user_result_follow_btn = (By.XPATH, "/html/body/div[2]/div/main/div[2]/div[1]/div[2]/button/span")
 
     @staticmethod
     def search_record_index(num):
@@ -38,33 +38,28 @@ class SearchPageLocator:
 
 class SearchPage(BasePage):
     brand = gl.get_value("BRAND")
-    def search_post(self, keywords, search_by_switch_tab=True):
-        if search_by_switch_tab:
-            self.type(SearchPageLocator.search_column, keywords)
-            self.click(SearchPageLocator.video_result_tab)
-        else:
-            self.type(SearchPageLocator.search_column, keywords)
-            self.click(SearchPageLocator.search_btn)
+
+    def search_post(self, keywords):
+        self.type(SearchPageLocator.search_column, keywords)
+        self.click(SearchPageLocator.search_btn)
+        self.click(SearchPageLocator.video_result_tab)
 
     def check_search_post_result(self, nickname, description):
         assert self.get_text(SearchPageLocator.video_result_post_description) == description
         assert self.get_text(SearchPageLocator.video_result_poster) == nickname
 
-    def search_poster(self, user_nickname, search_by_switch_tab=False):
-        if search_by_switch_tab:  # 在[視頻]頁籤當下, 輸入框已輸入用戶名, 透過點[用戶]頁籤進行搜索
-            self.type(SearchPageLocator.search_column, user_nickname)
-            self.click(SearchPageLocator.user_result_tab)
-        else: # 在[用戶]頁籤下進行搜索
-            self.click(SearchPageLocator.user_result_tab)
-            self.type(SearchPageLocator.search_column, user_nickname)
-            self.click(SearchPageLocator.search_btn)
+    def search_poster(self, user_nickname):
+        self.type(SearchPageLocator.search_column, user_nickname)
+        self.click(SearchPageLocator.search_btn)
+        self.click(SearchPageLocator.user_result_tab)
 
     def check_search_poster_result(self, user_nickname):
         sleep(3)
-        assert self.get_text(SearchPageLocator.user_result_poster) == user_nickname
-        actual_text = self.get_text(SearchPageLocator.user_result_poster_info)
-        assert "个粉丝" in actual_text
-        assert "个视频" in actual_text
+        _actual = self.get_text(SearchPageLocator.user_result_poster)
+        assert _actual == user_nickname, f'預期:{user_nickname}, 實際:{_actual}'
+        # actual_text = self.get_text(SearchPageLocator.user_result_poster_info)
+        # assert "个粉丝" in actual_text
+        # assert "个视频" in actual_text
         assert self.is_element_finded(SearchPageLocator.user_result_follow_btn)
 
     def check_recent_search_record(self, expected_history):

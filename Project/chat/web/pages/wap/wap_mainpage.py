@@ -177,7 +177,8 @@ class MainPage(BasePage):
         sleep(0.5)
         self.click(MainPageLocator.save_btn)
         self.wait_loading_finish()
-        assert self.get_text(MainPageLocator.descriptions).__contains__(new_descriptions), f'個人簡介顯示有誤'
+        current = self.get_text(MainPageLocator.descriptions)
+        assert current.__contains__(new_descriptions), f'個人簡介顯示有誤, 預期:{new_descriptions},實際:{current}'
 
     def into_followed_list(self):
         if self.is_element_finded(MainPageLocator.mainPage_button):

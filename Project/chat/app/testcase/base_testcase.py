@@ -1,5 +1,9 @@
 import os, sys, unittest
 import logging, wda
+
+# 讓 unittest 把本檔案視為框架內部，避免 _callTestMethod override
+# 造成失敗 traceback 被截短到只剩 base_testcase.py 一行。
+__unittest = True
 from poco.drivers.ios import iosPoco
 from poco.drivers.android.uiautomation import AndroidUiautomationPoco
 from airtest.core.api import *

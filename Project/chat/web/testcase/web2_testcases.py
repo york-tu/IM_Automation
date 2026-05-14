@@ -226,19 +226,19 @@ class Web2TestCase(BaseTestCase):
         elif 'phone' in self.account_type.lower():
             self.function_dict['web2.0'].web2_login_page().login(self.wap_phone, self.wap_password, self.wap_nation)
         # ========================== 1. 搜索頁: 輸入01貼文說明01 > 點搜索鍵 >>> 搜索結果-視頻頁 ===============================
-        self.function_dict['web2.0'].web2_search_page().search_post(description_list[0], search_by_switch_tab=False)
+        self.function_dict['web2.0'].web2_search_page().search_post(description_list[0])
         self.function_dict['web2.0'].web2_search_page().check_search_post_result(poster_nickname_list[0], description_list[0])
         # ========================== 2. 搜索視頻結果頁: 輸入02貼文說明02 > 點搜索鍵 >>> 搜索結果-視頻頁 =========================
-        self.function_dict['web2.0'].web2_search_page().search_post(description_list[1], search_by_switch_tab=False)
+        self.function_dict['web2.0'].web2_search_page().search_post(description_list[1])
         self.function_dict['web2.0'].web2_search_page().check_search_post_result(poster_nickname_list[1], description_list[1])
-        # ========================== 3. 搜索視頻結果頁: 輸入01 > 點"用戶"頁籤 >>> 切換到用戶頁並立即搜索 ========================
-        self.function_dict['web2.0'].web2_search_page().search_poster(poster_nickname_list[0], search_by_switch_tab=True)
+        # ========================== 3. 搜索視頻結果頁: 輸入01 > 點"用戶"頁籤 > 點搜索鍵 >>> 切換到用戶頁並立即搜索 ========================
+        self.function_dict['web2.0'].web2_search_page().search_poster(poster_nickname_list[0])
         self.function_dict['web2.0'].web2_search_page().check_search_poster_result(poster_nickname_list[0])
         # ========================== 4. 搜索用戶結果頁: 輸入02 > 點搜索鍵 >>> 搜索結果-用戶頁 =================================
-        self.function_dict['web2.0'].web2_search_page().search_poster(poster_nickname_list[1], search_by_switch_tab=False)
+        self.function_dict['web2.0'].web2_search_page().search_poster(poster_nickname_list[1])
         self.function_dict['web2.0'].web2_search_page().check_search_poster_result(poster_nickname_list[1])
-        # ========================== 5. 搜索用戶結果頁: 輸入02貼文說明02 > 點"視頻"頁籤 >>> 立即搜索 ===========================
-        self.function_dict['web2.0'].web2_search_page().search_post(description_list[1], search_by_switch_tab=True)
+        # ========================== 5. 搜索用戶結果頁: 輸入02貼文說明02 > 點"視頻"頁籤 > 點搜索鍵 >>> 立即搜索 ===========================
+        self.function_dict['web2.0'].web2_search_page().search_post(description_list[1])
         self.function_dict['web2.0'].web2_search_page().check_search_post_result(poster_nickname_list[1], description_list[1])
         # ========================== 確認搜索紀錄頁 =======================================================================
         self.function_dict['web2.0'].web2_search_page().check_recent_search_record(

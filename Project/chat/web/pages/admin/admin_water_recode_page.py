@@ -73,8 +73,10 @@ class WaterRecodePage(BasePage):
         actual_id = self.get_text(WaterRecodePageLocator.data_member_ID)
         assert actual_id == grab_account, f'積分使用紀錄: 會員ID錯誤, 預期:{grab_account},實際:{actual_id}'
         if grab_time is not None:
-            assert self.get_text(WaterRecodePageLocator.data_use_time)[:-3] == grab_time, f'積分使用紀錄: 使用時間錯誤'
+            _actual= self.get_text(WaterRecodePageLocator.data_use_time)[:-3]
+            assert _actual == grab_time, f'積分使用紀錄: 使用時間錯誤, 預期:{grab_time}, 實際:{_actual}'
         assert self.get_text(WaterRecodePageLocator.data_point) == grab_amount, f'積分使用紀錄: 使用積分錯誤'
+        aaa = self.get_text(WaterRecodePageLocator.data_use_type)
         assert self.get_text(WaterRecodePageLocator.data_use_type) == grab_type, f'積分使用紀錄: 使用媒介錯誤'
         if source_group is not None:
             assert self.get_text(WaterRecodePageLocator.data_red_envelope_source) == source_group, f'積分使用紀錄: 紅包來源錯誤'

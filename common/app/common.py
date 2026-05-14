@@ -792,6 +792,8 @@ class Common(object):
             mail_title = 'MingpinChat'
         elif brand == 'chit':
             mail_title = 'ChitChat'
+        elif brand == 'mee':
+            mail_title = 'MeeChat'
 
         try:
             # 登入 Gmail

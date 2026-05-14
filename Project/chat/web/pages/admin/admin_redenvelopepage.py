@@ -545,7 +545,7 @@ class RedEnvelopePage(BasePage):
                     self.type(RedEnvelopePageLocator.luck_award_high, '1')
                     sleep(1)
                     self.click(RedEnvelopePageLocator.add_auto_grad_member)  # 自動領取下拉選單
-                    if gl.get_value("BRAND") =='chit':
+                    if gl.get_value("BRAND") in ('chit', 'mee'):
                         self.click(RedEnvelopePageLocator.add_red_select_member_select_first)  # 設定自動領取人員為gubot02
                     else:
                         self.click(RedEnvelopePageLocator.add_red_select_member_select)  # 設定自動領取人員為gubot02

@@ -1,15 +1,25 @@
+# region preamble (sys.path 設定 + 所有 import) - 收合後從 '# Test Setting' 起始
 import os
 import sys
+from pathlib import Path
+
+# 以 requirements.txt 為標記向上搜尋專案根目錄, 確保下面的專案 import 都能找到 module
+_here = Path(__file__).resolve().parent
+for _p in (_here, *_here.parents):
+    if (_p / 'requirements.txt').exists():
+        root_path = str(_p)
+        break
+else:
+    root_path = str(_here)
+if root_path not in sys.path:
+    sys.path.insert(0, root_path)
 import unittest
-import logging
-
-root_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
-sys.path.append(root_path)
-
 from common.utils.utils import Utils
 from Project.chat.web.testcase.web_testcases import WebTestCase
 import common.utils.globalvar as gl
 from jira.config.base_key import BaseKey
+
+# endregion
 
 # Test Setting
 brand = 'mingpin'
@@ -17,7 +27,7 @@ user = 1
 test_type = 'web'
 os_version = 'Win11'  # 作業系統
 platform = 'PC'  # 測試環境
-web_version = '1.26.3'  # 版本號 (開web console: VITE_APP_VERSION: 正式版號; VITE_LAST_HASH: uat測試版號)
+web_version = '1.27.0'  # 版本號 (開web console: VITE_APP_VERSION: 正式版號; VITE_LAST_HASH: uat測試版號)
 
 push = True  # 將結果推倒jira, 預設請給予 True
 
@@ -68,9 +78,6 @@ web_regression_list = [
     WebTestCase("test_web_logout"),
 ]
 
-# TestCase frame add
-suite = unittest.TestSuite()
-
 if __name__ == "__main__":
     gl._init()
 
@@ -83,7 +90,7 @@ if __name__ == "__main__":
         brand = sys.argv[2]
         user = sys.argv[3]
         push = bool(data[3])
-    
+
     gl.set_value('ENV', 'prod')
     gl.set_value('BRAND', brand)
     gl.set_value('USER', int(user))
@@ -93,11 +100,16 @@ if __name__ == "__main__":
 
     # for jira config
     gl.set_value('TEST_TYPE', test_type)
-    BaseKey().get_jira_data()
+    try:
+        BaseKey().get_jira_data()
+    except FileNotFoundError as e:
+        print(f"[WARN] {e}. Skip Jira push for this run.")
+        push = False
     gl.set_value('PUSH', push)
-    
-    # TestCase add
-    suite.addTests(web_regression_list)  # total 42 cases
-    
-    # RunningTest
-    Utils.unittest_xml(suite)
+
+    # TestCase add：沿用既有 prod 清單與順序，改用 retry + Slack 報告流程
+    suite_s1 = unittest.TestSuite()
+    suite_s1.addTests(web_regression_list)
+
+    # RunningTest：失敗案例自動 retry 1 次，執行完回報 Slack
+    Utils.unittest_xml_with_retry_and_slack(suite_s1, report_label='S1', run_check_last_result=True)

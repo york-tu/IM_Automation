@@ -1,23 +1,32 @@
+# region preamble (sys.path 設定 + 所有 import) - 收合後從 '# Test Setting' 起始
 import os
 import sys
+from pathlib import Path
+
+# 以 requirements.txt 為標記向上搜尋專案根目錄, 確保下面的專案 import 都能找到 module
+_here = Path(__file__).resolve().parent
+for _p in (_here, *_here.parents):
+    if (_p / 'requirements.txt').exists():
+        root_path = str(_p)
+        break
+else:
+    root_path = str(_here)
+if root_path not in sys.path:
+    sys.path.insert(0, root_path)
 import unittest
 from common.utils.utils import Utils
 from Project.chat.web.testcase.wap_testcases import WapTestCase
-from Project.chat.web.testcase.admin_testcases import AdminTestCase
-from Project.chat.app.testcase.context_testcase import ContextTestCase
 import common.utils.globalvar as gl
 from jira.config.base_key import BaseKey
 
-root_path = os.path.dirname(
-    os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
-sys.path.append(root_path)
+# endregion
 
 # Test Setting
 env = 'prod'  # uat, prod
 brand = 'mingpin'
 user = 1
 test_type = 'wap'
-wap_version = '2.10.4'
+wap_version = '2.12.1'  # uat:2.11.0, prod:2.12.1
 os_version = 'Win11'  # 作業系統
 platform = 'PC'  # 測試環境
 account_type = 'phone'  # 帳號類型: mail, phone...
@@ -103,9 +112,6 @@ prod_test_cases = (s1_personal_chat_case_list + s1_group_chat_case_list + s2_per
                    + s2_group_chat_case_list)
 
 
-# TestCase frame add
-suite = unittest.TestSuite()
-
 if __name__ == "__main__":
     gl._init()
 
@@ -113,13 +119,25 @@ if __name__ == "__main__":
     if len(sys.argv) == 1:
         pass
     elif len(sys.argv) > 2:
-        data = sys.argv[4].split(',,')
-        env = data[0]
+        # 參數格式（與其他 regression 腳本一致）
+        # argv[2]=brand, argv[3]=user, argv[4]="env,,x,,x,,push,,wap_version,,account_type"
+        raw = sys.argv[4] if len(sys.argv) > 4 else ''
+        data = raw.split(',,') if raw else []
         brand = sys.argv[2]
         user = sys.argv[3]
-        wap_version = data[4]
-        account_type = data[5]
-        push = bool(data[3])
+
+        # data[0]=env, data[3]=push, data[4]=wap_version, data[5]=account_type
+        if len(data) >= 1 and data[0]:
+            env = data[0]
+        if len(data) >= 4 and data[3] != '':
+            push = str(data[3]).strip().lower() in ('1', 'true', 'yes', 'y')
+        if len(data) >= 5 and data[4]:
+            wap_version = data[4]
+        if len(data) >= 6 and data[5]:
+            account_type = data[5]
+
+        if len(data) < 6:
+            print(f"[WARN] argv[4] segments < 6, using defaults. raw={raw!r} parsed={data!r}")
 
     gl.set_value('ENV', env)
     gl.set_value('BRAND', brand)
@@ -131,16 +149,26 @@ if __name__ == "__main__":
 
     # for jira config
     gl.set_value('TEST_TYPE', test_type)
-    BaseKey().get_jira_data()
+    try:
+        BaseKey().get_jira_data()
+    except FileNotFoundError as e:
+        print(f"[WARN] {e}. Skip Jira push for this run.")
+        push = False
     gl.set_value('PUSH', push)
 
-    # TestCase add
-    # ================== UAT ==================
-    # suite.addTests(s1_test_cases)  # total 32*s1
-    # suite.addTests(s2_test_cases)  # total 18*s2 + 2*s1
+    # TestCase add：S1 跑完 + retry 失敗後發 S1 報告到 Slack，再跑 S2 + retry 後發 S2 報告到 Slack
+    suite_s1 = unittest.TestSuite()
+    suite_s1.addTests(s1_test_cases)  # total 32*s1
+    suite_s2 = unittest.TestSuite()
+    suite_s2.addTests(s2_test_cases)  # total 18*s2 + 2*s1
 
-    # ================== Prod ==================
-    suite.addTests(prod_test_cases)  # total 45
+    suit_prod = unittest.TestSuite()  # prod cases
+    suit_prod.addTests(prod_test_cases)
 
-    # RunningTest
-    Utils.unittest_xml(suite)
+    if env == 'prod':  # uat, prod
+        Utils.unittest_xml_with_retry_and_slack(suit_prod, report_label='S1', run_check_last_result=True)
+    else:  # uat
+        # S1：跑完 + retry 失敗案例 → 發 S1 報告到 Slack
+        Utils.unittest_xml_with_retry_and_slack(suite_s1, report_label='S1', run_check_last_result=True)
+        # S2：跑完 + retry 失敗案例 → 發 S2 報告到 Slack，並執行 Jira check_last_result
+        Utils.unittest_xml_with_retry_and_slack(suite_s2, report_label='S2', run_check_last_result=True)

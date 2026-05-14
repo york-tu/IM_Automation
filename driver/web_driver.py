@@ -36,8 +36,12 @@ class WebDriver(UnittestModule):
             self.chrome_path = Setting_Chrome().get_chromedriver_path_by_os()
         self.chrome_option = Setting_Chrome().get_chrome_options(width=width, height=height, _is_wap=is_wap, Headless=headless)
 
-        prefs = {"download.default_directory": f"{path}"}
-        self.chrome_option.add_experimental_option("prefs",prefs)
+        # 注意：add_experimental_option("prefs", ...) 會「覆蓋」整個 prefs dict，
+        # 不會 merge。setting_chrome.py 已經設定了密碼外洩偵測 / 自動填入等
+        # 關閉項目，這裡需把下載目錄合併進去，避免把上面設定全洗掉。
+        existing_prefs = self.chrome_option.experimental_options.get('prefs', {}) or {}
+        merged_prefs = {**existing_prefs, "download.default_directory": f"{path}"}
+        self.chrome_option.add_experimental_option("prefs", merged_prefs)
 
         # Note: ChromeDriverManager deprecated in Selenium 4.x, using direct path
         # For Selenium 4.x, use: webdriver.Chrome(service=Service(self.chrome_path), options=self.chrome_option)

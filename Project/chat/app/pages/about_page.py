@@ -28,7 +28,14 @@ class AboutPageLocator(BaseLocator):
         Android=base.data_collation(type_kind='name', type_name=str(app_package) + ':id/tv_title'),
         iOS=base.data_collation(type_kind='type', type_name='StaticText', num=0),
     )
-
+    service_page_check = base.check_device(
+        Android=base.data_collation(type_kind='text', type_name='服务条款'),
+        iOS=base.data_collation(type_kind='name', type_name='服务条款', num=0),
+    )
+    privacy_page_check = base.check_device(
+        Android=base.data_collation(type_kind='text', type_name='隐私权政策'),
+        iOS=base.data_collation(type_kind='name', type_name='隐私权政策', num=0),
+    )
     version = base.check_device(
         Android=base.data_collation(type_kind='text', type_name='使用版本'),
         iOS=base.data_collation(type_kind='name', type_name='使用版本'),
@@ -50,14 +57,12 @@ class AboutPage(Base):
 
     def check_service(self):
         self.common.poco_click(AboutPageLocator.service_button)
-        title = self.common.poco_get_text(AboutPageLocator.title_check)
-        assert title == '服务条款', f'服务条款頁面顯示錯誤'
+        assert self.common.poco_exists(AboutPageLocator.service_page_check), f'服务条款頁未出現'
         self.common.poco_click(AboutPageLocator.close_button)
 
     def check_privacy(self):
         self.common.poco_click(AboutPageLocator.privacy_button)
-        title = self.common.poco_get_text(AboutPageLocator.title_check)
-        assert title == '隐私权政策', f'隱私權政策頁面顯示錯誤'
+        assert self.common.poco_exists(AboutPageLocator.privacy_page_check), f'隱私權政策頁未出現'
         self.common.poco_click(AboutPageLocator.close_button)
 
     def check_version(self, correct_version=''):

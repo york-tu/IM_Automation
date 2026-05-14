@@ -139,6 +139,7 @@ class LoginPage(BasePage):
             "gu": f"GuChat{suffix}",
             "mingpin": f"名品会{suffix}",
             "chit": f"ChitChat{suffix}",
+            "mee": f"MeeChat{suffix}",
         }
         # 預設值，可避免 key 不存在報錯
         product = product_info.get(brand, "UnknownProduct")

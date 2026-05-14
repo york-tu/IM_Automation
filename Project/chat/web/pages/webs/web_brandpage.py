@@ -49,6 +49,9 @@ class BrandPage(BasePage):
         self.type(BrandPageLocator.login_id_input, account)
         self.type(BrandPageLocator.login_pw_input, pw)
         self.type(BrandPageLocator.login_verify_code_input, '1')
+
+        # sleep(20)
+
         self.click(BrandPageLocator.login_btn)
         self.wait_loading_finish()
         if self.get_text(BrandPageLocator.account_security_popup_msg) == '账户安全':

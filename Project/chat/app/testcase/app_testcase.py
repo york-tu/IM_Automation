@@ -355,6 +355,16 @@ class AppTestCase(BaseTestCase):
                     'ios': ('ChitChat', 'gutest002')
                 }
             },
+            'mee': {
+                'uat': {
+                    'android': ('MeeChat_UAT', 'gubot04'),
+                    'ios': ('MeeChat_UAT', 'gubot04')
+                },
+                'prod': {
+                    'android': ('MeeChat', 'gutest002'),
+                    'ios': ('MeeChat', 'gutest002')
+                }
+            },
         }
         product, persoanl_chatroom = brand_config.get(self.brand, {}).get(self.env, {}).get(self.phone_platform.lower(), ('', ''))
         
@@ -944,7 +954,7 @@ class AppTestCase(BaseTestCase):
     @DecorateClass('CHATAPP-T2568')
     # 透過邀請碼加入群組 > 退出群組
     def test_join_group_by_share_code(self):
-        if self.brand.lower() == 'gu' or 'mingpin' or 'chit':
+        if self.brand.lower() in ('gu','mingpin','chit') :
             share_code = 'AUTOTEST'
         elif self.brand.lower() == 'mee':
             share_code ='AUTOMEE'

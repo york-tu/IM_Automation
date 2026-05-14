@@ -47,7 +47,8 @@ class MainPageLocator:
     list_close_btn = (By.XPATH, "//button[@aria-label='關閉']")  # 關注/粉私列表"關閉"鍵
     list_follow_btn = (By.XPATH, '/html/body/div[3]/div/div[3]/div/div[1]/div[2]/button/span')  # 列表第一行關注/已關注鍵
     # ==================== 主頁 > 下方貼文 ====================
-    post_page_poster = (By.XPATH, "//span[@class='text-neutral-800 line-clamp-2']")  # 貼文內頁作者
+    comment_icon = (By.XPATH, "//button[@aria-label='查看評論']")  # 貼文>開啟評論
+    post_page_poster = (By.XPATH, "//span[@class='text-neutral-800 truncate']")  # 貼文內頁作者
     post_page_descriptions = (By.XPATH, "//p[@class='text-sm text-neutral-800 leading-5 break-words']")  # 貼文內頁內容
     post_page_close_btn = (By.XPATH,"//button[contains(@class,'absolute') and contains(@class,'left-4') and contains(@class,'rounded-full')]")  # 貼文內頁關閉鍵
     # ==================== 主頁 > 下方媒體櫃 ====================
@@ -298,7 +299,8 @@ class MainPage(BasePage):
             # ================= 進到第一則貼文確認內容 =================
             self.click(MainPageLocator.post_index(post_index+1))
             sleep(1)
-
+            self.click(MainPageLocator.comment_icon)
+            sleep(1)
             post_page_poster = self.get_text(MainPageLocator.post_page_poster)
             post_page_descriptions = self.get_text(MainPageLocator.post_page_descriptions)
             assert post_page_poster == poster, f'發布者錯誤, 預期為:{poster}, 實際為:{post_page_poster}'

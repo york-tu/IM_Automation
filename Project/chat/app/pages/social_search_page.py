@@ -121,7 +121,7 @@ class SocialSearchPage(Base):
         self.common.poco_click(SocialSearchPageLocator.search_column)
         self.common.poco_send_text(SocialSearchPageLocator.search_column, keywords)
         self.common.poco_click(SocialSearchPageLocator.history_search_btn)
-        sleep(1)
+        sleep(2)
 
     def search_post(self, keywords, search_by_switch_tab=True):
         if self.common.poco_exists(SocialSearchPageLocator.search_clear):
@@ -131,13 +131,13 @@ class SocialSearchPage(Base):
             self.common.poco_click(SocialSearchPageLocator.search_result_column)
             self.common.poco_send_text(SocialSearchPageLocator.search_result_column, keywords)
             self.common.poco_click(SocialSearchPageLocator.search_result_post_tab)
-            sleep(1)
+            sleep(2)
         else:
             self.common.poco_click(SocialSearchPageLocator.search_result_post_tab)
             self.common.poco_click(SocialSearchPageLocator.search_result_column)
             self.common.poco_send_text(SocialSearchPageLocator.search_result_column, keywords)
             self.common.poco_click(SocialSearchPageLocator.result_search_btn)
-            sleep(1)
+            sleep(2)
 
     def search_poster(self, user_nickname, search_by_switch_tab=True):
         if search_by_switch_tab:
@@ -147,7 +147,7 @@ class SocialSearchPage(Base):
 
             self.common.poco_send_text(SocialSearchPageLocator.search_column, user_nickname)
             self.common.poco_click(SocialSearchPageLocator.search_result_user_tab)
-            sleep(1)
+            sleep(2)
         else:
             self.common.poco_click(SocialSearchPageLocator.search_result_user_tab)
             if self.common.poco_exists(SocialSearchPageLocator.search_clear):
@@ -156,12 +156,12 @@ class SocialSearchPage(Base):
 
             self.common.poco_send_text(SocialSearchPageLocator.search_column, user_nickname)
             self.common.poco_click(SocialSearchPageLocator.result_search_btn)
-            sleep(1)
+            sleep(2)
 
     def check_search_post_result(self, nickname, description):
 
         if self.phone_platform.lower() == 'android':
-            sleep(1)
+            sleep(2)
             result_description = self.common.poco_get_text(SocialSearchPageLocator.search_post_result_description)
             result_nickname = self.common.poco_get_text(SocialSearchPageLocator.search_post_result_nickname)
         else:
