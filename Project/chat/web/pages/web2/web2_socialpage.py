@@ -33,7 +33,8 @@ class SocialLocator:
     send_btn = (By.XPATH, "(//button[@class='flex-shrink-0 flex items-center justify-center bg-green-500 rounded-full p-2 hover:cursor-pointer disabled:bg-neutral-300 disabled:cursor-not-allowed transition-colors'])[last()]")  # 送出鍵
 
     # === 評輪頁 > 留言 ===
-    post_recent_comment_commenter = (By.XPATH, "(//h4[@class='text-sm text-neutral-500 break-words line-clamp-2'])[1]")  # 最新一則留言-留言者
+    # post_recent_comment_commenter = (By.XPATH, "(//h4[@class='text-sm text-neutral-500 break-words line-clamp-2'])[1]")  # 最新一則留言-留言者
+    post_recent_comment_commenter = (By.XPATH, "(//span[@class='text-sm text-neutral-500 truncate'])[1]")  # 最新一則留言-留言者
     post_recent_comment_content = (By.XPATH, "(//p[@class='text-sm text-neutral-800 break-words whitespace-pre-wrap'])[1]")  # 最新一則留言-留言內容
     post_recent_comment_add_time = (By.XPATH, '(//div[contains(@class,"flex-shrink-0") and contains(@class,"space-x-2") and contains(@class,"text-xs") and contains(@class,"text-neutral-500")])[1]//span')  # 最新一則留言-留言時間
     post_recent_comment_reply_btn = (By.XPATH, "(//button[@class='font-semibold hover:cursor-pointer'])[1]")  # 最新一則留言-回覆鍵
@@ -42,7 +43,8 @@ class SocialLocator:
     post_recent_comment_author = (By.XPATH, "")  # 創作者tag
 
     # === 評輪頁 > 留言 > 回覆留言 ===
-    post_recent_comment_recent_reply_commenter = (By.XPATH, "(//h4[@class='text-sm text-neutral-500 break-words line-clamp-2'])[2]")  # 最新一則留言的最新回覆留言-留言者
+    # post_recent_comment_recent_reply_commenter = (By.XPATH, "(//h4[@class='text-sm text-neutral-500 break-words line-clamp-2'])[2]")  # 最新一則留言的最新回覆留言-留言者
+    post_recent_comment_recent_reply_commenter = (By.XPATH, "(//span[@class='text-sm text-neutral-500 truncate'])[2]")  # 最新一則留言的最新回覆留言-留言者
     post_recent_comment_recent_reply_add_time = (By.XPATH, '(//div[contains(@class,"flex-shrink-0") and contains(@class,"space-x-2") and contains(@class,"text-xs") and contains(@class,"text-neutral-500")])[2]//span')  # 最新一則留言的最新回覆留言-留言時間
     post_recent_comment_recent_reply_content = (By.XPATH, "(//p[@class='text-sm text-neutral-800 break-words whitespace-pre-wrap'])[2]")  # 最新一則留言的最新回覆留言-留言內容
     post_recent_comment_recent_reply_reply_btn = (By.XPATH, "(//button[@class='font-semibold hover:cursor-pointer'])[2]")  # 最新一則留言的最新回覆留言-回覆鍵
@@ -85,6 +87,7 @@ class SocialPage(BasePage):
         """進入第index則貼文評論頁"""
         self.click(SocialLocator.post_index(post_index))
         self.click(SocialLocator.comment_icon)
+        sleep(0.5)
 
     # ================== 評論留言 ==================
     def post_add_comment(self, commenter, comment, post_url=False, self_post=False):
@@ -267,24 +270,38 @@ class SocialPage(BasePage):
     def first_post_add_remove_like(self, is_add=True):
         """貼文點贊/取消贊並確認贊數更新"""
         count = 1 if is_add else -1
-        # =========== 公開貼文列表上第一則貼文: 點贊 > 確認贊數 ===========
-        post_list_original_liked_counts = self.get_text(SocialLocator.post_list_first_post_liked_counts)  # 公開貼文列表第一則貼文贊數
-        self.click(SocialLocator.post_list_first_post_liked_icon)
-        sleep(1)
-        post_list_after_liked_counts = self.get_text(SocialLocator.post_list_first_post_liked_counts)  # 公開貼文列表第一則貼文贊數
-        assert int(post_list_after_liked_counts) == int(post_list_original_liked_counts) + count, '贊數未正確更新'  # 確認贊數+1
-        # =========== 進入第一則貼文: 確認贊數 > 取消贊 > 確認贊數 > 回到貼文列表 ===========
-        # self.into_post_comment_page(1)
-        # post_liked_counts = self.get_text(SocialLocator.post_liked_counts)  # 貼文內贊數
-        # assert post_liked_counts == post_list_after_liked_counts, '贊數未正確更新'  # 確認貼文內贊數同貼文列表上顯示
-        # self.click(SocialLocator.post_liked_icon)  # 取消贊
-        # post_liked_counts_after = self.get_text(SocialLocator.post_liked_counts)  # 貼文內贊數
-        # assert int(post_liked_counts_after) == int(post_liked_counts) - count, '贊數未正確更新'  # 確認贊數-1
-        # self._close_comment_page()
-        # =========== 公開貼文列表上第一則貼文: 確認贊數 > 點贊  ===========
-        # post_list_liked_counts = self.get_text(SocialLocator.post_list_first_post_liked_counts)  # 公開貼文列表第一則貼文贊數
-        # assert post_list_liked_counts == post_liked_counts_after, '贊數未正確更新'  # 確認貼文列表上贊數同貼文內
-        # self.click(SocialLocator.post_list_first_post_liked_icon)
+        if is_add:
+            # =========== 公開貼文列表上第一則貼文: 點贊 > 確認贊數 ===========
+            post_list_original_liked_counts = self.get_text(SocialLocator.post_list_first_post_liked_counts)  # 公開貼文列表第一則貼文贊數
+            self.click(SocialLocator.post_list_first_post_liked_icon)
+            sleep(0.5)
+            post_list_after_liked_counts = self.get_text(SocialLocator.post_list_first_post_liked_counts)  # 公開貼文列表第一則貼文贊數
+            assert int(post_list_after_liked_counts) == int(post_list_original_liked_counts) + count, '贊數未正確更新'  # 確認贊數+1
+            # =========== 進入第一則貼文: 確認贊數 > 取消贊 > 確認贊數 > 回到貼文列表 ===========
+            self.into_post_comment_page(1)
+            post_liked_counts = self.get_text(SocialLocator.post_liked_counts)  # 貼文內贊數
+            assert post_liked_counts == post_list_after_liked_counts, f'贊數錯誤, 預期:{post_list_after_liked_counts},實際:{post_liked_counts}'  # 確認貼文內贊數同貼文列表上顯示
+            self.click(SocialLocator.post_liked_icon)  # 取消贊
+            sleep(0.5)
+            post_liked_counts_after = self.get_text(SocialLocator.post_liked_counts)  # 貼文內贊數
+            assert int(post_liked_counts_after) == int(post_liked_counts) - count, f'贊數錯誤,實際{post_liked_counts_after}=預期{post_liked_counts}-{count}未正確更新'  # 確認贊數-1
+            self._close_comment_page()
+            self.refresh_browser()
+            sleep(0.5)
+            # =========== 公開貼文列表上第一則貼文: 確認贊數 > 點贊  ===========
+            post_list_liked_counts = self.get_text(SocialLocator.post_list_first_post_liked_counts)  # 公開貼文列表第一則貼文贊數
+            assert post_list_liked_counts == post_liked_counts_after, f'贊數錯誤, 預期:{post_liked_counts_after},實際:{post_list_liked_counts}'  # 確認貼文列表上贊數同貼文內
+            self.click(SocialLocator.post_list_first_post_liked_icon)
+            sleep(0.5)
+            self.refresh_browser()
+        else:  # 取消贊
+            # =========== 公開貼文列表上第一則貼文: 取消贊 > 確認贊數 ===========
+            post_list_original_liked_counts = self.get_text(SocialLocator.post_list_first_post_liked_counts)  # 公開貼文列表第一則貼文贊數
+            self.click(SocialLocator.post_list_first_post_liked_icon)
+            sleep(0.5)
+            post_list_after_liked_counts = self.get_text(SocialLocator.post_list_first_post_liked_counts)  # 公開貼文列表第一則貼文贊數
+            assert int(post_list_after_liked_counts) == int(post_list_original_liked_counts) + count, '贊數未正確更新'  # 確認贊數+1
+            self.refresh_browser()
 
     def post_add_remove_collect(self, is_add=True):
         """新增/取消收藏並確認收藏數更新"""

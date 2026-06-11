@@ -88,11 +88,14 @@ class BrandPage(BasePage):
         return main_wallet_money
 
     def check_deposit_record(self, before_money, deposit_amount, after_money):
+        sleep(3)
         if self.is_element_finded(BrandPageLocator.credit_manage_btn):
             self.click(BrandPageLocator.credit_manage_btn)
             self.wait_loading_finish()
         self.click(BrandPageLocator.deposit_record_btn)
+        sleep(0.5)
         self.click(BrandPageLocator.select_type)
+        sleep(0.5)
         self.click(BrandPageLocator.select_promo)
         self.wait_loading_finish()
         assert self.get_text(BrandPageLocator.result_list_type) == '优惠', f'入款類型錯誤'

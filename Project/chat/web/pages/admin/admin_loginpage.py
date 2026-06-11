@@ -1,8 +1,13 @@
+import re
+import unittest
+
 from selenium.webdriver.common.by import By
-from Project.chat.web.pages.admin.admin_basepage import BasePage
-import os, re
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 from bs4 import BeautifulSoup
 import pandas as pd
+
+from Project.chat.web.pages.admin.admin_basepage import BasePage
 
 
 class LoginPageLocator:
@@ -25,14 +30,25 @@ class LoginPage(BasePage):
             self.click(LoginPageLocator.login_deshboard)
             return
 
-        if self.is_element_finded(LoginPageLocator.login_hide_otp):
-            self.type(LoginPageLocator.login_input_account, account)
-            self.type(LoginPageLocator.login_input_password, password)
-            self.click(LoginPageLocator.login_btn)
-        else:
-            print('需要 OTP 驗證 無法測試')
-            self.driver.quit()
-            os._exit(15)
+        # 改善 1: 用 explicit wait 給 OTP overlay 最多 5 秒 render 時間, 再判斷
+        # (原本用 is_element_finded 是 implicitly_wait(0) 不等待, 容易因 render 慢誤判成需要 OTP)
+        try:
+            WebDriverWait(self.driver, 5).until(
+                EC.presence_of_element_located(LoginPageLocator.login_hide_otp)
+            )
+            need_otp = False
+        except Exception:
+            need_otp = True
+
+        if need_otp:
+            # 改善 2: 不要 os._exit(15) 砍掉整個 regression process,
+            # 改 raise SkipTest, 讓 unittest 把當前 case 標 skip, 後續 case / retry / Slack / Jira 回填都能正常進行
+            print('需要 OTP 驗證 無法測試, skip 此 case')
+            raise unittest.SkipTest('Admin 後台需要 OTP 驗證, 無法自動化登入')
+
+        self.type(LoginPageLocator.login_input_account, account)
+        self.type(LoginPageLocator.login_input_password, password)
+        self.click(LoginPageLocator.login_btn)
 
         self.wait_loading_finish()
         self.wait_visibility(LoginPageLocator.login_check_point)

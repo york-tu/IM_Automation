@@ -1,7 +1,6 @@
 import subprocess
 import unittest, sys, os, datetime, random, re
 import logging
-import signal
 from time import sleep
 
 import time
@@ -13,7 +12,12 @@ sys.path.append(root_path)
 
 import common.utils.globalvar as gl
 import stf_api.stf as stf
-from driver.app_driver import AppDriver, is_ios_wda_connection_lost
+from driver.app_driver import (
+    AppDriver,
+    is_ios_wda_connection_lost,
+    is_android_pocoservice_dead,
+    safe_snapshot,
+)
 from common.app.decorator import DecorateClass
 from Project.chat.app.testcase.base_testcase import BaseTestCase
 from Project.chat.app.pages.pages import AppPages
@@ -67,7 +71,7 @@ class AppTestCase(BaseTestCase):
         try:
             image_path = f"{self.folderpath}\\{self._testMethodName}.png"
             image_path_list = [image_path]
-            snapshot(filename=image_path, msg=f"{self.id()}")
+            safe_snapshot(filename=image_path, msg=f"{self.id()}")
             stop_app(self.package)
             gl.set_value('IMG_PATH', image_path_list)
             end_time = time.time()
@@ -86,17 +90,10 @@ class AppTestCase(BaseTestCase):
             clear_app(cls.poco_package)
         else:
             stop_app(cls.poco_package)
-            # 關閉 WDA
-            if hasattr(cls, 'wda_service') and cls.wda_service:
-                try:
-                    cls.wda_service.send_signal(signal.CTRL_C_EVENT)
-                    cls.wda_service.terminate()  # 嘗試正常結束
-                    # 或強制結束
-                    cls.wda_service.kill()
-                    cls.wda_service.wait(timeout=5)
-                    print(f"[INFO] WDA stopped for {cls.phone_name}")
-                except Exception as e:
-                    print(f"[WARN] Failed to stop WDA: {e}")
+            # wda_service 實際上是 wda.Client (HTTP 客戶端), 不是子程序, 沒有 send_signal/terminate/kill 等方法
+            # WDA 服務本體在手機上, 不需要在這裡關閉, 留著下次測試可直接重用; 這裡只清空參照
+            if hasattr(cls, 'wda_service'):
+                cls.wda_service = None
 
         # 當自動化執行完畢後，斷掉手機連接
         if cls.connect_type == 'remote':
@@ -118,6 +115,8 @@ class AppTestCase(BaseTestCase):
             elif 'not found' in err_msg and 'device' in err_msg:
                 self.device_reconnect()
             elif is_ios_wda_connection_lost(e):
+                self.device_reconnect()
+            elif is_android_pocoservice_dead(e):
                 self.device_reconnect()
             else:
                 raise e

@@ -27,12 +27,12 @@ logging.getLogger("airtest").setLevel(logging.WARNING)
 
 # Test Setting
 env = 'prod'
-brand = 'mee'  # gu > mee > chit
+brand = 'gu'  # gu > mee > chit
 user = 1
 connect_type = 'local'  # 手機連線模式 remote or local
 phone_name = 'IPHONE_15_PRO'  # 手機型號 'IPHONE_15_PRO (ios18.6.2)', 'IPHONE_73 (ios16.1.1)', 'IPHONE_11_PRO (ios15)'
 phone_platform = 'iOS'  # 手機作業系統
-app_version = '5.21.0(114457.116)'  # 版本號
+app_version = '5.21.0(114457.116)'  # 版本號  mee:5.22.0(115534.116)
 account_type = 'phone'  # 帳號類型: email, phone...
 push = True  # 將結果推倒jira, 預設請給予 True
 
@@ -72,7 +72,7 @@ Prod_regression_list = [
     AppTestCase('test_file_message_reply_group'),
     AppTestCase('test_file_message_delete_group'),
     AppTestCase('test_file_message_revoke_group'),
-    AppTestCase("test_discover_floating_icon"),  # 確認功能懸浮按鈕與選單
+    AppTestCase("test_discover_floating_icon"),  # 確認功能懸浮按鈕與選單, skip in mee,chit
     AppTestCase("test_delete_friend"),
     AppTestCase("test_logout"),
 ]

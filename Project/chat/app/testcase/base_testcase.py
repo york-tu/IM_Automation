@@ -12,7 +12,12 @@ from airtest.cli.parser import cli_setup
 root_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
 sys.path.append(root_path)
 import common.utils.globalvar as gl
-from driver.app_driver import AppDriver, is_ios_wda_connection_lost
+from driver.app_driver import (
+    AppDriver,
+    is_ios_wda_connection_lost,
+    is_android_pocoservice_dead,
+    restart_android_pocoservice,
+)
 from configs.app.setting import Setting
 from Project.chat.configs.setting import SettingChat
 from jira.module.base_module import UnittestModule
@@ -175,6 +180,10 @@ class BaseTestCase(UnittestModule):
                         gl.set_value('PHONE_NAME', original_phone_name)
                     from common.utils.utils import Utils
                     Utils.start_wda_for_ios()
+                elif str(self.phone_platform).lower() == 'android':
+                    # Android: 重連前先 force-stop pocoservice, 讓 setUpClass 重新拉起 instrument
+                    from driver.app_driver import _get_android_udid_for_current_phone
+                    restart_android_pocoservice(udid=_get_android_udid_for_current_phone())
 
                 wait_seconds = 10 if attempt == 1 else 20
                 print(f"⏳ device_reconnect 第 {attempt}/3 次，等待 {wait_seconds}s 後重建連線...")
@@ -193,19 +202,27 @@ class BaseTestCase(UnittestModule):
             raise last_exc
 
     def _callTestMethod(self, method):
-        """iOS：WDA HTTP 斷線（如 RemoteDisconnected）時重連並重跑該測試方法一次。"""
-        if not self.phone_platform or str(self.phone_platform).lower() != 'ios':
+        """iOS/Android：裝置連線異常時重連並重跑該測試方法一次。"""
+        platform = str(self.phone_platform or '').lower()
+        if platform not in ('ios', 'android'):
             super()._callTestMethod(method)
             return
-        self._ios_wda_reconnect_done = False
+
+        reconnect_flag_attr = '_device_reconnect_done_for_test'
+        setattr(self, reconnect_flag_attr, False)
         try:
             super()._callTestMethod(method)
         except Exception as e:
-            if not is_ios_wda_connection_lost(e):
+            if getattr(self, reconnect_flag_attr, False):
                 raise
-            if self._ios_wda_reconnect_done:
+            is_connection_lost = (
+                is_ios_wda_connection_lost(e) if platform == 'ios'
+                else is_android_pocoservice_dead(e)
+            )
+            if not is_connection_lost:
                 raise
-            self._ios_wda_reconnect_done = True
-            print('⚠️  WDA 連線異常，嘗試 device_reconnect 後重跑該測試一次...')
+            setattr(self, reconnect_flag_attr, True)
+            label = 'WDA' if platform == 'ios' else 'pocoservice'
+            print(f'⚠️  {label} 連線異常，嘗試 device_reconnect 後重跑該測試一次...')
             self.device_reconnect()
             super()._callTestMethod(method)

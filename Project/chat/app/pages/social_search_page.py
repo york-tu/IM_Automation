@@ -161,10 +161,11 @@ class SocialSearchPage(Base):
     def check_search_post_result(self, nickname, description):
 
         if self.phone_platform.lower() == 'android':
-            sleep(2)
+            sleep(5)
             result_description = self.common.poco_get_text(SocialSearchPageLocator.search_post_result_description)
             result_nickname = self.common.poco_get_text(SocialSearchPageLocator.search_post_result_nickname)
         else:
+            sleep(5)
             result_description = self.poco(name='snsSearchPostResult_post_cell')[0].offspring(type='StaticText')[0].attr('value')
             result_nickname = self.poco(name='snsSearchPostResult_post_cell')[0].offspring(type='StaticText')[1].attr('value')
 

@@ -24,10 +24,10 @@ from jira.config.base_key import BaseKey
 
 # Test Setting
 env = 'prod'  # uat, prod
-brand = 'mee'  # gu, mee
+brand = 'gu'  # gu, mee
 user = 1
 test_type = 'wap'
-wap_version = '2.12.0'  # uat:2.11.0, prod:2.12.0
+wap_version = '2.13.0'  # uat:2.12.2, prod:2.13.0
 os_version = 'Win11'  # 作業系統
 platform = 'PC'  # 測試環境
 account_type = 'phone'  # 帳號類型: mail, phone...

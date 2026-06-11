@@ -92,10 +92,13 @@ class PersonalSettingPage(BasePage):
     def change_password(self, old_pwd, new_pwd):
 
         self.click(PersonalSettingPageLocator.change_pwd_btn)
-        self.wait_loading_finish()
+        sleep(1)
         self.type(PersonalSettingPageLocator.change_pwd_old_input, old_pwd)
+        sleep(0.5)
         self.type(PersonalSettingPageLocator.change_pwd_new_input, new_pwd)
+        sleep(0.5)
         self.type(PersonalSettingPageLocator.change_pwd_new_check_input, new_pwd)
+        sleep(0.5)
         self.click(PersonalSettingPageLocator.change_pwd_submit)
         sleep(1)
         if self.is_element_finded(PersonalSettingPageLocator.popup_dialog):

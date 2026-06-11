@@ -367,8 +367,7 @@ class Web2TestCase(BaseTestCase):
         self.function_dict['web2.0'].web2_main_page().into_main_page()
         others_counts = self.function_dict['web2.0'].web2_main_page().get_social_data()  # 取得他人主頁關注數/粉絲數/點贊數
         self.function_dict['web2.0'].web2_social_page().first_post_add_remove_like()  # 點贊第一則貼文
-        self.function_dict['web2.0'].web2_main_page().into_first_page()
-        self.function_dict['web2.0'].web2_main_page().into_main_page()
+
         others_counts_after = self.function_dict['web2.0'].web2_main_page().get_social_data()  # 取得他人主頁關注數/粉絲數/點贊數
         assert int(others_counts_after[2]) == int(others_counts[2]) + 1, '贊數未正確更新'  # 確認主頁贊數+1
         # ----------- 確認該貼文出現在已贊媒體櫃 -----------

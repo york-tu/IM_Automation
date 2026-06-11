@@ -28,4 +28,5 @@ class FirstPage(BasePage):
         else:
             if self.is_element_finded(FirstPageLocator.multiple_post_mode):
                 self.click(FirstPageLocator.switch_display_mode_btn)
+                sleep(0.5)
             assert self.is_element_finded(FirstPageLocator.single_post_mode)

@@ -141,8 +141,8 @@ s2_group_chat_regression_list = [
 ]
 # -------------- 發現設定測試 --------------
 s2_discover_regression_list = [
-    ContextTestCase("test_discover_list"),  # 後台切換發現功能 > 前台確認排序
-    AppTestCase("test_discover_floating_icon"),  # 確認功能懸浮按鈕與選單
+    ContextTestCase("test_discover_list"),  # 後台切換發現功能 > 前台確認排序  # skip in mee,chit
+    AppTestCase("test_discover_floating_icon"),  # 確認功能懸浮按鈕與選單  #  skip in mee,chit
 ]
 # -------------- 社群相關功能測試 --------------
 s2_social_regression_list = [
@@ -203,7 +203,7 @@ if __name__ == '__main__':
     suite_s1 = unittest.TestSuite()
     suite_s1.addTests(s1_test_cases)  # total 45*s1
     suite_s2 = unittest.TestSuite()
-    suite_s2.addTests(s2_test_cases)  # total 47*s2 + 3*s1
+    suite_s2.addTests(s2_test_cases)  # total 47*s2 + 4*s1
 
     # S1：跑完 + retry 失敗案例 → 發 S1 報告到 Slack
     Utils.unittest_xml_with_retry_and_slack(suite_s1, report_label='S1', run_check_last_result=True)

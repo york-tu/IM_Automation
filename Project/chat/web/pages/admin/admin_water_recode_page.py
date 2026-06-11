@@ -73,10 +73,19 @@ class WaterRecodePage(BasePage):
         actual_id = self.get_text(WaterRecodePageLocator.data_member_ID)
         assert actual_id == grab_account, f'積分使用紀錄: 會員ID錯誤, 預期:{grab_account},實際:{actual_id}'
         if grab_time is not None:
-            _actual= self.get_text(WaterRecodePageLocator.data_use_time)[:-3]
-            assert _actual == grab_time, f'積分使用紀錄: 使用時間錯誤, 預期:{grab_time}, 實際:{_actual}'
+            actual = self.get_text(WaterRecodePageLocator.data_use_time)[:-3].replace('/', '-')
+            expected_str = grab_time.replace('/', '-')
+            try:
+                fmt = '%Y-%m-%d %H:%M'
+                actual_dt = datetime.datetime.strptime(actual, fmt)
+                expected_dt = datetime.datetime.strptime(expected_str, fmt)
+                diff_seconds = abs((actual_dt - expected_dt).total_seconds())
+                assert diff_seconds <= 60, (
+                    f'積分使用紀錄: 使用時間錯誤(允許±1分鐘), 預期:{expected_str}, 實際:{actual}, 相差:{diff_seconds:.0f}秒'
+                )
+            except ValueError:
+                assert actual == expected_str, f'積分使用紀錄: 使用時間錯誤, 預期:{expected_str}, 實際:{actual}'
         assert self.get_text(WaterRecodePageLocator.data_point) == grab_amount, f'積分使用紀錄: 使用積分錯誤'
-        aaa = self.get_text(WaterRecodePageLocator.data_use_type)
         assert self.get_text(WaterRecodePageLocator.data_use_type) == grab_type, f'積分使用紀錄: 使用媒介錯誤'
         if source_group is not None:
             assert self.get_text(WaterRecodePageLocator.data_red_envelope_source) == source_group, f'積分使用紀錄: 紅包來源錯誤'

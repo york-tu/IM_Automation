@@ -30,7 +30,6 @@ class MainPageLocator:
     input_descriptions = (By.XPATH, "//textarea[@placeholder='请输入个人简介']")  # 編輯主頁-輸入個人簡介
     save_btn = (By.XPATH, "//button[text()='保存']")
     # ==================== 發布頁 ====================
-    # upload_btn = (By.XPATH, "//button[text()='上传']")  # 發布>上傳鍵
     post_via_video = (By.XPATH, "//span[text()='视频']")  # 發布>視頻
     post_via_photo = (By.XPATH, "//span[text()='照片']")  # 發布>照片
     input_post_descriptions = (By.XPATH, "//textarea[@placeholder='输入正文描述']")  # 發布頁-撰寫說明
@@ -155,6 +154,7 @@ class MainPage(BasePage):
         return self.get_text(MainPageLocator.descriptions)
 
     def get_social_data(self):
+        sleep(1)
         main_page_followed_counts = self.get_text(MainPageLocator.counts_following)
         main_page_fans_counts = self.get_text(MainPageLocator.counts_fans)
         main_page_likes_counts = self.get_text(MainPageLocator.counts_likes)

@@ -27,12 +27,12 @@ logging.getLogger("airtest").setLevel(logging.WARNING)
 
 # Test Setting
 env = 'uat'
-brand = 'gu'  # gu > chit
+brand = 'gu'  # gu > chit > mee
 user = 1
 connect_type = 'local'  # 手機連線模式 remote or local
 phone_name = 'IPHONE_15_PRO'  # 手機型號 'IPHONE_15_PRO (ios26.3)', 'IPHONE_73 (ios16.1.1)', 'IPHONE_11_PRO (ios15)'
 phone_platform = 'iOS'  # 手機作業系統
-app_version = '5.22.0(115183.116)'  # 版本號 mee/chit: 115183.116
+app_version = '5.22.0(115634.116)'  # 版本號 mee/chit: 115183.116, gu:115634.116
 account_type = 'phone'  # 帳號類型: email, phone...
 push = True  # 將結果推倒jira, 預設請給予 True
 
@@ -135,8 +135,8 @@ s2_group_chat_regression_list = [
 ]
 # -------------- 發現設定測試 --------------
 s2_discover_regression_list = [
-    ContextTestCase("test_discover_list"),  # 後台切換發現功能 > 前台確認排序
-    AppTestCase("test_discover_floating_icon"),  # 確認功能懸浮按鈕與選單
+    ContextTestCase("test_discover_list"),  # 後台切換發現功能 > 前台確認排序, skip in mee,chit
+    AppTestCase("test_discover_floating_icon"),  # 確認功能懸浮按鈕與選單, skip in mee,chit
 ]
 # -------------- 社群相關功能測試 --------------
 s2_social_regression_list = [
@@ -197,6 +197,6 @@ if __name__ == '__main__':
     suite_s2.addTests(s2_test_cases)  # total 39*s2 + 3*s1
 
     # S1：跑完 + retry 失敗案例 → 發 S1 報告到 Slack
-    # Utils.unittest_xml_with_retry_and_slack(suite_s1, report_label='S1', run_check_last_result=True)
+    Utils.unittest_xml_with_retry_and_slack(suite_s1, report_label='S1', run_check_last_result=True)
     # S2：跑完 + retry 失敗案例 → 發 S2 報告到 Slack，並執行 Jira check_last_result
     Utils.unittest_xml_with_retry_and_slack(suite_s2, report_label='S2', run_check_last_result=True)

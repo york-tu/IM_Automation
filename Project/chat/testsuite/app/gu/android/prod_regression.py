@@ -27,7 +27,7 @@ logging.getLogger("airtest").setLevel(logging.WARNING)
 
 # Test Setting
 env = 'prod'
-brand = 'chit'  # gu, mee, chit
+brand = 'gu'  # gu, mee, chit
 user = 1
 connect_type = 'local'  # 手機連線模式
 phone_name = 'HUAWEI_MATE_30_PRO_5G'  # 手機型號
@@ -73,7 +73,7 @@ Prod_regression_list = [
     AppTestCase('test_file_message_reply_group'),
     AppTestCase('test_file_message_delete_group'),
     AppTestCase('test_file_message_revoke_group'),
-    AppTestCase("test_discover_floating_icon"),  # 確認功能懸浮按鈕與選單
+    AppTestCase("test_discover_floating_icon"),  # 確認功能懸浮按鈕與選單, skip in mee, chit
     AppTestCase("test_delete_friend"),
     AppTestCase("test_logout"),
 ]
