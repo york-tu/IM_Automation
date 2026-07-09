@@ -48,13 +48,22 @@ pipeline {
             }
         }
 
-        stage('Run [GU][Android] Prod Regression') {
+        stage('執行 Prod 股聊 Android端 回歸測試') {
             steps {
                 bat '''
                     cd /d "%WORKSPACE%"
                     call .venv\\Scripts\\activate.bat
-                    echo Run [GU][Android] Prod Regression Test
                     python Project\\chat\\testsuite\\app\\gu\\android\\prod_regression.py
+                '''
+            }
+        }
+
+        stage('執行 Prod 股聊 Web端 回歸測試') {
+            steps {
+                bat '''
+                    cd /d "%WORKSPACE%"
+                    call .venv\\Scripts\\activate.bat
+                    python Project\\chat\\testsuite\\web\\gu\\prod_regression.py
                 '''
             }
         }
