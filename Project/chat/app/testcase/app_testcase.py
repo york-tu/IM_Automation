@@ -12,6 +12,7 @@ sys.path.append(root_path)
 
 import common.utils.globalvar as gl
 import stf_api.stf as stf
+from common.utils.utils import install_pocoservice_output_filter
 from driver.app_driver import (
     AppDriver,
     is_ios_wda_connection_lost,
@@ -29,6 +30,7 @@ class AppTestCase(BaseTestCase):
     
     @classmethod
     def setUpClass(cls):
+        install_pocoservice_output_filter()
         cls.setting_test_data()  # 設定測試數據
         app_dr = AppDriver()
         # if cls.phone_platform == 'Android':

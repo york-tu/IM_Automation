@@ -21,6 +21,7 @@ from Project.chat.web.pages.pages import WebPages, AdminPages
 from Project.chat.web.pages.webs.web_basepage import BasePage as BasePage_Web
 from Project.chat.web.pages.admin.admin_basepage import BasePage as BasePage_Admin
 from Project.chat.app.testcase.app_testcase import AppTestCase
+from common.utils.utils import install_pocoservice_output_filter
 from airtest.core.api import snapshot, stop_app, clear_app, connect_device, install
 root_path = os.path.dirname(
     os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
@@ -43,6 +44,7 @@ class ContextTestCase(BaseTestCase, BasePage_Web, BasePage_Admin):
 
     @classmethod
     def setUpClass(cls):
+        install_pocoservice_output_filter()
         # web
         cls.setting_test_data()  # 設定測試數據
         app_dr = AppDriver()

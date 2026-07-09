@@ -1,4 +1,5 @@
-import os, sys, unittest
+import json
+import os, sys, unittest, platform, subprocess, tempfile
 import logging, wda
 import time
 import common.utils.globalvar as gl
@@ -55,6 +56,273 @@ def is_ios_wda_connection_lost(exc):
     ):
         return True
     return False
+
+
+def resolve_ios_wda_client_url():
+    """組出 wda.Client 使用的 URL（優先回傳上次探活成功的 URL）。"""
+    cached = gl.get_value('WDA_ACTIVE_URL')
+    if cached:
+        return cached
+    urls = resolve_ios_wda_client_urls()
+    return urls[0] if urls else 'http://127.0.0.1:8100'
+
+
+def resolve_ios_wda_client_urls():
+    """列出可嘗試的 WDA URL（usbmux / localhost / 設定檔 port）。"""
+    urls = []
+    seen = set()
+
+    def _add(url):
+        if url and url not in seen:
+            seen.add(url)
+            urls.append(url)
+
+    wda_port = gl.get_value('WDA_PORT')
+    phone_name = gl.get_value('PHONE_NAME')
+    connect_type = gl.get_value('CONNECT_TYPE')
+    connection = Setting_Phone().get_phone_connect_link(
+        phone_name, gl.get_value('PHONE_REMOTE_IP'), connect_type,
+    )
+    try:
+        conf = Setting_Phone().get_device_conf().get('Phone_conf', {})
+        device = conf.get(phone_name, {}) if phone_name else {}
+    except Exception:
+        device = {}
+    port = wda_port or device.get('port', 8100)
+    udid = device.get('udid')
+
+    if udid:
+        _add(f'http+usbmux://{udid}')
+    _add(f'http://127.0.0.1:{port}')
+    _add(connection.split('///')[-1])
+    cached = gl.get_value('WDA_ACTIVE_URL')
+    if cached:
+        urls.insert(0, cached)
+        # 去重保留順序
+        deduped = []
+        seen.clear()
+        for u in urls:
+            if u not in seen:
+                seen.add(u)
+                deduped.append(u)
+        return deduped
+    return urls
+
+
+def wait_for_ios_wda_ready(timeout=90, interval=2, wda_process=None):
+    """輪詢 WDA /status（多 URL），直到就緒或逾時。回傳 bool。"""
+    if gl.get_value('PHONE_PLATFORM') != 'iOS':
+        return True
+    urls = resolve_ios_wda_client_urls()
+    deadline = time.time() + timeout
+    attempt = 0
+    last_err = None
+    while time.time() < deadline:
+        attempt += 1
+        if wda_process is not None and wda_process.poll() is not None:
+            print(f'❌ go-ios runwda 已結束 (exit={wda_process.returncode})')
+            print_go_ios_failure_logs()
+            gl.set_value('WDA_START_FAILED', True)
+            return False
+
+        for url in urls:
+            try:
+                client = wda.Client(url)
+                client.status()
+                print(f'✅ WDA 已就緒 (URL: {url}, 第 {attempt} 次探活)')
+                gl.set_value('WDA_ACTIVE_URL', url)
+                gl.set_value('WDA_START_FAILED', False)
+                return True
+            except Exception as e:
+                last_err = e
+
+        if attempt == 1 or attempt % 5 == 0:
+            print(f'⏳ 等待 WDA 就緒... ({attempt} 次) {last_err}')
+        time.sleep(interval)
+
+    print(f'❌ WDA 在 {timeout}s 內未就緒 (嘗試 URL: {urls}): {last_err}')
+    print_go_ios_failure_logs()
+    gl.set_value('WDA_START_FAILED', True)
+    return False
+
+
+def _read_log_tail(path, max_lines=40):
+    if not path or not os.path.isfile(path):
+        return ''
+    try:
+        with open(path, 'r', encoding='utf-8', errors='ignore') as f:
+            lines = f.readlines()
+        return ''.join(lines[-max_lines:]).strip()
+    except Exception:
+        return ''
+
+
+def print_go_ios_failure_logs():
+    """印出 tunnel / runwda 相關 log 尾端，方便排查 go-ios 失敗。"""
+    for label, key in (
+        ('runwda', 'WDA_RUN_LOG_PATH'),
+        ('tunnel', 'IOS_TUNNEL_LOG_PATH'),
+    ):
+        path = gl.get_value(key)
+        tail = _read_log_tail(path)
+        if tail:
+            print(f'--- {label} log ({path}) ---')
+            print(tail)
+            print(f'--- end {label} log ---')
+        err_tail = _read_log_tail(f'{path}.err') if path else ''
+        if err_tail:
+            print(f'--- {label} stderr ({path}.err) ---')
+            print(err_tail)
+            print(f'--- end {label} stderr ---')
+
+
+def go_ios_env():
+    env = os.environ.copy()
+    env.setdefault('IOS_DEVICE_TUNNEL_FORCE_IPV4', '1')
+    env.setdefault('ENABLE_GO_IOS_AGENT', 'user')
+    return env
+
+
+def _go_ios_popen_kwargs(go_ios_dir, env):
+    kwargs = {'cwd': str(go_ios_dir), 'env': env}
+    if platform.system() == 'Windows':
+        kwargs['creationflags'] = subprocess.CREATE_NO_WINDOW
+    return kwargs
+
+
+def _parse_json_array_from_output(text):
+    if not text:
+        return []
+    start = text.find('[')
+    if start == -1:
+        return []
+    try:
+        return json.loads(text[start:])
+    except Exception:
+        return []
+
+
+def ios_tunnel_list(ios_exe, go_ios_dir, env):
+    try:
+        r = subprocess.run(
+            [str(ios_exe), 'tunnel', 'ls'],
+            capture_output=True, text=True, timeout=25,
+            cwd=str(go_ios_dir), env=env,
+        )
+        combined = (r.stdout or '') + '\n' + (r.stderr or '')
+        return _parse_json_array_from_output(combined)
+    except Exception as e:
+        print(f'⚠️  ios tunnel ls 失敗: {e}')
+        return []
+
+
+def ios_tunnel_ready(ios_exe, udid, go_ios_dir, env):
+    return any(t.get('udid') == udid for t in ios_tunnel_list(ios_exe, go_ios_dir, env))
+
+
+def wait_for_ios_tunnel(ios_exe, udid, go_ios_dir, env, timeout=45, interval=2):
+    deadline = time.time() + timeout
+    while time.time() < deadline:
+        if ios_tunnel_ready(ios_exe, udid, go_ios_dir, env):
+            return True
+        time.sleep(interval)
+    return False
+
+
+def kill_go_ios_processes():
+    print('🔹 終止現有的 ios.exe 進程...')
+    try:
+        if platform.system() == 'Windows':
+            subprocess.run(['taskkill', '/F', '/IM', 'ios.exe'], capture_output=True, check=False)
+        else:
+            subprocess.run(['pkill', '-f', 'ios.exe'], capture_output=True, check=False)
+    except Exception:
+        pass
+    gl.set_value('IOS_TUNNEL_PROCESS', None)
+    gl.set_value('WDA_RUN_PROCESS', None)
+    time.sleep(2)
+
+
+def _is_tcp_port_open(host, port, timeout=1.0):
+    import socket
+    try:
+        with socket.create_connection((host, int(port)), timeout=timeout):
+            return True
+    except OSError:
+        return False
+
+
+def _tunnel_log_port_conflict(tunnel_log):
+    text = _read_log_tail(tunnel_log, max_lines=50)
+    if not text:
+        return False
+    lower = text.lower()
+    return '60105' in text and ('bind' in lower or 'only one usage' in lower)
+
+
+def _wait_port_closed(host, port, timeout=15, interval=0.5):
+    deadline = time.time() + timeout
+    while time.time() < deadline:
+        if not _is_tcp_port_open(host, port, timeout=0.5):
+            return True
+        time.sleep(interval)
+    return False
+
+
+def _start_ios_tunnel_process(ios_exe, udid, go_ios_dir, env):
+    """在 60105 已釋放後啟動 tunnel start，並等待 tunnel ls 出現裝置。"""
+    print('🔹 啟動 go-ios userspace tunnel...')
+    tunnel_log_fd, tunnel_log = tempfile.mkstemp(suffix='.log', prefix='goios_tunnel_')
+    os.close(tunnel_log_fd)
+    gl.set_value('IOS_TUNNEL_LOG_PATH', tunnel_log)
+
+    tunnel_cmd = [str(ios_exe), 'tunnel', 'start', '--udid', udid, '--userspace']
+    tunnel_log_f = open(tunnel_log, 'a', encoding='utf-8')
+    tunnel_proc = subprocess.Popen(
+        tunnel_cmd,
+        stdout=tunnel_log_f,
+        stderr=subprocess.STDOUT,
+        **_go_ios_popen_kwargs(go_ios_dir, env),
+    )
+    gl.set_value('IOS_TUNNEL_PROCESS', tunnel_proc)
+
+    if wait_for_ios_tunnel(ios_exe, udid, go_ios_dir, env, timeout=90):
+        print('✅ go-ios tunnel 就緒')
+        return True
+
+    # tunnel 程序已退出或 bind 60105 → 若 agent 其實已在，再查一次 ls
+    if _tunnel_log_port_conflict(tunnel_log) or tunnel_proc.poll() is not None:
+        if ios_tunnel_ready(ios_exe, udid, go_ios_dir, env):
+            print('✅ go-ios tunnel 就緒 (tunnel ls 確認)')
+            return True
+
+    print('❌ go-ios tunnel 啟動逾時')
+    print_go_ios_failure_logs()
+    return False
+
+
+def ensure_ios_tunnel(ios_exe, udid, go_ios_dir, env, force_restart=False):
+    """確保 go-ios userspace tunnel 就緒。"""
+    if force_restart:
+        kill_go_ios_processes()
+        _wait_port_closed('127.0.0.1', 60105)
+
+    if ios_tunnel_ready(ios_exe, udid, go_ios_dir, env):
+        print('✅ go-ios tunnel 已在運行 (tunnel ls)')
+        return True
+
+    # 60105 有 agent 但 tunnel ls 為空 = 僵死 agent，必須先殺掉，不可再 tunnel start
+    if _is_tcp_port_open('127.0.0.1', 60105):
+        if wait_for_ios_tunnel(ios_exe, udid, go_ios_dir, env, timeout=10):
+            print('✅ go-ios tunnel 就緒 (重用 agent)')
+            return True
+        print('⚠️  60105 有 go-ios agent 但 tunnel ls 無裝置，重啟 ios.exe...')
+        kill_go_ios_processes()
+        if not _wait_port_closed('127.0.0.1', 60105):
+            print('❌ 60105 仍被占用，請手動結束 ios.exe 後重試')
+            return False
+
+    return _start_ios_tunnel_process(ios_exe, udid, go_ios_dir, env)
 
 
 def is_android_pocoservice_dead(exc):
@@ -284,37 +552,47 @@ class AppDriver(UnittestModule):
         elif 'POCO' in (gl.get_value('PHONE_NAME') or ''):
             cap_method = 'javacap'
 
-        # 檢查 WDA 是否啟動失敗
-        wda_start_failed = gl.get_value('WDA_START_FAILED', False)
-        if wda_start_failed and gl.get_value("PHONE_PLATFORM") == 'iOS':
-            error_msg = "WDA 啟動失敗，無法連接設備。請檢查 tunnel 是否正確啟動。"
-            raise Exception(error_msg)
-        
-        max_retries = 3
+        # iOS：若上次 WDA 啟動失敗，在連線前再嘗試一次（不要直接 abort）
+        if gl.get_value('WDA_START_FAILED') and gl.get_value("PHONE_PLATFORM") == 'iOS':
+            print('⚠️  上次 WDA 啟動未成功，連線前重新嘗試 start_wda_for_ios...')
+            gl.set_value('WDA_START_FAILED', False)
+            from common.utils.utils import Utils
+            Utils.start_wda_for_ios()
+
+        if gl.get_value("PHONE_PLATFORM") == 'iOS':
+            if not wait_for_ios_wda_ready(timeout=30):
+                from common.utils.utils import Utils
+                print('⚠️  WDA 尚未就緒，嘗試啟動 go-ios WDA...')
+                Utils.start_wda_for_ios()
+                if not wait_for_ios_wda_ready(timeout=90):
+                    raise Exception(
+                        'WDA 啟動後仍無法連線 (port:8100 is not ready)，請檢查裝置、USB 與 go-ios tunnel'
+                    )
+
+        max_retries = 5 if gl.get_value("PHONE_PLATFORM") == 'iOS' else 3
         retry_count = 0
-        wda_restarted = False
+        wda_restart_count = 0
         while retry_count < max_retries:
             try:
                 auto_setup(__file__, logdir=False, devices=[f'{self.connection}?cap_method={cap_method}']) # Airtest 連線手機
                 break
             except Exception as e:
-                # iOS 遇到 WDA/usbmux/HTTP 連線異常時，嘗試先重啟 WDA 再重試連線
+                # iOS 遇到 WDA/usbmux/HTTP 連線異常時，嘗試重啟 WDA 再重試連線
                 if (gl.get_value("PHONE_PLATFORM") == 'iOS'
-                        and not wda_restarted
-                        and is_ios_wda_connection_lost(e)):
+                        and is_ios_wda_connection_lost(e)
+                        and wda_restart_count < 2):
                     try:
                         from common.utils.utils import Utils
-                        print("⚠️  偵測到 iOS WDA 連線異常，嘗試重啟 WDA 後重連...")
+                        print(f"⚠️  偵測到 iOS WDA 連線異常，嘗試重啟 WDA 後重連... ({wda_restart_count + 1}/2)")
                         Utils.start_wda_for_ios()
-                        wda_restarted = True
+                        wda_restart_count += 1
                     except Exception:
-                        # 重啟失敗不阻斷重試流程，交由原有重試次數控制
                         pass
                 retry_count += 1
                 if retry_count >= max_retries:
                     raise
-                logging.exception('exception log')
-                time.sleep(2)  # 等待 2 秒後重試
+                logging.warning('連線重試 %s/%s: %s', retry_count, max_retries, e)
+                time.sleep(3 if gl.get_value("PHONE_PLATFORM") == 'iOS' else 2)
 
         if gl.get_value("PHONE_PLATFORM") == 'Android':
             # Android 設備：自動喚醒屏幕（如果處於待機狀態）
@@ -342,25 +620,12 @@ class AppDriver(UnittestModule):
             if not self.poco:
                 self.poco = iosPoco()
             if not self.wda_service:
-                # 檢查是否有動態設置的端口
-                wda_port = gl.get_value('WDA_PORT')
-                
-                if wda_port:
-                    # 如果使用 usbmux，需要構建正確的連接字符串
-                    # 格式: http://127.0.0.1:端口 或 http+usbmux://udid
-                    if 'usbmux' in self.connection:
-                        # usbmux 連接時，端口通過 usbmux 隧道自動轉發
-                        # 但我們需要確保 WDA 在正確的端口上運行
-                        wda_url = f'http://127.0.0.1:{wda_port}'
-                    else:
-                        wda_url = self.connection.split('///')[-1]
-                else:
-                    wda_url = self.connection.split('///')[-1]
+                wda_url = resolve_ios_wda_client_url()
                 
                 # 添加重試邏輯，等待 WDA 準備好
                 max_retries = 15  # 最多重試 15 次（30 秒）
                 retry_count = 0
-                wda_restarted = False
+                wda_restart_count = 0
                 while retry_count < max_retries:
                     try:
                         self.wda_service = wda.Client(wda_url)
@@ -378,16 +643,17 @@ class AppDriver(UnittestModule):
                             if not existing_version:
                                 print(f"⚠️  無法獲取 iOS 版本: {e}")
                         
-                        print(f"✅ WDA 連接成功 (端口: {wda_port or '默認'})")
+                        print(f"✅ WDA 連接成功 (URL: {wda_url})")
                         break
                     except Exception as e:
-                        # 僅在第一次遇到 WDA/usbmux/HTTP 斷線時重啟，避免無限反覆拉起
-                        if not wda_restarted and is_ios_wda_connection_lost(e):
+                        if (not wda_restart_count
+                                and is_ios_wda_connection_lost(e)
+                                and retry_count >= 3):
                             try:
                                 from common.utils.utils import Utils
                                 print("⚠️  WDA 尚未就緒/已斷線，嘗試重啟 WDA...")
                                 Utils.start_wda_for_ios()
-                                wda_restarted = True
+                                wda_restart_count = 1
                                 time.sleep(3)
                             except Exception:
                                 pass

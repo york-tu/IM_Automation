@@ -1,10 +1,33 @@
-import datetime, re, platform, os, sys, time, traceback, xmlrunner
+import datetime, re, platform, os, sys, time, traceback, xmlrunner, atexit
 DIR_NAME = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 sys.path.append(DIR_NAME)
 import common.utils.globalvar as gl
 from jira.jira_api import JiraApi
 from common.utils.retry_runner import RetryXMLTestRunner
 from configs.app.setting import Setting
+
+_ORIG_STDOUT = None
+_ORIG_STDERR = None
+_OUTPUT_FILTER_INSTALLED = False
+
+
+def install_pocoservice_output_filter():
+    """安裝全域 stdout/stderr 過濾器（程式結束前不還原，以攔截 poco atexit 輸出）。"""
+    global _ORIG_STDOUT, _ORIG_STDERR, _OUTPUT_FILTER_INSTALLED
+    if _OUTPUT_FILTER_INSTALLED:
+        return
+    _ORIG_STDOUT = sys.stdout
+    _ORIG_STDERR = sys.stderr
+    sys.stdout = FilteredStream(_ORIG_STDOUT)
+    sys.stderr = FilteredStream(_ORIG_STDERR)
+    _OUTPUT_FILTER_INSTALLED = True
+    atexit.register(_flush_output_filters)
+
+
+def _flush_output_filters():
+    for stream in (sys.stdout, sys.stderr):
+        if isinstance(stream, FilteredStream):
+            stream.flush()
 
 
 class FilteredStream(object):
@@ -13,19 +36,23 @@ class FilteredStream(object):
     def __init__(self, stream):
         self._stream = stream
         self._buffer = ''
-        self._last_was_blank = False
 
     def _should_skip(self, line):
-        s = line.strip()
         if '[pocoservice.apk]' in line:
             return True
-        if 'INSTRUMENTATION_RESULT' in line or ('Process crashed' in line and 'INSTRUMENTATION' in line):
+        if 'com.netease.open.pocoservice' in line:
+            return True
+        if 'INSTRUMENTATION_RESULT' in line or 'INSTRUMENTATION_CODE' in line:
+            return True
+        if 'Process crashed' in line:
+            return True
+        if 'still waiting for uiautomation ready' in line:
             return True
         if 'urllib3.connectionpool' in line and ('Retrying' in line or 'connection broken' in line):
             return True
         if 'NewConnectionError' in line or 'WinError 10061' in line:
             return True
-        if s == '':
+        if not line.strip():
             return True
         return False
 
@@ -86,6 +113,7 @@ class Utils(JiraApi):
             os.makedirs(folderpath)
 
         print(folderpath)
+        install_pocoservice_output_filter()
         runner = xmlrunner.XMLTestRunner(output=folderpath, verbosity=2)
         Utils.report = runner.run(suite)
         Utils.check_last_result(Utils)
@@ -209,19 +237,14 @@ class Utils(JiraApi):
         if not os.path.exists(folderpath):
             os.makedirs(folderpath)
         print(folderpath)
-        _orig_stdout, _orig_stderr = sys.stdout, sys.stderr
-        filtered_stdout = FilteredStream(_orig_stdout)
-        filtered_stderr = FilteredStream(_orig_stderr)
-        sys.stdout, sys.stderr = filtered_stdout, filtered_stderr
+        install_pocoservice_output_filter()
         runner = RetryXMLTestRunner(output=folderpath, verbosity=2, max_retries=1, retry_delay=5,
-                                    retry_groups=retry_groups, stream=filtered_stderr)
+                                    retry_groups=retry_groups, stream=sys.stderr)
         start_time = time.time()
         try:
             Utils.report = runner.run(suite)
         finally:
-            filtered_stdout.flush()
-            filtered_stderr.flush()
-            sys.stdout, sys.stderr = _orig_stdout, _orig_stderr
+            _flush_output_filters()
         time_taken = time.time() - start_time
         Utils.send_slack_notification(Utils.report, folderpath, report_label=report_label, time_taken=time_taken)
         if run_check_last_result:
@@ -408,6 +431,7 @@ class Utils(JiraApi):
         """
         import subprocess
         import time
+        import tempfile
         from pathlib import Path
         from common.utils.config_loader import ConfigLoader
         
@@ -463,91 +487,83 @@ class Utils(JiraApi):
                 print("請確認 go-ios 資料夾存在且包含 ios.exe")
                 return False
             
-            # WDA Bundle ID 配置
-            bundle_id = "com.YT.facebook.WebDriverAgentRunner.xctrunner"
-            testrunner_bundle_id = "com.YT.facebook.WebDriverAgentRunner.xctrunner"
-            xctest_config = "WebDriverAgentRunner.xctest"
-            
-            # 1. 終止現有的 ios.exe 進程
-            print("🔹 終止現有的 ios.exe 進程...")
-            try:
-                if platform.system() == 'Windows':
-                    subprocess.run(['taskkill', '/F', '/IM', 'ios.exe'], 
-                                 capture_output=True, check=False)
-                else:
-                    subprocess.run(['pkill', '-f', 'ios.exe'], 
-                                 capture_output=True, check=False)
-            except Exception:
-                pass  # 忽略錯誤，可能沒有運行中的進程
-            
-            # 2. 啟動 userspace tunnel
-            print("🔹 啟動 userspace tunnel...")
-            tunnel_cmd = [
-                str(ios_exe),
-                'tunnel', 'start',
-                '--udid', udid,
-                '--userspace'
-            ]
-            
-            # 在 Windows 上使用隱藏窗口啟動 tunnel（後台運行）
-            if platform.system() == 'Windows':
-                tunnel_process = subprocess.Popen(
-                    tunnel_cmd,
-                    cwd=str(go_ios_dir),
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE,
-                    creationflags=subprocess.CREATE_NO_WINDOW
-                )
+            # WDA Bundle ID（可在 phone_config.yml 以 wda_bundle_id 覆寫）
+            default_wda_bundle = 'com.vl.facebook.WebDriverAgentRunner.xctrunner'
+            bundle_id = device_config.get('wda_bundle_id') or default_wda_bundle
+            testrunner_bundle_id = device_config.get('wda_testrunner_bundle_id') or bundle_id
+            xctest_config = device_config.get('wda_xctest_config') or 'WebDriverAgentRunner.xctest'
+            print(f"📦 WDA Bundle: {bundle_id}")
+
+            from driver.app_driver import (
+                ensure_ios_tunnel,
+                wait_for_ios_wda_ready,
+                print_go_ios_failure_logs,
+                go_ios_env,
+                _go_ios_popen_kwargs,
+            )
+
+            go_ios_env = go_ios_env()
+            popen_kwargs = _go_ios_popen_kwargs(go_ios_dir, go_ios_env)
+
+            # 1. 確保 tunnel 就緒（僵死 agent / 60105 衝突會在 ensure 內自動處理）
+            if not ensure_ios_tunnel(ios_exe, udid, go_ios_dir, go_ios_env, force_restart=False):
+                gl.set_value('WDA_START_FAILED', True)
+                print("=" * 60 + "\n")
+                return False
+
+            # 2. 啟動 WDA（runwda 為長駐程序；勿用 PIPE）
+            wda_proc = gl.get_value('WDA_RUN_PROCESS')
+            if wda_proc is not None and wda_proc.poll() is None:
+                print('🔹 沿用執行中的 runwda 進程')
             else:
-                tunnel_process = subprocess.Popen(
-                    tunnel_cmd,
-                    cwd=str(go_ios_dir),
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE
-                )
-            
-            # 等待 tunnel 初始化
-            print("⏳ 等待 tunnel 初始化...")
-            time.sleep(5)
-            
-            # 3. 啟動 WDA
-            print("🔹 啟動 WebDriverAgent...")
-            wda_cmd = [
-                str(ios_exe),
-                'runwda',
-                '--udid', udid,
-                '--bundleid', bundle_id,
-                '--testrunnerbundleid', testrunner_bundle_id,
-                '--xctestconfig', xctest_config
-            ]
-            
-            # 啟動 WDA（非阻塞，讓它在後台運行）
-            if platform.system() == 'Windows':
+                print("🔹 啟動 WebDriverAgent (runwda)...")
+                log_fd, log_path = tempfile.mkstemp(suffix='.log', prefix='goios_runwda_')
+                os.close(log_fd)
+                gl.set_value('WDA_RUN_LOG_PATH', log_path)
+                wda_cmd = [
+                    str(ios_exe),
+                    'runwda',
+                    '--udid', udid,
+                    '--bundleid', bundle_id,
+                    '--testrunnerbundleid', testrunner_bundle_id,
+                    '--xctestconfig', xctest_config,
+                    '--log-output', log_path,
+                ]
+                wda_log_f = open(log_path, 'a', encoding='utf-8')
                 wda_process = subprocess.Popen(
                     wda_cmd,
-                    cwd=str(go_ios_dir),
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE,
-                    creationflags=subprocess.CREATE_NO_WINDOW
+                    stdout=wda_log_f,
+                    stderr=subprocess.STDOUT,
+                    **popen_kwargs,
                 )
-            else:
-                wda_process = subprocess.Popen(
-                    wda_cmd,
-                    cwd=str(go_ios_dir),
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE
-                )
-            
-            # 等待 WDA 啟動
-            print("⏳ 等待 WDA 啟動...")
-            time.sleep(10)
-            
-            print("✅ WDA 啟動完成")
+                gl.set_value('WDA_RUN_PROCESS', wda_process)
+                gl.set_value('WDA_PROCESS_PID', wda_process.pid)
+                time.sleep(3)
+                if wda_process.poll() is not None:
+                    print(f'❌ runwda 立即退出 (exit={wda_process.returncode})')
+                    print_go_ios_failure_logs()
+                    gl.set_value('WDA_START_FAILED', True)
+                    print("=" * 60 + "\n")
+                    return False
+
+            wda_process = gl.get_value('WDA_RUN_PROCESS')
+
+            # 3. 等待 WDA HTTP 就緒
+            print("⏳ 等待 WDA 啟動並探活...")
+            if wait_for_ios_wda_ready(timeout=120, interval=2, wda_process=wda_process):
+                print("✅ WDA 啟動完成")
+                print("=" * 60 + "\n")
+                return True
+
+            print("❌ WDA 啟動逾時，port:8100 未就緒")
+            print_go_ios_failure_logs()
+            gl.set_value('WDA_START_FAILED', True)
             print("=" * 60 + "\n")
-            return True
+            return False
             
         except Exception as e:
             print(f"❌ WDA 啟動失敗: {str(e)}")
+            gl.set_value('WDA_START_FAILED', True)
             import traceback
             traceback.print_exc()
             print("\n請檢查：")
