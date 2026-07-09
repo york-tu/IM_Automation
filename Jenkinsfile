@@ -1,6 +1,13 @@
 pipeline {
     agent any
 
+    parameters {
+        choice(
+            name: '執行裝置',
+            choices: ['android', 'web', 'both'],
+            description: '選擇要執行的回歸測試'
+        )
+    }
     environment {
         PY = 'C:\\Users\\york_tu\\AppData\\Local\\Programs\\Python\\Python38\\python.exe'
         TESTDATA_APP = 'C:\\ProgramData\\Jenkins\\testdata\\app'
@@ -49,6 +56,7 @@ pipeline {
         }
 
         stage('執行 Prod 股聊 Android端 回歸測試') {
+            when { expression { params.RUN_TARGET in ['android', 'both'] } }
             steps {
                 bat '''
                     cd /d "%WORKSPACE%"
@@ -59,6 +67,7 @@ pipeline {
         }
 
         stage('執行 Prod 股聊 Web端 回歸測試') {
+            when { expression { params.RUN_TARGET in ['web', 'both'] } }
             steps {
                 bat '''
                     cd /d "%WORKSPACE%"
