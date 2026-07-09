@@ -5,7 +5,12 @@ pipeline {
         choice(
             name: '執行裝置',
             choices: ['android', 'web', 'both'],
-            description: '選擇要執行的回歸測試'
+            description: '選擇要執行回歸測試的裝置'
+        )
+        choice(
+            name: '執行環境',
+            choices: ['uat', 'prod'],
+            description: '選擇要執行回歸測試的環境'
         )
     }
     environment {
@@ -55,25 +60,39 @@ pipeline {
             }
         }
 
-        stage('執行 Prod 股聊 Android端 回歸測試') {
-            when { expression { params.RUN_TARGET in ['android', 'both'] } }
+        stage('執行股聊 Android端 回歸測試') {
+            when {
+                expression { params.'執行裝置' in ['android', 'both'] }
+            }
             steps {
-                bat '''
-                    cd /d "%WORKSPACE%"
-                    call .venv\\Scripts\\activate.bat
-                    python Project\\chat\\testsuite\\app\\gu\\android\\prod_regression.py
-                '''
+                script {
+                    def envName = params.'執行環境'   // 'uat' 或 'prod'
+                    def scriptPath = "Project\\chat\\testsuite\\app\\gu\\android\\${envName}_regression.py"
+                    bat """
+                        cd /d "%WORKSPACE%"
+                        call .venv\\Scripts\\activate.bat
+                        echo Run Android ${envName}
+                        python ${scriptPath}
+                    """
+                }
             }
         }
 
-        stage('執行 Prod 股聊 Web端 回歸測試') {
-            when { expression { params.RUN_TARGET in ['web', 'both'] } }
+        stage('執行股聊 Web端 回歸測試') {
+            when {
+                expression { params.'執行裝置' in ['web', 'both'] }
+            }
             steps {
-                bat '''
-                    cd /d "%WORKSPACE%"
-                    call .venv\\Scripts\\activate.bat
-                    python Project\\chat\\testsuite\\web\\gu\\prod_regression.py
-                '''
+                script {
+                    def envName = params.'執行環境'
+                    def scriptPath = "Project\\chat\\testsuite\\web\\gu\\${envName}_regression.py"
+                    bat """
+                        cd /d "%WORKSPACE%"
+                        call .venv\\Scripts\\activate.bat
+                        echo Run Web ${envName}
+                        python ${scriptPath}
+                    """
+                }
             }
         }
     }
