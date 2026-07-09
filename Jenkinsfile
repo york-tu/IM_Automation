@@ -62,11 +62,11 @@ pipeline {
 
         stage('執行股聊 Android端 回歸測試') {
             when {
-                expression { params.'執行裝置' in ['android', 'both'] }
+                expression { params.'裝置' in ['android', 'both'] }
             }
             steps {
                 script {
-                    def envName = params.'執行環境'   // 'uat' 或 'prod'
+                    def envName = params.'環境'   // 'uat' 或 'prod'
                     def scriptPath = "Project\\chat\\testsuite\\app\\gu\\android\\${envName}_regression.py"
                     bat """
                         cd /d "%WORKSPACE%"
@@ -80,11 +80,11 @@ pipeline {
 
         stage('執行股聊 Web端 回歸測試') {
             when {
-                expression { params.'執行裝置' in ['web', 'both'] }
+                expression { params.'裝置' in ['web', 'both'] }
             }
             steps {
                 script {
-                    def envName = params.'執行環境'
+                    def envName = params.'環境'
                     def scriptPath = "Project\\chat\\testsuite\\web\\gu\\${envName}_regression.py"
                     bat """
                         cd /d "%WORKSPACE%"
