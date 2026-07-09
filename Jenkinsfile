@@ -1,7 +1,5 @@
 pipeline {
-    agent {
-        label 'windows'   // 改成你 Jenkins 節點的 label；若只有 master 可寫 'built-in' 或省略用 any
-    }
+    agent any
 
     environment {
         PY = 'C:\\Users\\york_tu\\AppData\\Local\\Programs\\Python\\Python38\\python.exe'
