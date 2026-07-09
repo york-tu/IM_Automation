@@ -3,14 +3,14 @@ pipeline {
 
     parameters {
         choice(
-            name: '執行裝置',
+            name: '裝置',
             choices: ['android', 'web', 'both'],
-            description: '選擇要執行回歸測試的裝置'
+            description: '選擇要執行測試的裝置'
         )
         choice(
-            name: '執行環境',
+            name: '環境',
             choices: ['uat', 'prod'],
-            description: '選擇要執行回歸測試的環境'
+            description: '選擇要執行測試的環境'
         )
     }
     environment {
