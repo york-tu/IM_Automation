@@ -9,7 +9,7 @@ pipeline {
         )
         choice(
             name: '環境',
-            choices: ['uat', 'prod'],
+            choices: ['prod', 'uat'],
             description: '選擇要執行測試的環境'
         )
     }
